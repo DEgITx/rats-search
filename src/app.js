@@ -1,21 +1,22 @@
 import React, { Component } from 'react';
 import './app.css';
+import './router';
+import PagesPie from './pages-pie.js';
 
 var io = require("socket.io-client");
 window.torrentSocket = io('http://localhost:8099/');
 
-import RecentTorrents from './recent-torrents'
-import Search from './search'
-
 class App extends Component {
-  render() {
-    return (
-      <div className="App">
-      	<RecentTorrents />
-      	<Search />
-      </div>
-    );
-  }
+	componentDidMount() {
+		window.router()
+	}
+	render() {
+		return (
+			<div className="App">
+				<PagesPie />
+			</div>
+		);
+	}
 }
 
 export default App;

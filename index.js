@@ -33,7 +33,8 @@ io.on('connection', function(socket)
 	  		name: row.name,
 			size: row.size,
 			files: row.files,
-			piecelength: row.piecelength
+			filesList: row.filesList,
+			piecelength: row.piecelength,
 		}
 	}
 
@@ -49,15 +50,26 @@ io.on('connection', function(socket)
 		});
 	});
 
-	socket.on('torrent', function(hash, callback)
+	socket.on('torrent', function(hash, options, callback)
 	{
 		connection.query('SELECT * FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
 		  if(rows.length == 0) {
 		  	callback(undefined);
 		  	return;
 		  }
+		  let torrent = rows[0];
 
-		  callback(baseRowData(rows[0]))
+		  if(options.files)
+		  {
+			  connection.query('SELECT * FROM `files` WHERE `hash` = ?', hash, function (error, rows, fields) {
+				  torrent.filesList = rows;
+				  callback(baseRowData(torrent))
+			  });
+		  }
+		  else
+		  {
+		  	  callback(baseRowData(torrent))
+		  }
 		});
 	});
 
@@ -109,23 +121,41 @@ connection.connect(function(err) {
 			filesCount = metadata.info.files.length;
 			size = 0;
 
-			connection.query('DELETE FROM files WHERE hash = :hash', {hash: hash}, function (err, result) {
+			connection.query('DELETE FROM files WHERE hash = ?', hash, function (err, result) {
 
 			})
 			for(let i = 0; i < metadata.info.files.length; i++)
 			{
 				let file = metadata.info.files[i];
+				let filePath = file.path.join('/');
 				let fileQ = {
 					hash: hash,
-					path: file.path,
+					path: filePath,
 					size: file.length,
 				};
 				let query = connection.query('INSERT INTO files SET ?', fileQ, function(err, result) {
-				  // Neat! 
+				  if(!result) {
+				  	console.log(fileQ);
+				  	console.error(err);
+				  }
 				});
 
 				size += file.length;
 			}
+		}
+		else
+		{
+			let fileQ = {
+				hash: hash,
+				path: metadata.info.name,
+				size: size,
+			};
+			let query = connection.query('INSERT INTO files SET ?', fileQ, function(err, result) {
+			  if(!result) {
+			  	console.log(fileQ);
+			  	console.error(err);
+			  }
+			});
 		}
 
 		var torrentQ = {
@@ -137,7 +167,7 @@ connection.connect(function(err) {
 			ipv4: rinfo.address,
 			port: rinfo.port
 		};
-		var query = connection.query('INSERT INTO torrents SET ?', torrentQ, function(err, result) {
+		var query = connection.query('INSERT INTO torrents SET ? ON DUPLICATE KEY UPDATE hash=hash', torrentQ, function(err, result) {
 		  if(result) {
 		  	io.sockets.emit('newTorrent', {
 		  		hash: hash,
@@ -146,6 +176,11 @@ connection.connect(function(err) {
 				files: filesCount,
 				piecelength: metadata.info['piece length']
 		  	});
+		  }
+		  else
+		  {
+		  	console.log(torrentQ);
+		  	console.error(err);
 		  }
 		});
 	});
