@@ -12,7 +12,7 @@ server.listen(8099);
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
-  password : '',
+  password : 'degitisi',
   database : 'btsearch'
 });
 
@@ -26,18 +26,23 @@ app.use(express.static('build'));
 
 io.on('connection', function(socket)
 {
+	function baseRowData(row)
+	{
+		return {
+			hash: row.hash,
+	  		name: row.name,
+			size: row.size,
+			files: row.files,
+			piecelength: row.piecelength
+		}
+	}
+
 	socket.on('recentTorrents', function(callback)
 	{
 		connection.query('SELECT * FROM `torrents` ORDER BY added DESC LIMIT 0,10', function (error, rows, fields) {
 		  let torrents = [];
 		  rows.forEach((row) => {
-		  	torrents.push({
-		  		hash: row.hash,
-		  		name: row.name,
-				size: row.size,
-				files: row.files,
-				piecelength: row.piecelength,
-		  	});
+		  	torrents.push(baseRowData(row));
 		  });
 
 		  callback(torrents)
@@ -52,13 +57,34 @@ io.on('connection', function(socket)
 		  	return;
 		  }
 
-		  callback({
-		  		hash: rows[0].hash,
-		  		name: rows[0].name,
-				size: rows[0].size,
-				files: rows[0].files,
-				piecelength: rows[0].piecelength,
-		  	})
+		  callback(baseRowData(rows[0]))
+		});
+	});
+
+	socket.on('search', function(text, callback)
+	{
+		let search = {};
+
+		console.log(text);
+		let q = 2;
+		connection.query('SELECT * FROM `torrents` WHERE MATCH(`name`) AGAINST(?)', text, function (error, rows, fields) {
+			rows.forEach((row) => {
+		  		search[row.hash] = baseRowData(row);
+		  	});
+		  	if(--q == 0)
+		  		callback(Object.keys(search).map(function(key) {
+				    return search[key];
+				}));
+		});
+		connection.query('SELECT * FROM `files` INNER JOIN torrents ON(torrents.hash = files.hash) WHERE MATCH(`path`) AGAINST(?)', text, function (error, rows, fields) {
+			rows.forEach((row) => {
+		  		search[row.hash] = baseRowData(row);
+		  		search[row.hash].path = row.path;
+		  	});
+		  	if(--q == 0)
+		  		callback(Object.keys(search).map(function(key) {
+				    return search[key];
+				}));
 		});
 	});
 });
@@ -126,5 +152,5 @@ connection.connect(function(err) {
 
 	// spider.on('nodes', (nodes)=>console.log('foundNodes'))
 
-	spider.listen(4445)
+	//spider.listen(4445)
 });
