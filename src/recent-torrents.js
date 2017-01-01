@@ -23,7 +23,7 @@ export default class RecentTorrents extends Component {
       {
       	this.torrents.map((torrent, index) =>{
       		return(
-      			<div key={index}>
+      			<div key={index} className='clickable' onClick={() => window.router('/torrent/' + torrent.hash)}>
       			{torrent.name}
       			</div>
       		);
