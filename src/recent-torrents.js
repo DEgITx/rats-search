@@ -1,4 +1,15 @@
 import React, { Component } from 'react';
+import formatBytes from './format-bytes'
+
+const TorrentLine = (props) => {
+  const torrent = props.torrent;
+  return (
+    <div className='clickable row inline fs0-85 pad0-25' onClick={() => window.router('/torrent/' + torrent.hash)}>
+        <div>{torrent.name}</div>
+        <div style={{marginLeft: '8px'}}>({formatBytes(torrent.size, 1)})</div>
+    </div>
+  )
+}
 
 export default class RecentTorrents extends Component {
   constructor() {
@@ -22,11 +33,7 @@ export default class RecentTorrents extends Component {
       <div className="list column">
       {
       	this.torrents.map((torrent, index) =>{
-      		return(
-      			<div key={index} className='clickable' onClick={() => window.router('/torrent/' + torrent.hash)}>
-      			{torrent.name}
-      			</div>
-      		);
+      		return <TorrentLine key={index} torrent={torrent} />;
       	})
       }
       </div>

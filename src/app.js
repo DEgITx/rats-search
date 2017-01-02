@@ -4,7 +4,7 @@ import './router';
 import PagesPie from './pages-pie.js';
 
 var io = require("socket.io-client");
-window.torrentSocket = io('http://localhost:8099/');
+window.torrentSocket = io('http://' + document.location.hostname + ':8095/');
 
 class App extends Component {
 	componentDidMount() {

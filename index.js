@@ -15,7 +15,7 @@ const mysqlSettings = {
 };
 
 // Start server
-server.listen(8099);
+server.listen(8095);
 let listenerMysql = mysql.createConnection(mysqlSettings);
 let socketMysql = mysql.createConnection(mysqlSettings);
 
@@ -198,5 +198,5 @@ listenerMysql.connect(function(err) {
 
 	// spider.on('nodes', (nodes)=>console.log('foundNodes'))
 
-	spider.listen(4445)
+	//spider.listen(4445)
 });
