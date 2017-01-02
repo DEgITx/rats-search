@@ -44,6 +44,7 @@ socketMysql.connect(function(mysqlError) {
 				files: row.files,
 				filesList: row.filesList,
 				piecelength: row.piecelength,
+				added: row.added.getTime(),
 			}
 		}
 
