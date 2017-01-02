@@ -13,7 +13,6 @@ return (
       <ListItem 
         onClick={() => window.router('/torrent/' + torrent.hash)} 
         primaryText={torrent.name}
-        secondaryText={formatBytes(torrent.size, 1)}
         secondaryText={
             <div className='column'>
               <div>
