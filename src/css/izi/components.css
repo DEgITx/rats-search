@@ -1,5 +1,5 @@
 
-@media only screen and (max-width: 550px) 
+@media only screen and (max-width: 600px) 
 { 
 	.torrent-information-row {
 		flex-direction: column;

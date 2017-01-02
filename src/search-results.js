@@ -8,7 +8,13 @@ export default class SearchResults extends Component {
   render() {
     return (
       <List style={{minWidth: '20em'}}>
-	      <Subheader inset={true}>Search results</Subheader>
+      	  {
+	      	this.props.results && this.props.results.length > 0
+	      	?
+	      	<Subheader inset={true}>Search results</Subheader>
+	      	:
+	      	null
+	      }
 	      {
 	      	this.props.results && this.props.results.length > 0
 	      	?
