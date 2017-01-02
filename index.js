@@ -95,7 +95,7 @@ socketMysql.connect(function(mysqlError) {
 
 			console.log(text);
 			let q = 2;
-			socketMysql.query('SELECT * FROM `torrents` WHERE MATCH(`name`) AGAINST(?)', text, function (error, rows, fields) {
+			socketMysql.query('SELECT * FROM `torrents` WHERE MATCH(`name`) AGAINST(?) LIMIT 10', text, function (error, rows, fields) {
 				rows.forEach((row) => {
 			  		search[row.hash] = baseRowData(row);
 			  	});
@@ -104,7 +104,7 @@ socketMysql.connect(function(mysqlError) {
 					    return search[key];
 					}));
 			});
-			socketMysql.query('SELECT * FROM `files` INNER JOIN torrents ON(torrents.hash = files.hash) WHERE MATCH(`path`) AGAINST(?)', text, function (error, rows, fields) {
+			socketMysql.query('SELECT * FROM `files` INNER JOIN torrents ON(torrents.hash = files.hash) WHERE MATCH(`path`) AGAINST(?) LIMIT 10', text, function (error, rows, fields) {
 				rows.forEach((row) => {
 			  		search[row.hash] = baseRowData(row);
 			  		search[row.hash].path = row.path;
@@ -125,9 +125,19 @@ listenerMysql.connect(function(err) {
 		return;
 	}
  
-	//spider.on('ensureHash', (hash, addr)=> {
-	//	console.log('new hash');
-	//})
+	let undoneQueries = 0;
+	let checkDatabaseBalance = () => {
+		if(undoneQueries >= 5000)
+		{
+			console.log('too much freeze mysql connection. doing balance');
+			spider.ignore = true;
+		}
+		else if(undoneQueries == 0)
+		{
+			console.log('all connections done, continue');
+			spider.ignore = false;
+		}
+	};
 
 	client.on('complete', function (metadata, infohash, rinfo) {
 		console.log('writing torrent to db');
@@ -139,8 +149,10 @@ listenerMysql.connect(function(err) {
 			filesCount = metadata.info.files.length;
 			size = 0;
 
+			undoneQueries++;
 			listenerMysql.query('DELETE FROM files WHERE hash = ?', hash, function (err, result) {
-
+				undoneQueries--;
+				checkDatabaseBalance();
 			})
 			for(let i = 0; i < metadata.info.files.length; i++)
 			{
@@ -151,7 +163,10 @@ listenerMysql.connect(function(err) {
 					path: filePath,
 					size: file.length,
 				};
+				undoneQueries++;
 				let query = listenerMysql.query('INSERT INTO files SET ?', fileQ, function(err, result) {
+				  undoneQueries--;
+				  checkDatabaseBalance();
 				  if(!result) {
 				  	console.log(fileQ);
 				  	console.error(err);
@@ -168,7 +183,10 @@ listenerMysql.connect(function(err) {
 				path: metadata.info.name,
 				size: size,
 			};
+			undoneQueries++;
 			let query = listenerMysql.query('INSERT INTO files SET ?', fileQ, function(err, result) {
+			  undoneQueries--;
+			  checkDatabaseBalance();
 			  if(!result) {
 			  	console.log(fileQ);
 			  	console.error(err);
@@ -185,7 +203,10 @@ listenerMysql.connect(function(err) {
 			ipv4: rinfo.address,
 			port: rinfo.port
 		};
+		undoneQueries++;
 		var query = listenerMysql.query('INSERT INTO torrents SET ? ON DUPLICATE KEY UPDATE hash=hash', torrentQ, function(err, result) {
+		  undoneQueries--;
+		  checkDatabaseBalance();
 		  if(result) {
 		  	io.sockets.emit('newTorrent', {
 		  		hash: hash,
@@ -205,5 +226,5 @@ listenerMysql.connect(function(err) {
 
 	// spider.on('nodes', (nodes)=>console.log('foundNodes'))
 
-	//spider.listen(4445)
+	spider.listen(4445)
 });
