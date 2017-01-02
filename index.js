@@ -9,8 +9,8 @@ var io = require('socket.io')(server);
 
 const mysqlSettings = {
   host     : 'localhost',
-  user     : 'root',
-  password : 'degitisi',
+  user     : 'btsearch',
+  password : 'pirateal100x',
   database : 'btsearch'
 };
 
