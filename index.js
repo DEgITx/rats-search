@@ -69,6 +69,11 @@ app.get('/', function(req, res)
 
 app.use(express.static('build'));
 
+app.get('*', function(req, res)
+{
+	res.sendfile(__dirname + '/build/index.html');
+});
+
 io.on('connection', function(socket)
 {
 	function baseRowData(row)
@@ -93,6 +98,18 @@ io.on('connection', function(socket)
 		  });
 
 		  callback(torrents)
+		});
+	});
+
+	socket.on('statistic', function(callback)
+	{
+		let stats = {};
+		socketMysql.query('SELECT COUNT(*) as tornum FROM `torrents`', function (error, rows, fields) {
+		  stats.torrents = rows[0].tornum;
+		  socketMysql.query('SELECT COUNT(*) as filesnum FROM `files`', function (error, rows, fields) {
+		  	stats.files = rows[0].filesnum;
+		  	callback(stats)
+		  });
 		});
 	});
 

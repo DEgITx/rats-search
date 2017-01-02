@@ -6,9 +6,14 @@ import RaisedButton from 'material-ui/RaisedButton';
 
 export default class Search extends Component {
   search() {
-    console.log(this.searchValue);
     window.torrentSocket.emit('search', this.searchValue, (torrents) => {
       this.searchData = torrents;
+      this.forceUpdate();
+    });
+  }
+  componentDidMount() {
+    window.torrentSocket.emit('statistic', (statistic) => {
+      this.stats = statistic;
       this.forceUpdate();
     });
   }
@@ -32,6 +37,13 @@ export default class Search extends Component {
             this.search()
           }} />
         </div>
+        {
+            this.stats
+            ?
+            <div className='fs0-75' style={{color: 'rgba(0, 0, 0, 0.541176)'}}>we have {this.stats.torrents} torrents and around {this.stats.files} files here</div>
+            :
+            null
+        }
         <SearchResults results={this.searchData} />
       </div>
     );
