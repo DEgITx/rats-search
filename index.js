@@ -7,14 +7,17 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-// Start server
-server.listen(8099);
-var connection = mysql.createConnection({
+const mysqlSettings = {
   host     : 'localhost',
   user     : 'root',
   password : 'degitisi',
   database : 'btsearch'
-});
+};
+
+// Start server
+server.listen(8099);
+let listenerMysql = mysql.createConnection(mysqlSettings);
+let socketMysql = mysql.createConnection(mysqlSettings);
 
 
 app.get('/', function(req, res)
@@ -24,84 +27,92 @@ app.get('/', function(req, res)
 
 app.use(express.static('build'));
 
-io.on('connection', function(socket)
-{
-	function baseRowData(row)
-	{
-		return {
-			hash: row.hash,
-	  		name: row.name,
-			size: row.size,
-			files: row.files,
-			filesList: row.filesList,
-			piecelength: row.piecelength,
-		}
+socketMysql.connect(function(mysqlError) {
+	if (mysqlError) {
+		console.error('error connecting: ' + mysqlError.stack);
+		return;
 	}
 
-	socket.on('recentTorrents', function(callback)
+	io.on('connection', function(socket)
 	{
-		connection.query('SELECT * FROM `torrents` ORDER BY added DESC LIMIT 0,10', function (error, rows, fields) {
-		  let torrents = [];
-		  rows.forEach((row) => {
-		  	torrents.push(baseRowData(row));
-		  });
+		function baseRowData(row)
+		{
+			return {
+				hash: row.hash,
+		  		name: row.name,
+				size: row.size,
+				files: row.files,
+				filesList: row.filesList,
+				piecelength: row.piecelength,
+			}
+		}
 
-		  callback(torrents)
-		});
-	});
-
-	socket.on('torrent', function(hash, options, callback)
-	{
-		connection.query('SELECT * FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
-		  if(rows.length == 0) {
-		  	callback(undefined);
-		  	return;
-		  }
-		  let torrent = rows[0];
-
-		  if(options.files)
-		  {
-			  connection.query('SELECT * FROM `files` WHERE `hash` = ?', hash, function (error, rows, fields) {
-				  torrent.filesList = rows;
-				  callback(baseRowData(torrent))
+		socket.on('recentTorrents', function(callback)
+		{
+			socketMysql.query('SELECT * FROM `torrents` ORDER BY added DESC LIMIT 0,10', function (error, rows, fields) {
+			  let torrents = [];
+			  rows.forEach((row) => {
+			  	torrents.push(baseRowData(row));
 			  });
-		  }
-		  else
-		  {
-		  	  callback(baseRowData(torrent))
-		  }
+
+			  callback(torrents)
+			});
+		});
+
+		socket.on('torrent', function(hash, options, callback)
+		{
+			socketMysql.query('SELECT * FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
+			  if(rows.length == 0) {
+			  	callback(undefined);
+			  	return;
+			  }
+			  let torrent = rows[0];
+
+			  if(options.files)
+			  {
+				  socketMysql.query('SELECT * FROM `files` WHERE `hash` = ?', hash, function (error, rows, fields) {
+					  torrent.filesList = rows;
+					  callback(baseRowData(torrent))
+				  });
+			  }
+			  else
+			  {
+			  	  callback(baseRowData(torrent))
+			  }
+			});
+		});
+
+		socket.on('search', function(text, callback)
+		{
+			let search = {};
+
+			console.log(text);
+			let q = 2;
+			socketMysql.query('SELECT * FROM `torrents` WHERE MATCH(`name`) AGAINST(?)', text, function (error, rows, fields) {
+				rows.forEach((row) => {
+			  		search[row.hash] = baseRowData(row);
+			  	});
+			  	if(--q == 0)
+			  		callback(Object.keys(search).map(function(key) {
+					    return search[key];
+					}));
+			});
+			socketMysql.query('SELECT * FROM `files` INNER JOIN torrents ON(torrents.hash = files.hash) WHERE MATCH(`path`) AGAINST(?)', text, function (error, rows, fields) {
+				rows.forEach((row) => {
+			  		search[row.hash] = baseRowData(row);
+			  		search[row.hash].path = row.path;
+			  	});
+			  	if(--q == 0)
+			  		callback(Object.keys(search).map(function(key) {
+					    return search[key];
+					}));
+			});
 		});
 	});
 
-	socket.on('search', function(text, callback)
-	{
-		let search = {};
-
-		console.log(text);
-		let q = 2;
-		connection.query('SELECT * FROM `torrents` WHERE MATCH(`name`) AGAINST(?)', text, function (error, rows, fields) {
-			rows.forEach((row) => {
-		  		search[row.hash] = baseRowData(row);
-		  	});
-		  	if(--q == 0)
-		  		callback(Object.keys(search).map(function(key) {
-				    return search[key];
-				}));
-		});
-		connection.query('SELECT * FROM `files` INNER JOIN torrents ON(torrents.hash = files.hash) WHERE MATCH(`path`) AGAINST(?)', text, function (error, rows, fields) {
-			rows.forEach((row) => {
-		  		search[row.hash] = baseRowData(row);
-		  		search[row.hash].path = row.path;
-		  	});
-		  	if(--q == 0)
-		  		callback(Object.keys(search).map(function(key) {
-				    return search[key];
-				}));
-		});
-	});
 });
 
-connection.connect(function(err) {
+listenerMysql.connect(function(err) {
 	if (err) {
 		console.error('error connecting: ' + err.stack);
 		return;
@@ -121,7 +132,7 @@ connection.connect(function(err) {
 			filesCount = metadata.info.files.length;
 			size = 0;
 
-			connection.query('DELETE FROM files WHERE hash = ?', hash, function (err, result) {
+			listenerMysql.query('DELETE FROM files WHERE hash = ?', hash, function (err, result) {
 
 			})
 			for(let i = 0; i < metadata.info.files.length; i++)
@@ -133,7 +144,7 @@ connection.connect(function(err) {
 					path: filePath,
 					size: file.length,
 				};
-				let query = connection.query('INSERT INTO files SET ?', fileQ, function(err, result) {
+				let query = listenerMysql.query('INSERT INTO files SET ?', fileQ, function(err, result) {
 				  if(!result) {
 				  	console.log(fileQ);
 				  	console.error(err);
@@ -150,7 +161,7 @@ connection.connect(function(err) {
 				path: metadata.info.name,
 				size: size,
 			};
-			let query = connection.query('INSERT INTO files SET ?', fileQ, function(err, result) {
+			let query = listenerMysql.query('INSERT INTO files SET ?', fileQ, function(err, result) {
 			  if(!result) {
 			  	console.log(fileQ);
 			  	console.error(err);
@@ -167,7 +178,7 @@ connection.connect(function(err) {
 			ipv4: rinfo.address,
 			port: rinfo.port
 		};
-		var query = connection.query('INSERT INTO torrents SET ? ON DUPLICATE KEY UPDATE hash=hash', torrentQ, function(err, result) {
+		var query = listenerMysql.query('INSERT INTO torrents SET ? ON DUPLICATE KEY UPDATE hash=hash', torrentQ, function(err, result) {
 		  if(result) {
 		  	io.sockets.emit('newTorrent', {
 		  		hash: hash,
@@ -187,5 +198,5 @@ connection.connect(function(err) {
 
 	// spider.on('nodes', (nodes)=>console.log('foundNodes'))
 
-	//spider.listen(4445)
+	spider.listen(4445)
 });
