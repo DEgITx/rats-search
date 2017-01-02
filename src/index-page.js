@@ -20,13 +20,12 @@ export {Header}
 export default class IndexPage extends Component {
   render() {
     return (
-      <div className="column">
+      <div>
       	<Header />
-      	<div className='column center w100p pad1-25'>
-      		<div>Most recent torrents:</div>
+        <Search />
+      	<div className='column center w100p pad0-75'>
         	<RecentTorrents />
         </div>
-        <Search />
       </div>
     );
   }

@@ -61,6 +61,9 @@ socketMysql.connect(function(mysqlError) {
 
 		socket.on('torrent', function(hash, options, callback)
 		{
+			if(hash.length != 40)
+				return;
+
 			socketMysql.query('SELECT * FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
 			  if(rows.length == 0) {
 			  	callback(undefined);
@@ -84,6 +87,9 @@ socketMysql.connect(function(mysqlError) {
 
 		socket.on('search', function(text, callback)
 		{
+			if(!text || text.length <= 2)
+				return;
+
 			let search = {};
 
 			console.log(text);

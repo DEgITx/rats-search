@@ -1,15 +1,42 @@
 import React, { Component } from 'react';
 import formatBytes from './format-bytes'
 
+import {List, ListItem} from 'material-ui/List';
+import Subheader from 'material-ui/Subheader';
+import Paper from 'material-ui/Paper';
+import Divider from 'material-ui/Divider';
+
 const TorrentLine = (props) => {
   const torrent = props.torrent;
-  return (
-    <div className='clickable row inline fs0-85 pad0-25' onClick={() => window.router('/torrent/' + torrent.hash)}>
-        <div>{torrent.name}</div>
-        <div style={{marginLeft: '8px'}}>({formatBytes(torrent.size, 1)})</div>
+return (
+    <div>
+      <ListItem 
+        onClick={() => window.router('/torrent/' + torrent.hash)} 
+        primaryText={torrent.name}
+        secondaryText={formatBytes(torrent.size, 1)}
+        secondaryText={
+            <div className='column'>
+              <div>
+              {
+                formatBytes(torrent.size, 1)
+              }
+              </div>
+              {
+                torrent.path && torrent.path.length > 0
+                ?
+                <div>{torrent.path}</div>
+                :
+                null
+              }
+            </div>
+          }
+      />
+      <Divider />
     </div>
   )
 }
+
+export { TorrentLine }
 
 export default class RecentTorrents extends Component {
   constructor() {
@@ -30,13 +57,15 @@ export default class RecentTorrents extends Component {
   }
   render() {
     return (
-      <div className="list column">
-      {
-      	this.torrents.map((torrent, index) =>{
-      		return <TorrentLine key={index} torrent={torrent} />;
-      	})
-      }
-      </div>
+      <List>
+        <Subheader inset={true}>Most recent torrents</Subheader>
+        <Divider />
+        {
+        	this.torrents.map((torrent, index) =>{
+        		return <TorrentLine key={index} torrent={torrent} />;
+        	})
+        }
+        </List>
     );
   }
 }

@@ -6,15 +6,23 @@ import PagesPie from './pages-pie.js';
 var io = require("socket.io-client");
 window.torrentSocket = io('http://' + document.location.hostname + ':8095/');
 
+import injectTapEventPlugin from 'react-tap-event-plugin';
+ 
+// Needed for onTouchTap 
+// http://stackoverflow.com/a/34015469/988941 
+injectTapEventPlugin();
+
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+
 class App extends Component {
 	componentDidMount() {
 		window.router()
 	}
 	render() {
 		return (
-			<div className="App">
+			<MuiThemeProvider>
 				<PagesPie />
-			</div>
+			</MuiThemeProvider>
 		);
 	}
 }
