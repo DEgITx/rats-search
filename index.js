@@ -126,15 +126,18 @@ listenerMysql.connect(function(err) {
 	}
  
 	let undoneQueries = 0;
-	let checkDatabaseBalance = () => {
+	let pushDatabaseBalance = () => {
+		undoneQueries++;
 		if(undoneQueries >= 5000)
 		{
 			console.log('too much freeze mysql connection. doing balance');
 			spider.ignore = true;
 		}
-		else if(undoneQueries == 0)
+	};
+	let popDatabaseBalance = () => {
+		undoneQueries--;
+		if(undoneQueries == 0)
 		{
-			console.log('all connections done, continue');
 			spider.ignore = false;
 		}
 	};
@@ -149,10 +152,9 @@ listenerMysql.connect(function(err) {
 			filesCount = metadata.info.files.length;
 			size = 0;
 
-			undoneQueries++;
+			pushDatabaseBalance();
 			listenerMysql.query('DELETE FROM files WHERE hash = ?', hash, function (err, result) {
-				undoneQueries--;
-				checkDatabaseBalance();
+				popDatabaseBalance();
 			})
 			for(let i = 0; i < metadata.info.files.length; i++)
 			{
@@ -163,10 +165,9 @@ listenerMysql.connect(function(err) {
 					path: filePath,
 					size: file.length,
 				};
-				undoneQueries++;
+				pushDatabaseBalance();
 				let query = listenerMysql.query('INSERT INTO files SET ?', fileQ, function(err, result) {
-				  undoneQueries--;
-				  checkDatabaseBalance();
+				  popDatabaseBalance();
 				  if(!result) {
 				  	console.log(fileQ);
 				  	console.error(err);
@@ -183,10 +184,9 @@ listenerMysql.connect(function(err) {
 				path: metadata.info.name,
 				size: size,
 			};
-			undoneQueries++;
+			pushDatabaseBalance();
 			let query = listenerMysql.query('INSERT INTO files SET ?', fileQ, function(err, result) {
-			  undoneQueries--;
-			  checkDatabaseBalance();
+			  popDatabaseBalance();
 			  if(!result) {
 			  	console.log(fileQ);
 			  	console.error(err);
@@ -203,10 +203,9 @@ listenerMysql.connect(function(err) {
 			ipv4: rinfo.address,
 			port: rinfo.port
 		};
-		undoneQueries++;
+		pushDatabaseBalance();
 		var query = listenerMysql.query('INSERT INTO torrents SET ? ON DUPLICATE KEY UPDATE hash=hash', torrentQ, function(err, result) {
-		  undoneQueries--;
-		  checkDatabaseBalance();
+		  popDatabaseBalance();
 		  if(result) {
 		  	io.sockets.emit('newTorrent', {
 		  		hash: hash,
