@@ -25,6 +25,8 @@ socketMysql.connect(function(mysqlError) {
 	  				socketMysql.query('UPDATE `torrents` SET `contentType` = ? WHERE `hash` = ?', [torrent.contentType, torrent.hash], function (error, files, fields) {
 	  					console.log((++inc) + '/' + torrents.length);
 	  				});
+	  			} else {
+	  				console.log((++inc) + '/' + torrents.length);
 	  			}
 	  		});
 	  	});
