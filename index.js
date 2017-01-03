@@ -309,7 +309,8 @@ client.on('complete', function (metadata, infohash, rinfo) {
 			name: metadata.info.name,
 			size: size,
 			files: filesCount,
-			piecelength: metadata.info['piece length']
+			piecelength: metadata.info['piece length'],
+			contentType: torrentQ.contentType,
 	  	});
 	  }
 	  else
