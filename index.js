@@ -7,6 +7,8 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+const torrentTypeDetect =  require('./lib/content');
+
 const mysqlSettings = {
   host     : 'localhost',
   user     : 'btsearch',
@@ -89,6 +91,7 @@ io.on('connection', function(socket)
 			filesList: row.filesList,
 			piecelength: row.piecelength,
 			added: row.added.getTime(),
+			contentCategory: row.contentCategory,
 		}
 	}
 
@@ -235,6 +238,7 @@ client.on('complete', function (metadata, infohash, rinfo) {
 	const hash = infohash.toString('hex');
 	let size = metadata.info.length ? metadata.info.length : 0;
 	let filesCount = 1;
+	let filesArray = [];
 	if(metadata.info.files && metadata.info.files.length > 0)
 	{
 		filesCount = metadata.info.files.length;
@@ -253,6 +257,7 @@ client.on('complete', function (metadata, infohash, rinfo) {
 				path: filePath,
 				size: file.length,
 			};
+			filesArray.push(fileQ);
 			pushDatabaseBalance();
 			let query = listenerMysql.query('INSERT INTO files SET ?', fileQ, function(err, result) {
 			  popDatabaseBalance();
@@ -272,6 +277,7 @@ client.on('complete', function (metadata, infohash, rinfo) {
 			path: metadata.info.name,
 			size: size,
 		};
+		filesArray.push(fileQ);
 		pushDatabaseBalance();
 		let query = listenerMysql.query('INSERT INTO files SET ?', fileQ, function(err, result) {
 		  popDatabaseBalance();
@@ -291,6 +297,9 @@ client.on('complete', function (metadata, infohash, rinfo) {
 		ipv4: rinfo.address,
 		port: rinfo.port
 	};
+
+	torrentTypeDetect(torrentQ, filesArray);
+
 	pushDatabaseBalance();
 	var query = listenerMysql.query('INSERT INTO torrents SET ? ON DUPLICATE KEY UPDATE hash=hash', torrentQ, function(err, result) {
 	  popDatabaseBalance();
