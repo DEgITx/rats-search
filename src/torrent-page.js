@@ -87,6 +87,14 @@ const TorrentInformation = (props) => {
 	        rightIcon={<ActionInfo />}
 	        primaryText="Torrent contains files"
 	        secondaryText={torrent.files}
+	        onClick={() => {
+	        	if(!props.parent)
+	        		return
+
+	        	props.parent.setState({
+			      value: 'files'
+			    })
+	        }}
 	      />
 	      <ListItem
 	       // leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
@@ -144,7 +152,7 @@ export default class TorrentPage extends Component {
 		     		<div className='column w100p'>
 		     			<div className='row w100p torrent-information-row'>
 		     				<div style={{flexBasis: '60%'}}>
-   								<TorrentInformation torrent={this.torrent} />
+   								<TorrentInformation torrent={this.torrent} parent={this} />
    							</div>
    							<div style={{flexBasis: '40%'}} className='column center w100p'>
    								<img src={NoImage} className='pad0-75' style={{height: '200px'}} />

@@ -91,6 +91,9 @@ io.on('connection', function(socket)
 
 	socket.on('recentTorrents', function(callback)
 	{
+		if(typeof callback != 'function')
+			return;
+
 		socketMysql.query('SELECT * FROM `torrents` ORDER BY added DESC LIMIT 0,10', function (error, rows, fields) {
 		  let torrents = [];
 		  rows.forEach((row) => {
@@ -103,6 +106,9 @@ io.on('connection', function(socket)
 
 	socket.on('statistic', function(callback)
 	{
+		if(typeof callback != 'function')
+			return;
+
 		let stats = {};
 		socketMysql.query('SELECT COUNT(*) as tornum FROM `torrents`', function (error, rows, fields) {
 		  stats.torrents = rows[0].tornum;
@@ -116,6 +122,9 @@ io.on('connection', function(socket)
 	socket.on('torrent', function(hash, options, callback)
 	{
 		if(hash.length != 40)
+			return;
+
+		if(typeof callback != 'function')
 			return;
 
 		socketMysql.query('SELECT * FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
@@ -141,8 +150,13 @@ io.on('connection', function(socket)
 
 	socket.on('search', function(text, callback)
 	{
-		if(!text || text.length <= 2)
+		if(typeof callback != 'function')
 			return;
+
+		if(!text || text.length <= 2) {
+			callback(undefined);
+			return;
+		}
 
 		let search = {};
 

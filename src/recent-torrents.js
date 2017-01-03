@@ -14,16 +14,16 @@ return (
         onClick={() => window.router('/torrent/' + torrent.hash)} 
         primaryText={<span className='break-word'>{torrent.name}</span>}
         secondaryText={
-            <div className='column'>
+            <div className='column' style={{height: 'auto', whiteSpace: 'normal'}}>
               <div>
               {
-                formatBytes(torrent.size, 1)
+                formatBytes(torrent.size, 1) + ' (' + torrent.files + ' files)'
               }
               </div>
               {
                 torrent.path && torrent.path.length > 0
                 ?
-                <div>{torrent.path}</div>
+                <div className='break-word fs0-75' style={{paddingTop: '0.3em'}}>{torrent.path}</div>
                 :
                 null
               }
