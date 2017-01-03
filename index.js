@@ -77,29 +77,6 @@ app.get('*', function(req, res)
 
 // start
 
-// обновление статистики
-setInterval(() => {
-	let stats = {};
-	socketMysql.query('SELECT COUNT(*) as tornum FROM `torrents`', function (error, rows, fields) {
-	  stats.torrents = rows[0].tornum;
-	  socketMysql.query('SELECT COUNT(*) as filesnum, SUM(`size`) as filesizes FROM `files`', function (error, rows, fields) {
-	  	stats.files = rows[0].filesnum;
-	  	stats.size = rows[0].filesizes;
-	  	io.sockets.emit('newStatistic', stats);
-	  	socketMysql.query('DELETE FROM `statistic`', function (err, result) {
-	  		if(!result) {
-		  	  console.error(err);
-		    }
-			socketMysql.query('INSERT INTO `statistic` SET ?', stats, function(err, result) {
-			  if(!result) {
-			  	console.error(err);
-			  }
-			});
-		})
-	  });
-	});
-}, 60 * 1000)
-
 io.on('connection', function(socket)
 {
 	function baseRowData(row)
@@ -221,6 +198,37 @@ let popDatabaseBalance = () => {
 		spider.ignore = false;
 	}
 };
+
+// обновление статистики
+setInterval(() => {
+	let stats = {};
+	pushDatabaseBalance();
+	listenerMysql.query('SELECT COUNT(*) as tornum FROM `torrents`', function (error, rows, fields) {
+	  popDatabaseBalance();
+	  stats.torrents = rows[0].tornum;
+	  pushDatabaseBalance();
+	  listenerMysql.query('SELECT COUNT(*) as filesnum, SUM(`size`) as filesizes FROM `files`', function (error, rows, fields) {
+	  	popDatabaseBalance();
+	  	stats.files = rows[0].filesnum;
+	  	stats.size = rows[0].filesizes;
+	  	io.sockets.emit('newStatistic', stats);
+	  	pushDatabaseBalance();
+	  	listenerMysql.query('DELETE FROM `statistic`', function (err, result) {
+	  		popDatabaseBalance();
+	  		if(!result) {
+		  	  console.error(err);
+		    }
+		    pushDatabaseBalance();
+			listenerMysql.query('INSERT INTO `statistic` SET ?', stats, function(err, result) {
+			  popDatabaseBalance();
+			  if(!result) {
+			  	console.error(err);
+			  }
+			});
+		})
+	  });
+	});
+}, 60 * 1000)
 
 client.on('complete', function (metadata, infohash, rinfo) {
 	console.log('writing torrent to db');
