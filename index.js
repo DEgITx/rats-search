@@ -91,7 +91,7 @@ io.on('connection', function(socket)
 			filesList: row.filesList,
 			piecelength: row.piecelength,
 			added: row.added.getTime(),
-			contentCategory: row.contentCategory,
+			contentType: row.contentType,
 		}
 	}
 

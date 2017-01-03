@@ -102,6 +102,12 @@ const TorrentInformation = (props) => {
 	        primaryText="Indexed/Added torrent date"
 	        secondaryText={moment(torrent.added).format('MMMM Do YYYY, h:mm:ss')}
 	      />
+	       <ListItem
+	       // leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
+	        rightIcon={<ActionInfo />}
+	        primaryText="Content type"
+	        secondaryText={torrent.contentType}
+	      />
 	      <ListItem
 	       // leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
 	        rightIcon={<ActionInfo />}
