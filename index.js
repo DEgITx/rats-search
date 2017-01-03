@@ -74,6 +74,32 @@ app.get('*', function(req, res)
 	res.sendfile(__dirname + '/build/index.html');
 });
 
+
+// start
+
+// обновление статистики
+setInterval(() => {
+	let stats = {};
+	socketMysql.query('SELECT COUNT(*) as tornum FROM `torrents`', function (error, rows, fields) {
+	  stats.torrents = rows[0].tornum;
+	  socketMysql.query('SELECT COUNT(*) as filesnum, SUM(`size`) as filesizes FROM `files`', function (error, rows, fields) {
+	  	stats.files = rows[0].filesnum;
+	  	stats.size = rows[0].filesizes;
+	  	io.sockets.emit('newStatistic', stats);
+	  	socketMysql.query('DELETE FROM `statistic`', function (err, result) {
+	  		if(!result) {
+		  	  console.error(err);
+		    }
+			socketMysql.query('INSERT INTO `statistic` SET ?', stats, function(err, result) {
+			  if(!result) {
+			  	console.error(err);
+			  }
+			});
+		})
+	  });
+	});
+}, 60 * 1000)
+
 io.on('connection', function(socket)
 {
 	function baseRowData(row)
@@ -109,13 +135,8 @@ io.on('connection', function(socket)
 		if(typeof callback != 'function')
 			return;
 
-		let stats = {};
-		socketMysql.query('SELECT COUNT(*) as tornum FROM `torrents`', function (error, rows, fields) {
-		  stats.torrents = rows[0].tornum;
-		  socketMysql.query('SELECT COUNT(*) as filesnum FROM `files`', function (error, rows, fields) {
-		  	stats.files = rows[0].filesnum;
-		  	callback(stats)
-		  });
+		socketMysql.query('SELECT * FROM `statistic`', function (error, rows, fields) {
+		  callback(rows[0])
 		});
 	});
 

@@ -73,6 +73,9 @@ export default class RecentTorrents extends Component {
   	});
   }
   render() {
+    if(!this.torrents || this.torrents.length == 0)
+      return null;
+
     return (
       <List className='animated'>
         <Subheader inset={true}>Most recent torrents</Subheader>
@@ -82,7 +85,7 @@ export default class RecentTorrents extends Component {
         		return <TorrentLine key={index} torrent={torrent} />;
         	})
         }
-        </List>
+      </List>
     );
   }
 }

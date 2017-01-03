@@ -41,6 +41,29 @@ LOCK TABLES `files` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `statistic`
+--
+
+DROP TABLE IF EXISTS `statistic`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `statistic` (
+  `size` bigint(20) unsigned DEFAULT NULL,
+  `files` bigint(20) unsigned DEFAULT NULL,
+  `torrents` int(10) unsigned DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `statistic`
+--
+
+LOCK TABLES `statistic` WRITE;
+/*!40000 ALTER TABLE `statistic` DISABLE KEYS */;
+/*!40000 ALTER TABLE `statistic` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `torrents`
 --
 
@@ -79,4 +102,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-01-02 11:33:56
+-- Dump completed on 2017-01-03  6:03:58

@@ -5,6 +5,8 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 
+import formatBytes from './format-bytes'
+
 export default class Search extends Component {
   constructor(props)
   {
@@ -25,6 +27,10 @@ export default class Search extends Component {
   }
   componentDidMount() {
     window.torrentSocket.emit('statistic', (statistic) => {
+      this.stats = statistic;
+      this.forceUpdate();
+    });
+    window.torrentSocket.on('newStatistic', (statistic) => {
       this.stats = statistic;
       this.forceUpdate();
     });
@@ -59,7 +65,7 @@ export default class Search extends Component {
         {
             this.stats
             ?
-            <div className='fs0-75' style={{color: 'rgba(0, 0, 0, 0.541176)'}}>we have {this.stats.torrents} torrents and around {this.stats.files} files here</div>
+            <div className='fs0-75' style={{color: 'rgba(0, 0, 0, 0.541176)'}}>we have information about {this.stats.torrents} torrents and around {this.stats.files} files and { formatBytes(this.stats.size, 1) } of data</div>
             :
             null
         }
