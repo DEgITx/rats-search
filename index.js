@@ -149,7 +149,7 @@ io.on('connection', function(socket)
 		});
 	});
 
-	socket.on('search', function(text, callback)
+	socket.on('searchTorrent', function(text, navigation, callback)
 	{
 		if(typeof callback != 'function')
 			return;
@@ -159,28 +159,40 @@ io.on('connection', function(socket)
 			return;
 		}
 
+		const index = navigation.index || 0;
+		const limit = navigation.limit || 10;
 		let search = {};
-
-		console.log(text);
-		let q = 2;
-		socketMysql.query('SELECT * FROM `torrents` WHERE MATCH(`name`) AGAINST(?) LIMIT 10', text, function (error, rows, fields) {
+		socketMysql.query('SELECT * FROM `torrents` WHERE MATCH(`name`) AGAINST(?) LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
 			rows.forEach((row) => {
 		  		search[row.hash] = baseRowData(row);
 		  	});
-		  	if(--q == 0)
-		  		callback(Object.keys(search).map(function(key) {
-				    return search[key];
-				}));
+		  	callback(Object.keys(search).map(function(key) {
+			    return search[key];
+			}));
 		});
-		socketMysql.query('SELECT * FROM `files` INNER JOIN torrents ON(torrents.hash = files.hash) WHERE MATCH(`path`) AGAINST(?) LIMIT 10', text, function (error, rows, fields) {
+	});
+
+	socket.on('searchFiles', function(text, navigation, callback)
+	{
+		if(typeof callback != 'function')
+			return;
+
+		if(!text || text.length <= 2) {
+			callback(undefined);
+			return;
+		}
+
+		const index = navigation.index || 0;
+		const limit = navigation.limit || 10;
+		let search = {};
+		socketMysql.query('SELECT * FROM `files` INNER JOIN torrents ON(torrents.hash = files.hash) WHERE MATCH(`path`) AGAINST(?) LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
 			rows.forEach((row) => {
 		  		search[row.hash] = baseRowData(row);
 		  		search[row.hash].path = row.path;
 		  	});
-		  	if(--q == 0)
-		  		callback(Object.keys(search).map(function(key) {
-				    return search[key];
-				}));
+		  	callback(Object.keys(search).map(function(key) {
+			    return search[key];
+			}));
 		});
 	});
 });

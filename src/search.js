@@ -18,11 +18,31 @@ export default class Search extends Component {
     this.setState({
       searchingIndicator: true
     });
-    window.torrentSocket.emit('search', this.searchValue, (torrents) => {
-      this.searchData = torrents;
-      this.setState({
-        searchingIndicator: false
-      });
+    this.searchData = [];
+    let queries = 2;
+    window.torrentSocket.emit('searchTorrent', this.searchValue, {limit: 10}, (torrents) => {
+      if(torrents) {
+        this.searchData = this.searchData.concat(torrents);
+      }
+      if(--queries == 0) {
+        this.setState({
+          searchingIndicator: false
+        });
+      } else {
+        this.forceUpdate();
+      }
+    });
+    window.torrentSocket.emit('searchFiles', this.searchValue, {limit: 10}, (torrents) => {
+      if(torrents) {
+        this.searchData = this.searchData.concat(torrents);
+      }
+      if(--queries == 0) {
+        this.setState({
+          searchingIndicator: false
+        });
+      } else {
+        this.forceUpdate();
+      }
     });
   }
   componentDidMount() {
@@ -65,7 +85,7 @@ export default class Search extends Component {
         {
             this.stats
             ?
-            <div className='fs0-75' style={{color: 'rgba(0, 0, 0, 0.541176)'}}>we have information about {this.stats.torrents} torrents and around {this.stats.files} files and { formatBytes(this.stats.size, 1) } of data</div>
+            <div className='fs0-75 pad0-75' style={{color: 'rgba(0, 0, 0, 0.541176)'}}>we have information about {this.stats.torrents} torrents and around {this.stats.files} files and { formatBytes(this.stats.size, 1) } of data</div>
             :
             null
         }
