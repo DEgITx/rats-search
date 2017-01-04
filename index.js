@@ -19,27 +19,7 @@ const mysqlSettings = {
 // Start server
 server.listen(8095);
 
-let socketMysql;
-function handleSocketDisconnect() {
-	socketMysql = mysql.createConnection(mysqlSettings);
-
-	socketMysql.connect(function(mysqlError) {
-		if (mysqlError) {
-			console.error('error connecting: ' + mysqlError.stack);
-			return;
-		}
-	});
-
-	socketMysql.on('error', function(err) {
-	    console.log('db error', err);
-	    if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
-	      handleSocketDisconnect();                         // lost due to either server restart, or a
-	    } else {                                      // connnection idle timeout (the wait_timeout
-	      throw err;                                  // server variable configures this)
-	    }
-	});
-}
-handleSocketDisconnect();
+let socketMysql = mysql.createPool(mysqlSettings);
 
 let listenerMysql;
 function handleListenerDisconnect() {
