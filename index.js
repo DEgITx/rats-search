@@ -87,6 +87,11 @@ io.on('connection', function(socket)
 			return;
 
 		socketMysql.query('SELECT * FROM `torrents` ORDER BY added DESC LIMIT 0,10', function (error, rows, fields) {
+		  if(!rows) {
+		  	callback(undefined)
+		  	return;
+		  }
+
 		  let torrents = [];
 		  rows.forEach((row) => {
 		  	torrents.push(baseRowData(row));
@@ -102,6 +107,11 @@ io.on('connection', function(socket)
 			return;
 
 		socketMysql.query('SELECT * FROM `statistic`', function (error, rows, fields) {
+		  if(!rows) {
+		  	callback(undefined)
+		  	return;
+		  }
+
 		  callback(rows[0])
 		});
 	});
@@ -115,8 +125,8 @@ io.on('connection', function(socket)
 			return;
 
 		socketMysql.query('SELECT * FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
-		  if(rows.length == 0) {
-		  	callback(undefined);
+		  if(!rows || rows.length == 0) {
+		  	callback(undefined)
 		  	return;
 		  }
 		  let torrent = rows[0];
@@ -149,6 +159,10 @@ io.on('connection', function(socket)
 		const limit = navigation.limit || 10;
 		let search = {};
 		socketMysql.query('SELECT * FROM `torrents` WHERE MATCH(`name`) AGAINST(?) LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
+			if(!rows) {
+			  	callback(undefined)
+			  	return;
+			}
 			rows.forEach((row) => {
 		  		search[row.hash] = baseRowData(row);
 		  	});
@@ -172,6 +186,10 @@ io.on('connection', function(socket)
 		const limit = navigation.limit || 10;
 		let search = {};
 		socketMysql.query('SELECT * FROM `files` INNER JOIN torrents ON(torrents.hash = files.hash) WHERE MATCH(`path`) AGAINST(?) LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
+			if(!rows) {
+			  	callback(undefined)
+			  	return;
+			}
 			rows.forEach((row) => {
 		  		search[row.hash] = baseRowData(row);
 		  		search[row.hash].path = row.path;

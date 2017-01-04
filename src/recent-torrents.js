@@ -149,8 +149,10 @@ export default class RecentTorrents extends Component {
   }
   componentDidMount() {
   	window.torrentSocket.emit('recentTorrents', (data) => {
-  		this.torrents = data;
-  		this.forceUpdate();
+  		if(data) {
+  			this.torrents = data;
+  			this.forceUpdate();
+  		}
   	});
   	this.newTorrentFunc = (torrent) => {
   		this.torrents.unshift(torrent);

@@ -47,8 +47,10 @@ export default class Search extends Component {
   }
   componentDidMount() {
     this.newStatisticFunc = (statistic) => {
-      this.stats = statistic;
-      this.forceUpdate();
+      if(statistic) {
+        this.stats = statistic;
+        this.forceUpdate();
+      }
     };
     window.torrentSocket.emit('statistic', this.newStatisticFunc);
     window.torrentSocket.on('newStatistic', this.newStatisticFunc);

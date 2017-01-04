@@ -138,8 +138,10 @@ export default class TorrentPage extends Component {
   };
   componentDidMount() {
   	window.torrentSocket.emit('torrent', this.props.hash, {files: true}, (data) => {
-  		this.torrent = data
-  		this.forceUpdate();
+  		if(data) {
+  			this.torrent = data
+  			this.forceUpdate();
+  		}
   	});
   }
   render() {
