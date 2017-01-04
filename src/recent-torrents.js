@@ -152,12 +152,17 @@ export default class RecentTorrents extends Component {
   		this.torrents = data;
   		this.forceUpdate();
   	});
-  	window.torrentSocket.on('newTorrent', (torrent) => {
+  	this.newTorrentFunc = (torrent) => {
   		this.torrents.unshift(torrent);
   		if(this.torrents.length > 10)
   			this.torrents.pop()
   		this.forceUpdate();
-  	});
+  	};
+  	window.torrentSocket.on('newTorrent', this.newTorrentFunc);
+  }
+  componentWillUnmount() {
+  	if(this.newTorrentFunc)
+  		window.torrentSocket.off('newTorrent', this.newTorrentFunc);
   }
   render() {
     if(!this.torrents || this.torrents.length == 0)

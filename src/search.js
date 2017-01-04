@@ -46,14 +46,17 @@ export default class Search extends Component {
     });
   }
   componentDidMount() {
-    window.torrentSocket.emit('statistic', (statistic) => {
+    this.newStatisticFunc = (statistic) => {
       this.stats = statistic;
       this.forceUpdate();
-    });
-    window.torrentSocket.on('newStatistic', (statistic) => {
-      this.stats = statistic;
-      this.forceUpdate();
-    });
+    };
+    window.torrentSocket.emit('statistic', this.newStatisticFunc);
+    window.torrentSocket.on('newStatistic', this.newStatisticFunc);
+  }
+  componentWillUnmount()
+  {
+    if(this.newStatisticFunc)
+      window.torrentSocket.off('newStatistic', this.newStatisticFunc);
   }
   render() {
     const style = {
