@@ -31,7 +31,6 @@ return (
           }
         leftIcon={
           (() => {
-            console.log(torrent.contentType)
             switch(torrent.contentType)
             {
                 case 'video':
