@@ -19,7 +19,13 @@ const mysqlSettings = {
 // Start server
 server.listen(8095);
 
-let socketMysql = mysql.createPool(mysqlSettings);
+let socketMysql = mysql.createPool({
+  connectionLimit: 40,
+  host     : mysqlSettings.host,
+  user     : mysqlSettings.user,
+  password : mysqlSettings.password,
+  database : mysqlSettings.database
+});
 
 let listenerMysql;
 function handleListenerDisconnect() {
