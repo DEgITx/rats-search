@@ -231,7 +231,7 @@ setInterval(() => {
 		})
 	  });
 	});
-}, 60 * 1000)
+}, 10 * 60 * 1000)
 
 client.on('complete', function (metadata, infohash, rinfo) {
 	console.log('writing torrent to db');
