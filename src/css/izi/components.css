@@ -1,7 +1,15 @@
 
+.torrent-information-row .info-table {
+		flex-basis: 60%;
+	}
+
 @media only screen and (max-width: 600px) 
 { 
 	.torrent-information-row {
 		flex-direction: column;
+	}
+	.torrent-information-row .info-table {
+		flex-basis: 100%;
+		width: 100%;
 	}
 }

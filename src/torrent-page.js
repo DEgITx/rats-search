@@ -156,7 +156,7 @@ export default class TorrentPage extends Component {
 		     	<Tab label="Information" value="info" >
 		     		<div className='column w100p'>
 		     			<div className='row w100p torrent-information-row'>
-		     				<div style={{flexBasis: '60%'}}>
+		     				<div className='info-table'>
    								<TorrentInformation torrent={this.torrent} parent={this} />
    							</div>
    							<div style={{flexBasis: '40%'}} className='column center w100p'>
