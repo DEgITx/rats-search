@@ -3,6 +3,6 @@
 SOURCE_PATH="`dirname \"$0\"`"
 cd "$SOURCE_PATH"
 npm install
-pw2 stop index.js
+pm2 stop index.js
 npm run build
-pw2 start index.js
+pm2 start index.js
