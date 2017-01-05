@@ -5,6 +5,7 @@ import {List, ListItem} from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import Paper from 'material-ui/Paper';
 import Divider from 'material-ui/Divider';
+import FlatButton from 'material-ui/FlatButton';
 
 const TorrentLine = (props) => {
   const torrent = props.torrent;
@@ -146,6 +147,8 @@ export default class RecentTorrents extends Component {
   constructor() {
   	super()
   	this.torrents = [];
+  	this.displayQueue = [];
+  	this.state = { pause: false }
   }
   componentDidMount() {
   	window.torrentSocket.emit('recentTorrents', (data) => {
@@ -153,18 +156,38 @@ export default class RecentTorrents extends Component {
   			this.torrents = data;
   			this.forceUpdate();
   		}
+
+  		this.displayNewTorrent = setInterval(() => {
+	  		if(this.displayQueue.length == 0)
+	  			return;
+
+	  		if(this.state.pause)
+	  			return;
+
+	  		let torrent = this.displayQueue.shift();
+	  		this.torrents.unshift(torrent);
+	  		if(this.torrents.length > 10)
+	  			this.torrents.pop()
+
+	  		this.forceUpdate();
+	  	}, 850);
   	});
   	this.newTorrentFunc = (torrent) => {
-  		this.torrents.unshift(torrent);
-  		if(this.torrents.length > 10)
-  			this.torrents.pop()
+  		this.displayQueue.push(torrent);
   		this.forceUpdate();
   	};
   	window.torrentSocket.on('newTorrent', this.newTorrentFunc);
   }
+  pauseAndContinue() {
+  	this.setState({
+      pause: !this.state.pause
+    });
+  }
   componentWillUnmount() {
   	if(this.newTorrentFunc)
   		window.torrentSocket.off('newTorrent', this.newTorrentFunc);
+  	if(this.displayNewTorrent)
+  		clearInterval(this.displayNewTorrent);
   }
   render() {
     if(!this.torrents || this.torrents.length == 0)
@@ -172,7 +195,12 @@ export default class RecentTorrents extends Component {
 
     return (
       <List className='animated'>
-        <Subheader inset={true}>Most recent torrents</Subheader>
+        <Subheader className='recent-title' inset={true}>
+        	<FlatButton style={{marginRight: '8px'}} label={!this.state.pause ? 'running' : 'stoped'} secondary={this.state.pause} primary={!this.state.pause} onClick={() =>{
+	            this.pauseAndContinue()
+	        }} />
+        	Most recent torrents{this.displayQueue.length > 0 ? ` (and ${this.displayQueue.length} more)` : null}
+        </Subheader>
         <Divider />
         {
         	this.torrents.map((torrent, index) =>{

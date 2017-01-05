@@ -339,4 +339,4 @@ client.on('complete', function (metadata, infohash, rinfo) {
 
 // spider.on('nodes', (nodes)=>console.log('foundNodes'))
 
-spider.listen(4445)
+//spider.listen(4445)
