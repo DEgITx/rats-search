@@ -78,6 +78,7 @@ io.on('connection', function(socket)
 			piecelength: row.piecelength,
 			added: row.added.getTime(),
 			contentType: row.contentType,
+			contentCategory: row.contentCategory,
 		}
 	}
 
@@ -327,6 +328,7 @@ client.on('complete', function (metadata, infohash, rinfo) {
 			files: filesCount,
 			piecelength: metadata.info['piece length'],
 			contentType: torrentQ.contentType,
+			contentCategory: torrentQ.contentCategory,
 	  	});
 	  }
 	  else

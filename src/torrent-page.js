@@ -111,8 +111,8 @@ const TorrentInformation = (props) => {
 	      <ListItem
 	       // leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
 	        rightIcon={<ActionInfo />}
-	        primaryText="Adult content"
-	        secondaryText='unknown'
+	        primaryText="Category"
+	        secondaryText={torrent.contentCategory || 'unknown'}
 	      />
 	    </List>
 	);

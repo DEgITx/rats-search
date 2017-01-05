@@ -13,7 +13,9 @@ return (
     <div>
       <ListItem 
         onClick={() => window.router('/torrent/' + torrent.hash)} 
-        primaryText={<span className='break-word'>{torrent.name}</span>}
+        primaryText={<span className='break-word' style={{
+        	color: torrent.contentCategory != 'xxx' ? 'black' : 'grey'
+        }}>{torrent.name}</span>}
         secondaryText={
             <div className='column' style={{height: 'auto', whiteSpace: 'normal'}}>
               <div>
@@ -119,7 +121,10 @@ return (
         }
         rightIcon={
           <a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
-	          <svg style={{height: '24px'}} onClick={(e) => {
+	          <svg style={{
+	          	height: '24px',
+	          	fill: torrent.contentCategory != 'xxx' ? 'black' : 'grey'
+	      	}} onClick={(e) => {
 	            e.preventDefault();
 	            e.stopPropagation();
 	            var win = window.open(`magnet:?xt=urn:btih:${torrent.hash}`, '_self');
