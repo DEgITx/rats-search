@@ -171,6 +171,17 @@ export default class TorrentPage extends Component {
 								      icon={<svg fill='white' viewBox="0 0 24 24"><path d="M17.374 20.235c2.444-2.981 6.626-8.157 6.626-8.157l-3.846-3.092s-2.857 3.523-6.571 8.097c-4.312 5.312-11.881-2.41-6.671-6.671 4.561-3.729 8.097-6.57 8.097-6.57l-3.092-3.842s-5.173 4.181-8.157 6.621c-2.662 2.175-3.76 4.749-3.76 7.24 0 5.254 4.867 10.139 10.121 10.139 2.487 0 5.064-1.095 7.253-3.765zm4.724-7.953l-1.699 2.111-1.74-1.397 1.701-2.114 1.738 1.4zm-10.386-10.385l1.4 1.738-2.113 1.701-1.397-1.74 2.11-1.699z"/></svg>}
 								    />
 								 <div className='fs0-75 pad0-75 center column' style={{color: 'rgba(0, 0, 0, 0.541176)'}}><div>BTIH:</div><div>{this.torrent.hash}</div></div>
+								 {
+								 	this.torrent.seeders || this.torrent.leechers || this.torrent.completed
+								 	?
+								 	<div className='fs0-85 pad0-75 center column'>
+								 		<div className='pad0-25' style={{color: '#00C853'}}>seeders: {this.torrent.seeders}</div>
+								 		<div className='pad0-25' style={{color: '#AA00FF'}}>leechers: {this.torrent.leechers}</div>
+								 		<div className='pad0-25' style={{color: '#FF6D00'}}>completed: {this.torrent.completed}</div>
+								 	</div>
+								 	:
+								 	null
+								 }
    							</div>
    						</div>
    					</div>
