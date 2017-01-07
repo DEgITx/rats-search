@@ -1,6 +1,7 @@
 const client = new (require('./lib/client'))
 const spider = new (require('./lib/spider'))(client)
 const mysql = require('mysql');
+const getPeersStatisticUDP = require('./lib/udp-tracker-request')
 
 var express = require('express');
 var app = express();
@@ -26,6 +27,25 @@ let socketMysql = mysql.createPool({
   password : mysqlSettings.password,
   database : mysqlSettings.database
 });
+
+const udpTrackers = [
+	{
+		host: 'tracker.coppersurfer.tk',
+		port: 6969
+	},
+	{
+		host: 'tracker.leechers-paradise.org',
+		port: 6969
+	},
+	{
+		host: 'tracker.opentrackr.org',
+		port: 1337
+	},
+	{
+		host: '9.rarbg.me',
+		port: 2710
+	}
+]
 
 let listenerMysql;
 function handleListenerDisconnect() {
@@ -79,6 +99,9 @@ io.on('connection', function(socket)
 			added: row.added.getTime(),
 			contentType: row.contentType,
 			contentCategory: row.contentCategory,
+			seeders: row.seeders,
+			completed: row.completed,
+			leechers: row.leechers,
 		}
 	}
 
@@ -329,6 +352,51 @@ client.on('complete', function (metadata, infohash, rinfo) {
 			piecelength: metadata.info['piece length'],
 			contentType: torrentQ.contentType,
 			contentCategory: torrentQ.contentCategory,
+	  	});
+	  	let maxSeeders = 0, maxLeechers = 0, maxCompleted = 0;
+	  	udpTrackers.forEach((tracker) => {
+	  		getPeersStatisticUDP(tracker.host, tracker.port, hash, ({seeders, completed, leechers}) => {
+		  		if(seeders == 0 && completed == 0 && leechers == 0)
+		  			return;
+
+		  		/*
+		  		pushDatabaseBalance();
+		  		listenerMysql.query('INSERT INTO trackers SET ?', statistic, function(err, result) {
+		  			popDatabaseBalance();
+		  		});
+		  		*/
+
+		  		if(seeders < maxSeeders)
+		  		{
+		  			return;
+		  		}
+		  		if(seeders == maxSeeders && leechers < maxLeechers)
+		  		{
+		  			return;
+		  		}
+		  		if(seeders == maxSeeders && leechers == maxLeechers && completed <= maxCompleted)
+		  		{
+		  			return;
+		  		}
+		  		maxSeeders = seeders;
+		  		maxLeechers = leechers;
+		  		maxCompleted = completed;
+
+		  		pushDatabaseBalance();
+		  		listenerMysql.query('UPDATE torrents SET seeders = ?, completed = ?, leechers = ? WHERE hash = ?', [seeders, completed, leechers, hash], function(err, result) {
+		  			popDatabaseBalance();
+		  			if(!result) {
+		  				return
+		  			}
+
+		  			io.sockets.emit('trackerTorrentUpdate', {
+				  		hash,
+						seeders,
+			            completed,
+			            leechers
+				  	});
+		  		});
+		  	});
 	  	});
 	  }
 	  else

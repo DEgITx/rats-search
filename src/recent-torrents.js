@@ -30,6 +30,17 @@ return (
                 :
                 null
               }
+              {
+                torrent.seeders || torrent.leechers || torrent.completed
+                ?
+                <div className='break-word fs0-85' style={{paddingTop: '0.3em'}}>
+                  <span style={{color: (torrent.seeders > 0 ? '#00C853' : 'grey')}}>{torrent.seeders} seeders</span>
+                  <span style={{color: (torrent.leechers > 0 ? '#AA00FF' : 'grey'), marginLeft: '12px'}}>{torrent.leechers} leechers</span>
+                  <span style={{color: (torrent.completed > 0 ? '#FF6D00' : 'grey'), marginLeft: '12px'}}>{torrent.completed} completed downloads</span>
+                </div>
+                :
+                null
+              }
             </div>
           }
         leftIcon={
@@ -156,6 +167,7 @@ export default class RecentTorrents extends Component {
   	super()
   	this.torrents = [];
   	this.displayQueue = [];
+    this.displayQueueAssoc = {};
   	this.state = { pause: false }
   }
   componentDidMount() {
@@ -174,17 +186,29 @@ export default class RecentTorrents extends Component {
 
 	  		let torrent = this.displayQueue.shift();
 	  		this.torrents.unshift(torrent);
-	  		if(this.torrents.length > 10)
-	  			this.torrents.pop()
+	  		if(this.torrents.length > 10) {
+	  			let toDelete = this.torrents.pop()
+          delete this.displayQueueAssoc[toDelete.hash];
+        }
 
 	  		this.forceUpdate();
 	  	}, 850);
   	});
   	this.newTorrentFunc = (torrent) => {
   		this.displayQueue.push(torrent);
+      this.displayQueueAssoc[torrent.hash] = torrent;
   		this.forceUpdate();
   	};
   	window.torrentSocket.on('newTorrent', this.newTorrentFunc);
+    
+    this.tracketUpdate = (statistic) => {
+      if(statistic.hash in this.displayQueueAssoc)
+      {
+        Object.assign(this.displayQueueAssoc[statistic.hash], statistic);
+        this.forceUpdate();
+      }
+    }
+    window.torrentSocket.on('trackerTorrentUpdate', this.tracketUpdate);
   }
   pauseAndContinue() {
   	this.setState({
@@ -194,6 +218,8 @@ export default class RecentTorrents extends Component {
   componentWillUnmount() {
   	if(this.newTorrentFunc)
   		window.torrentSocket.off('newTorrent', this.newTorrentFunc);
+    if(this.tracketUpdate)
+      window.torrentSocket.off('trackerTorrentUpdate', this.tracketUpdate);
   	if(this.displayNewTorrent)
   		clearInterval(this.displayNewTorrent);
   }
