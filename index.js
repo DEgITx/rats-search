@@ -101,7 +101,7 @@ io.on('connection', function(socket)
 	function baseRowData(row)
 	{
 		return {
-			hash: row.hash || row.id,
+			hash: row.hash,
 	  		name: row.name,
 			size: row.size,
 			files: row.files,
