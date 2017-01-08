@@ -33,6 +33,7 @@ export default class IndexPage extends Component {
         <Search />
       	<div className='column center w100p pad0-75'>
         	<RecentTorrents />
+          <div className='fs0-75 pad0-75 break-word donation-line' style={{color: 'grey'}}>Donation to support project (bitcoin): 1Ega5zeCSMPgyDn6fEMMiuGoqNNpS53ipK</div>
         </div>
       </div>
     );

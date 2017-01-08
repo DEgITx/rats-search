@@ -20,3 +20,14 @@
 		padding-left: 10px !important; 
 	}
 }
+
+@media only screen and (max-width: 510px) 
+{ 
+	.donation-line {
+		width: 65%;
+	}
+}
+
+.donation-line {
+	margin-top: 15px;
+}
