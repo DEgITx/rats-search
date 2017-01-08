@@ -17,6 +17,11 @@ const mysqlSettings = {
   database : 'btsearch'
 };
 
+const sphinxSettings = {
+  host     : 'localhost',
+  port     : 9306
+};
+
 // Start server
 server.listen(8095);
 
@@ -26,6 +31,12 @@ let socketMysql = mysql.createPool({
   user     : mysqlSettings.user,
   password : mysqlSettings.password,
   database : mysqlSettings.database
+});
+
+let sphinx = mysql.createPool({
+  connectionLimit: 30,
+  host     : sphinxSettings.host,
+  port     : sphinxSettings.port
 });
 
 const udpTrackers = [
@@ -90,15 +101,15 @@ io.on('connection', function(socket)
 	function baseRowData(row)
 	{
 		return {
-			hash: row.hash,
+			hash: row.hash || row.id,
 	  		name: row.name,
 			size: row.size,
 			files: row.files,
 			filesList: row.filesList,
 			piecelength: row.piecelength,
-			added: row.added.getTime(),
-			contentType: row.contentType,
-			contentCategory: row.contentCategory,
+			added: row.added ? row.added.getTime() : (new Date()).getTime(),
+			contentType: row.contentType || row.contenttype,
+			contentCategory: row.contentCategory || row.contentcategory,
 			seeders: row.seeders,
 			completed: row.completed,
 			leechers: row.leechers,
@@ -182,7 +193,7 @@ io.on('connection', function(socket)
 		const index = navigation.index || 0;
 		const limit = navigation.limit || 10;
 		let search = {};
-		socketMysql.query('SELECT * FROM `torrents` WHERE MATCH(`name`) AGAINST(?) LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
+		sphinx.query('SELECT * FROM `torrents_index` WHERE MATCH(?) LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
 			if(!rows) {
 			  	callback(undefined)
 			  	return;
@@ -209,7 +220,7 @@ io.on('connection', function(socket)
 		const index = navigation.index || 0;
 		const limit = navigation.limit || 10;
 		let search = {};
-		socketMysql.query('SELECT * FROM `files` INNER JOIN torrents ON(torrents.hash = files.hash) WHERE MATCH(`path`) AGAINST(?) LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
+		sphinx.query('SELECT * FROM `files_index` WHERE MATCH(?) LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
 			if(!rows) {
 			  	callback(undefined)
 			  	return;
