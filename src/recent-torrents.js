@@ -177,12 +177,24 @@ export default class RecentTorrents extends Component {
   			this.forceUpdate();
   		}
 
-  		this.displayNewTorrent = setInterval(() => {
-	  		if(this.displayQueue.length == 0)
-	  			return;
+  		this.displayNewTorrent = () => {
+        if(!this.displayNewTorrent) {
+          return;
+        }
 
-	  		if(this.state.pause)
+	  		if(this.displayQueue.length == 0) {
+          setTimeout(this.displayNewTorrent, 1000);
 	  			return;
+        }
+
+        let speed = 850 - (((this.displayQueue.length / 100)|0) * 100)
+        if(speed < 10)
+          speed = 10;
+
+	  		if(this.state.pause) {
+          setTimeout(this.displayNewTorrent, speed);
+	  			return;
+        }
 
 	  		let torrent = this.displayQueue.shift();
 	  		this.torrents.unshift(torrent);
@@ -192,7 +204,9 @@ export default class RecentTorrents extends Component {
         }
 
 	  		this.forceUpdate();
-	  	}, 850);
+        setTimeout(this.displayNewTorrent, speed);
+	  	}
+      this.displayNewTorrent();
   	});
   	this.newTorrentFunc = (torrent) => {
   		this.displayQueue.push(torrent);
@@ -221,7 +235,7 @@ export default class RecentTorrents extends Component {
     if(this.tracketUpdate)
       window.torrentSocket.off('trackerTorrentUpdate', this.tracketUpdate);
   	if(this.displayNewTorrent)
-  		clearInterval(this.displayNewTorrent);
+  		delete this.displayNewTorrent;
   }
   render() {
     if(!this.torrents || this.torrents.length == 0)
