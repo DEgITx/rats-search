@@ -193,7 +193,7 @@ io.on('connection', function(socket)
 		const index = navigation.index || 0;
 		const limit = navigation.limit || 10;
 		let search = {};
-		sphinx.query('SELECT * FROM `torrents_index` WHERE MATCH(?) LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
+		sphinx.query('SELECT * FROM `torrents_index`,`torrents_index_delta` WHERE MATCH(?) LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
 			if(!rows) {
 			  	callback(undefined)
 			  	return;
@@ -220,7 +220,7 @@ io.on('connection', function(socket)
 		const index = navigation.index || 0;
 		const limit = navigation.limit || 10;
 		let search = {};
-		sphinx.query('SELECT * FROM `files_index` WHERE MATCH(?) LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
+		sphinx.query('SELECT * FROM `files_index`,`files_index_delta` WHERE MATCH(?) LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
 			if(!rows) {
 			  	callback(undefined)
 			  	return;
