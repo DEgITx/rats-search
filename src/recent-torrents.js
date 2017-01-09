@@ -168,6 +168,7 @@ export default class RecentTorrents extends Component {
   	this.torrents = [];
   	this.displayQueue = [];
     this.displayQueueAssoc = {};
+    this.maxDisplaySize = 1000;
   	this.state = { pause: false }
   }
   componentDidMount() {
@@ -187,9 +188,7 @@ export default class RecentTorrents extends Component {
 	  			return;
         }
 
-        let speed = 850 - (((this.displayQueue.length / 100)|0) * 100)
-        if(speed < 10)
-          speed = 10;
+        const speed = 850;
 
 	  		if(this.state.pause) {
           setTimeout(this.displayNewTorrent, speed);
@@ -209,9 +208,11 @@ export default class RecentTorrents extends Component {
       this.displayNewTorrent();
   	});
   	this.newTorrentFunc = (torrent) => {
-  		this.displayQueue.push(torrent);
-      this.displayQueueAssoc[torrent.hash] = torrent;
-  		this.forceUpdate();
+      if(this.displayQueue.length < this.maxDisplaySize) {
+        this.displayQueue.push(torrent);
+        this.displayQueueAssoc[torrent.hash] = torrent;
+        this.forceUpdate();
+      }
   	};
   	window.torrentSocket.on('newTorrent', this.newTorrentFunc);
     
