@@ -15,9 +15,9 @@ const Header = (props) => {
         <img src={Background} />
       </CardMedia>
       <CardText>
-        Welcome to BT Search! This is file search engine to the torrents of the internet. 
+        Welcome to BT Search! This is file search engine based on the torrents of internet. 
       Here you can easily find torrent or file that you intrested for. We are not responsible for any content of the site:
-      content are adding automaticly. Content right holders and users can mark/block bad content.
+      this is only information about content that collected automatically! Content right holders and users can mark/block bad content.
       </CardText>
     </Card>
   )
