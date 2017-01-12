@@ -4,7 +4,7 @@ import './router';
 import PagesPie from './pages-pie.js';
 
 var io = require("socket.io-client");
-window.torrentSocket = io('http://' + document.location.hostname + ':8095/');
+window.torrentSocket = io('http://' + document.location.hostname + (process.env.NODE_ENV === 'production' ? '/' : ':8095/'));
 
 import injectTapEventPlugin from 'react-tap-event-plugin';
  
