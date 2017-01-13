@@ -20,7 +20,7 @@ export default class Search extends Component {
     });
     this.searchData = [];
     let queries = 2;
-    window.torrentSocket.emit('searchTorrent', this.searchValue, {limit: 10}, (torrents) => {
+    window.torrentSocket.emit('searchTorrent', this.searchValue, {limit: 10}, window.customLoader((torrents) => {
       if(torrents) {
         this.searchData = this.searchData.concat(torrents);
       }
@@ -31,8 +31,8 @@ export default class Search extends Component {
       } else {
         this.forceUpdate();
       }
-    });
-    window.torrentSocket.emit('searchFiles', this.searchValue, {limit: 10}, (torrents) => {
+    }));
+    window.torrentSocket.emit('searchFiles', this.searchValue, {limit: 10}, window.customLoader((torrents) => {
       if(torrents) {
         this.searchData = this.searchData.concat(torrents);
       }
@@ -43,7 +43,7 @@ export default class Search extends Component {
       } else {
         this.forceUpdate();
       }
-    });
+    }));
   }
   componentDidMount() {
     this.newStatisticFunc = (statistic) => {
@@ -52,7 +52,7 @@ export default class Search extends Component {
         this.forceUpdate();
       }
     };
-    window.torrentSocket.emit('statistic', this.newStatisticFunc);
+    window.torrentSocket.emit('statistic', window.customLoader(this.newStatisticFunc));
     window.torrentSocket.on('newStatistic', this.newStatisticFunc);
   }
   componentWillUnmount()

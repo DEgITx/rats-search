@@ -172,7 +172,7 @@ export default class RecentTorrents extends Component {
   	this.state = { pause: false }
   }
   componentDidMount() {
-  	window.torrentSocket.emit('recentTorrents', (data) => {
+  	window.torrentSocket.emit('recentTorrents', window.customLoader((data) => {
   		if(data) {
   			this.torrents = data;
   			this.forceUpdate();
@@ -206,7 +206,7 @@ export default class RecentTorrents extends Component {
         setTimeout(this.displayNewTorrent, speed);
 	  	}
       this.displayNewTorrent();
-  	});
+  	}));
   	this.newTorrentFunc = (torrent) => {
       if(this.displayQueue.length < this.maxDisplaySize) {
         this.displayQueue.push(torrent);

@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React from 'react';
+import Page from './page';
 import formatBytes from './format-bytes'
 
 import {List, ListItem} from 'material-ui/List';
@@ -118,12 +119,13 @@ const TorrentInformation = (props) => {
 	);
 }
 
-export default class TorrentPage extends Component {
+export default class TorrentPage extends Page {
   constructor(props) {
     super(props);
     this.state = {
       value: 'info',
     };
+    this.setTitle('Information about torrent');
   }
 
   handleChange = (value) => {
@@ -140,6 +142,7 @@ export default class TorrentPage extends Component {
   	window.torrentSocket.emit('torrent', this.props.hash, {files: true}, (data) => {
   		if(data) {
   			this.torrent = data
+  			this.setTitle('Download ' + this.torrent.name);
   			this.forceUpdate();
   		}
   	});

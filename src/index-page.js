@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React from 'react';
+import Page from './page';
 
 import RecentTorrents from './recent-torrents'
 import Search from './search'
@@ -25,7 +26,11 @@ const Header = (props) => {
 
 export {Header}
 
-export default class IndexPage extends Component {
+export default class IndexPage extends Page {
+  constructor(props) {
+    super(props)
+    this.setTitle('Welcome to files/torrents search engine');
+  }
   render() {
     return (
       <div>
