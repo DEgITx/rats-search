@@ -139,13 +139,13 @@ export default class TorrentPage extends Page {
     });
   };
   componentDidMount() {
-  	window.torrentSocket.emit('torrent', this.props.hash, {files: true}, (data) => {
+  	window.torrentSocket.emit('torrent', this.props.hash, {files: true}, window.customLoader((data) => {
   		if(data) {
   			this.torrent = data
   			this.setTitle('Download ' + this.torrent.name);
   			this.forceUpdate();
   		}
-  	});
+  	}));
   }
   render() {
     return (

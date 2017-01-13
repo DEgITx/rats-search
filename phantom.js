@@ -1,4 +1,5 @@
-var url = "http://localhost:3000/";
+var system = require('system');
+var url = system.args[1];
 var page = require('webpage').create();
 
 page.open(url, function(status) {

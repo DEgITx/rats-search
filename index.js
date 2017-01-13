@@ -8,8 +8,12 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var sm = require('sitemap');
+var phantomjs = require('phantomjs-prebuilt')
 
 const torrentTypeDetect =  require('./lib/content');
+
+const domain = process.env.NODE_ENV == 'production' ? 'ratsontheboat.org' : 'localhost:3000';
+const http_port = 8095;
 
 const mysqlSettings = {
   host     : 'localhost',
@@ -24,7 +28,7 @@ const sphinxSettings = {
 };
 
 // Start server
-server.listen(8095);
+server.listen(http_port);
 
 let socketMysql = mysql.createPool({
   connectionLimit: 40,
@@ -82,11 +86,6 @@ function handleListenerDisconnect() {
 handleListenerDisconnect();
 
 
-app.get('/', function(req, res)
-{
-	res.sendfile(__dirname + '/build/index.html');
-});
-
 app.use(express.static('build'));
 
 app.get('/sitemap.xml', function(req, res) {
@@ -95,7 +94,7 @@ app.get('/sitemap.xml', function(req, res) {
 	  	return;
 	  }
 	  let sitemap = sm.createSitemap ({
-		  hostname: 'http://ratsontheboat.org',
+		  hostname: 'http://' + domain,
 		  cacheTime: 600000
 	  });
 	  sitemap.add({url: '/'});
@@ -114,7 +113,23 @@ app.get('/sitemap.xml', function(req, res) {
 
 app.get('*', function(req, res)
 {
-	res.sendfile(__dirname + '/build/index.html');
+	if(typeof req.query['_escaped_fragment_'] != 'undefined')
+	{
+		let program = phantomjs.exec('phantom.js', 'http://' + domain + req.path)
+		let body = '';
+		program.stderr.pipe(process.stderr)
+		program.stdout.on('data', (chunk) => {
+		    body += chunk;
+		});
+		program.on('exit', code => {
+		  res.header('Content-Type', 'text/html');
+		  res.send( body );
+		})
+
+		return;
+	}
+
+	res.sendfile(__dirname + '/build/index-page.html');
 });
 
 // start

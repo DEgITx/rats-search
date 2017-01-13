@@ -54,6 +54,7 @@
     "moment": "^2.17.1",
     "mysql": "^2.12.0",
     "page": "^1.7.1",
+    "phantomjs-prebuilt": "^2.1.14",
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
     "react-tap-event-plugin": "^2.0.1",
