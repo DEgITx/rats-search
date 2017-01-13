@@ -86,7 +86,7 @@ function handleListenerDisconnect() {
 handleListenerDisconnect();
 
 
-app.use(express.static('build'));
+app.use(express.static('build', {index: false}));
 
 app.get('/sitemap.xml', function(req, res) {
   socketMysql.query('SELECT hash FROM `torrents`', function (error, rows, fields) {
@@ -129,7 +129,7 @@ app.get('*', function(req, res)
 		return;
 	}
 
-	res.sendfile(__dirname + '/build/index-page.html');
+	res.sendfile(__dirname + '/build/index.html');
 });
 
 // start
