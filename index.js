@@ -7,6 +7,7 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
+var sm = require('sitemap');
 
 const torrentTypeDetect =  require('./lib/content');
 
@@ -88,11 +89,33 @@ app.get('/', function(req, res)
 
 app.use(express.static('build'));
 
+app.get('/sitemap.xml', function(req, res) {
+  socketMysql.query('SELECT hash FROM `torrents`', function (error, rows, fields) {
+	  if(!rows) {
+	  	return;
+	  }
+	  let sitemap = sm.createSitemap ({
+		  hostname: 'http://ratsontheboat.org',
+		  cacheTime: 600000
+	  });
+	  sitemap.add({url: '/'});
+	  for(let i = 0; i < rows.length; i++)
+	  	sitemap.add({url: '/torrent/' + rows[i].hash});
+
+	  sitemap.toXML( function (err, xml) {
+	      if (err) {
+	        return res.status(500).end();
+	      }
+	      res.header('Content-Type', 'application/xml');
+	      res.send( xml );
+	  });
+  });
+});
+
 app.get('*', function(req, res)
 {
 	res.sendfile(__dirname + '/build/index.html');
 });
-
 
 // start
 
