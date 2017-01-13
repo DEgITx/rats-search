@@ -76,7 +76,7 @@ CREATE TABLE `torrents` (
   `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `ipv4` char(15) DEFAULT NULL,
   `port` smallint(5) unsigned DEFAULT NULL,
-  `contentType` enum('video','audio','pictures','books','application') DEFAULT NULL,
+  `contentType` enum('video','audio','pictures','books','application','archive','disc') DEFAULT NULL,
   `contentCategory` varchar(32) DEFAULT NULL,
   `seeders` int(10) unsigned DEFAULT NULL,
   `leechers` int(10) unsigned DEFAULT NULL,
