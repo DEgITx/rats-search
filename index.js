@@ -12,7 +12,7 @@ var phantomjs = require('phantomjs-prebuilt')
 
 const torrentTypeDetect =  require('./lib/content');
 
-const domain = process.env.NODE_ENV == 'production' ? 'ratsontheboat.org' : 'localhost:3000';
+const domain = 'ratsontheboat.org';
 const http_port = 8095;
 
 const mysqlSettings = {
