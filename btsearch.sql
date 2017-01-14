@@ -29,7 +29,7 @@ CREATE TABLE `files` (
   `fileid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`fileid`),
   KEY `hash` (`hash`)
-) ENGINE=InnoDB AUTO_INCREMENT=13877634 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=13878008 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -82,10 +82,11 @@ CREATE TABLE `torrents` (
   `leechers` int(10) unsigned DEFAULT NULL,
   `completed` int(10) unsigned DEFAULT NULL,
   `torrentid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `trackersChecked` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`hash`),
   UNIQUE KEY `torrentid` (`torrentid`),
   KEY `added` (`added`)
-) ENGINE=InnoDB AUTO_INCREMENT=389480 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=389511 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -97,4 +98,4 @@ CREATE TABLE `torrents` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-01-10 10:11:50
+-- Dump completed on 2017-01-14  9:33:52
