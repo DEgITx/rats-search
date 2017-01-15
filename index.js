@@ -88,8 +88,30 @@ handleListenerDisconnect();
 
 app.use(express.static('build', {index: false}));
 
+const sitemapSize = 30000;
 app.get('/sitemap.xml', function(req, res) {
-  socketMysql.query('SELECT hash FROM `torrents`', function (error, rows, fields) {
+  socketMysql.query('SELECT count(*) as cnt FROM `torrents`', function (error, rows, fields) {
+	  if(!rows) {
+	  	return;
+	  }
+	  let urls = []
+	  for(let i = 0; i < Math.ceil(rows[0].cnt / sitemapSize); i++)
+	  	urls.push(`http://${domain}/sitemap${i+1}.xml`);
+
+      res.header('Content-Type', 'application/xml');
+      res.send( sm.buildSitemapIndex({
+	      urls
+	  }));
+  });
+});
+
+app.get('/sitemap:id.xml', function(req, res) {
+  if(req.params.id < 1)
+  	return;
+
+  let page = (req.params.id - 1) * sitemapSize
+
+  socketMysql.query('SELECT hash FROM `torrents` LIMIT ?, ?', [page, sitemapSize], function (error, rows, fields) {
 	  if(!rows) {
 	  	return;
 	  }
@@ -110,6 +132,7 @@ app.get('/sitemap.xml', function(req, res) {
 	  });
   });
 });
+
 
 app.get('*', function(req, res)
 {
@@ -477,4 +500,4 @@ client.on('complete', function (metadata, infohash, rinfo) {
 
 // spider.on('nodes', (nodes)=>console.log('foundNodes'))
 
-spider.listen(4445)
+//spider.listen(4445)
