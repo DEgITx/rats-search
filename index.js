@@ -90,7 +90,7 @@ app.use(express.static('build', {index: false}));
 
 const sitemapSize = 30000;
 app.get('/sitemap.xml', function(req, res) {
-  socketMysql.query('SELECT count(*) as cnt FROM `torrents`', function (error, rows, fields) {
+  socketMysql.query('SELECT count(*) as cnt FROM `torrents` WHERE contentCategory != \'xxx\' OR contentCategory IS NULL', function (error, rows, fields) {
 	  if(!rows) {
 	  	return;
 	  }
@@ -111,7 +111,7 @@ app.get('/sitemap:id.xml', function(req, res) {
 
   let page = (req.params.id - 1) * sitemapSize
 
-  socketMysql.query('SELECT hash FROM `torrents` LIMIT ?, ?', [page, sitemapSize], function (error, rows, fields) {
+  socketMysql.query('SELECT hash FROM `torrents` WHERE contentCategory != \'xxx\' OR contentCategory IS NULL LIMIT ?, ?', [page, sitemapSize], function (error, rows, fields) {
 	  if(!rows) {
 	  	return;
 	  }
