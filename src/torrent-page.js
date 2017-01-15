@@ -144,8 +144,28 @@ export default class TorrentPage extends Page {
   			this.torrent = data
   			this.setTitle('Download ' + this.torrent.name);
   			this.forceUpdate();
+
+  			// Получаем более новую статистику пира
+  			if((new Date).getTime() - this.torrent.trackersChecked > 10 * 60 * 1000) {
+  				window.torrentSocket.emit('checkTrackers', this.torrent.hash);
+  			}
   		}
   	}));
+  	this.trackerUpdate = (info) => {
+      if(this.props.hash != info.hash)
+      	return;
+
+      if(!this.torrent)
+      	return;
+
+      Object.assign(this.torrent, info);
+      this.forceUpdate();
+    }
+    window.torrentSocket.on('trackerTorrentUpdate', this.trackerUpdate);
+  }
+  componentWillUnmount() {
+  	if(this.trackerUpdate)
+      window.torrentSocket.off('trackerTorrentUpdate', this.trackerUpdate);
   }
   render() {
     return (

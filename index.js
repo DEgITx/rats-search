@@ -302,9 +302,6 @@ io.on('connection', function(socket)
 		if(hash.length != 40)
 			return;
 
-		if(typeof callback != 'function')
-			return;
-
 		updateTorrentTrackers(hash);
 	});
 
@@ -360,52 +357,60 @@ setInterval(() => {
 
 const updateTorrentTrackers = (hash) => {
 	let maxSeeders = 0, maxLeechers = 0, maxCompleted = 0;
-  	udpTrackers.forEach((tracker) => {
-  		getPeersStatisticUDP(tracker.host, tracker.port, hash, ({seeders, completed, leechers}) => {
-	  		if(seeders == 0 && completed == 0 && leechers == 0)
-	  			return;
+	pushDatabaseBalance();
+	listenerMysql.query('UPDATE torrents SET trackersChecked = ? WHERE hash = ?', [new Date(), hash], function(err, result) {
+	  popDatabaseBalance();
+	  if(!result) {
+  	  	console.error(err);
+      }
 
-	  		/*
-	  		pushDatabaseBalance();
-	  		listenerMysql.query('INSERT INTO trackers SET ?', statistic, function(err, result) {
-	  			popDatabaseBalance();
-	  		});
-	  		*/
+	  udpTrackers.forEach((tracker) => {
+	  		getPeersStatisticUDP(tracker.host, tracker.port, hash, ({seeders, completed, leechers}) => {
+		  		if(seeders == 0 && completed == 0 && leechers == 0)
+		  			return;
 
-	  		if(seeders < maxSeeders)
-	  		{
-	  			return;
-	  		}
-	  		if(seeders == maxSeeders && leechers < maxLeechers)
-	  		{
-	  			return;
-	  		}
-	  		if(seeders == maxSeeders && leechers == maxLeechers && completed <= maxCompleted)
-	  		{
-	  			return;
-	  		}
-	  		maxSeeders = seeders;
-	  		maxLeechers = leechers;
-	  		maxCompleted = completed;
-	  		let checkTime = new Date();
+		  		/*
+		  		pushDatabaseBalance();
+		  		listenerMysql.query('INSERT INTO trackers SET ?', statistic, function(err, result) {
+		  			popDatabaseBalance();
+		  		});
+		  		*/
 
-	  		pushDatabaseBalance();
-	  		listenerMysql.query('UPDATE torrents SET seeders = ?, completed = ?, leechers = ?, trackersChecked = ? WHERE hash = ?', [seeders, completed, leechers, checkTime, hash], function(err, result) {
-	  			popDatabaseBalance();
-	  			if(!result) {
-	  				return
-	  			}
+		  		if(seeders < maxSeeders)
+		  		{
+		  			return;
+		  		}
+		  		if(seeders == maxSeeders && leechers < maxLeechers)
+		  		{
+		  			return;
+		  		}
+		  		if(seeders == maxSeeders && leechers == maxLeechers && completed <= maxCompleted)
+		  		{
+		  			return;
+		  		}
+		  		maxSeeders = seeders;
+		  		maxLeechers = leechers;
+		  		maxCompleted = completed;
+		  		let checkTime = new Date();
 
-	  			io.sockets.emit('trackerTorrentUpdate', {
-			  		hash,
-					seeders,
-		            completed,
-		            leechers,
-		            trackersChecked: checkTime.getTime()
-			  	});
-	  		});
+		  		pushDatabaseBalance();
+		  		listenerMysql.query('UPDATE torrents SET seeders = ?, completed = ?, leechers = ?, trackersChecked = ? WHERE hash = ?', [seeders, completed, leechers, checkTime, hash], function(err, result) {
+		  			popDatabaseBalance();
+		  			if(!result) {
+		  				return
+		  			}
+
+		  			io.sockets.emit('trackerTorrentUpdate', {
+				  		hash,
+						seeders,
+			            completed,
+			            leechers,
+			            trackersChecked: checkTime.getTime()
+				  	});
+		  		});
+		  	});
 	  	});
-  	});
+	});
 }
 
 client.on('complete', function (metadata, infohash, rinfo) {
