@@ -8,6 +8,7 @@ var url = require('url');
 var paths = require('./paths');
 var getClientEnvironment = require('./env');
 
+const RobotsPlugin = require('@tanepiper/robots-webpack-plugin');
 
 
 function ensureSlash(path, needsSlash) {
@@ -234,7 +235,8 @@ module.exports = {
     // having to parse `index.html`.
     new ManifestPlugin({
       fileName: 'asset-manifest.json'
-    })
+    }),
+    new RobotsPlugin({sitemap: 'http://ratsontheboat.org/sitemap.xml'})
   ],
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works.
