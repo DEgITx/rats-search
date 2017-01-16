@@ -14,6 +14,7 @@ import FileFolder from 'material-ui/svg-icons/file/folder';
 import NoImage from './images/no-image-icon.png'
 
 var moment = require('moment');
+import RefreshIndicator from 'material-ui/RefreshIndicator';
 
 let buildFilesTree = (filesList) => {
 	let rootTree = {
@@ -124,6 +125,7 @@ export default class TorrentPage extends Page {
     super(props);
     this.state = {
       value: 'info',
+      searchingIndicator: false
     };
     this.setTitle('Information about torrent');
   }
@@ -143,14 +145,22 @@ export default class TorrentPage extends Page {
   		if(data) {
   			this.torrent = data
   			this.setTitle('Download ' + this.torrent.name);
-  			this.forceUpdate();
+  			//this.forceUpdate(); // вызывается через searchingIndicator
 
   			// Получаем более новую статистику пира
   			if((new Date).getTime() - this.torrent.trackersChecked > 10 * 60 * 1000) {
   				window.torrentSocket.emit('checkTrackers', this.torrent.hash);
   			}
   		}
-  	}));
+  	}, () => {
+      this.setState({
+        searchingIndicator: true
+      });
+    }, () => {
+      this.setState({
+        searchingIndicator: false
+      });
+    }));
   	this.trackerUpdate = (info) => {
       if(this.props.hash != info.hash)
       	return;
@@ -168,6 +178,28 @@ export default class TorrentPage extends Page {
       window.torrentSocket.off('trackerTorrentUpdate', this.trackerUpdate);
   }
   render() {
+  	const style = {
+      refresh: {
+        display: 'inline-block',
+        position: 'relative',
+      },
+    };
+
+    if(this.state.searchingIndicator) {
+      return (
+        <div className='pad1 w100p column center'>
+          <RefreshIndicator
+            size={50}
+            left={0}
+            top={0}
+            loadingColor="#FF9800"
+            status="loading"
+            style={style.refresh}
+          />
+        </div>
+      );
+    }
+
     return (
       <div className="w100p">
       {

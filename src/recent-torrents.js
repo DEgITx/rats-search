@@ -6,6 +6,7 @@ import Subheader from 'material-ui/Subheader';
 import Paper from 'material-ui/Paper';
 import Divider from 'material-ui/Divider';
 import FlatButton from 'material-ui/FlatButton';
+import RefreshIndicator from 'material-ui/RefreshIndicator';
 
 const TorrentLine = (props) => {
   const torrent = props.torrent;
@@ -169,13 +170,16 @@ export default class RecentTorrents extends Component {
   	this.displayQueue = [];
     this.displayQueueAssoc = {};
     this.maxDisplaySize = 1000;
-  	this.state = { pause: false }
+  	this.state = { 
+      pause: false,
+      searchingIndicator: false
+   }
   }
   componentDidMount() {
   	window.torrentSocket.emit('recentTorrents', window.customLoader((data) => {
   		if(data) {
   			this.torrents = data;
-  			this.forceUpdate();
+  			//this.forceUpdate(); // вызывается через searchingIndicator
   		}
 
   		this.displayNewTorrent = () => {
@@ -206,7 +210,15 @@ export default class RecentTorrents extends Component {
         setTimeout(this.displayNewTorrent, speed);
 	  	}
       this.displayNewTorrent();
-  	}));
+  	}, () => {
+      this.setState({
+        searchingIndicator: true
+      });
+    }, () => {
+      this.setState({
+        searchingIndicator: false
+      });
+    }));
   	this.newTorrentFunc = (torrent) => {
       if(this.displayQueue.length < this.maxDisplaySize) {
         this.displayQueue.push(torrent);
@@ -239,6 +251,28 @@ export default class RecentTorrents extends Component {
   		delete this.displayNewTorrent;
   }
   render() {
+    const style = {
+      refresh: {
+        display: 'inline-block',
+        position: 'relative',
+      },
+    };
+
+    if(this.state.searchingIndicator) {
+      return (
+        <div className='pad1'>
+          <RefreshIndicator
+            size={50}
+            left={0}
+            top={0}
+            loadingColor="#FF9800"
+            status="loading"
+            style={style.refresh}
+          />
+        </div>
+      );
+    }
+
     if(!this.torrents || this.torrents.length == 0)
       return null;
 

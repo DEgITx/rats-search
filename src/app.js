@@ -16,10 +16,16 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 let loadersCount = 0;
 let appReady = false;
-window.customLoader = (func) => {
+window.customLoader = (func, onLoading, onLoaded) => {
 	loadersCount++;
+	if(onLoading) {
+		onLoading();
+	}
 	return (...args) => {
 		func(...args);
+		if(onLoaded) {
+			onLoaded();
+		}
 		loadersCount--;
 	}
 };
