@@ -4,6 +4,7 @@ import PagesPie from './pages-pie.js';
 
 import IndexPage from './index-page.js'
 import TorrentPage from './torrent-page.js'
+import DMCAPage from './dmca-page.js'
 
 router('/', () => {
 	//singleton
@@ -18,4 +19,10 @@ router('/torrent/:hash', (e) => {
 		replace: 'all',
 		hash: e.params.hash,
 	});
+});
+
+router('/DMCA', () => {
+	//singleton
+	let pie = new PagesPie;
+	pie.open(DMCAPage, {replace: 'all'});
 });

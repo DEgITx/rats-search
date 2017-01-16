@@ -1,6 +1,7 @@
 import React from 'react';
 import Page from './page';
 import formatBytes from './format-bytes'
+import Footer from './footer';
 
 import {List, ListItem} from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
@@ -248,9 +249,7 @@ export default class TorrentPage extends Page {
    			:
    			null
       }
-      	<div className='column center'>
-      		<div className='fs0-75 pad0-75 break-word donation-line' style={{color: 'grey'}}>Donation to support project (bitcoin): 1Ega5zeCSMPgyDn6fEMMiuGoqNNpS53ipK</div>
-      	</div>
+      	<Footer />
       </div>
     );
   }
