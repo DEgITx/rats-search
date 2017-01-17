@@ -145,7 +145,7 @@ export default class TorrentPage extends Page {
   	window.torrentSocket.emit('torrent', this.props.hash, {files: true}, window.customLoader((data) => {
   		if(data) {
   			this.torrent = data
-  			this.setTitle('Download ' + this.torrent.name);
+  			this.setTitle(this.torrent.name + ' - RatsOnTheBoat.org');
   			//this.forceUpdate(); // вызывается через searchingIndicator
 
   			// Получаем более новую статистику пира

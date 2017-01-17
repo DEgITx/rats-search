@@ -12,12 +12,12 @@ const Header = (props) => {
   return (
     <Card>
       <CardMedia
-        overlay={<CardTitle title="Arrr, Landlubber rats!" subtitle="Welcome to very anonymous torrent project" />}
+        overlay={<CardTitle title="Arrr, Landlubber rats!" subtitle="Welcome to torrent project" />}
       >
         <img src={Background} />
       </CardMedia>
       <CardText>
-        Welcome to BT Search! This is file search engine based on the torrents of internet. 
+        Welcome to BT Search! This is file search engine based on the torrents from the internet. 
       Here you can easily find torrent or file that you intrested for. We are not responsible for any content of the site:
       this is only information about content that collected automatically! Content right holders and users can mark/block bad content.
       </CardText>
@@ -30,7 +30,7 @@ export {Header}
 export default class IndexPage extends Page {
   constructor(props) {
     super(props)
-    this.setTitle('Welcome to files/torrents search engine');
+    this.setTitle('Rats On The Boat - Content Search Engine');
   }
   render() {
     return (

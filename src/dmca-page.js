@@ -20,7 +20,7 @@ export default class DMCAPage extends Page {
 	      	
 	      	<div className='fs1-5 pad0-75'>Content status</div>
 
-			Our main goal is collect and make analysis about content (based on content of the torrent network). We don't save/distribute any real content and also don't save any torrents files - we are respect DMCA law. 
+			Our main goal is collect and make analysis of information from the torrent network. We don't save/distribute any real content/data and also don't save any torrents files - we are respect DMCA law. 
 			Information collected automaticly and the real source are torrent clients based on torrent protocol.
 
 			<div className='fs1-5 pad0-75'>Block mechanisms (for rightholders)</div>
