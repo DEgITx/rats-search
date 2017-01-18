@@ -5,13 +5,21 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 
+import Checkbox from 'material-ui/Checkbox';
+import Visibility from 'material-ui/svg-icons/action/visibility';
+import VisibilityOff from 'material-ui/svg-icons/action/visibility-off';
+
 import formatBytes from './format-bytes'
 
 export default class Search extends Component {
   constructor(props)
   {
     super(props)
-    this.state = { searchingIndicator: false }
+    this.state = { 
+      searchingIndicator: false,
+      safeSearchText: 'safe search enabled',
+      safeSearchColor: 'rgb(0, 188, 212)'
+    }
   }
 
   search() {
@@ -20,7 +28,7 @@ export default class Search extends Component {
     });
     this.searchData = [];
     let queries = 2;
-    window.torrentSocket.emit('searchTorrent', this.searchValue, {limit: 10}, window.customLoader((torrents) => {
+    window.torrentSocket.emit('searchTorrent', this.searchValue, {limit: 10, safeSearch: this.refs.safeSearch.checked}, window.customLoader((torrents) => {
       if(torrents) {
         this.searchData = this.searchData.concat(torrents);
       }
@@ -32,7 +40,7 @@ export default class Search extends Component {
         this.forceUpdate();
       }
     }));
-    window.torrentSocket.emit('searchFiles', this.searchValue, {limit: 10}, window.customLoader((torrents) => {
+    window.torrentSocket.emit('searchFiles', this.searchValue, {limit: 10, safeSearch: this.refs.safeSearch.checked}, window.customLoader((torrents) => {
       if(torrents) {
         this.searchData = this.searchData.concat(torrents);
       }
@@ -86,6 +94,25 @@ export default class Search extends Component {
           <RaisedButton style={{marginTop: '15px', marginLeft: '10px'}} label="Search" primary={true} onClick={() =>{
             this.search()
           }} />
+        </div>
+        <div className='row'>
+          <Checkbox
+            ref='safeSearch'
+            checkedIcon={<Visibility />}
+            uncheckedIcon={<VisibilityOff />}
+            label={<span className='text-nowrap' style={{fontSize: '0.9em', color: 'grey'}}>{this.state.safeSearchText}</span>}
+            iconStyle={{fill: this.state.safeSearchColor}}
+            onCheck={(ev, ch) => {
+              if(ch)
+              {
+                this.setState({safeSearchText: 'safe search disabled', safeSearchColor: '#EC407A'});
+              }
+              else
+              {
+                this.setState({safeSearchText: 'safe search enabled', safeSearchColor: 'rgb(0, 188, 212)'});
+              }
+            }}
+          />
         </div>
         {
             this.stats

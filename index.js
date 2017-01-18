@@ -252,10 +252,12 @@ io.on('connection', function(socket)
 			return;
 		}
 
+		const safeSearch = !!navigation.safeSearch;
+
 		const index = navigation.index || 0;
 		const limit = navigation.limit || 10;
 		let search = {};
-		sphinx.query('SELECT * FROM `torrents_index`,`torrents_index_delta` WHERE MATCH(?) LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
+		sphinx.query('SELECT * FROM `torrents_index`,`torrents_index_delta` WHERE MATCH(?) ' + (safeSearch ? "and contentcategory != 'xxx'" : '') + ' LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
 			if(!rows) {
 			  	callback(undefined)
 			  	return;
@@ -279,10 +281,12 @@ io.on('connection', function(socket)
 			return;
 		}
 
+		const safeSearch = !!navigation.safeSearch;
+
 		const index = navigation.index || 0;
 		const limit = navigation.limit || 10;
 		let search = {};
-		sphinx.query('SELECT * FROM `files_index`,`files_index_delta` WHERE MATCH(?) LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
+		sphinx.query('SELECT * FROM `files_index`,`files_index_delta` WHERE MATCH(?) ' + (safeSearch ? "and contentcategory != 'xxx'" : '') + ' LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
 			if(!rows) {
 			  	callback(undefined)
 			  	return;
@@ -505,4 +509,4 @@ client.on('complete', function (metadata, infohash, rinfo) {
 
 // spider.on('nodes', (nodes)=>console.log('foundNodes'))
 
-//spider.listen(4445)
+spider.listen(4445)
