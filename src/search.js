@@ -28,7 +28,7 @@ export default class Search extends Component {
     });
     this.searchData = [];
     let queries = 2;
-    window.torrentSocket.emit('searchTorrent', this.searchValue, {limit: 10, safeSearch: this.refs.safeSearch.checked}, window.customLoader((torrents) => {
+    window.torrentSocket.emit('searchTorrent', this.searchValue, {limit: 10, safeSearch: !this.notSafeSearch}, window.customLoader((torrents) => {
       if(torrents) {
         this.searchData = this.searchData.concat(torrents);
       }
@@ -40,7 +40,7 @@ export default class Search extends Component {
         this.forceUpdate();
       }
     }));
-    window.torrentSocket.emit('searchFiles', this.searchValue, {limit: 10, safeSearch: this.refs.safeSearch.checked}, window.customLoader((torrents) => {
+    window.torrentSocket.emit('searchFiles', this.searchValue, {limit: 10, safeSearch: !this.notSafeSearch}, window.customLoader((torrents) => {
       if(torrents) {
         this.searchData = this.searchData.concat(torrents);
       }
@@ -100,9 +100,10 @@ export default class Search extends Component {
             ref='safeSearch'
             checkedIcon={<Visibility />}
             uncheckedIcon={<VisibilityOff />}
-            label={<span className='text-nowrap' style={{fontSize: '0.9em', color: 'grey'}}>{this.state.safeSearchText}</span>}
+            label={<span className='text-nowrap' style={{fontSize: '0.87em', transition: '0.1s', color: this.state.safeSearchColor}}>{this.state.safeSearchText}</span>}
             iconStyle={{fill: this.state.safeSearchColor}}
             onCheck={(ev, ch) => {
+              this.notSafeSearch = ch;
               if(ch)
               {
                 this.setState({safeSearchText: 'safe search disabled', safeSearchColor: '#EC407A'});
@@ -112,6 +113,7 @@ export default class Search extends Component {
                 this.setState({safeSearchText: 'safe search enabled', safeSearchColor: 'rgb(0, 188, 212)'});
               }
             }}
+            style={{paddingBottom: '0.8em'}}
           />
         </div>
         {
