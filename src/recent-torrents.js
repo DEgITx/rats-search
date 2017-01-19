@@ -167,9 +167,11 @@ export default class RecentTorrents extends Component {
   constructor() {
   	super()
   	this.torrents = [];
+    this.torrentsAssoc = {};
   	this.displayQueue = [];
     this.displayQueueAssoc = {};
-    this.maxDisplaySize = 1000;
+    this.maxQueueSize = 1000;
+    this.maxDisplaySize = 10;
   	this.state = { 
       pause: false,
       searchingIndicator: false
@@ -201,15 +203,26 @@ export default class RecentTorrents extends Component {
 
 	  		let torrent = this.displayQueue.shift();
 	  		this.torrents.unshift(torrent);
-	  		if(this.torrents.length > 10) {
+        this.torrentsAssoc[torrent.hash] = torrent;
+	  		if(this.torrents.length > this.maxDisplaySize) {
 	  			let toDelete = this.torrents.pop()
+          delete this.torrentsAssoc[toDelete.hash];
           delete this.displayQueueAssoc[toDelete.hash];
         }
+        this.displayTorrentCounterValue = this.displayQueue.length;
 
 	  		this.forceUpdate();
         setTimeout(this.displayNewTorrent, speed);
 	  	}
       this.displayNewTorrent();
+
+      this.displayTorrentCounterValue = 0;
+      this.displayTorrentCounter = setInterval(() => {
+        if(this.displayTorrentCounterValue != this.displayQueue.length) {
+          this.displayTorrentCounterValue = this.displayQueue.length;
+          this.forceUpdate();
+        }
+      }, 40);
   	}, () => {
       this.setState({
         searchingIndicator: true
@@ -220,10 +233,9 @@ export default class RecentTorrents extends Component {
       });
     }));
   	this.newTorrentFunc = (torrent) => {
-      if(this.displayQueue.length < this.maxDisplaySize) {
+      if(this.displayQueue.length < this.maxQueueSize) {
         this.displayQueue.push(torrent);
         this.displayQueueAssoc[torrent.hash] = torrent;
-        this.forceUpdate();
       }
   	};
   	window.torrentSocket.on('newTorrent', this.newTorrentFunc);
@@ -232,7 +244,9 @@ export default class RecentTorrents extends Component {
       if(statistic.hash in this.displayQueueAssoc)
       {
         Object.assign(this.displayQueueAssoc[statistic.hash], statistic);
-        this.forceUpdate();
+        if(statistic.hash in this.torrentsAssoc) {
+          this.forceUpdate();
+        }
       }
     }
     window.torrentSocket.on('trackerTorrentUpdate', this.tracketUpdate);
@@ -249,6 +263,8 @@ export default class RecentTorrents extends Component {
       window.torrentSocket.off('trackerTorrentUpdate', this.tracketUpdate);
   	if(this.displayNewTorrent)
   		delete this.displayNewTorrent;
+    if(this.displayTorrentCounter)
+      clearInterval(this.displayTorrentCounter);
   }
   render() {
     const style = {
