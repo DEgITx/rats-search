@@ -428,10 +428,6 @@ client.on('complete', function (metadata, infohash, rinfo) {
 		filesCount = metadata.info.files.length;
 		size = 0;
 
-		pushDatabaseBalance();
-		listenerMysql.query('DELETE FROM files WHERE hash = ?', hash, function (err, result) {
-			popDatabaseBalance();
-		})
 		for(let i = 0; i < metadata.info.files.length; i++)
 		{
 			let file = metadata.info.files[i];
@@ -442,15 +438,6 @@ client.on('complete', function (metadata, infohash, rinfo) {
 				size: file.length,
 			};
 			filesArray.push(fileQ);
-			pushDatabaseBalance();
-			let query = listenerMysql.query('INSERT INTO files SET ?', fileQ, function(err, result) {
-			  popDatabaseBalance();
-			  if(!result) {
-			  	console.log(fileQ);
-			  	console.error(err);
-			  }
-			});
-
 			size += file.length;
 		}
 	}
@@ -462,15 +449,29 @@ client.on('complete', function (metadata, infohash, rinfo) {
 			size: size,
 		};
 		filesArray.push(fileQ);
-		pushDatabaseBalance();
-		let query = listenerMysql.query('INSERT INTO files SET ?', fileQ, function(err, result) {
-		  popDatabaseBalance();
-		  if(!result) {
-		  	console.log(fileQ);
-		  	console.error(err);
-		  }
-		});
 	}
+
+	listenerMysql.query('SELECT count(*) as files_count FROM files WHERE hash = ?', [hash], function(err, rows) {
+		const db_files = rows[0]['files_count'];
+		if(db_files !== filesCount)
+		{
+			pushDatabaseBalance();
+			listenerMysql.query('DELETE FROM files WHERE hash = ?', hash, function (err, result) {
+				popDatabaseBalance();
+
+				filesArray.forEach((file) => {
+					pushDatabaseBalance();
+					listenerMysql.query('INSERT INTO files SET ?', file, function(err, result) {
+					  popDatabaseBalance();
+					  if(!result) {
+					  	console.log(fileQ);
+					  	console.error(err);
+					  }
+					});
+				});
+			})
+		}
+	})
 
 	var torrentQ = {
 		hash: hash,
