@@ -451,6 +451,7 @@ client.on('complete', function (metadata, infohash, rinfo) {
 		filesArray.push(fileQ);
 	}
 
+	let filesToAdd = filesArray.length;
 	listenerMysql.query('SELECT count(*) as files_count FROM files WHERE hash = ?', [hash], function(err, rows) {
 		const db_files = rows[0]['files_count'];
 		if(db_files !== filesCount)
@@ -464,8 +465,11 @@ client.on('complete', function (metadata, infohash, rinfo) {
 					listenerMysql.query('INSERT INTO files SET ?', file, function(err, result) {
 					  popDatabaseBalance();
 					  if(!result) {
-					  	console.log(fileQ);
+					  	console.log(file);
 					  	console.error(err);
+					  }
+					  if(--filesToAdd === 0) {
+					  	io.sockets.emit('filesReady', hash);
 					  }
 					});
 				});

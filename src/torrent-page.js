@@ -141,7 +141,7 @@ export default class TorrentPage extends Page {
       value: value,
     });
   };
-  componentDidMount() {
+  getTorrentInfo() {
   	window.torrentSocket.emit('torrent', this.props.hash, {files: true}, window.customLoader((data) => {
   		if(data) {
   			this.torrent = data
@@ -162,6 +162,17 @@ export default class TorrentPage extends Page {
         searchingIndicator: false
       });
     }));
+  }
+  componentDidMount() {
+  	this.getTorrentInfo();
+  	this.filesUpdated = (hash) => {
+  		if(this.props.hash != hash)
+      		return;
+
+  		this.getTorrentInfo();
+  	}
+  	window.torrentSocket.on('filesReady', this.filesUpdated);
+
   	this.trackerUpdate = (info) => {
       if(this.props.hash != info.hash)
       	return;
@@ -175,6 +186,8 @@ export default class TorrentPage extends Page {
     window.torrentSocket.on('trackerTorrentUpdate', this.trackerUpdate);
   }
   componentWillUnmount() {
+  	if(this.filesUpdated)
+      window.torrentSocket.off('filesReady', this.filesUpdated);
   	if(this.trackerUpdate)
       window.torrentSocket.off('trackerTorrentUpdate', this.trackerUpdate);
   }
