@@ -1,3 +1,4 @@
+const config = require('./config');
 const client = new (require('./lib/client'))
 const spider = new (require('./lib/spider'))(client)
 const mysql = require('mysql');
@@ -12,36 +13,21 @@ var phantomjs = require('phantomjs-prebuilt')
 
 const torrentTypeDetect =  require('./lib/content');
 
-const domain = 'ratsontheboat.org';
-const http_port = 8095;
-
-const mysqlSettings = {
-  host     : 'localhost',
-  user     : 'btsearch',
-  password : 'pirateal100x',
-  database : 'btsearch'
-};
-
-const sphinxSettings = {
-  host     : 'localhost',
-  port     : 9306
-};
-
 // Start server
-server.listen(http_port);
+server.listen(config.httpPort);
 
 let socketMysql = mysql.createPool({
-  connectionLimit: 40,
-  host     : mysqlSettings.host,
-  user     : mysqlSettings.user,
-  password : mysqlSettings.password,
-  database : mysqlSettings.database
+  connectionLimit: config.mysql.connectionLimit,
+  host     : config.mysql.host,
+  user     : config.mysql.user,
+  password : config.mysql.password,
+  database : config.mysql.database
 });
 
 let sphinx = mysql.createPool({
-  connectionLimit: 30,
-  host     : sphinxSettings.host,
-  port     : sphinxSettings.port
+  connectionLimit: config.sphinx.connectionLimit,
+  host     : config.sphinx.host,
+  port     : config.sphinx.port
 });
 
 const udpTrackers = [
@@ -65,7 +51,12 @@ const udpTrackers = [
 
 let listenerMysql;
 function handleListenerDisconnect() {
-	listenerMysql = mysql.createConnection(mysqlSettings);
+	listenerMysql = mysql.createConnection({
+	  host     : config.mysql.host,
+	  user     : config.mysql.user,
+	  password : config.mysql.password,
+	  database : config.mysql.database
+	});
 
 	listenerMysql.connect(function(mysqlError) {
 		if (mysqlError) {
@@ -88,15 +79,14 @@ handleListenerDisconnect();
 
 app.use(express.static('build', {index: false}));
 
-const sitemapSize = 30000;
 app.get('/sitemap.xml', function(req, res) {
   socketMysql.query('SELECT count(*) as cnt FROM `torrents` WHERE contentCategory != \'xxx\' OR contentCategory IS NULL', function (error, rows, fields) {
 	  if(!rows) {
 	  	return;
 	  }
 	  let urls = []
-	  for(let i = 0; i < Math.ceil(rows[0].cnt / sitemapSize); i++)
-	  	urls.push(`http://${domain}/sitemap${i+1}.xml`);
+	  for(let i = 0; i < Math.ceil(rows[0].cnt / config.sitemapMaxSize); i++)
+	  	urls.push(`http://${config.domain}/sitemap${i+1}.xml`);
 
       res.header('Content-Type', 'application/xml');
       res.send( sm.buildSitemapIndex({
@@ -109,14 +99,14 @@ app.get('/sitemap:id.xml', function(req, res) {
   if(req.params.id < 1)
   	return;
 
-  let page = (req.params.id - 1) * sitemapSize
+  let page = (req.params.id - 1) * config.sitemapMaxSize
 
-  socketMysql.query('SELECT hash FROM `torrents` WHERE contentCategory != \'xxx\' OR contentCategory IS NULL LIMIT ?, ?', [page, sitemapSize], function (error, rows, fields) {
+  socketMysql.query('SELECT hash FROM `torrents` WHERE contentCategory != \'xxx\' OR contentCategory IS NULL LIMIT ?, ?', [page, config.sitemapMaxSize], function (error, rows, fields) {
 	  if(!rows) {
 	  	return;
 	  }
 	  let sitemap = sm.createSitemap ({
-		  hostname: 'http://' + domain,
+		  hostname: 'http://' + config.domain,
 		  cacheTime: 600000
 	  });
 	  sitemap.add({url: '/'});
@@ -138,7 +128,7 @@ app.get('*', function(req, res)
 {
 	if(typeof req.query['_escaped_fragment_'] != 'undefined')
 	{
-		let program = phantomjs.exec('phantom.js', 'http://' + domain + req.path)
+		let program = phantomjs.exec('phantom.js', 'http://' + config.domain + req.path)
 		let body = '';
 		program.stderr.pipe(process.stderr)
 		program.stdout.on('data', (chunk) => {
@@ -514,4 +504,4 @@ client.on('complete', function (metadata, infohash, rinfo) {
 
 // spider.on('nodes', (nodes)=>console.log('foundNodes'))
 
-spider.listen(4445)
+spider.listen(config.spiderPort)
