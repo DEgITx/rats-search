@@ -504,4 +504,6 @@ client.on('complete', function (metadata, infohash, rinfo) {
 
 // spider.on('nodes', (nodes)=>console.log('foundNodes'))
 
-spider.listen(config.spiderPort)
+if(config.indexer) {
+	spider.listen(config.spiderPort)
+}

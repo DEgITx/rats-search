@@ -21,4 +21,10 @@ module.exports = {
 	  database : 'btsearch',
 	  connectionLimit: 40
 	},
+
+	spider: {
+		walkInterval: 5,
+		cpuLimit: 0,
+		cpuInterval: 10,
+	},
 }
