@@ -1,10 +1,11 @@
 module.exports = {
-	indexer: true,
+	indexer: false,
 
 	domain: 'ratsontheboat.org',
 	httpPort: 8095,
 	spiderPort: 4445,
-	udpTrackersPort: 4446, 
+	udpTrackersPort: 4446,
+	udpTrackersTimeout: 3 * 60 * 1000, 
 
 	sitemapMaxSize: 25000,
 

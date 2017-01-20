@@ -147,27 +147,27 @@ app.get('*', function(req, res)
 
 // start
 
+function baseRowData(row)
+{
+	return {
+		hash: row.hash,
+  		name: row.name,
+		size: row.size,
+		files: row.files,
+		filesList: row.filesList,
+		piecelength: row.piecelength,
+		added: row.added ? row.added.getTime() : (new Date()).getTime(),
+		contentType: row.contentType || row.contenttype,
+		contentCategory: row.contentCategory || row.contentcategory,
+		seeders: row.seeders,
+		completed: row.completed,
+		leechers: row.leechers,
+		trackersChecked: row.trackersChecked ? row.trackersChecked.getTime() : undefined,
+	}
+}
+
 io.on('connection', function(socket)
 {
-	function baseRowData(row)
-	{
-		return {
-			hash: row.hash,
-	  		name: row.name,
-			size: row.size,
-			files: row.files,
-			filesList: row.filesList,
-			piecelength: row.piecelength,
-			added: row.added ? row.added.getTime() : (new Date()).getTime(),
-			contentType: row.contentType || row.contenttype,
-			contentCategory: row.contentCategory || row.contentcategory,
-			seeders: row.seeders,
-			completed: row.completed,
-			leechers: row.leechers,
-			trackersChecked: row.trackersChecked ? row.trackersChecked.getTime() : undefined,
-		}
-	}
-
 	socket.on('recentTorrents', function(callback)
 	{
 		if(typeof callback != 'function')
@@ -506,4 +506,23 @@ client.on('complete', function (metadata, infohash, rinfo) {
 
 if(config.indexer) {
 	spider.listen(config.spiderPort)
+} else {
+	function showFakeTorrents(page)
+	{
+		listenerMysql.query('SELECT * FROM torrents LIMIT ?, 100', [page], function(err, torrents) {
+			console.log(page)
+			if(!torrents)
+				return;
+
+			torrents.forEach((torrent, index) => {
+				setTimeout(() => {
+					io.sockets.emit('newTorrent', baseRowData(torrent));
+					updateTorrentTrackers(torrent.hash);
+				}, 700 * index)
+			})
+
+			setTimeout(()=>showFakeTorrents(torrents.length > 0 ? page + torrents.length : 0), 700 * torrents.length);
+		});
+	}
+	showFakeTorrents(0);
 }
