@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { TorrentLine } from './recent-torrents'
+import TorrentLine from './torrent'
 import {List, ListItem} from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 
