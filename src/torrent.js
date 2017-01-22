@@ -10,10 +10,23 @@ return (
     <div>
       <ListItem 
         onClick={() => window.router('/torrent/' + torrent.hash)} 
-        primaryText={<span className='break-word' style={{
-        	color: torrent.contentCategory != 'xxx' ? 'black' : 'grey'
-        }}>{torrent.name}</span>}
+        primaryText={
+          <a href={'/torrent/' + torrent.hash} ref={(node) => {
+            if(node)
+              node.onclick = () => { return false }
+          }}>
+            <span className='break-word' style={{
+          	 color: torrent.contentCategory != 'xxx' ? 'black' : 'grey'
+            }}>
+              {torrent.name}
+            </span>
+          </a>
+        }
         secondaryText={
+          <a href={'/torrent/' + torrent.hash} ref={(node) => {
+            if(node)
+              node.onclick = () => { return false }
+          }}>
             <div className='column' style={{height: 'auto', whiteSpace: 'normal'}}>
               <div>
               {
@@ -39,7 +52,8 @@ return (
                 null
               }
             </div>
-          }
+          </a>
+        }
         leftIcon={
           (() => {
             switch(torrent.contentType)
