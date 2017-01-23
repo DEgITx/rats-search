@@ -247,6 +247,7 @@ io.on('connection', function(socket)
 		const index = navigation.index || 0;
 		const limit = navigation.limit || 10;
 		let search = {};
+		//socketMysql.query('SELECT * FROM `torrents` WHERE `name` like \'%' + text + '%\' LIMIT ?,?', [index, limit], function (error, rows, fields) {
 		sphinx.query('SELECT * FROM `torrents_index`,`torrents_index_delta` WHERE MATCH(?) ' + (safeSearch ? "and contentcategory != 'xxx'" : '') + ' LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
 			if(!rows) {
 			  	callback(undefined)
@@ -276,14 +277,18 @@ io.on('connection', function(socket)
 		const index = navigation.index || 0;
 		const limit = navigation.limit || 10;
 		let search = {};
+		//socketMysql.query('SELECT * FROM `files` inner join torrents on(torrents.hash = files.hash) WHERE files.path like \'%' + text + '%\' LIMIT ?,?', [index, limit], function (error, rows, fields) {
 		sphinx.query('SELECT * FROM `files_index`,`files_index_delta` WHERE MATCH(?) ' + (safeSearch ? "and contentcategory != 'xxx'" : '') + ' LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
 			if(!rows) {
 			  	callback(undefined)
 			  	return;
 			}
 			rows.forEach((row) => {
-		  		search[row.hash] = baseRowData(row);
-		  		search[row.hash].path = row.path;
+				if(!(row.hash in search))
+		  			search[row.hash] = baseRowData(row);
+		  		if(!search[row.hash].path)
+		  			search[row.hash].path = []
+		  		search[row.hash].path.push(row.path);
 		  	});
 		  	callback(Object.keys(search).map(function(key) {
 			    return search[key];

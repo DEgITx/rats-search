@@ -20,17 +20,27 @@ export default class Search extends Component {
       safeSearchText: 'safe search enabled',
       safeSearchColor: 'rgb(0, 188, 212)'
     }
+    this.searchLimit = 10
   }
 
   search() {
     this.setState({
       searchingIndicator: true
     });
-    this.searchData = [];
+    this.searchTorrents = [];
+    this.moreSearchTorrents = true;
+    this.searchFiles = [];
+    this.moreSearchFiles = true;
+    this.currentSearch = this.searchValue;
     let queries = 2;
-    window.torrentSocket.emit('searchTorrent', this.searchValue, {limit: 10, safeSearch: !this.notSafeSearch}, window.customLoader((torrents) => {
+    window.torrentSocket.emit('searchTorrent', this.searchValue, {
+        limit: this.searchLimit, 
+        safeSearch: !this.notSafeSearch
+    }, window.customLoader((torrents) => {
       if(torrents) {
-        this.searchData = this.searchData.concat(torrents);
+        this.searchTorrents = torrents;
+        if(torrents.length != this.searchLimit)
+          this.moreSearchTorrents = false;
       }
       if(--queries == 0) {
         this.setState({
@@ -40,15 +50,66 @@ export default class Search extends Component {
         this.forceUpdate();
       }
     }));
-    window.torrentSocket.emit('searchFiles', this.searchValue, {limit: 10, safeSearch: !this.notSafeSearch}, window.customLoader((torrents) => {
+    window.torrentSocket.emit('searchFiles', this.searchValue, {
+      limit: this.searchLimit, 
+      safeSearch: !this.notSafeSearch
+    }, window.customLoader((torrents) => {
       if(torrents) {
-        this.searchData = this.searchData.concat(torrents);
+        this.searchFiles = torrents;
+        let files = 0;
+        torrents.forEach((torrent) => {
+          if(torrent.path && torrent.path.length > 0)
+            files += torrent.path.length
+        });
+        if(files != this.searchLimit)
+          this.moreSearchFiles = false;
       }
       if(--queries == 0) {
         this.setState({
           searchingIndicator: false
         });
       } else {
+        this.forceUpdate();
+      }
+    }));
+  }
+  moreTorrents() {
+    window.torrentSocket.emit('searchTorrent', this.currentSearch, {
+        index: this.searchTorrents.length,
+        limit: this.searchLimit, 
+        safeSearch: !this.notSafeSearch
+    }, window.customLoader((torrents) => {
+      if(torrents) {
+        this.searchTorrents = this.searchTorrents.concat(torrents);
+        if(torrents.length != this.searchLimit)
+          this.moreSearchTorrents = false;
+
+        this.forceUpdate();
+      }
+    }));
+  }
+  moreFiles() {
+    let index = 0;
+    this.searchFiles.forEach((torrent) => {
+      if(torrent.path && torrent.path.length > 0)
+        index += torrent.path.length;
+    });
+
+    window.torrentSocket.emit('searchFiles', this.currentSearch, {
+        index: index,
+        limit: this.searchLimit, 
+        safeSearch: !this.notSafeSearch
+    }, window.customLoader((torrents) => {
+      if(torrents) {
+        this.searchFiles = this.searchFiles.concat(torrents);
+        let files = 0;
+        torrents.forEach((torrent) => {
+          if(torrent.path && torrent.path.length > 0)
+            files += torrent.path.length
+        });
+        if(files != this.searchLimit)
+          this.moreSearchFiles = false;
+
         this.forceUpdate();
       }
     }));
@@ -139,7 +200,15 @@ export default class Search extends Component {
           :
           null
         }
-        <SearchResults results={this.searchData} />
+        <SearchResults 
+          torrentsSearchResults={this.searchTorrents} 
+          filesSearchResults={this.searchFiles}
+          
+          moreTorrentsEnabled={this.moreSearchTorrents}
+          moreFilesEnabled={this.moreSearchFiles}
+          onMoreTorrents={() => this.moreTorrents()}
+          onMoreFiles={() => this.moreFiles()}
+        />
       </div>
     );
   }

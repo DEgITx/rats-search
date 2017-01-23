@@ -27,7 +27,7 @@ return (
             if(node)
               node.onclick = () => { return false }
           }}>
-            <div className='column' style={{height: 'auto', whiteSpace: 'normal'}}>
+            <div className='column' style={{height: 'auto', whiteSpace: 'normal', paddingTop: '0.30em'}}>
               <div>
               {
                 formatBytes(torrent.size, 1) + ' (' + torrent.files + ' files)'
@@ -36,14 +36,16 @@ return (
               {
                 torrent.path && torrent.path.length > 0
                 ?
-                <div className='break-word fs0-75' style={{paddingTop: '0.3em'}}>{torrent.path}</div>
+                torrent.path.map((path, index) => {
+                  return <div key={index} className='break-word fs0-75' style={{paddingTop: '0.3em', marginLeft: '0.6em'}}>{path}</div>
+                })
                 :
                 null
               }
               {
                 torrent.seeders || torrent.leechers || torrent.completed
                 ?
-                <div className='break-word fs0-85' style={{paddingTop: '0.3em'}}>
+                <div className='break-word fs0-85' style={{paddingTop: '0.35em'}}>
                   <span style={{color: (torrent.seeders > 0 ? '#00C853' : 'grey')}}>{torrent.seeders} seeders</span>
                   <span style={{color: (torrent.leechers > 0 ? '#AA00FF' : 'grey'), marginLeft: '12px'}}>{torrent.leechers} leechers</span>
                   <span style={{color: (torrent.completed > 0 ? '#FF6D00' : 'grey'), marginLeft: '12px'}}>{torrent.completed} completed</span>
