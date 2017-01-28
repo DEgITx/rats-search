@@ -18,7 +18,9 @@ export default class Search extends Component {
     this.state = { 
       searchingIndicator: false,
       safeSearchText: 'safe search enabled',
-      safeSearchColor: 'rgb(0, 188, 212)'
+      safeSearchColor: 'rgb(0, 188, 212)',
+      moreTorrentsIndicator: false,
+      moreFilesIndicator: false,
     }
     this.searchLimit = 10
   }
@@ -74,6 +76,8 @@ export default class Search extends Component {
     }));
   }
   moreTorrents() {
+    this.setState({moreTorrentsIndicator: true});
+
     window.torrentSocket.emit('searchTorrent', this.currentSearch, {
         index: this.searchTorrents.length,
         limit: this.searchLimit, 
@@ -84,7 +88,7 @@ export default class Search extends Component {
         if(torrents.length != this.searchLimit)
           this.moreSearchTorrents = false;
 
-        this.forceUpdate();
+        this.setState({moreTorrentsIndicator: false});
       }
     }));
   }
@@ -94,6 +98,8 @@ export default class Search extends Component {
       if(torrent.path && torrent.path.length > 0)
         index += torrent.path.length;
     });
+
+    this.setState({moreFilesIndicator: true});
 
     window.torrentSocket.emit('searchFiles', this.currentSearch, {
         index: index,
@@ -110,7 +116,7 @@ export default class Search extends Component {
         if(files != this.searchLimit)
           this.moreSearchFiles = false;
 
-        this.forceUpdate();
+        this.setState({moreFilesIndicator: false});
       }
     }));
   }
@@ -204,10 +210,12 @@ export default class Search extends Component {
           torrentsSearchResults={this.searchTorrents} 
           filesSearchResults={this.searchFiles}
           
-          moreTorrentsEnabled={this.moreSearchTorrents}
-          moreFilesEnabled={this.moreSearchFiles}
+          moreTorrentsEnabled={this.moreSearchTorrents && !this.state.searchingIndicator}
+          moreFilesEnabled={this.moreSearchFiles && !this.state.searchingIndicator}
           onMoreTorrents={() => this.moreTorrents()}
           onMoreFiles={() => this.moreFiles()}
+          moreTorrentsIndicator={this.state.moreTorrentsIndicator}
+          moreFilesIndicator={this.state.moreFilesIndicator}
         />
       </div>
     );

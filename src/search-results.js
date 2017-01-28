@@ -4,6 +4,7 @@ import TorrentLine from './torrent'
 import {List, ListItem} from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
+import LinearProgress from 'material-ui/LinearProgress';
 
 export default class SearchResults extends Component {
   render() {
@@ -29,7 +30,7 @@ export default class SearchResults extends Component {
 	      	null
 	      }
 	      {
-	      	this.props.moreTorrentsEnabled
+	      	this.props.moreTorrentsEnabled && !this.props.moreTorrentsIndicator
 	      	?
 	      	<div>
 	      		<ListItem innerDivStyle={{textAlign: 'center', padding: '1em'}} primaryText={<span>More Torrents</span>} onClick={() => {
@@ -37,6 +38,15 @@ export default class SearchResults extends Component {
 	      				this.props.onMoreTorrents();
 	      		}} />
 	      		<Divider />
+	      	</div>
+	      	:
+	      	null
+	      }
+	      {
+	      	this.props.moreTorrentsIndicator
+	      	?
+	      	<div style={{padding: '0.8em'}}>
+	      		<LinearProgress mode="indeterminate" />
 	      	</div>
 	      	:
 	      	null
@@ -53,7 +63,7 @@ export default class SearchResults extends Component {
 	      	null
 	      }
 	      {
-	      	this.props.moreFilesEnabled
+	      	this.props.moreFilesEnabled && !this.props.moreFilesIndicator
 	      	?
 	      	<div>
 	      		<ListItem innerDivStyle={{textAlign: 'center', padding: '1em'}}  primaryText='More Files' onClick={() => {
@@ -61,6 +71,15 @@ export default class SearchResults extends Component {
 	      				this.props.onMoreFiles();
 	      		}} />
 	      		<Divider />
+	      	</div>
+	      	:
+	      	null
+	      }
+	      {
+	      	this.props.moreFilesIndicator
+	      	?
+	      	<div style={{padding: '0.8em'}}>
+	      		<LinearProgress mode="indeterminate" />
 	      	</div>
 	      	:
 	      	null
