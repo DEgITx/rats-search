@@ -52,6 +52,7 @@ const treeToTorrentFiles = (tree) => {
 	        secondaryText={formatBytes(tree[file].__sizeBT)}
 	        nestedItems={treeToTorrentFiles(tree[file])}
 	        primaryTogglesNestedList={true}
+	        innerDivStyle={{wordBreak: 'break-word'}}
 	        leftIcon={tree[file] && Object.keys(tree[file]).length > 1 ? <FileFolder /> : null}
 		 />);
 	}
