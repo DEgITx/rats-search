@@ -131,6 +131,21 @@ export default class TorrentPage extends Page {
     this.setTitle('Information about torrent');
   }
 
+  changeTab(tab) {
+  	if(this.state.value != tab) {
+	  	this.setState({
+	      value: tab
+	    });
+  		console.log('change');
+  	}
+  }
+  onSwipeRight() {
+  	this.changeTab('files');
+  }
+  onSwipeLeft() {
+  	this.changeTab('info');
+  }
+
   handleChange = (value) => {
   	if(value == 'main') {
   		window.router('/');
@@ -164,6 +179,8 @@ export default class TorrentPage extends Page {
     }));
   }
   componentDidMount() {
+  	super.componentDidMount();
+
   	this.getTorrentInfo();
   	this.filesUpdated = (hash) => {
   		if(this.props.hash != hash)
