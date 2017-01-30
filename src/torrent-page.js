@@ -162,6 +162,9 @@ export default class TorrentPage extends Page {
   		if(data) {
   			this.torrent = data
   			this.setTitle(this.torrent.name + ' - RatsOnTheBoat.org');
+        if(this.torrent.contentCategory == 'xxx') {
+          this.setMetaTag('robots', 'noindex');
+        }
   			//this.forceUpdate(); // вызывается через searchingIndicator
 
   			// Получаем более новую статистику пира
