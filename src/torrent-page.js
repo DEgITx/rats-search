@@ -127,7 +127,9 @@ export default class TorrentPage extends Page {
     super(props);
     this.state = {
       value: 'info',
-      searchingIndicator: false
+      searchingIndicator: false,
+      voting: false,
+      voted: false,
     };
     this.setTitle('Information about torrent');
   }
@@ -212,6 +214,20 @@ export default class TorrentPage extends Page {
   	if(this.trackerUpdate)
       window.torrentSocket.off('trackerTorrentUpdate', this.trackerUpdate);
   }
+  vote(good) {
+    if(!this.torrent)
+      return;
+
+    this.setState({
+        voting: true
+    });
+    window.torrentSocket.emit('vote', this.torrent.hash, !!good, window.customLoader((success) => {
+      this.setState({
+        voted: true,
+        voting: false
+      });
+    }));
+  }
   render() {
   	const style = {
       refresh: {
@@ -272,6 +288,54 @@ export default class TorrentPage extends Page {
 								 	:
 								 	null
 								 }
+                 {
+                   !this.state.voted && !this.state.voting
+                   ?
+                   <div className='row pad0-25'>
+                     <RaisedButton
+                        label={`Good (${this.torrent.good})`}
+                        labelColor="white"
+                        backgroundColor="#00C853"
+                        icon={
+                          <svg viewBox="0 0 489.543 489.543" fill="white">
+                            <g>
+                              <path d="M270.024,0c-22.6,0-15,48.3-15,48.3s-48.3,133.2-94.5,168.7c-9.9,10.4-16.1,21.9-20,31.3l0,0l0,0
+                                c-0.9,2.3-1.7,4.5-2.4,6.5c-3.1,6.3-9.7,16-23.8,24.5l46.2,200.9c0,0,71.5,9.3,143.2,7.8c28.7,2.3,59.1,2.5,83.3-2.7
+                                c82.2-17.5,61.6-74.8,61.6-74.8c44.3-33.3,19.1-74.9,19.1-74.9c39.4-41.1,0.7-75.6,0.7-75.6s21.3-33.2-6.2-58.3
+                                c-34.3-31.4-127.4-10.5-127.4-10.5l0,0c-6.5,1.1-13.4,2.5-20.8,4.3c0,0-32.2,15,0-82.7C346.324,15.1,292.624,0,270.024,0z"/>
+                              <path d="M127.324,465.7l-35-166.3c-2-9.5-11.6-17.3-21.3-17.3h-66.8l-0.1,200.8h109.1C123.024,483,129.324,475.2,127.324,465.7z"
+                                />
+                            </g>
+                          </svg>
+                        }
+                        onClick={() => this.vote(true)}
+                      />
+                      <RaisedButton
+                        style={{marginLeft: '9px'}}
+                        label={`Bad (${this.torrent.bad})`}
+                        labelColor="white"
+                        backgroundColor="#D50000"
+                        icon={
+                          <svg viewBox="0 0 487.643 487.643" fill="white">
+                          <g>
+                            <path d="M113.869,209.443l46-200.1c0,0,71.2-9.3,142.6-7.8c28.5-2.3,58.9-2.5,83,2.7c81.9,17.4,61.4,74.5,61.4,74.5
+                              c44.2,33.2,19,74.6,19,74.6c39.2,41,0.7,75.3,0.7,75.3s21.2,33-6.1,58c-34.2,31.2-126.9,10.5-126.9,10.5l0,0
+                              c-6.4-1.1-13.3-2.5-20.7-4.2c0,0-32.1-15,0,82.4s-21.4,112.3-43.9,112.3s-15-48.1-15-48.1s-48.1-132.7-94.1-168
+                              c-9.9-10.4-16.1-21.8-19.9-31.2l0,0l0,0c-0.9-2.3-1.7-4.5-2.4-6.5C134.469,227.543,127.869,217.843,113.869,209.443z
+                               M70.869,206.643c9.7,0,19.2-7.7,21.2-17.2l34.8-165.6c2-9.5-4.3-17.2-14-17.2H4.169l0.1,200H70.869z"/>
+                          </g>
+                          </svg>
+                        }
+                        onClick={() => this.vote(false)}
+                      />
+                    </div>
+                    :
+                      this.state.voting
+                      ?
+                      <div>voting...</div>
+                      :
+                      <div>Thank you for voting!</div>
+                }
    							</div>
    						</div>
    					</div>

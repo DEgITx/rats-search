@@ -10,6 +10,7 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var sm = require('sitemap');
 var phantomjs = require('phantomjs-prebuilt')
+var ipaddr = require('ipaddr.js');
 
 const torrentTypeDetect =  require('./lib/content');
 
@@ -163,6 +164,8 @@ function baseRowData(row)
 		completed: row.completed,
 		leechers: row.leechers,
 		trackersChecked: row.trackersChecked ? row.trackersChecked.getTime() : undefined,
+		good: row.good,
+		bad: row.bad,
 	}
 }
 
@@ -304,6 +307,53 @@ io.on('connection', function(socket)
 		updateTorrentTrackers(hash);
 	});
 
+	let socketIPV4 = () => {
+		let ip = socket.request.connection.remoteAddress;
+		if (ipaddr.IPv4.isValid(ip)) {
+		  // all ok
+		} else if (ipaddr.IPv6.isValid(ip)) {
+		  let ipv6 = ipaddr.IPv6.parse(ip);
+		  if (ipv6.isIPv4MappedAddress()) {
+		    ip = ipv6.toIPv4Address().toString();
+		  }
+		}
+		return ip
+	};
+
+	socket.on('vote', function(hash, isGood, callback)
+	{
+		if(hash.length != 40)
+			return;
+
+		if(typeof callback != 'function')
+			return;
+
+		const ip = socketIPV4();
+		isGood = !!isGood;
+
+		socketMysql.query('SELECT * FROM `torrents_actions` WHERE `hash` = ? AND (`action` = \'good\' OR `action` = \'bad\') AND ipv4 = ?', [hash, ip], function (error, rows, fields) {
+		  if(!rows) {
+		  	console.error(error);
+		  }
+		  if(rows.length > 0) {
+		  	callback(false)
+		  	return
+		  }
+
+		  const action = isGood ? 'good' : 'bad';
+		  socketMysql.query('INSERT INTO `torrents_actions` SET ?', {hash, action, ipv4: ip}, function(err, result) {
+			  if(!result) {
+			  	console.error(err);
+			  }
+			  socketMysql.query('UPDATE torrents SET ' + action + ' = ' + action + ' + 1 WHERE hash = ?', hash, function(err, result) {
+			  	if(!result) {
+				  console.error(err);
+				}
+			  	callback(true)
+			  });
+		  });
+		});
+	});
 });
 
 let undoneQueries = 0;
