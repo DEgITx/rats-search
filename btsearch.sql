@@ -29,7 +29,7 @@ CREATE TABLE `files` (
   `fileid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`fileid`),
   KEY `hash` (`hash`)
-) ENGINE=InnoDB AUTO_INCREMENT=13878008 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=25243496 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -83,10 +83,27 @@ CREATE TABLE `torrents` (
   `completed` int(10) unsigned DEFAULT NULL,
   `torrentid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `trackersChecked` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `good` int(10) unsigned DEFAULT '0',
+  `bad` int(10) unsigned DEFAULT '0',
   PRIMARY KEY (`hash`),
   UNIQUE KEY `torrentid` (`torrentid`),
   KEY `added` (`added`)
-) ENGINE=InnoDB AUTO_INCREMENT=389511 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1044293 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `torrents_actions`
+--
+
+DROP TABLE IF EXISTS `torrents_actions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `torrents_actions` (
+  `hash` char(40) NOT NULL,
+  `action` varchar(32) DEFAULT NULL,
+  `ipv4` char(15) DEFAULT NULL,
+  KEY `hash` (`hash`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -98,4 +115,4 @@ CREATE TABLE `torrents` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-01-14  9:33:52
+-- Dump completed on 2017-01-30 12:10:40
