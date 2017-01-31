@@ -213,6 +213,9 @@ export default class TorrentPage extends Page {
       window.torrentSocket.off('filesReady', this.filesUpdated);
   	if(this.trackerUpdate)
       window.torrentSocket.off('trackerTorrentUpdate', this.trackerUpdate);
+    if(this.torrent && this.torrent.contentCategory == 'xxx') {
+      this.removeMetaTag('robots');
+    }
   }
   vote(good) {
     if(!this.torrent)

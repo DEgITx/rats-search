@@ -10,7 +10,7 @@ export default class Page extends Component {
 	setDescription(description) {
 		this.setMetaTag('description', description);
 	}
-	setMetaTag(name, content) {
+	findMetaTag(name) {
 		const head = document.getElementsByTagName('head')[0];
 		const headChilds = head.children;
 		let meta;
@@ -20,11 +20,21 @@ export default class Page extends Component {
 				break;
 			}
 		}
+		return {head, meta};
+	}
+	setMetaTag(name, content) {
+		let {head, meta} = this.findMetaTag(name);
 		if(!meta) {
 			meta = document.createElement('meta');
 			head.appendChild(meta);
 		}
 		meta.name = name;
 		meta.content = content;
+	}
+	removeMetaTag(name) {
+		let {head, meta} = this.findMetaTag(name);
+		if(meta) {
+			head.removeChild(meta);
+		}
 	}
 }
