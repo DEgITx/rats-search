@@ -18,7 +18,7 @@ socketMysql.connect(function(mysqlError) {
 
         let current = 0;
         function func(index) {
-            socketMysql.query("SELECT * FROM `torrents` WHERE (`contentType` = 'video' or contentType = 'pictures') and contentCategory IS NULL LIMIT ?, 30000", [index], function (error, torrents, fields) {
+            socketMysql.query("SELECT * FROM `torrents` WHERE (`contentType` = 'video' or contentType = 'pictures' or contentType = 'archive') and contentCategory IS NULL LIMIT ?, 30000", [index], function (error, torrents, fields) {
                     let records = torrents.length;
                     let next = index + records;
                     if(records == 0)

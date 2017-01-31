@@ -340,17 +340,31 @@ io.on('connection', function(socket)
 		  	return
 		  }
 
-		  const action = isGood ? 'good' : 'bad';
-		  socketMysql.query('INSERT INTO `torrents_actions` SET ?', {hash, action, ipv4: ip}, function(err, result) {
-			  if(!result) {
-			  	console.error(err);
-			  }
-			  socketMysql.query('UPDATE torrents SET ' + action + ' = ' + action + ' + 1 WHERE hash = ?', hash, function(err, result) {
-			  	if(!result) {
-				  console.error(err);
-				}
-			  	callback(true)
-			  });
+		  socketMysql.query('SELECT good, bad FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
+		  	if(!rows || rows.length == 0)
+		  		return;
+
+		  	let {good, bad} = rows[0];
+		  	const action = isGood ? 'good' : 'bad';
+			socketMysql.query('INSERT INTO `torrents_actions` SET ?', {hash, action, ipv4: ip}, function(err, result) {
+				  if(!result) {
+				  	console.error(err);
+				  }
+				  socketMysql.query('UPDATE torrents SET ' + action + ' = ' + action + ' + 1 WHERE hash = ?', hash, function(err, result) {
+				  	if(!result) {
+					  console.error(err);
+					}
+					if(isGood) {
+						good++;
+					} else {
+						bad++;
+					}
+					io.sockets.emit('vote', {
+				  		hash, good, bad
+				  	});
+				  	callback(true)
+				  });
+			});
 		  });
 		});
 	});

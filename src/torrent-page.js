@@ -16,6 +16,8 @@ import NoImage from './images/no-image-icon.png'
 
 var moment = require('moment');
 import RefreshIndicator from 'material-ui/RefreshIndicator';
+let rating = require('../lib/rating');
+import LinearProgress from 'material-ui/LinearProgress';
 
 let buildFilesTree = (filesList) => {
 	let rootTree = {
@@ -207,12 +209,27 @@ export default class TorrentPage extends Page {
       this.forceUpdate();
     }
     window.torrentSocket.on('trackerTorrentUpdate', this.trackerUpdate);
+
+    this.onVote = ({hash, good, bad}) => {
+      if(this.props.hash != hash)
+        return;
+
+      if(!this.torrent)
+        return;
+
+      this.torrent.good = good;
+      this.torrent.bad = bad;
+      this.forceUpdate();
+    }
+    window.torrentSocket.on('vote', this.onVote);
   }
   componentWillUnmount() {
   	if(this.filesUpdated)
       window.torrentSocket.off('filesReady', this.filesUpdated);
   	if(this.trackerUpdate)
       window.torrentSocket.off('trackerTorrentUpdate', this.trackerUpdate);
+    if(this.onVote)
+      window.torrentSocket.off('vote', this.onVote);
     if(this.torrent && this.torrent.contentCategory == 'xxx') {
       this.removeMetaTag('robots');
     }
@@ -252,6 +269,11 @@ export default class TorrentPage extends Page {
           />
         </div>
       );
+    }
+
+    let torrentRating;
+    if(this.torrent) {
+      torrentRating = Math.round(rating(this.torrent.good, this.torrent.bad) * 100);
     }
 
     return (
@@ -338,6 +360,23 @@ export default class TorrentPage extends Page {
                       <div>voting...</div>
                       :
                       <div>Thank you for voting!</div>
+                }
+                {
+                  this.torrent.good > 0 || this.torrent.bad > 0
+                  ?
+                  <div className='w100p' style={{padding: '7px 35px', marginTop: '10px'}}>
+                    <LinearProgress 
+                      mode="determinate" 
+                      value={torrentRating}
+                      color={torrentRating >= 50 ? '#00E676' : '#FF3D00'}
+                      style={{
+                        height: '5px',
+                      }}
+                    />
+                    <div className='row center pad0-75 fs0-85' style={{color: torrentRating >= 50 ? '#00E676' : '#FF3D00'}}>Torrent rating: {torrentRating}%</div>
+                  </div>
+                  :
+                  null
                 }
    							</div>
    						</div>
