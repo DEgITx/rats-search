@@ -131,11 +131,15 @@ app.get('*', function(req, res)
 	{
 		let program = phantomjs.exec('phantom.js', 'http://' + config.domain + req.path)
 		let body = '';
+		let timeout = setTimeout(() => {
+			program.kill();
+		}, 45000)
 		program.stderr.pipe(process.stderr)
 		program.stdout.on('data', (chunk) => {
 		    body += chunk;
 		});
 		program.on('exit', code => {
+		  clearTimeout(timeout);
 		  res.header('Content-Type', 'text/html');
 		  res.send( body );
 		})
