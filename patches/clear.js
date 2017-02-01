@@ -1,5 +1,5 @@
 const mysql = require('mysql');
-const torrentTypeDetect =  require('../lib/content');
+const {torrentTypeDetect} =  require('../lib/content');
 
 const mysqlSettings = {
   host     : 'localhost',

@@ -12,7 +12,7 @@ var sm = require('sitemap');
 var phantomjs = require('phantomjs-prebuilt')
 var ipaddr = require('ipaddr.js');
 
-const torrentTypeDetect =  require('./lib/content');
+const {torrentTypeDetect} = require('./lib/content');
 
 // Start server
 server.listen(config.httpPort);

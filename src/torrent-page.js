@@ -18,6 +18,8 @@ var moment = require('moment');
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 let rating = require('../lib/rating');
 import LinearProgress from 'material-ui/LinearProgress';
+import {fileTypeDetect} from '../lib/content'
+import {contentIcon} from './torrent'
 
 let buildFilesTree = (filesList) => {
 	let rootTree = {
@@ -55,7 +57,7 @@ const treeToTorrentFiles = (tree) => {
 	        nestedItems={treeToTorrentFiles(tree[file])}
 	        primaryTogglesNestedList={true}
 	        innerDivStyle={{wordBreak: 'break-word'}}
-	        leftIcon={tree[file] && Object.keys(tree[file]).length > 1 ? <FileFolder /> : null}
+	        leftIcon={tree[file] && Object.keys(tree[file]).length > 1 ? <FileFolder /> : contentIcon(fileTypeDetect({path: file}))}
 		 />);
 	}
 	return arr;
