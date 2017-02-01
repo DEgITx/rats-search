@@ -17,7 +17,7 @@ const torrentTypeDetect =  require('./lib/content');
 // Start server
 server.listen(config.httpPort);
 
-let socketMysql = mysql.createPool({
+let mysqlPool = mysql.createPool({
   connectionLimit: config.mysql.connectionLimit,
   host     : config.mysql.host,
   user     : config.mysql.user,
@@ -50,23 +50,23 @@ const udpTrackers = [
 	}
 ]
 
-let listenerMysql;
+let mysqlSingle;
 function handleListenerDisconnect() {
-	listenerMysql = mysql.createConnection({
+	mysqlSingle = mysql.createConnection({
 	  host     : config.mysql.host,
 	  user     : config.mysql.user,
 	  password : config.mysql.password,
 	  database : config.mysql.database
 	});
 
-	listenerMysql.connect(function(mysqlError) {
+	mysqlSingle.connect(function(mysqlError) {
 		if (mysqlError) {
 			console.error('error connecting: ' + mysqlError.stack);
 			return;
 		}
 	});
 
-	listenerMysql.on('error', function(err) {
+	mysqlSingle.on('error', function(err) {
 	    console.log('db error', err);
 	    if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
 	      handleListenerDisconnect();                         // lost due to either server restart, or a
@@ -81,7 +81,7 @@ handleListenerDisconnect();
 app.use(express.static('build', {index: false}));
 
 app.get('/sitemap.xml', function(req, res) {
-  socketMysql.query('SELECT count(*) as cnt FROM `torrents` WHERE contentCategory != \'xxx\' OR contentCategory IS NULL', function (error, rows, fields) {
+  mysqlPool.query('SELECT count(*) as cnt FROM `torrents` WHERE contentCategory != \'xxx\' OR contentCategory IS NULL', function (error, rows, fields) {
 	  if(!rows) {
 	  	return;
 	  }
@@ -102,7 +102,7 @@ app.get('/sitemap:id.xml', function(req, res) {
 
   let page = (req.params.id - 1) * config.sitemapMaxSize
 
-  socketMysql.query('SELECT hash FROM `torrents` WHERE contentCategory != \'xxx\' OR contentCategory IS NULL LIMIT ?, ?', [page, config.sitemapMaxSize], function (error, rows, fields) {
+  mysqlPool.query('SELECT hash FROM `torrents` WHERE contentCategory != \'xxx\' OR contentCategory IS NULL LIMIT ?, ?', [page, config.sitemapMaxSize], function (error, rows, fields) {
 	  if(!rows) {
 	  	return;
 	  }
@@ -180,7 +180,7 @@ io.on('connection', function(socket)
 		if(typeof callback != 'function')
 			return;
 
-		socketMysql.query('SELECT * FROM `torrents` ORDER BY added DESC LIMIT 0,10', function (error, rows, fields) {
+		mysqlPool.query('SELECT * FROM `torrents` ORDER BY added DESC LIMIT 0,10', function (error, rows, fields) {
 		  if(!rows) {
 		  	callback(undefined)
 		  	return;
@@ -200,7 +200,7 @@ io.on('connection', function(socket)
 		if(typeof callback != 'function')
 			return;
 
-		socketMysql.query('SELECT * FROM `statistic`', function (error, rows, fields) {
+		mysqlPool.query('SELECT * FROM `statistic`', function (error, rows, fields) {
 		  if(!rows) {
 		  	callback(undefined)
 		  	return;
@@ -218,7 +218,7 @@ io.on('connection', function(socket)
 		if(typeof callback != 'function')
 			return;
 
-		socketMysql.query('SELECT * FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
+		mysqlPool.query('SELECT * FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
 		  if(!rows || rows.length == 0) {
 		  	callback(undefined)
 		  	return;
@@ -227,7 +227,7 @@ io.on('connection', function(socket)
 
 		  if(options.files)
 		  {
-			  socketMysql.query('SELECT * FROM `files` WHERE `hash` = ?', hash, function (error, rows, fields) {
+			  mysqlPool.query('SELECT * FROM `files` WHERE `hash` = ?', hash, function (error, rows, fields) {
 				  torrent.filesList = rows;
 				  callback(baseRowData(torrent))
 			  });
@@ -254,7 +254,7 @@ io.on('connection', function(socket)
 		const index = navigation.index || 0;
 		const limit = navigation.limit || 10;
 		let search = {};
-		//socketMysql.query('SELECT * FROM `torrents` WHERE `name` like \'%' + text + '%\' LIMIT ?,?', [index, limit], function (error, rows, fields) {
+		//mysqlPool.query('SELECT * FROM `torrents` WHERE `name` like \'%' + text + '%\' LIMIT ?,?', [index, limit], function (error, rows, fields) {
 		sphinx.query('SELECT * FROM `torrents_index`,`torrents_index_delta` WHERE MATCH(?) ' + (safeSearch ? "and contentcategory != 'xxx'" : '') + ' LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
 			if(!rows) {
 			  	callback(undefined)
@@ -284,7 +284,7 @@ io.on('connection', function(socket)
 		const index = navigation.index || 0;
 		const limit = navigation.limit || 10;
 		let search = {};
-		//socketMysql.query('SELECT * FROM `files` inner join torrents on(torrents.hash = files.hash) WHERE files.path like \'%' + text + '%\' LIMIT ?,?', [index, limit], function (error, rows, fields) {
+		//mysqlPool.query('SELECT * FROM `files` inner join torrents on(torrents.hash = files.hash) WHERE files.path like \'%' + text + '%\' LIMIT ?,?', [index, limit], function (error, rows, fields) {
 		sphinx.query('SELECT * FROM `files_index`,`files_index_delta` WHERE MATCH(?) ' + (safeSearch ? "and contentcategory != 'xxx'" : '') + ' LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
 			if(!rows) {
 			  	callback(undefined)
@@ -335,7 +335,7 @@ io.on('connection', function(socket)
 		const ip = socketIPV4();
 		isGood = !!isGood;
 
-		socketMysql.query('SELECT * FROM `torrents_actions` WHERE `hash` = ? AND (`action` = \'good\' OR `action` = \'bad\') AND ipv4 = ?', [hash, ip], function (error, rows, fields) {
+		mysqlPool.query('SELECT * FROM `torrents_actions` WHERE `hash` = ? AND (`action` = \'good\' OR `action` = \'bad\') AND ipv4 = ?', [hash, ip], function (error, rows, fields) {
 		  if(!rows) {
 		  	console.error(error);
 		  }
@@ -344,17 +344,17 @@ io.on('connection', function(socket)
 		  	return
 		  }
 
-		  socketMysql.query('SELECT good, bad FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
+		  mysqlPool.query('SELECT good, bad FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
 		  	if(!rows || rows.length == 0)
 		  		return;
 
 		  	let {good, bad} = rows[0];
 		  	const action = isGood ? 'good' : 'bad';
-			socketMysql.query('INSERT INTO `torrents_actions` SET ?', {hash, action, ipv4: ip}, function(err, result) {
+			mysqlPool.query('INSERT INTO `torrents_actions` SET ?', {hash, action, ipv4: ip}, function(err, result) {
 				  if(!result) {
 				  	console.error(err);
 				  }
-				  socketMysql.query('UPDATE torrents SET ' + action + ' = ' + action + ' + 1 WHERE hash = ?', hash, function(err, result) {
+				  mysqlPool.query('UPDATE torrents SET ' + action + ' = ' + action + ' + 1 WHERE hash = ?', hash, function(err, result) {
 				  	if(!result) {
 					  console.error(err);
 					}
@@ -395,23 +395,23 @@ let popDatabaseBalance = () => {
 setInterval(() => {
 	let stats = {};
 	pushDatabaseBalance();
-	listenerMysql.query('SELECT COUNT(*) as tornum FROM `torrents`', function (error, rows, fields) {
+	mysqlSingle.query('SELECT COUNT(*) as tornum FROM `torrents`', function (error, rows, fields) {
 	  popDatabaseBalance();
 	  stats.torrents = rows[0].tornum;
 	  pushDatabaseBalance();
-	  listenerMysql.query('SELECT COUNT(*) as filesnum, SUM(`size`) as filesizes FROM `files`', function (error, rows, fields) {
+	  mysqlSingle.query('SELECT COUNT(*) as filesnum, SUM(`size`) as filesizes FROM `files`', function (error, rows, fields) {
 	  	popDatabaseBalance();
 	  	stats.files = rows[0].filesnum;
 	  	stats.size = rows[0].filesizes;
 	  	io.sockets.emit('newStatistic', stats);
 	  	pushDatabaseBalance();
-	  	listenerMysql.query('DELETE FROM `statistic`', function (err, result) {
+	  	mysqlSingle.query('DELETE FROM `statistic`', function (err, result) {
 	  		popDatabaseBalance();
 	  		if(!result) {
 		  	  console.error(err);
 		    }
 		    pushDatabaseBalance();
-			listenerMysql.query('INSERT INTO `statistic` SET ?', stats, function(err, result) {
+			mysqlSingle.query('INSERT INTO `statistic` SET ?', stats, function(err, result) {
 			  popDatabaseBalance();
 			  if(!result) {
 			  	console.error(err);
@@ -425,7 +425,7 @@ setInterval(() => {
 const updateTorrentTrackers = (hash) => {
 	let maxSeeders = 0, maxLeechers = 0, maxCompleted = 0;
 	pushDatabaseBalance();
-	listenerMysql.query('UPDATE torrents SET trackersChecked = ? WHERE hash = ?', [new Date(), hash], function(err, result) {
+	mysqlSingle.query('UPDATE torrents SET trackersChecked = ? WHERE hash = ?', [new Date(), hash], function(err, result) {
 	  popDatabaseBalance();
 	  if(!result) {
   	  	console.error(err);
@@ -438,7 +438,7 @@ const updateTorrentTrackers = (hash) => {
 
 		  		/*
 		  		pushDatabaseBalance();
-		  		listenerMysql.query('INSERT INTO trackers SET ?', statistic, function(err, result) {
+		  		mysqlSingle.query('INSERT INTO trackers SET ?', statistic, function(err, result) {
 		  			popDatabaseBalance();
 		  		});
 		  		*/
@@ -461,7 +461,7 @@ const updateTorrentTrackers = (hash) => {
 		  		let checkTime = new Date();
 
 		  		pushDatabaseBalance();
-		  		listenerMysql.query('UPDATE torrents SET seeders = ?, completed = ?, leechers = ?, trackersChecked = ? WHERE hash = ?', [seeders, completed, leechers, checkTime, hash], function(err, result) {
+		  		mysqlSingle.query('UPDATE torrents SET seeders = ?, completed = ?, leechers = ?, trackersChecked = ? WHERE hash = ?', [seeders, completed, leechers, checkTime, hash], function(err, result) {
 		  			popDatabaseBalance();
 		  			if(!result) {
 		  				return
@@ -515,17 +515,17 @@ client.on('complete', function (metadata, infohash, rinfo) {
 	}
 
 	let filesToAdd = filesArray.length;
-	listenerMysql.query('SELECT count(*) as files_count FROM files WHERE hash = ?', [hash], function(err, rows) {
+	mysqlSingle.query('SELECT count(*) as files_count FROM files WHERE hash = ?', [hash], function(err, rows) {
 		const db_files = rows[0]['files_count'];
 		if(db_files !== filesCount)
 		{
 			pushDatabaseBalance();
-			listenerMysql.query('DELETE FROM files WHERE hash = ?', hash, function (err, result) {
+			mysqlSingle.query('DELETE FROM files WHERE hash = ?', hash, function (err, result) {
 				popDatabaseBalance();
 
 				filesArray.forEach((file) => {
 					pushDatabaseBalance();
-					listenerMysql.query('INSERT INTO files SET ?', file, function(err, result) {
+					mysqlSingle.query('INSERT INTO files SET ?', file, function(err, result) {
 					  popDatabaseBalance();
 					  if(!result) {
 					  	console.log(file);
@@ -553,7 +553,7 @@ client.on('complete', function (metadata, infohash, rinfo) {
 	torrentTypeDetect(torrentQ, filesArray);
 
 	pushDatabaseBalance();
-	var query = listenerMysql.query('INSERT INTO torrents SET ? ON DUPLICATE KEY UPDATE hash=hash', torrentQ, function(err, result) {
+	var query = mysqlSingle.query('INSERT INTO torrents SET ? ON DUPLICATE KEY UPDATE hash=hash', torrentQ, function(err, result) {
 	  popDatabaseBalance();
 	  if(result) {
 	  	io.sockets.emit('newTorrent', {
@@ -582,7 +582,7 @@ if(config.indexer) {
 } else {
 	function showFakeTorrents(page)
 	{
-		listenerMysql.query('SELECT * FROM torrents LIMIT ?, 100', [page], function(err, torrents) {
+		mysqlSingle.query('SELECT * FROM torrents LIMIT ?, 100', [page], function(err, torrents) {
 			console.log(page)
 			if(!torrents)
 				return;
