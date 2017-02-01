@@ -395,11 +395,11 @@ let popDatabaseBalance = () => {
 setInterval(() => {
 	let stats = {};
 	pushDatabaseBalance();
-	mysqlSingle.query('SELECT COUNT(*) as tornum FROM `torrents`', function (error, rows, fields) {
+	mysqlPool.query('SELECT COUNT(*) as tornum FROM `torrents`', function (error, rows, fields) {
 	  popDatabaseBalance();
 	  stats.torrents = rows[0].tornum;
 	  pushDatabaseBalance();
-	  mysqlSingle.query('SELECT COUNT(*) as filesnum, SUM(`size`) as filesizes FROM `files`', function (error, rows, fields) {
+	  mysqlPool.query('SELECT COUNT(*) as filesnum, SUM(`size`) as filesizes FROM `files`', function (error, rows, fields) {
 	  	popDatabaseBalance();
 	  	stats.files = rows[0].filesnum;
 	  	stats.size = rows[0].filesizes;
