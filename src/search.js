@@ -11,6 +11,8 @@ import VisibilityOff from 'material-ui/svg-icons/action/visibility-off';
 
 import formatBytes from './format-bytes'
 
+let session;
+
 export default class Search extends Component {
   constructor(props)
   {
@@ -23,6 +25,17 @@ export default class Search extends Component {
       moreFilesIndicator: false,
     }
     this.searchLimit = 10
+    
+    if(session)
+    {
+      this.searchTorrents = session.searchTorrents;
+      this.searchFiles = session.searchFiles;
+      this.moreSearchTorrents = session.moreSearchTorrents;
+      this.moreSearchFiles = session.moreSearchFiles;
+      this.currentSearch = session.currentSearch;
+      this.searchValue = session.searchValue;
+      Object.assign(this.state, this.setSafeSearch(session.notSafeSearch))
+    }
   }
 
   search() {
@@ -134,6 +147,27 @@ export default class Search extends Component {
   {
     if(this.newStatisticFunc)
       window.torrentSocket.off('newStatistic', this.newStatisticFunc);
+
+    session = {
+      searchTorrents: this.searchTorrents,
+      searchFiles: this.searchFiles,
+      moreSearchTorrents: this.moreSearchTorrents,
+      moreSearchFiles: this.moreSearchFiles,
+      currentSearch: this.currentSearch,
+      searchValue: this.searchValue,
+      notSafeSearch: this.notSafeSearch,
+    } 
+  }
+  setSafeSearch(ch) {
+    this.notSafeSearch = ch;
+    if(ch)
+    {
+      return {safeSearchText: 'safe search disabled', safeSearchColor: '#EC407A'}
+    }
+    else
+    {
+      return {safeSearchText: 'safe search enabled', safeSearchColor: 'rgb(0, 188, 212)'}
+    }
   }
   render() {
     const style = {
@@ -151,6 +185,7 @@ export default class Search extends Component {
               floatingLabelText="What to search?"
               fullWidth={true}
               ref='searchInput'
+              defaultValue={this.searchValue}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   this.search();
@@ -165,20 +200,13 @@ export default class Search extends Component {
         <div className='row'>
           <Checkbox
             ref='safeSearch'
+            checked={this.notSafeSearch ? true : false}
             checkedIcon={<Visibility />}
             uncheckedIcon={<VisibilityOff />}
             label={<span className='text-nowrap' style={{fontSize: '0.87em', transition: '0.1s', color: this.state.safeSearchColor}}>{this.state.safeSearchText}</span>}
             iconStyle={{fill: this.state.safeSearchColor}}
             onCheck={(ev, ch) => {
-              this.notSafeSearch = ch;
-              if(ch)
-              {
-                this.setState({safeSearchText: 'safe search disabled', safeSearchColor: '#EC407A'});
-              }
-              else
-              {
-                this.setState({safeSearchText: 'safe search enabled', safeSearchColor: 'rgb(0, 188, 212)'});
-              }
+              this.setState(this.setSafeSearch(ch));
             }}
             style={{paddingBottom: '0.8em'}}
           />
