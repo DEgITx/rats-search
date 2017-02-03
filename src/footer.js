@@ -22,7 +22,7 @@ export default (props) => {
 					C243.779,80.572,238.768,71.728,220.195,71.427z"/>
 			</svg>
 
-      		<iframe data-aa='405400' src='//ad.a-ads.com/405400?size=468x60' scrolling='no' style={{width: '100%', height: '60px', border: '0px', padding: '0', overflow: 'hidden'}} allowTransparency='true'></iframe>
+      		<iframe data-aa='405459' src='//ad.a-ads.com/405459?size=468x60' scrolling='no' style={{width: '100%', height: '60px', border: '0px', padding: '0', overflow: 'hidden'}} allowTransparency='true'></iframe>
       		<div className='fs0-75 pad0-75'>Don't hesitate and visit the banners, we are trying to survive among dark blue sea</div>
       	</div>
 	)
