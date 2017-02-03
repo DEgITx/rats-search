@@ -22,10 +22,8 @@ export default (props) => {
 					C243.779,80.572,238.768,71.728,220.195,71.427z"/>
 			</svg>
 
-      		<a className='column center pad0-25' target="_blank" href="http://ads4btc.com/?r=506236015">
-      			<img src="http://ads4btc.com/zx-temp/uploads/image_7d8df9bf3ff66719003abb90d49ac942f69bb7eb.gif" border="0" alt="468x60 #2" width="468" height="60" />
-      			<div className='fs0-75 pad0-75'>Don't hesitate and visit the banner, we are trying to survive among dark blue sea</div>
-      		</a>
+      		<iframe data-aa='405400' src='//ad.a-ads.com/405400?size=468x60' scrolling='no' style={{width: '100%', height: '60px', border: '0px', padding: '0', overflow: 'hidden'}} allowTransparency='true'></iframe>
+      		<div className='fs0-75 pad0-75'>Don't hesitate and visit the banners, we are trying to survive among dark blue sea</div>
       	</div>
 	)
 }
