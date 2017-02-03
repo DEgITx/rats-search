@@ -1,8 +1,8 @@
 const config = require('./config');
-const client = new (require('./lib/client'))
-const spider = new (require('./lib/spider'))(client)
+const client = new (require('./bt/client'))
+const spider = new (require('./bt/spider'))(client)
 const mysql = require('mysql');
-const getPeersStatisticUDP = require('./lib/udp-tracker-request')
+const getPeersStatisticUDP = require('./bt/udp-tracker-request')
 
 var express = require('express');
 var app = express();
@@ -12,7 +12,7 @@ var sm = require('sitemap');
 var phantomjs = require('phantomjs-prebuilt')
 var ipaddr = require('ipaddr.js');
 
-const {torrentTypeDetect} = require('./lib/content');
+const {torrentTypeDetect} = require('./src/content');
 
 // Start server
 server.listen(config.httpPort);

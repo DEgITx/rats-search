@@ -16,9 +16,9 @@ import NoImage from './images/no-image-icon.png'
 
 var moment = require('moment');
 import RefreshIndicator from 'material-ui/RefreshIndicator';
-let rating = require('../lib/rating');
+let rating = require('./rating');
 import LinearProgress from 'material-ui/LinearProgress';
-import {fileTypeDetect} from '../lib/content'
+import {fileTypeDetect} from './content'
 import {contentIcon} from './torrent'
 
 let buildFilesTree = (filesList) => {
