@@ -279,11 +279,12 @@ export default class TorrentPage extends Page {
     }
 
     return (
-      <div className="w100p">
+      <div className="w100p column center">
       {
    			this.torrent
    			?
    			<Tabs
+            className='w100p'
 		        value={this.state.value}
 		        onChange={this.handleChange}
 		     >
