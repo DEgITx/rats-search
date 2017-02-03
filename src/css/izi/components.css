@@ -28,3 +28,34 @@
 	}
 }
 
+.recent-torrents {
+	width: 60%
+}
+
+@media only screen and (max-width: 1250px) 
+{ 
+	.recent-torrents {
+		width: 68%
+	}
+}
+
+@media only screen and (max-width: 1100px) 
+{ 
+	.recent-torrents {
+		width: 75%
+	}
+}
+
+@media only screen and (max-width: 800px) 
+{ 
+	.recent-torrents {
+		width: 90%
+	}
+}
+
+@media only screen and (max-width: 650px) 
+{ 
+	.recent-torrents {
+		width: 100%
+	}
+}

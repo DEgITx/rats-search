@@ -137,7 +137,7 @@ export default class RecentTorrents extends Component {
       return null;
 
     return (
-      <List className='animated'>
+      <List className='animated recent-torrents'>
         <Subheader className='recent-title' inset={true}>
         	<FlatButton style={{marginRight: '8px'}} label={!this.state.pause ? 'running' : 'stoped'} secondary={this.state.pause} primary={!this.state.pause} onClick={() =>{
 	            this.pauseAndContinue()
