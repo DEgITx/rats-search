@@ -156,7 +156,19 @@ const torrent = props.torrent;
 return (
     <div>
       <ListItem 
-        onClick={() => window.router('/torrent/' + torrent.hash)} 
+        onClick={(e) => {
+        	const link = '/torrent/' + torrent.hash;
+        	if(e.button === 1)
+        		return false;
+
+        	if(e.ctrlKey && e.button === 0) {
+        		let win = window.open(link, '_blank');
+        		//win.focus();
+        		return true;
+        	}
+
+        	window.router(link)
+        }} 
         primaryText={
           <a href={'/torrent/' + torrent.hash} ref={(node) => {
             if(node)
