@@ -14,7 +14,10 @@ export default class SearchResults extends Component {
 	      	(this.props.torrentsSearchResults && this.props.torrentsSearchResults.length > 0)
 	      	|| (this.props.filesSearchResults && this.props.filesSearchResults.length > 0)
 	      	?
-	      	<Subheader inset={true}>Search results</Subheader>
+	      	<div>
+	      		<Subheader inset={true}>Search results</Subheader>
+	      		<div className='w100p row center' style={{marginTop: '-16px'}}>{this.props.resultSelector}</div>
+	      	</div>
 	      	:
 	      	null
 	      }

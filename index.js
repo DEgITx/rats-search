@@ -253,19 +253,29 @@ io.on('connection', function(socket)
 
 		const index = navigation.index || 0;
 		const limit = navigation.limit || 10;
-		let search = {};
-		//mysqlPool.query('SELECT * FROM `torrents` WHERE `name` like \'%' + text + '%\' LIMIT ?,?', [index, limit], function (error, rows, fields) {
-		sphinx.query('SELECT * FROM `torrents_index`,`torrents_index_delta` WHERE MATCH(?) ' + (safeSearch ? "and contentcategory != 'xxx'" : '') + ' LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
+		let args = [text, index, limit];
+		const orderBy = navigation.orderBy;
+		let order = '';
+		if(orderBy && orderBy.length > 0)
+		{
+			const orderDesc = navigation.orderDesc ? 'DESC' : 'ASC';
+			args.unshift(orderBy);
+			order = 'ORDER BY ?? ' + orderDesc;
+		}
+
+		let searchList = [];
+		//args.splice(orderBy && orderBy.length > 0 ? 1 : 0, 1);
+		//mysqlPool.query('SELECT * FROM `torrents` WHERE `name` like \'%' + text + '%\' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
+		sphinx.query('SELECT * FROM `torrents_index`,`torrents_index_delta` WHERE MATCH(?) ' + (safeSearch ? "and contentcategory != 'xxx'" : '') + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
 			if(!rows) {
+				console.log(error)
 			  	callback(undefined)
 			  	return;
 			}
 			rows.forEach((row) => {
-		  		search[row.hash] = baseRowData(row);
+				searchList.push(baseRowData(row));
 		  	});
-		  	callback(Object.keys(search).map(function(key) {
-			    return search[key];
-			}));
+		  	callback(searchList);
 		});
 	});
 
@@ -283,23 +293,38 @@ io.on('connection', function(socket)
 
 		const index = navigation.index || 0;
 		const limit = navigation.limit || 10;
+		let args = [text, index, limit];
+		const orderBy = navigation.orderBy;
+		let order = '';
+		if(orderBy && orderBy.length > 0)
+		{
+			const orderDesc = navigation.orderDesc ? 'DESC' : 'ASC';
+			args.unshift(orderBy);
+			order = 'ORDER BY ?? ' + orderDesc;
+		}
+
 		let search = {};
-		//mysqlPool.query('SELECT * FROM `files` inner join torrents on(torrents.hash = files.hash) WHERE files.path like \'%' + text + '%\' LIMIT ?,?', [index, limit], function (error, rows, fields) {
-		sphinx.query('SELECT * FROM `files_index`,`files_index_delta` WHERE MATCH(?) ' + (safeSearch ? "and contentcategory != 'xxx'" : '') + ' LIMIT ?,?', [text, index, limit], function (error, rows, fields) {
+		let searchList = [];
+		//args.splice(orderBy && orderBy.length > 0 ? 1 : 0, 1);
+		//mysqlPool.query('SELECT * FROM `files` inner join torrents on(torrents.hash = files.hash) WHERE files.path like \'%' + text + '%\' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
+		sphinx.query('SELECT * FROM `files_index`,`files_index_delta` WHERE MATCH(?) ' + (safeSearch ? "and contentcategory != 'xxx'" : '') + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
 			if(!rows) {
+				console.log(error)
 			  	callback(undefined)
 			  	return;
 			}
 			rows.forEach((row) => {
 				if(!(row.hash in search))
-		  			search[row.hash] = baseRowData(row);
+				{
+					let torrent = baseRowData(row);
+		  			search[row.hash] = torrent;
+		  			searchList.push(torrent)
+				}
 		  		if(!search[row.hash].path)
 		  			search[row.hash].path = []
 		  		search[row.hash].path.push(row.path);
 		  	});
-		  	callback(Object.keys(search).map(function(key) {
-			    return search[key];
-			}));
+		  	callback(searchList);
 		});
 	});
 
