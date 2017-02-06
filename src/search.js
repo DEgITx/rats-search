@@ -271,6 +271,7 @@ export default class Search extends Component {
             floatingLabelFixed={true}
             value={this.state.orderBy}
             onChange={(event, index, value) => {
+              event.preventDefault(); // fix overclick on torrent
               if(value === 'none') {
                 this.setState({orderBy: null}, () => {
                   this.search(true)
