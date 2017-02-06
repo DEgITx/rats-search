@@ -259,7 +259,7 @@ io.on('connection', function(socket)
 		if(orderBy && orderBy.length > 0)
 		{
 			const orderDesc = navigation.orderDesc ? 'DESC' : 'ASC';
-			args.unshift(orderBy);
+			args.splice(1, 0, orderBy);
 			order = 'ORDER BY ?? ' + orderDesc;
 		}
 
@@ -299,7 +299,7 @@ io.on('connection', function(socket)
 		if(orderBy && orderBy.length > 0)
 		{
 			const orderDesc = navigation.orderDesc ? 'DESC' : 'ASC';
-			args.unshift(orderBy);
+			args.splice(1, 0, orderBy);
 			order = 'ORDER BY ?? ' + orderDesc;
 		}
 
