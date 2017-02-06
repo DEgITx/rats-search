@@ -161,7 +161,7 @@ function baseRowData(row)
 		files: row.files,
 		filesList: row.filesList,
 		piecelength: row.piecelength,
-		added: row.added ? row.added.getTime() : (new Date()).getTime(),
+		added: row.added ? (typeof row.added === 'object' ? row.added.getTime() : row.added) : (new Date()).getTime(),
 		contentType: row.contentType || row.contenttype,
 		contentCategory: row.contentCategory || row.contentcategory,
 		seeders: row.seeders,
