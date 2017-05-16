@@ -64,11 +64,23 @@ const treeToTorrentFiles = (tree) => {
 }
 
 const TorrentFiles = (props) => {
-	let tree = buildFilesTree(props.torrent.filesList);
+  let filesList = props.torrent.filesList;
+	let tree = buildFilesTree(filesList);
 	return (
 		<List className='w100p'>
-			<Subheader inset={true}>Content of the torrent:</Subheader>
-			{treeToTorrentFiles(tree)}
+    {
+      filesList.length > 0
+      ?
+      <div className='w100p'>
+  			<Subheader inset={true}>Content of the torrent:</Subheader>
+  			{treeToTorrentFiles(tree)}
+      </div>
+      :
+      <div className='column center'>
+        <span className='pad0-75'>Processing files...</span>
+        <LinearProgress mode="indeterminate" />
+      </div>
+    }
 		</List>
 	);
 };
