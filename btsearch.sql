@@ -29,7 +29,7 @@ CREATE TABLE `files` (
   `fileid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`fileid`),
   KEY `hash` (`hash`)
-) ENGINE=InnoDB AUTO_INCREMENT=25243496 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -88,7 +88,7 @@ CREATE TABLE `torrents` (
   PRIMARY KEY (`hash`),
   UNIQUE KEY `torrentid` (`torrentid`),
   KEY `added` (`added`)
-) ENGINE=InnoDB AUTO_INCREMENT=1044293 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
