@@ -430,13 +430,13 @@ setInterval(() => {
 	  	stats.size = rows[0].filesizes;
 	  	io.sockets.emit('newStatistic', stats);
 	  	pushDatabaseBalance();
-	  	mysqlSingle.query('DELETE FROM `statistic`', function (err, result) {
+	  	mysqlPool.query('DELETE FROM `statistic`', function (err, result) {
 	  		popDatabaseBalance();
 	  		if(!result) {
 		  	  console.error(err);
 		    }
 		    pushDatabaseBalance();
-			mysqlSingle.query('INSERT INTO `statistic` SET ?', stats, function(err, result) {
+			mysqlPool.query('INSERT INTO `statistic` SET ?', stats, function(err, result) {
 			  popDatabaseBalance();
 			  if(!result) {
 			  	console.error(err);
