@@ -21,6 +21,8 @@ import LinearProgress from 'material-ui/LinearProgress';
 import {fileTypeDetect} from './content'
 import {contentIcon} from './torrent'
 
+import TorrentPlayer from './torrent-player'
+
 let buildFilesTree = (filesList) => {
 	let rootTree = {
 		__sizeBT: 0
@@ -69,7 +71,7 @@ const TorrentFiles = (props) => {
 	return (
 		<List className='w100p'>
     {
-      filesList.length > 0
+      filesList.length == 0
       ?
       <div className='w100p'>
   			<Subheader inset={true}>Content of the torrent:</Subheader>
@@ -400,6 +402,9 @@ export default class TorrentPage extends Page {
    				<Tab label="Files" value="files" >
    					<TorrentFiles torrent={this.torrent} />
    				</Tab>
+          <Tab label="Player" value="player" >
+            <TorrentPlayer torrent={this.torrent} />
+          </Tab>
    			</Tabs>
    			:
    			null
