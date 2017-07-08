@@ -8,6 +8,9 @@ const Token = require('./token')
 const cpuUsage = require('./cpu-usage')
 const config = require('../config')
 
+const _debug = require('debug')
+const cpuDebug = _debug('cpu')
+
 const bootstraps = [{
     address: 'router.bittorrent.com',
     port: 6881
@@ -155,7 +158,7 @@ class Spider extends Emiter {
         };
     	this.emit('ensureHash', infohash.toString('hex').toUpperCase(), addressPair)
         if(this.client && !this.ignore) {
-            console.log('cpu usage:' + cpuUsage())
+            cpuDebug('cpu usage:' + cpuUsage())
             if(this.cpuLimit <= 0 || cpuUsage() <= this.cpuLimit + this.cpuInterval) {
                 this.client.add(addressPair, infohash);
             }

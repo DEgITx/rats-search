@@ -1,6 +1,7 @@
 const dgram = require('dgram');
 const server = dgram.createSocket("udp4")
 const config = require('../config');
+const debug = require('debug')('peers-scrape');
 
 const ACTION_CONNECT = 0
 const ACTION_ANNOUNCE = 1
@@ -20,7 +21,7 @@ let message = function (buf, host, port) {
 };
 
 let connectTracker = function(connection) {
-    console.log('start connection');
+    debug('start screape connection');
     let buffer = new Buffer(16);
 
     const transactionId = Math.floor((Math.random()*100000)+1);
@@ -48,7 +49,7 @@ let scrapeTorrent = function (connectionIdHigh, connectionIdLow, transactionId) 
     if(!connection)
         return;
 
-    console.log('start scrape');
+    debug('start scrape');
     let buffer = new Buffer(56)
 
     buffer.fill(0);
@@ -72,11 +73,11 @@ server.on("message", function (msg, rinfo) {
     if(!(transactionId in requests))
         return;
 
-    console.log("returned action: " + action);
-    console.log("returned transactionId: " + transactionId);
+    debug("returned action: " + action);
+    debug("returned transactionId: " + transactionId);
 
     if (action === ACTION_CONNECT) {
-        console.log("connect response");
+        debug("connect response");
 
         let connectionIdHigh = buffer.readUInt32BE(8, 4);
         let connectionIdLow = buffer.readUInt32BE(12, 4);
@@ -84,7 +85,7 @@ server.on("message", function (msg, rinfo) {
         scrapeTorrent(connectionIdHigh, connectionIdLow, transactionId);
 
     } else if (action === ACTION_SCRAPE) {
-        console.log("scrape response");
+        debug("scrape response");
 
         let seeders = buffer.readUInt32BE(8, 4);
         let completed = buffer.readUInt32BE(12, 4);
@@ -102,7 +103,7 @@ server.on("message", function (msg, rinfo) {
         delete requests[transactionId];
     } else if (action === ACTION_ERROR) {
         delete requests[transactionId];
-        console.log("error response");
+        console.log("error in scrape response");
     }
 });
 

@@ -1,5 +1,5 @@
 module.exports = {
-	indexer: false,
+	indexer: true,
 
 	domain: 'ratsontheboat.org',
 	httpPort: 8095,

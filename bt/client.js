@@ -6,6 +6,7 @@ var net = require('net');
 
 var PeerQueue = require('./peer-queue');
 var Wire = require('./wire');
+const debug = require('debug')('downloader');
 
 
 class Client extends Emiter
@@ -41,7 +42,7 @@ class Client extends Emiter
 
     _download(rinfo, infohash)
     {
-        console.log('start download ' + infohash.toString('hex'));
+        debug('start download ' + infohash.toString('hex'));
         this.activeConnections++;
 
         var successful = false;
@@ -54,6 +55,7 @@ class Client extends Emiter
 
             wire.on('metadata', (metadata, infoHash) => {
                 successful = true;
+                debug('successfuly downloader', infoHash, rinfo);
                 this.emit('complete', metadata, infoHash, rinfo);
                 socket.destroy();
             });

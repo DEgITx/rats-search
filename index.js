@@ -506,7 +506,7 @@ const updateTorrentTrackers = (hash) => {
 }
 
 client.on('complete', function (metadata, infohash, rinfo) {
-	console.log('writing torrent to db');
+	console.log('writing torrent', metadata.info.name, 'to database');
 	const hash = infohash.toString('hex');
 	let size = metadata.info.length ? metadata.info.length : 0;
 	let filesCount = 1;
