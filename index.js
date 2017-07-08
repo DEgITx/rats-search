@@ -11,6 +11,13 @@ var io = require('socket.io')(server);
 var sm = require('sitemap');
 var phantomjs = require('phantomjs-prebuilt')
 var ipaddr = require('ipaddr.js');
+const disk = require('diskusage');
+const os = require('os');
+let rootPath = os.platform() === 'win32' ? 'c:' : '/';
+
+const _debug = require('debug')
+const cleanupDebug = _debug('main:cleanup');
+const balanceDebug = _debug('main:balance');
 
 const {torrentTypeDetect} = require('./src/content');
 
@@ -74,6 +81,35 @@ function handleListenerDisconnect() {
 	      throw err;                                  // server variable configures this)
 	    }
 	});
+
+	const query = mysqlSingle.query;
+	mysqlSingle.query = (...args) => {
+		let callback, i;
+		for(i = 1; i < args.length; i++)
+		{
+			if(typeof args[i] == 'function')
+			{
+				callback = args[i];
+				break;
+			}
+		}
+		if(callback)
+		{
+			pushDatabaseBalance();
+			args[i] = (...a) => {
+				popDatabaseBalance();
+				callback(...a)
+			}
+		}
+		else if(args.length <= 2)
+		{
+			pushDatabaseBalance();
+			args.push(() => {
+				popDatabaseBalance();
+			});
+		}
+		query.apply(mysqlSingle, args)
+	}
 }
 handleListenerDisconnect();
 
@@ -404,7 +440,7 @@ let pushDatabaseBalance = () => {
 	undoneQueries++;
 	if(undoneQueries >= 5000)
 	{
-		console.log('too much freeze mysql connection. doing balance');
+		balanceDebug('too much freeze mysql connection. doing balance, queries:', undoneQueries);
 		spider.ignore = true;
 	}
 };
@@ -412,6 +448,7 @@ let popDatabaseBalance = () => {
 	undoneQueries--;
 	if(undoneQueries == 0)
 	{
+		balanceDebug('balance done, queries:', undoneQueries);
 		spider.ignore = false;
 	}
 };
@@ -419,25 +456,17 @@ let popDatabaseBalance = () => {
 // обновление статистики
 setInterval(() => {
 	let stats = {};
-	pushDatabaseBalance();
 	mysqlPool.query('SELECT COUNT(*) as tornum FROM `torrents`', function (error, rows, fields) {
-	  popDatabaseBalance();
 	  stats.torrents = rows[0].tornum;
-	  pushDatabaseBalance();
 	  mysqlPool.query('SELECT COUNT(*) as filesnum, SUM(`size`) as filesizes FROM `files`', function (error, rows, fields) {
-	  	popDatabaseBalance();
 	  	stats.files = rows[0].filesnum;
 	  	stats.size = rows[0].filesizes;
 	  	io.sockets.emit('newStatistic', stats);
-	  	pushDatabaseBalance();
 	  	mysqlPool.query('DELETE FROM `statistic`', function (err, result) {
-	  		popDatabaseBalance();
 	  		if(!result) {
 		  	  console.error(err);
 		    }
-		    pushDatabaseBalance();
 			mysqlPool.query('INSERT INTO `statistic` SET ?', stats, function(err, result) {
-			  popDatabaseBalance();
 			  if(!result) {
 			  	console.error(err);
 			  }
@@ -449,9 +478,7 @@ setInterval(() => {
 
 const updateTorrentTrackers = (hash) => {
 	let maxSeeders = 0, maxLeechers = 0, maxCompleted = 0;
-	pushDatabaseBalance();
 	mysqlSingle.query('UPDATE torrents SET trackersChecked = ? WHERE hash = ?', [new Date(), hash], function(err, result) {
-	  popDatabaseBalance();
 	  if(!result) {
   	  	console.error(err);
       }
@@ -460,13 +487,6 @@ const updateTorrentTrackers = (hash) => {
 	  		getPeersStatisticUDP(tracker.host, tracker.port, hash, ({seeders, completed, leechers}) => {
 		  		if(seeders == 0 && completed == 0 && leechers == 0)
 		  			return;
-
-		  		/*
-		  		pushDatabaseBalance();
-		  		mysqlSingle.query('INSERT INTO trackers SET ?', statistic, function(err, result) {
-		  			popDatabaseBalance();
-		  		});
-		  		*/
 
 		  		if(seeders < maxSeeders)
 		  		{
@@ -485,9 +505,7 @@ const updateTorrentTrackers = (hash) => {
 		  		maxCompleted = completed;
 		  		let checkTime = new Date();
 
-		  		pushDatabaseBalance();
 		  		mysqlSingle.query('UPDATE torrents SET seeders = ?, completed = ?, leechers = ?, trackersChecked = ? WHERE hash = ?', [seeders, completed, leechers, checkTime, hash], function(err, result) {
-		  			popDatabaseBalance();
 		  			if(!result) {
 		  				return
 		  			}
@@ -505,8 +523,46 @@ const updateTorrentTrackers = (hash) => {
 	});
 }
 
+const cleanupTorrents = (cleanTorrents = 1) => {
+	if(!config.cleanup)
+		return;
+
+	disk.check(rootPath, function(err, info) {
+		if (err) {
+			console.log(err);
+		} else {
+			const {available, free, total} = info;
+			
+			if(free < config.cleanupDiscLimit)
+			{
+				mysqlSingle.query(`SELECT * FROM torrents WHERE added < DATE_SUB(NOW(), INTERVAL 6 hour) ORDER BY seeders ASC, files DESC, leechers ASC, completed ASC LIMIT ${cleanTorrents}`, function(err, torrents) {
+				  	if(!torrents)
+				  		return;
+
+				  	torrents.forEach((torrent) => {
+				  		if(torrent.seeders > 0){
+				  			cleanupDebug('this torrent is ok', torrent.name);
+				  			return
+				  		}
+
+				  		cleanupDebug('cleanup torrent', torrent.name, '[seeders', torrent.seeders, ', files', torrent.files, ']', 'free', (free / (1024 * 1024)) + "mb");
+				  		
+				  		mysqlSingle.query('DELETE FROM files WHERE hash = ?', torrent.hash);
+				  		mysqlSingle.query('DELETE FROM torrents WHERE hash = ?', torrent.hash);
+				  	})
+				});
+			}
+			else
+				cleanupDebug('enough free space', (free / (1024 * 1024)) + "mb");
+		}
+	});
+}
+
 client.on('complete', function (metadata, infohash, rinfo) {
 	console.log('writing torrent', metadata.info.name, 'to database');
+
+	cleanupTorrents(1); // clean old torrents before writing new
+
 	const hash = infohash.toString('hex');
 	let size = metadata.info.length ? metadata.info.length : 0;
 	let filesCount = 1;
@@ -544,14 +600,9 @@ client.on('complete', function (metadata, infohash, rinfo) {
 		const db_files = rows[0]['files_count'];
 		if(db_files !== filesCount)
 		{
-			pushDatabaseBalance();
 			mysqlSingle.query('DELETE FROM files WHERE hash = ?', hash, function (err, result) {
-				popDatabaseBalance();
-
 				filesArray.forEach((file) => {
-					pushDatabaseBalance();
 					mysqlSingle.query('INSERT INTO files SET ?', file, function(err, result) {
-					  popDatabaseBalance();
 					  if(!result) {
 					  	console.log(file);
 					  	console.error(err);
@@ -577,9 +628,7 @@ client.on('complete', function (metadata, infohash, rinfo) {
 
 	torrentTypeDetect(torrentQ, filesArray);
 
-	pushDatabaseBalance();
 	var query = mysqlSingle.query('INSERT INTO torrents SET ? ON DUPLICATE KEY UPDATE hash=hash', torrentQ, function(err, result) {
-	  popDatabaseBalance();
 	  if(result) {
 	  	io.sockets.emit('newTorrent', {
 	  		hash: hash,
@@ -623,4 +672,10 @@ if(config.indexer) {
 		});
 	}
 	showFakeTorrents(0);
+}
+
+if(config.cleanup && config.indexer)
+{
+	cleanupDebug('cleanup enabled');
+	cleanupDebug('cleanup disc limit', (config.cleanupDiscLimit / (1024 * 1024)) + 'mb');
 }
