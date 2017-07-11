@@ -18,6 +18,8 @@ let rootPath = os.platform() === 'win32' ? 'c:' : '/';
 const _debug = require('debug')
 const cleanupDebug = _debug('main:cleanup');
 const balanceDebug = _debug('main:balance');
+const fakeTorrentsDebug = _debug('main:fakeTorrents');
+const quotaDebug = _debug('main:quota');
 
 const {torrentTypeDetect} = require('./src/content');
 
@@ -372,6 +374,24 @@ io.on('connection', function(socket)
 		updateTorrentTrackers(hash);
 	});
 
+	/*
+	socket.on('topTorrents', function(params, callback)
+	{
+		mysqlPool.query('SELECT * FROM `torrents` ORDER BY seeders LIMIT 10', hash, function (error, rows) {
+			if(!rows || rows.length == 0) {
+				callback(undefined)
+				return;
+			}
+			
+			let searchList = [];
+			rows.forEach((row) => {
+				searchList.push(baseRowData(row));
+		  	});
+		  	callback(searchList);
+		});
+	});
+	*/
+
 	let socketIPV4 = () => {
 		let ip = socket.request.connection.remoteAddress;
 		if (ipaddr.IPv4.isValid(ip)) {
@@ -558,10 +578,8 @@ const cleanupTorrents = (cleanTorrents = 1) => {
 	});
 }
 
-client.on('complete', function (metadata, infohash, rinfo) {
+const updateTorrent = (metadata, infohash, rinfo) => {
 	console.log('writing torrent', metadata.info.name, 'to database');
-
-	cleanupTorrents(1); // clean old torrents before writing new
 
 	const hash = infohash.toString('hex');
 	let size = metadata.info.length ? metadata.info.length : 0;
@@ -647,35 +665,99 @@ client.on('complete', function (metadata, infohash, rinfo) {
 	  	console.error(err);
 	  }
 	});
+}
+
+client.on('complete', function (metadata, infohash, rinfo) {
+
+	cleanupTorrents(1); // clean old torrents before writing new
+
+	if(config.spaceQuota && config.spaceDiskLimit > 0)
+	{
+		disk.check(rootPath, function(err, info) {
+			if (err) {
+				console.log(err);
+			} else {
+				const {available, free, total} = info;
+
+				if(free >= config.spaceDiskLimit)
+				{
+					hideFakeTorrents(); // also enable fake torrents;
+					updateTorrent(metadata, infohash, rinfo);
+				}
+				else
+				{
+					quotaDebug('ignore torrent', metadata.info.name, 'free space', (free / (1024 * 1024)) + "mb");
+					showFakeTorrents(); // also enable fake torrents;
+				}
+			}
+		});
+	}
+	else
+	{
+		updateTorrent(metadata, infohash, rinfo);
+	}
 });
 
 // spider.on('nodes', (nodes)=>console.log('foundNodes'))
 
-if(config.indexer) {
-	spider.listen(config.spiderPort)
-} else {
-	function showFakeTorrents(page)
-	{
-		mysqlSingle.query('SELECT * FROM torrents LIMIT ?, 100', [page], function(err, torrents) {
-			console.log(page)
-			if(!torrents)
-				return;
+let enableFakeTorrents = false;
+function showFakeTorrentsPage(page)
+{
+	if(!enableFakeTorrents)
+		return;
 
-			torrents.forEach((torrent, index) => {
+	mysqlSingle.query('SELECT * FROM torrents LIMIT ?, 100', [page], function(err, torrents) {
+		if(!torrents)
+			return;
+
+		torrents.forEach((torrent, index) => {
+			if(enableFakeTorrents)
 				setTimeout(() => {
 					io.sockets.emit('newTorrent', baseRowData(torrent));
 					updateTorrentTrackers(torrent.hash);
+					fakeTorrentsDebug('fake torrent', torrents.name, 'index, page:', index, page);
 				}, 700 * index)
-			})
+		})
 
-			setTimeout(()=>showFakeTorrents(torrents.length > 0 ? page + torrents.length : 0), 700 * torrents.length);
-		});
+		if(enableFakeTorrents)
+			setTimeout(()=>showFakeTorrentsPage(torrents.length > 0 ? page + torrents.length : 0), 700 * torrents.length);
+	});
+}
+
+function showFakeTorrents()
+{
+	const old = enableFakeTorrents;
+	enableFakeTorrents = true;
+	if(!old)
+	{
+		fakeTorrentsDebug('showing fake torrents');
+		showFakeTorrentsPage(0);
 	}
-	showFakeTorrents(0);
+}
+
+function hideFakeTorrents()
+{
+	if(enableFakeTorrents)
+	{
+		fakeTorrentsDebug('hidding fake torrents');
+		enableFakeTorrents = false;
+	}
+}
+
+
+if(config.indexer) {
+	spider.listen(config.spiderPort)
+} else {
+	showFakeTorrents();
 }
 
 if(config.cleanup && config.indexer)
 {
 	cleanupDebug('cleanup enabled');
 	cleanupDebug('cleanup disc limit', (config.cleanupDiscLimit / (1024 * 1024)) + 'mb');
+}
+
+if(config.spaceQuota)
+{
+	quotaDebug('disk quota enabled');
 }

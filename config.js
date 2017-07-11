@@ -31,4 +31,6 @@ module.exports = {
 
 	cleanup: true,
 	cleanupDiscLimit: 7 * 1024 * 1024 * 1024,
+	spaceQuota: false,
+	spaceDiskLimit: 7 * 1024 * 1024 * 1024,
 }
