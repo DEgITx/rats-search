@@ -25,6 +25,7 @@ const {torrentTypeDetect} = require('./src/content');
 
 // Start server
 server.listen(config.httpPort);
+console.log('Listening web server on', config.httpPort, 'port')
 
 let mysqlPool = mysql.createPool({
   connectionLimit: config.mysql.connectionLimit,

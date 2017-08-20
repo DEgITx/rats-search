@@ -196,7 +196,7 @@ class Spider extends Emiter {
     listen(port) {
         this.udp.bind(port)
         this.udp.on('listening', () => {
-            console.log(`Listen on ${this.udp.address().address}:${this.udp.address().port}`)
+            console.log(`Listen DHT protocol on ${this.udp.address().address}:${this.udp.address().port}`)
         })
         this.udp.on('message', (data, addr) => {
             this.parse(data, addr)
