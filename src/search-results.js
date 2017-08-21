@@ -90,6 +90,7 @@ export default class SearchResults extends Component {
 	      {
 	      	   this.props.torrentsSearchResults && this.props.torrentsSearchResults.length == 0
 	      	&& this.props.filesSearchResults && this.props.filesSearchResults.length == 0
+	      	&& !this.props.currentSearching
 	      	?
 	      	<div className='row inline'>
 	      		<svg style={{fill: 'grey', height: '30px'}} viewBox="0 0 264.695 264.695">
