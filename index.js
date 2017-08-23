@@ -1,4 +1,7 @@
 const config = require('./config');
+let settings = {
+	dhtDisabled: false
+}
 const client = new (require('./bt/client'))
 const spider = new (require('./bt/spider'))(client)
 const mysql = require('mysql');
@@ -393,6 +396,31 @@ io.on('connection', function(socket)
 	});
 	*/
 
+	socket.on('admin', function(callback)
+	{
+		if(typeof callback != 'function')
+			return;
+
+		callback(settings)
+	});
+
+	socket.on('setAdmin', function(options, callback)
+	{
+		if(typeof options !== 'object')
+			return;
+
+		settings.dhtDisabled = !!options.dhtDisabled;
+		spider.ignore = settings.dhtDisabled;
+
+		if(settings.dhtDisabled)
+			showFakeTorrents()
+		else
+			hideFakeTorrents()
+		
+		if(typeof callback === 'function')
+			callback(true)
+	});
+
 	let socketIPV4 = () => {
 		let ip = socket.request.connection.remoteAddress;
 		if (ipaddr.IPv4.isValid(ip)) {
@@ -470,7 +498,7 @@ let popDatabaseBalance = () => {
 	if(undoneQueries == 0)
 	{
 		balanceDebug('balance done, queries:', undoneQueries);
-		spider.ignore = false;
+		spider.ignore = settings.dhtDisabled;
 	}
 };
 
@@ -701,48 +729,43 @@ client.on('complete', function (metadata, infohash, rinfo) {
 
 // spider.on('nodes', (nodes)=>console.log('foundNodes'))
 
-let enableFakeTorrents = false;
+let fakeTorrents = [];
 function showFakeTorrentsPage(page)
 {
-	if(!enableFakeTorrents)
-		return;
-
 	mysqlSingle.query('SELECT * FROM torrents LIMIT ?, 100', [page], function(err, torrents) {
 		if(!torrents)
 			return;
 
 		torrents.forEach((torrent, index) => {
-			if(enableFakeTorrents)
-				setTimeout(() => {
-					io.sockets.emit('newTorrent', baseRowData(torrent));
-					updateTorrentTrackers(torrent.hash);
-					fakeTorrentsDebug('fake torrent', torrents.name, 'index, page:', index, page);
-				}, 700 * index)
+			const fk = fakeTorrents.push(setTimeout(() => {
+				delete fakeTorrents[fk-1];
+				io.sockets.emit('newTorrent', baseRowData(torrent));
+				updateTorrentTrackers(torrent.hash);
+				fakeTorrentsDebug('fake torrent', torrents.name, 'index, page:', index, page);
+			}, 700 * index))
 		})
 
-		if(enableFakeTorrents)
-			setTimeout(()=>showFakeTorrentsPage(torrents.length > 0 ? page + torrents.length : 0), 700 * torrents.length);
+		const fk = fakeTorrents.push(setTimeout(()=>{ 
+			delete fakeTorrents[fk-1];
+			showFakeTorrentsPage(torrents.length > 0 ? page + torrents.length : 0)
+		}, 700 * torrents.length))
 	});
 }
 
 function showFakeTorrents()
 {
-	const old = enableFakeTorrents;
-	enableFakeTorrents = true;
-	if(!old)
-	{
-		fakeTorrentsDebug('showing fake torrents');
-		showFakeTorrentsPage(0);
-	}
+	fakeTorrentsDebug('showing fake torrents');
+	hideFakeTorrents()
+	showFakeTorrentsPage(0);
 }
 
 function hideFakeTorrents()
 {
-	if(enableFakeTorrents)
-	{
-		fakeTorrentsDebug('hidding fake torrents');
-		enableFakeTorrents = false;
-	}
+	fakeTorrents.forEach((fk) => {
+		clearTimeout(fk)
+	})
+	fakeTorrents = []
+	fakeTorrentsDebug('hidding fake torrents');
 }
 
 
