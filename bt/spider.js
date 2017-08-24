@@ -44,6 +44,7 @@ class Spider extends Emiter {
         this.client = client
         this.ignore = false; // ignore all requests
         this.initialized = false;
+        this.traffic = 0;
 
         this.walkInterval = config.spider.walkInterval;
         this.cpuLimit = config.spider.cpuLimit;
@@ -205,6 +206,7 @@ class Spider extends Emiter {
         })
         this.udp.on('message', (data, addr) => {
             this.parse(data, addr)
+            this.traffic += data.length
         })
         this.udp.on('error', (err) => {})
         setInterval(() => { 
@@ -214,6 +216,14 @@ class Spider extends Emiter {
         }, 3000)
         this.join()
         this.walk()
+        setInterval(() => { 
+            console.log(this.traffic / 1024, 'kb/s')
+            this.traffic = 0
+        }, 1000)
+        if(this.client)
+            this.client.on('traffic', (traffic) => {
+                this.traffic += traffic
+            })
     }
 }
 
