@@ -33,6 +33,10 @@ let config = {
 	cleanupDiscLimit: 7 * 1024 * 1024 * 1024,
 	spaceQuota: false,
 	spaceDiskLimit: 7 * 1024 * 1024 * 1024,
+
+	trafficInterface: 'enp2s0',
+	trafficMax: 0,
+	trafficUpdateTime: 3, //secs
 }
 
 const fs = require('fs');

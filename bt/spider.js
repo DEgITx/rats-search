@@ -10,7 +10,8 @@ const config = require('../config')
 const fs = require('fs')
 
 const _debug = require('debug')
-const cpuDebug = _debug('cpu')
+const cpuDebug = _debug('spider:cpu')
+const trafficDebug = _debug('spider:traffic')
 
 const bootstraps = [{
     address: 'router.bittorrent.com',
@@ -45,7 +46,6 @@ class Spider extends Emiter {
         this.client = client
         this.ignore = false; // ignore all requests
         this.initialized = false;
-        this.traffic = 0;
         this.trafficSpeed = 0
 
         this.walkInterval = config.spider.walkInterval;
@@ -79,7 +79,11 @@ class Spider extends Emiter {
 
     walk() {
     	if(!this.client || this.client.isIdle()) {
-            if(!this.ignore && (this.cpuLimit <= 0 || cpuUsage() < this.cpuLimit + this.cpuInterval)) 
+            if(
+                !this.ignore 
+                && (this.cpuLimit <= 0 || cpuUsage() < this.cpuLimit + this.cpuInterval)
+                && (config.trafficMax <= 0 || this.trafficSpeed == 0 || this.trafficSpeed < config.trafficMax)
+            ) 
             {
                 const node = this.table.shift()
                 if (node) {
@@ -217,21 +221,30 @@ class Spider extends Emiter {
         }, 3000)
         this.join()
         this.walk()
-        setInterval(() => { 
-            fs.readFile('/sys/class/net/enp2s0/statistics/rx_bytes', (err, data) => {
-                if(!err)
-                    return
 
-                if(this.traffic === 0)
-                    this.traffic = data
+        if(config.trafficMax > 0)
+        {
+            const path = `/sys/class/net/${config.trafficInterface}/statistics/rx_bytes`
+            if(fs.existsSync(path))
+            {
+                let traffic = 0
+                setInterval(() => { 
+                    fs.readFile(path, (err, newTraffic) => {
+                        if(err)
+                            return
 
-                this.trafficSpeed = data - this.traffic
+                        if(traffic === 0)
+                            traffic = newTraffic
 
-                console.log(this.trafficSpeed / 1024, 'kbps/s')
+                        this.trafficSpeed = (newTraffic - traffic) / config.trafficUpdateTime
 
-                this.traffic = data
-            })
-        }, 1000)
+                        trafficDebug('traffic rx', this.trafficSpeed / 1024, 'kbps/s')
+
+                        traffic = newTraffic
+                    })
+                }, 1000 * config.trafficUpdateTime)
+            }
+        }
     }
 }
 
