@@ -1,7 +1,4 @@
 const config = require('./config');
-let settings = {
-	dhtDisabled: false
-}
 const client = new (require('./bt/client'))
 const spider = new (require('./bt/spider'))(client)
 const mysql = require('mysql');
@@ -401,7 +398,9 @@ io.on('connection', function(socket)
 		if(typeof callback != 'function')
 			return;
 
-		callback(settings)
+		callback({
+			dhtDisabled: !config.indexer
+		})
 	});
 
 	socket.on('setAdmin', function(options, callback)
@@ -409,13 +408,15 @@ io.on('connection', function(socket)
 		if(typeof options !== 'object')
 			return;
 
-		settings.dhtDisabled = !!options.dhtDisabled;
-		spider.ignore = settings.dhtDisabled;
+		config.indexer = !options.dhtDisabled;
+		spider.ignore = !config.indexer;
 
-		if(settings.dhtDisabled)
+		if(!config.indexer)
 			showFakeTorrents()
-		else
+		else {
 			hideFakeTorrents()
+			spider.listen(config.spiderPort)
+		}
 		
 		if(typeof callback === 'function')
 			callback(true)
@@ -498,7 +499,7 @@ let popDatabaseBalance = () => {
 	if(undoneQueries == 0)
 	{
 		balanceDebug('balance done, queries:', undoneQueries);
-		spider.ignore = settings.dhtDisabled;
+		spider.ignore = !config.indexer;
 	}
 };
 
@@ -767,7 +768,6 @@ function hideFakeTorrents()
 	fakeTorrents = []
 	fakeTorrentsDebug('hidding fake torrents');
 }
-
 
 if(config.indexer) {
 	spider.listen(config.spiderPort)

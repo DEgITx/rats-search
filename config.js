@@ -1,5 +1,5 @@
-module.exports = {
-	indexer: true,
+let config = {
+	indexer: false,
 
 	domain: 'ratsontheboat.org',
 	httpPort: 8095,
@@ -34,3 +34,40 @@ module.exports = {
 	spaceQuota: false,
 	spaceDiskLimit: 7 * 1024 * 1024 * 1024,
 }
+
+const fs = require('fs');
+const debug = require('debug')('config')
+
+const configProxy = new Proxy(config, {
+	set: (target, prop, value, receiver) => {
+		target[prop] = value
+	    
+	    if(!fs.existsSync('config.json'))
+			fs.writeFileSync('config.json', '{}')
+
+		fs.readFile('config.json', 'utf8', (err, data) => {
+			let obj = JSON.parse(data)
+			obj[prop] = value;
+			fs.writeFileSync('config.json', JSON.stringify(obj, null, 4), 'utf8');
+			debug('saving config.json:', prop, '=', value)
+		})
+	}
+})
+
+config.load = () => {
+	debug('loading configuration')
+	if(fs.existsSync('config.json'))
+	{
+		debug('finded configuration config.json')
+		const data = fs.readFileSync('config.json', 'utf8')
+		const obj = JSON.parse(data);
+		for(let prop in obj) 
+		{
+			config[prop] = obj[prop]
+			debug('config.json:', prop, '=', obj[prop])
+		}
+	}
+	return configProxy
+}
+
+module.exports = configProxy.load()

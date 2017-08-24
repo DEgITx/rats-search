@@ -43,6 +43,7 @@ class Spider extends Emiter {
         this.token = new Token()
         this.client = client
         this.ignore = false; // ignore all requests
+        this.initialized = false;
 
         this.walkInterval = config.spider.walkInterval;
         this.cpuLimit = config.spider.cpuLimit;
@@ -194,6 +195,10 @@ class Spider extends Emiter {
     }
 
     listen(port) {
+        if(this.initialized)
+            return
+        this.initialized = true
+
         this.udp.bind(port)
         this.udp.on('listening', () => {
             console.log(`Listen DHT protocol on ${this.udp.address().address}:${this.udp.address().port}`)
