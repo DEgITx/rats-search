@@ -71,10 +71,6 @@ class Client extends Emiter
             socket.destroy();
         });
 
-        socket.on('data', (data) => {
-            this.emit('traffic', data.length);
-        })
-
         socket.on('timeout', (err) => {
             socket.destroy();
         });

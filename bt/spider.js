@@ -7,6 +7,7 @@ const {Table, Node} = require('./table')
 const Token = require('./token')
 const cpuUsage = require('./cpu-usage')
 const config = require('../config')
+const fs = require('fs')
 
 const _debug = require('debug')
 const cpuDebug = _debug('cpu')
@@ -45,6 +46,7 @@ class Spider extends Emiter {
         this.ignore = false; // ignore all requests
         this.initialized = false;
         this.traffic = 0;
+        this.trafficSpeed = 0
 
         this.walkInterval = config.spider.walkInterval;
         this.cpuLimit = config.spider.cpuLimit;
@@ -206,7 +208,6 @@ class Spider extends Emiter {
         })
         this.udp.on('message', (data, addr) => {
             this.parse(data, addr)
-            this.traffic += data.length
         })
         this.udp.on('error', (err) => {})
         setInterval(() => { 
@@ -217,13 +218,20 @@ class Spider extends Emiter {
         this.join()
         this.walk()
         setInterval(() => { 
-            console.log(this.traffic / 1024, 'kb/s')
-            this.traffic = 0
-        }, 1000)
-        if(this.client)
-            this.client.on('traffic', (traffic) => {
-                this.traffic += traffic
+            fs.readFile('/sys/class/net/enp2s0/statistics/rx_bytes', (err, data) => {
+                if(!err)
+                    return
+
+                if(this.traffic === 0)
+                    this.traffic = data
+
+                this.trafficSpeed = data - this.traffic
+
+                console.log(this.trafficSpeed / 1024, 'kbps/s')
+
+                this.traffic = data
             })
+        }, 1000)
     }
 }
 
