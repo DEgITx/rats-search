@@ -29,6 +29,11 @@ let config = {
 		cpuInterval: 10,
 	},
 
+	downloader: {
+		maxConnections: 2000,
+		timeout: 5000
+	}
+
 	cleanup: true,
 	cleanupDiscLimit: 7 * 1024 * 1024 * 1024,
 	spaceQuota: false,

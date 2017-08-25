@@ -7,14 +7,14 @@ var net = require('net');
 var PeerQueue = require('./peer-queue');
 var Wire = require('./wire');
 const debug = require('debug')('downloader');
-
+const config = require('../config')
 
 class Client extends Emiter
 {
     constructor(options) {
     	super();
-        this.timeout = 5000;
-        this.maxConnections = 200;
+        this.timeout = config.downloader.timeout;
+        this.maxConnections = config.downloader.maxConnections;
         this.activeConnections = 0;
         this.peers = new PeerQueue(this.maxConnections);
         this.on('download', this._download);
