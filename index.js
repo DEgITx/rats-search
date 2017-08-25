@@ -490,15 +490,16 @@ let pushDatabaseBalance = () => {
 	undoneQueries++;
 	if(undoneQueries >= 5000)
 	{
-		balanceDebug('too much freeze mysql connection. doing balance, queries:', undoneQueries);
+		balanceDebug('start balance mysql, queries:', undoneQueries);
 		spider.ignore = true;
 	}
 };
 let popDatabaseBalance = () => {
 	undoneQueries--;
+	balanceDebug('balanced, queries left:', undoneQueries);
 	if(undoneQueries == 0)
 	{
-		balanceDebug('balance done, queries:', undoneQueries);
+		balanceDebug('balance done');
 		spider.ignore = !config.indexer;
 	}
 };

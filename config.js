@@ -42,6 +42,7 @@ let config = {
 	trafficInterface: 'enp2s0',
 	trafficMax: 0,
 	trafficUpdateTime: 3, //secs
+	trafficIgnoreDHT: false
 }
 
 const fs = require('fs');

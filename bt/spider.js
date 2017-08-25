@@ -109,6 +109,10 @@ class Spider extends Emiter {
             return
         }
 
+        if(config.trafficIgnoreDHT && config.trafficMax > 0 && this.trafficSpeed > 0 && this.trafficSpeed > config.trafficMax) {
+            return
+        }
+
     	const {t: tid, a: {id: nid, target: infohash}} = message
 
         if (tid === undefined || target.length != 20 || nid.length != 20) {
@@ -127,6 +131,10 @@ class Spider extends Emiter {
 
     onGetPeersRequest(message, address) {
         if(this.cpuLimit > 0 && cpuUsage() > this.cpuLimit) {
+            return
+        }
+
+        if(config.trafficIgnoreDHT && config.trafficMax > 0 && this.trafficSpeed > 0 && this.trafficSpeed > config.trafficMax) {
             return
         }
 
@@ -174,6 +182,14 @@ class Spider extends Emiter {
     }
 
     onPingRequest(message, address) {
+        if(this.cpuLimit > 0 && cpuUsage() > this.cpuLimit) {
+            return
+        }
+
+        if(config.trafficIgnoreDHT && config.trafficMax > 0 && this.trafficSpeed > 0 && this.trafficSpeed > config.trafficMax) {
+            return
+        }
+
     	this.send({ t: message.t, y: 'r', r: { id: Node.neighbor(message.a.id, this.table.id) } }, address)
     }
 
@@ -224,6 +240,7 @@ class Spider extends Emiter {
 
         if(config.trafficMax > 0)
         {
+            trafficDebug('inore dht traffic', config.trafficIgnoreDHT)
             const path = `/sys/class/net/${config.trafficInterface}/statistics/rx_bytes`
             if(fs.existsSync(path))
             {
