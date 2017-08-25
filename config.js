@@ -32,7 +32,7 @@ let config = {
 	downloader: {
 		maxConnections: 200,
 		timeout: 5000
-	}
+	},
 
 	cleanup: true,
 	cleanupDiscLimit: 7 * 1024 * 1024 * 1024,
