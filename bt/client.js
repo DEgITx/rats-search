@@ -15,6 +15,8 @@ class Client extends Emiter
     	super();
         this.timeout = config.downloader.timeout;
         this.maxConnections = config.downloader.maxConnections;
+        debug('timeout', this.timeout)
+        debug('maxConnections', this.maxConnections)
         this.activeConnections = 0;
         this.peers = new PeerQueue(this.maxConnections);
         this.on('download', this._download);
@@ -42,7 +44,7 @@ class Client extends Emiter
 
     _download(rinfo, infohash)
     {
-        debug('start download ' + infohash.toString('hex'));
+        debug('start download', infohash.toString('hex'), 'connections', this.activeConnections);
         this.activeConnections++;
 
         var successful = false;

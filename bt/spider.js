@@ -227,6 +227,7 @@ class Spider extends Emiter {
             const path = `/sys/class/net/${config.trafficInterface}/statistics/rx_bytes`
             if(fs.existsSync(path))
             {
+                trafficDebug('limitation', config.trafficMax / 1024, 'kbps/s')
                 let traffic = 0
                 setInterval(() => { 
                     fs.readFile(path, (err, newTraffic) => {
