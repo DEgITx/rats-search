@@ -30,7 +30,7 @@ let config = {
 	},
 
 	downloader: {
-		maxConnections: 2000,
+		maxConnections: 200,
 		timeout: 5000
 	}
 
