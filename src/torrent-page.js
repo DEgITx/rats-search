@@ -403,7 +403,11 @@ export default class TorrentPage extends Page {
    					<TorrentFiles torrent={this.torrent} />
    				</Tab>
           <Tab label="Player" value="player" >
+          {
+            this.state.value == 'player'
+            &&
             <TorrentPlayer torrent={this.torrent} />
+          }
           </Tab>
    			</Tabs>
    			:

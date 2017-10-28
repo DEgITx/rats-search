@@ -10,7 +10,13 @@ export default class TorrentPlayer extends Component {
   {
     super.componentDidMount();
 
-    this.torrentId = 'magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F&xs=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2Fsintel.torrent';
+    //const hash = this.props.torrent.hash;
+    const hash = '24147293ebcca6c1a76c7fa23e89a0b55db312d8';
+    if(!hash)
+      return;
+
+    console.log('trying to add', hash)
+    this.torrentId = `magnet:?xt=urn:btih:${hash}&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F`;
     client.add(this.torrentId, function (torrent) {
       // Got torrent metadata! 
       console.log('Client is downloading:', torrent.infoHash)
@@ -24,8 +30,11 @@ export default class TorrentPlayer extends Component {
   componentWillUnmount()
   {
     super.componentWillUnmount();
-    console.log('removing');
-    client.remove(this.torrentId);
+    if(this.torrentId)
+    {
+      console.log('removing', this.torrentId)
+      client.remove(this.torrentId);
+    }
   }
 
   render() {
