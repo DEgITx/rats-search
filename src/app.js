@@ -2,17 +2,18 @@ import React, { Component } from 'react';
 import './app.css';
 import './router';
 import PagesPie from './pages-pie.js';
+import registerServiceWorker from './registerServiceWorker';
+import injectTapEventPlugin from 'react-tap-event-plugin';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 var io = require("socket.io-client");
 window.torrentSocket = io(document.location.protocol + '//' + document.location.hostname + (process.env.NODE_ENV === 'production' ? '/' : ':8095/'));
-
-import injectTapEventPlugin from 'react-tap-event-plugin';
  
 // Needed for onTouchTap 
 // http://stackoverflow.com/a/34015469/988941 
 injectTapEventPlugin();
 
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+registerServiceWorker();
 
 let loadersCount = 0;
 let appReady = false;

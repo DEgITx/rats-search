@@ -6,14 +6,17 @@ var net = require('net');
 
 var PeerQueue = require('./peer-queue');
 var Wire = require('./wire');
-
+const debug = require('debug')('downloader');
+const config = require('../config')
 
 class Client extends Emiter
 {
     constructor(options) {
     	super();
-        this.timeout = 5000;
-        this.maxConnections = 200;
+        this.timeout = config.downloader.timeout;
+        this.maxConnections = config.downloader.maxConnections;
+        debug('timeout', this.timeout)
+        debug('maxConnections', this.maxConnections)
         this.activeConnections = 0;
         this.peers = new PeerQueue(this.maxConnections);
         this.on('download', this._download);
@@ -41,7 +44,7 @@ class Client extends Emiter
 
     _download(rinfo, infohash)
     {
-        console.log('start download ' + infohash.toString('hex'));
+        debug('start download', infohash.toString('hex'), 'connections', this.activeConnections);
         this.activeConnections++;
 
         var successful = false;
@@ -54,6 +57,7 @@ class Client extends Emiter
 
             wire.on('metadata', (metadata, infoHash) => {
                 successful = true;
+                debug('successfuly downloader', infoHash, rinfo);
                 this.emit('complete', metadata, infoHash, rinfo);
                 socket.destroy();
             });

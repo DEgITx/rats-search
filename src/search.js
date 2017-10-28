@@ -264,6 +264,7 @@ export default class Search extends Component {
         <SearchResults 
           torrentsSearchResults={this.searchTorrents} 
           filesSearchResults={this.searchFiles}
+          currentSearching={this.state.searchingIndicator}
           
           resultSelector={
             <SelectField

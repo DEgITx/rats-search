@@ -7,6 +7,11 @@ const {Table, Node} = require('./table')
 const Token = require('./token')
 const cpuUsage = require('./cpu-usage')
 const config = require('../config')
+const fs = require('fs')
+
+const _debug = require('debug')
+const cpuDebug = _debug('spider:cpu')
+const trafficDebug = _debug('spider:traffic')
 
 const bootstraps = [{
     address: 'router.bittorrent.com',
@@ -40,6 +45,8 @@ class Spider extends Emiter {
         this.token = new Token()
         this.client = client
         this.ignore = false; // ignore all requests
+        this.initialized = false;
+        this.trafficSpeed = 0
 
         this.walkInterval = config.spider.walkInterval;
         this.cpuLimit = config.spider.cpuLimit;
@@ -72,7 +79,11 @@ class Spider extends Emiter {
 
     walk() {
     	if(!this.client || this.client.isIdle()) {
-            if(!this.ignore && (this.cpuLimit <= 0 || cpuUsage() < this.cpuLimit + this.cpuInterval)) 
+            if(
+                !this.ignore 
+                && (this.cpuLimit <= 0 || cpuUsage() < this.cpuLimit + this.cpuInterval)
+                && (config.trafficMax <= 0 || this.trafficSpeed == 0 || this.trafficSpeed < config.trafficMax)
+            ) 
             {
                 const node = this.table.shift()
                 if (node) {
@@ -98,6 +109,10 @@ class Spider extends Emiter {
             return
         }
 
+        if(config.trafficIgnoreDHT && config.trafficMax > 0 && this.trafficSpeed > 0 && this.trafficSpeed > config.trafficMax) {
+            return
+        }
+
     	const {t: tid, a: {id: nid, target: infohash}} = message
 
         if (tid === undefined || target.length != 20 || nid.length != 20) {
@@ -116,6 +131,10 @@ class Spider extends Emiter {
 
     onGetPeersRequest(message, address) {
         if(this.cpuLimit > 0 && cpuUsage() > this.cpuLimit) {
+            return
+        }
+
+        if(config.trafficIgnoreDHT && config.trafficMax > 0 && this.trafficSpeed > 0 && this.trafficSpeed > config.trafficMax) {
             return
         }
 
@@ -155,7 +174,7 @@ class Spider extends Emiter {
         };
     	this.emit('ensureHash', infohash.toString('hex').toUpperCase(), addressPair)
         if(this.client && !this.ignore) {
-            console.log('cpu usage:' + cpuUsage())
+            cpuDebug('cpu usage:' + cpuUsage())
             if(this.cpuLimit <= 0 || cpuUsage() <= this.cpuLimit + this.cpuInterval) {
                 this.client.add(addressPair, infohash);
             }
@@ -163,6 +182,14 @@ class Spider extends Emiter {
     }
 
     onPingRequest(message, address) {
+        if(this.cpuLimit > 0 && cpuUsage() > this.cpuLimit) {
+            return
+        }
+
+        if(config.trafficIgnoreDHT && config.trafficMax > 0 && this.trafficSpeed > 0 && this.trafficSpeed > config.trafficMax) {
+            return
+        }
+
     	this.send({ t: message.t, y: 'r', r: { id: Node.neighbor(message.a.id, this.table.id) } }, address)
     }
 
@@ -191,9 +218,13 @@ class Spider extends Emiter {
     }
 
     listen(port) {
+        if(this.initialized)
+            return
+        this.initialized = true
+
         this.udp.bind(port)
         this.udp.on('listening', () => {
-            console.log(`Listen on ${this.udp.address().address}:${this.udp.address().port}`)
+            console.log(`Listen DHT protocol on ${this.udp.address().address}:${this.udp.address().port}`)
         })
         this.udp.on('message', (data, addr) => {
             this.parse(data, addr)
@@ -206,6 +237,32 @@ class Spider extends Emiter {
         }, 3000)
         this.join()
         this.walk()
+
+        if(config.trafficMax > 0)
+        {
+            trafficDebug('inore dht traffic', config.trafficIgnoreDHT)
+            const path = `/sys/class/net/${config.trafficInterface}/statistics/rx_bytes`
+            if(fs.existsSync(path))
+            {
+                trafficDebug('limitation', config.trafficMax / 1024, 'kbps/s')
+                let traffic = 0
+                setInterval(() => { 
+                    fs.readFile(path, (err, newTraffic) => {
+                        if(err)
+                            return
+
+                        if(traffic === 0)
+                            traffic = newTraffic
+
+                        this.trafficSpeed = (newTraffic - traffic) / config.trafficUpdateTime
+
+                        trafficDebug('traffic rx', this.trafficSpeed / 1024, 'kbps/s')
+
+                        traffic = newTraffic
+                    })
+                }, 1000 * config.trafficUpdateTime)
+            }
+        }
     }
 }
 
