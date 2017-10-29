@@ -13,7 +13,7 @@ window.torrentSocket = io(document.location.protocol + '//' + document.location.
 // http://stackoverflow.com/a/34015469/988941 
 injectTapEventPlugin();
 
-registerServiceWorker();
+//registerServiceWorker();
 
 let loadersCount = 0;
 let appReady = false;
