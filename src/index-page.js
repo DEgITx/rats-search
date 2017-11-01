@@ -12,7 +12,7 @@ const Header = (props) => {
   return (
     <Card>
       <CardMedia
-        overlay={<CardTitle title="Arrr, Landlubber rats!" subtitle="Welcome to torrent project" />}
+        overlay={<CardTitle title="Yarrr, Landlubbers!" subtitle="Welcome to torrent project" />}
       >
         <img src={Background} />
       </CardMedia>
