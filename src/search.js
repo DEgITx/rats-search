@@ -66,6 +66,10 @@ export default class Search extends Component {
         if(torrents.length != this.searchLimit)
           this.moreSearchTorrents = false;
       }
+      else
+      {
+        this.moreSearchTorrents = false;
+      }
       if(--queries == 0) {
         this.setState({
           searchingIndicator: false
@@ -89,6 +93,10 @@ export default class Search extends Component {
         });
         if(files != this.searchLimit)
           this.moreSearchFiles = false;
+      }
+      else
+      {
+        this.moreSearchFiles = false;
       }
       if(--queries == 0) {
         this.setState({
