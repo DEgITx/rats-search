@@ -10,11 +10,11 @@ export default class AdvancedSearchControl extends Component {
   	super(props)
   	this.state = {
       type: undefined,
-      size: {min: 0, max: 500 * 1024},
-      maxSize: 1024 * 1024,
+      size: {min: 0, max: 0},
+      maxSize: 1024 * 1024 * 1024,
       sizeEnabled: false,
       filesEnabled: false,
-      files: {min: 0, max: 5},
+      files: {min: 0, max: 0},
       filesMax: 100,
   	}
   	if(this.props.state)

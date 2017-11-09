@@ -324,7 +324,7 @@ io.on('connection', function(socket)
 			if(navigation.files.min > 0)
 				where += ' and files > ' + mysqlPool.escape(navigation.files.min) + ' ';
 		}
-		console.log(where)
+		console.log(navigation, where)
 
 		let searchList = [];
 		//args.splice(orderBy && orderBy.length > 0 ? 1 : 0, 1);
