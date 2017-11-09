@@ -295,17 +295,41 @@ io.on('connection', function(socket)
 		let args = [text, index, limit];
 		const orderBy = navigation.orderBy;
 		let order = '';
+		let where = '';
 		if(orderBy && orderBy.length > 0)
 		{
 			const orderDesc = navigation.orderDesc ? 'DESC' : 'ASC';
 			args.splice(1, 0, orderBy);
 			order = 'ORDER BY ?? ' + orderDesc;
 		}
+		if(safeSearch)
+		{
+			where += " and contentcategory != 'xxx' ";
+		}
+		if(navigation.type && navigation.type.length > 0)
+		{
+			where += ' and contenttype = ' + mysqlPool.escape(navigation.type) + ' ';
+		}
+		if(navigation.size)
+		{
+			if(navigation.size.max > 0)
+				where += ' and size < ' + mysqlPool.escape(navigation.size.max) + ' ';
+			if(navigation.size.min > 0)
+				where += ' and size > ' + mysqlPool.escape(navigation.size.min) + ' ';
+		}
+		if(navigation.files)
+		{
+			if(navigation.files.max > 0)
+				where += ' and files < ' + mysqlPool.escape(navigation.files.max) + ' ';
+			if(navigation.files.min > 0)
+				where += ' and files > ' + mysqlPool.escape(navigation.files.min) + ' ';
+		}
+		console.log(where)
 
 		let searchList = [];
 		//args.splice(orderBy && orderBy.length > 0 ? 1 : 0, 1);
-		//mysqlPool.query('SELECT * FROM `torrents` WHERE `name` like \'%' + text + '%\' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
-		sphinx.query('SELECT * FROM `torrents_index`,`torrents_index_delta` WHERE MATCH(?) ' + (safeSearch ? "and contentcategory != 'xxx'" : '') + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
+		//mysqlPool.query('SELECT * FROM `torrents` WHERE `name` like \'%' + text + '%\' ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
+		sphinx.query('SELECT * FROM `torrents_index`,`torrents_index_delta` WHERE MATCH(?) ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
 			if(!rows) {
 				console.log(error)
 			  	callback(undefined)
@@ -335,18 +359,42 @@ io.on('connection', function(socket)
 		let args = [text, index, limit];
 		const orderBy = navigation.orderBy;
 		let order = '';
+		let where = '';
+
 		if(orderBy && orderBy.length > 0)
 		{
 			const orderDesc = navigation.orderDesc ? 'DESC' : 'ASC';
 			args.splice(1, 0, orderBy);
 			order = 'ORDER BY ?? ' + orderDesc;
 		}
+		if(safeSearch)
+		{
+			where += " and contentcategory != 'xxx' ";
+		}
+		if(navigation.type && navigation.type.length > 0)
+		{
+			where += ' and contenttype = ' + mysqlPool.escape(navigation.type) + ' ';
+		}
+		if(navigation.size)
+		{
+			if(navigation.size.max > 0)
+				where += ' and size < ' + mysqlPool.escape(navigation.size.max) + ' ';
+			if(navigation.size.min > 0)
+				where += ' and size > ' + mysqlPool.escape(navigation.size.min) + ' ';
+		}
+		if(navigation.files)
+		{
+			if(navigation.files.max > 0)
+				where += ' and files < ' + mysqlPool.escape(navigation.files.max) + ' ';
+			if(navigation.files.min > 0)
+				where += ' and files > ' + mysqlPool.escape(navigation.files.min) + ' ';
+		}
 
 		let search = {};
 		let searchList = [];
 		//args.splice(orderBy && orderBy.length > 0 ? 1 : 0, 1);
-		//mysqlPool.query('SELECT * FROM `files` inner join torrents on(torrents.hash = files.hash) WHERE files.path like \'%' + text + '%\' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
-		sphinx.query('SELECT * FROM `files_index`,`files_index_delta` WHERE MATCH(?) ' + (safeSearch ? "and contentcategory != 'xxx'" : '') + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
+		//mysqlPool.query('SELECT * FROM `files` inner join torrents on(torrents.hash = files.hash) WHERE files.path like \'%' + text + '%\' ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
+		sphinx.query('SELECT * FROM `files_index`,`files_index_delta` WHERE MATCH(?) ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
 			if(!rows) {
 				console.log(error)
 			  	callback(undefined)

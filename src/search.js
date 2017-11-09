@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import SearchResults from './search-results'
+import AdvancedSearch from './search-advanced-controls'
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
@@ -8,6 +9,8 @@ import RefreshIndicator from 'material-ui/RefreshIndicator';
 import Checkbox from 'material-ui/Checkbox';
 import Visibility from 'material-ui/svg-icons/action/visibility';
 import VisibilityOff from 'material-ui/svg-icons/action/visibility-off';
+import AddIcon from 'material-ui/svg-icons/content/add';
+import RemoveIcon from 'material-ui/svg-icons/content/remove';
 
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
@@ -28,8 +31,11 @@ export default class Search extends Component {
       moreFilesIndicator: false,
       orderBy: null,
       orderDesc: false,
+      advancedSearch: false,
     }
     this.searchLimit = 10
+    this.advanced = {}
+    this.searchError = undefined;
     
     if(session)
     {
@@ -42,6 +48,9 @@ export default class Search extends Component {
       Object.assign(this.state, this.setSafeSearch(session.notSafeSearch))
       this.state.orderBy = session.orderBy;
       this.state.orderDesc = session.orderDesc;
+      this.state.advancedSearch = session.advancedSearch;
+      this.advanced = session.advanced;
+      this.searchError = session.searchError;
     }
   }
 
@@ -55,12 +64,16 @@ export default class Search extends Component {
     this.moreSearchFiles = true;
     this.currentSearch = this.searchValue;
     let queries = 2;
-    window.torrentSocket.emit('searchTorrent', oldSearch ? this.currentSearch : this.searchValue, {
+    let searchTorrentsParams = {
         limit: this.searchLimit, 
         safeSearch: !this.notSafeSearch,
         orderBy: this.state.orderBy,
         orderDesc: this.state.orderDesc,
-    }, window.customLoader((torrents) => {
+    };
+    if(this.state.advancedSearch && this.advanced)
+      searchTorrentsParams = Object.assign(searchTorrentsParams, this.advanced);
+
+    window.torrentSocket.emit('searchTorrent', oldSearch ? this.currentSearch : this.searchValue, searchTorrentsParams, window.customLoader((torrents) => {
       if(torrents) {
         this.searchTorrents = torrents;
         if(torrents.length != this.searchLimit)
@@ -78,12 +91,16 @@ export default class Search extends Component {
         this.forceUpdate();
       }
     }));
-    window.torrentSocket.emit('searchFiles', oldSearch ? this.currentSearch : this.searchValue, {
+    let searchFilesParams = {
       limit: this.searchLimit, 
       safeSearch: !this.notSafeSearch,
       orderBy: this.state.orderBy,
       orderDesc: this.state.orderDesc,
-    }, window.customLoader((torrents) => {
+    };
+    if(this.state.advancedSearch && this.advanced)
+      searchFilesParams = Object.assign(searchFilesParams, this.advanced);
+    
+    window.torrentSocket.emit('searchFiles', oldSearch ? this.currentSearch : this.searchValue, searchFilesParams, window.customLoader((torrents) => {
       if(torrents) {
         this.searchFiles = torrents;
         let files = 0;
@@ -181,6 +198,9 @@ export default class Search extends Component {
       notSafeSearch: this.notSafeSearch,
       orderBy: this.state.orderBy,
       orderDesc: this.state.orderDesc,
+      advancedSearch: this.state.advancedSearch,
+      advanced: this.advanced,
+      searchError: this.searchError,
     } 
   }
   setSafeSearch(ch) {
@@ -221,31 +241,62 @@ export default class Search extends Component {
               fullWidth={true}
               ref='searchInput'
               defaultValue={this.searchValue}
+              errorText={this.searchError}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   this.search();
                 }
              }}
-             onChange={e => {this.searchValue = e.target.value}}
+             onChange={e => {
+               this.searchValue = e.target.value
+               if(this.searchValue.length < 3 && this.searchValue.length > 0)
+                this.searchError = 'too short string for search';
+               else
+                this.searchError = undefined;
+               this.forceUpdate()
+             }}
           />
           <RaisedButton style={{marginTop: '15px', marginLeft: '10px'}} label="Search" primary={true} onClick={() =>{
             this.search()
           }} />
         </div>
-        <div className='row'>
-          <Checkbox
-            ref='safeSearch'
-            checked={this.notSafeSearch ? true : false}
-            checkedIcon={<Visibility />}
-            uncheckedIcon={<VisibilityOff />}
-            label={<span className='text-nowrap' style={{fontSize: '0.87em', transition: '0.1s', color: this.state.safeSearchColor}}>{this.state.safeSearchText}</span>}
-            iconStyle={{fill: this.state.safeSearchColor}}
-            onCheck={(ev, ch) => {
-              this.setState(this.setSafeSearch(ch));
-            }}
-            style={{paddingBottom: '0.8em'}}
-          />
+        <div className='row w100p center wrap' style={{padding: '0 8px'}}>
+        <div style={{padding: '0px 17px'}}>
+            <Checkbox
+              ref='safeSearch'
+              checked={this.notSafeSearch ? true : false}
+              checkedIcon={<Visibility />}
+              uncheckedIcon={<VisibilityOff />}
+              label={<span className='text-nowrap' style={{fontSize: '0.87em', transition: '0.1s', color: this.state.safeSearchColor}}>{this.state.safeSearchText}</span>}
+              iconStyle={{fill: this.state.safeSearchColor}}
+              onCheck={(ev, ch) => {
+                this.setState(this.setSafeSearch(ch));
+              }}
+              style={{paddingBottom: '0.8em'}}
+            />
+          </div>
+          <div style={{padding: '0px 17px'}}>
+            <Checkbox
+              ref='advancedSearch'
+              checked={this.state.advancedSearch}
+              checkedIcon={<RemoveIcon />}
+              uncheckedIcon={<AddIcon />}
+              label={<span className='text-nowrap' style={{fontSize: '0.87em', transition: '0.1s', color: 'black'}}>advanced search</span>}
+              iconStyle={{fill: 'black'}}
+              onCheck={(ev, ch) => {
+                this.setState({advancedSearch: ch});
+              }}
+              style={{paddingBottom: '0.8em'}}
+            />
+          </div>
         </div>
+        {
+          this.state.advancedSearch
+          &&
+          <AdvancedSearch onChange={(state) => {
+            this.advanced = state;
+          }} state={this.advanced} />
+        }
         {
             this.stats
             ?

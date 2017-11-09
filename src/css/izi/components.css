@@ -59,3 +59,28 @@
 		width: 100%
 	}
 }
+
+.filter-control-border {
+	top: -10px;
+	padding-left: 40px;
+}
+
+@media only screen and (max-width: 530px) 
+{ 
+	.filter-control-row {
+		flex-wrap: wrap;
+		padding-top: 28px;
+	}
+
+	.filter-row {
+		padding-top: 30px;
+		align-items: inherit !important;
+		flex-direction: column;
+	}
+
+	.filter-control-border {
+		padding-top: 5px;
+		top: 6px;
+		padding-left: 0px;
+	}
+}
