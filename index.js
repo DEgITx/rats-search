@@ -442,7 +442,7 @@ io.on('connection', function(socket)
 			}
 			if(type == 'month')
 			{
-				where = ' and `added` > DATE_SUB(NOW(), INTERVAL 7 DAY) '
+				where = ' and `added` > DATE_SUB(NOW(), INTERVAL 30 DAY) '
 			}
 		}
 		mysqlPool.query(`SELECT * FROM torrents WHERE seeders > 0 and (contentCategory is null or contentCategory != 'xxx') ${where} ORDER BY seeders + leechers DESC LIMIT ${max}`, function (error, rows) {
