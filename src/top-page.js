@@ -47,14 +47,14 @@ export default class TopPage extends Page {
             window.router('/')
           }} />
           {
-            this.types.map((type) => {
+            this.types.map((type, index) => {
               const torrents = this.topTorrents[type];
 
               if(!torrents)
                 return null;
 
               return (
-                <List style={{paddingBottom: '70px'}} className='animated recent-torrents'>
+                <List key={index} style={{paddingBottom: '70px'}} className='animated recent-torrents'>
                   <Subheader inset={true}>
                   {
                     this.descriptions[type]

@@ -212,6 +212,11 @@ function baseRowData(row)
 	}
 }
 
+let topCache = {};
+setInterval(() => {
+	topCache = {};
+}, 24 * 60 * 60 * 1000);
+
 io.on('connection', function(socket)
 {
 	socket.on('recentTorrents', function(callback)
@@ -445,17 +450,24 @@ io.on('connection', function(socket)
 				where = ' and `added` > DATE_SUB(NOW(), INTERVAL 30 DAY) '
 			}
 		}
-		mysqlPool.query(`SELECT * FROM torrents WHERE seeders > 0 and (contentCategory is null or contentCategory != 'xxx') ${where} ORDER BY seeders + leechers DESC LIMIT ${max}`, function (error, rows) {
+
+		const query = `SELECT * FROM torrents WHERE seeders > 0 and (contentCategory is null or contentCategory != 'xxx') ${where} ORDER BY seeders + leechers DESC LIMIT ${max}`;
+		if(topCache[query])
+		{
+			callback(topCache[query]);
+			return;
+		}
+		mysqlPool.query(query, function (error, rows) {
 			if(!rows || rows.length == 0) {
 				callback(undefined)
 				return;
 			}
 			
-			let searchList = [];
-			rows.forEach((row) => {
-				searchList.push(baseRowData(row));
-		  	});
-		  	callback(searchList);
+			rows = rows.map((row) => {
+				return baseRowData(row);
+			});
+			topCache[query] = rows;
+		  	callback(rows);
 		});
 	});
 
