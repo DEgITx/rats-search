@@ -423,10 +423,29 @@ io.on('connection', function(socket)
 		updateTorrentTrackers(hash);
 	});
 
-	/*
-	socket.on('topTorrents', function(params, callback)
+	socket.on('topTorrents', function(type, callback)
 	{
-		mysqlPool.query('SELECT * FROM `torrents` ORDER BY seeders LIMIT 10', hash, function (error, rows) {
+		let where = '';
+		let max = 20;
+		if(type && type.length > 0)
+		{
+			where += ' and contentType = ' + mysqlPool.escape(type) + ' ';
+			max = 15;
+
+			if(type == 'hours')
+			{
+				where = ' and `added` > DATE_SUB(NOW(), INTERVAL 24 HOUR) '
+			}
+			if(type == 'week')
+			{
+				where = ' and `added` > DATE_SUB(NOW(), INTERVAL 7 DAY) '
+			}
+			if(type == 'month')
+			{
+				where = ' and `added` > DATE_SUB(NOW(), INTERVAL 7 DAY) '
+			}
+		}
+		mysqlPool.query(`SELECT * FROM torrents WHERE seeders > 0 and (contentCategory is null or contentCategory != 'xxx') ${where} ORDER BY seeders + leechers DESC LIMIT ${max}`, function (error, rows) {
 			if(!rows || rows.length == 0) {
 				callback(undefined)
 				return;
@@ -439,7 +458,6 @@ io.on('connection', function(socket)
 		  	callback(searchList);
 		});
 	});
-	*/
 
 	socket.on('admin', function(callback)
 	{

@@ -6,6 +6,7 @@ import IndexPage from './index-page.js'
 import TorrentPage from './torrent-page.js'
 import DMCAPage from './dmca-page.js'
 import AdminPage from './admin-page.js'
+import TopPage from './top-page.js'
 
 router('/', () => {
 	//singleton
@@ -33,4 +34,10 @@ router('/admi5p', () => {
 	//singleton
 	let pie = new PagesPie;
 	pie.open(AdminPage, {replace: 'all'});
+});
+
+router('/top', () => {
+	//singleton
+	let pie = new PagesPie;
+	pie.open(TopPage, {replace: 'all'});
 });
