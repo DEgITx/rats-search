@@ -40,7 +40,7 @@ export default class InputSize extends Component {
         <Checkbox
           label="Size filter"
           checked={this.state.enabled}
-          style={{width: 150}}
+          style={{width: 150, display: 'flex', minWidth: 130}}
           onCheck={() => this.setState({enabled: !this.state.enabled})}
         />
         <div className='filter-control-row row inline w100p' style={{opacity: this.state.enabled ? 1 : 0.4, transition: '0.5s', paddingLeft: 9}}>
