@@ -1,8 +1,0 @@
-#!/bin/bash
-
-SOURCE_PATH="`dirname \"$0\"`"
-cd "$SOURCE_PATH"
-npm install
-pm2 stop index.js
-npm run build
-pm2 start index.js

@@ -1,0 +1,480 @@
+
+html {
+	box-sizing: border-box;
+}
+
+*,
+:before,
+:after {
+	box-sizing: inherit;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+ 	-webkit-touch-callout: none;
+/*	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+*/
+}
+
+body {
+	font-family: Roboto, Arial, Helvetica, sans-serif;
+	font-size: 16px;
+	margin: 0;
+	/* background: #ededed; */
+	cursor: default;
+}
+
+html,
+body {
+	width: 100%;
+}
+
+svg {
+	height: 1em;
+}
+
+svg.iconmonstr {
+	padding: 0.10em;
+}
+
+.icon {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+/* фикс мерцания */
+
+.flick-fix {
+	-webkit-backface-visibility: hidden;
+}
+
+/* ссылки */
+
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
+/* примитивные позиции */
+
+.relative {
+	position: relative;
+}
+
+.absolute {
+	position: absolute;
+}
+
+.absolute.full-size {
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+
+/* указатель на нажатие */
+
+.clickable {
+	cursor: pointer;
+	position: relative;
+	overflow: hidden;
+	z-index: 0;
+	transition: 0.5s;
+	-webkit-user-select: none;  /* Chrome all / Safari all */
+	-moz-user-select: none;     /* Firefox all */
+	-ms-user-select: none;      /* IE 10+ */
+	user-select: none;          /* Likely future */ 
+}
+
+.clickable .ripple {
+	display: block;
+	position: absolute;
+	border-radius: 100%;
+	transform:scale(0);
+}
+
+[class*="-bright-b"] .ripple {
+	background:rgba(80, 80, 80, 0.20);
+}
+[class*="-dark-b"] .ripple {
+	background:rgba(255, 255, 255, 0.4);
+}
+
+.an-ripple {
+	animation:ripple 0.65s linear;
+}
+
+@keyframes ripple {
+    100% {
+    	opacity: 0; transform: scale(2.5);
+    }
+}
+
+/* разделитель */
+
+.divider {
+	height: 1px;
+	width: 100%;
+	border-bottom: 1px solid;
+}
+
+[class*="-bright-b"] .divider:not([class*="-dark-c"]) {
+	color: rgba(0,0,0,0.07);
+}
+
+[class*="-dark-b"] .divider:not([class*="-bright-c"]) {
+	color: rgba(255,255,255,0.07);
+}
+
+.border1 {
+	border: 1px solid;
+}
+
+[class*="-bright-b"] .border1 {
+	border-color: rgba(0,0,0,0.10);
+}
+
+[class*="-dark-b"] .border1 {
+	border-color: rgba(255,255,255,0.10);
+}
+
+/* eщё разделитель */
+
+[class*="-bright-b"] .underlined {
+	border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+
+[class*="-dark-b"] .underlined {
+	border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+[class*="-bright-b"] .upperlined {
+	border-top: 1px solid rgba(0,0,0,0.07);
+}
+
+[class*="-dark-b"] .upperlined {
+	border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+/* круг */
+
+.round {
+	border-radius: 50%;
+}
+
+/* закруглённые углы */
+
+.rounded {
+	border-radius: 2px;
+}
+
+/* вот это повороты */
+
+.rotate90 {
+	transform: rotate(90deg);
+}
+
+.rotate180 {
+	transform: rotate(180deg);
+}
+
+/* текст без переносов */
+
+.text {
+	display: inline-block;
+}
+
+.text-nowrap {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	min-width: 0;
+}
+
+.text-bold {
+	font-weight: bold;
+}
+
+/* переносы по буквам */
+
+.break-word {
+	word-break: break-word;
+	min-width:0;
+}
+
+/* upper-case */
+
+.u-case {
+	text-transform: uppercase;
+}
+
+/* прокрутка */
+
+.scroll {
+	overflow: auto;
+}
+
+.scrollY {
+	overflow-y: auto;
+}
+
+.scrollX {
+	overflow-x: auto;
+}
+
+.hidden {
+	visibility: hidden;
+}
+
+/* ---------------------
+	
+	РАЗМЕРЫ
+
+--------------------- */
+
+.full-size {
+	width: 100%;
+	height: 100%;
+}
+
+.w100p {
+	width: 100%;
+}
+.h100p {
+	height: 100%;
+}
+
+.w50p {
+	width: 50%;
+}
+.h50p {
+	height: 50%;
+}
+
+.mw100p {
+	max-width: 100%;
+}
+.mh100p {
+	max-height: 100%;
+}
+
+.w1em {
+	width: 1em;
+}
+
+.h1em {
+	height: 1em;
+}
+
+.sz1em {
+	width: 1em;
+	height: 1em;
+}
+
+/* ---------------------
+	
+	ПОЗИЦИИ
+	
+--------------------- */
+
+.fixed {
+	position: fixed;
+}
+
+.top0 {
+	top: 0;
+}
+
+.left0 {
+	left: 0;
+}
+
+.right0 {
+	right: 0;
+}
+
+.bottom0 {
+	bottom: 0;
+}
+
+/* ---------------------
+	
+	ТЕНИ
+	
+--------------------- */
+
+.shadow1 {
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.shadow2 {
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.shadow3 {
+	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+}
+
+.shadow4 {
+	box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+}
+
+.shadow5 {
+	box-shadow: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
+}
+
+/* ---------------------
+	
+	ПРОЗРАЧНОСТЬ
+	
+--------------------- */
+
+.op75 {
+	opacity: 0.75;
+}
+
+.op5 {
+	opacity: 0.5;
+}
+
+.op25 {
+	opacity: 0.25;
+}
+
+/* ---------------------
+	
+	МАРГИНЫ
+	
+--------------------- */
+
+.mar0-25 {
+	margin: 0.25em;
+}
+
+/* ---------------------
+	
+	ПАДДИНГИ
+	
+--------------------- */
+
+.pad0-25 {
+	padding: 0.25em;
+}
+
+.pad0-5 {
+	padding: 0.5em;
+}
+
+.pad0-75 {
+	padding: 0.75em;
+}
+
+.pad1 {
+	padding: 1em;
+}
+
+.pad1-25 {
+	padding: 1.25em;
+}
+
+.pad1-5 {
+	padding: 1.5em;
+}
+
+/* ---------------------
+	
+	РАЗМЕРЫ ШРИФТА
+
+--------------------- */
+
+.fs0-25 {
+	font-size: 0.25em;
+}
+.fs0-5 {
+	font-size: 0.5em;
+}
+.fs0-65 {
+	font-size: 0.65em;
+}
+.fs0-75 {
+	font-size: 0.75em;
+}
+
+.fs0-85 {
+	font-size: 0.85em;
+}
+.fs1 {
+	font-size: 1em;
+}
+.fs1-15 {
+	font-size: 1.15em;
+}
+
+.fs1-25 {
+	font-size: 1.25em;
+}
+.fs1-5 {
+	font-size: 1.5em;
+}
+.fs1-75 {
+	font-size: 1.75em;
+}
+
+.fs2 {
+	font-size: 2em;
+}
+
+.fs2-25 {
+	font-size: 2.25em;
+}
+.fs2-5 {
+	font-size: 2.5em;
+}
+.fs2-75 {
+	font-size: 2.75em;
+}
+
+.fs3 {
+	font-size: 3em;
+}
+
+.fs3-25 {
+	font-size: 3.25em;
+}
+.fs3-5 {
+	font-size: 3em;
+}
+.fs3-75 {
+	font-size: 3.75em;
+}
+
+/* ---------------------
+	
+	Z-ИНДЕКС
+
+--------------------- */
+
+.z0 {
+	z-index: 0
+}
+.z1 {
+	z-index: 1
+}
+.z2 {
+	z-index: 2
+}
+.z3 {
+	z-index: 3
+}
+.z4 {
+	z-index: 4
+}
+.z5 {
+	z-index: 5
+}
+
+.overflow-hidden {
+	overflow: hidden;
+}
