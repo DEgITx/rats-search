@@ -5,9 +5,13 @@
   "version": "0.1.0",
   "private": true,
   "author": "Alexey Kasyanchuk <degitx@gmail.com>",
-  "copyright": "© 2018 Draftup Software",
+  "copyright": "Copyright © 2018 Alexey Kasyanchuk",
   "homepage": "https://github.com/DEgITx/rats-search",
   "main": "app/background.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DEgITx/rats-search.git"
+  },
   "build": {
     "appId": "com.example.electron-boilerplate",
     "files": [
