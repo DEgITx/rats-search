@@ -767,6 +767,15 @@ const updateTorrent = (metadata, infohash, rinfo) => {
 	let size = metadata.info.length ? metadata.info.length : 0;
 	let filesCount = 1;
 	let filesArray = [];
+
+	const filesAdd = (path, size) => filesArray.push({
+		id: filesId++,
+		hash,
+		path,
+		pathIndex: path,
+		size,
+	})
+
 	if(metadata.info.files && metadata.info.files.length > 0)
 	{
 		filesCount = metadata.info.files.length;
@@ -776,27 +785,13 @@ const updateTorrent = (metadata, infohash, rinfo) => {
 		{
 			let file = metadata.info.files[i];
 			let filePath = file.path.join('/');
-			let fileQ = {
-				id: filesId++,
-				hash: hash,
-				path: filePath,
-				pathIndex: filePath,
-				size: file.length,
-			};
-			filesArray.push(fileQ);
+			filesAdd(filePath, file.length);
 			size += file.length;
 		}
 	}
 	else
 	{
-		let fileQ = {
-			id: filesId++,
-			hash: hash,
-			path: metadata.info.name,
-			pathIndex: metadata.info.name,
-			size: size,
-		};
-		filesArray.push(fileQ);
+		filesAdd(metadata.info.name, size)
 	}
 
 	let filesToAdd = filesArray.length;
