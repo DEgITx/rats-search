@@ -39,7 +39,6 @@ class Spider extends Emiter {
     constructor(client) {
         super()
         const options = arguments.length? arguments[0]: {}
-        this.udp = dgram.createSocket('udp4')
         this.table = new Table(options.tableCaption || 1000)
         this.bootstraps = options.bootstraps || bootstraps
         this.token = new Token()
@@ -225,6 +224,8 @@ class Spider extends Emiter {
             return
         this.initialized = true
 
+        this.closing = false
+        this.udp = dgram.createSocket('udp4')
         this.udp.bind(port)
         this.udp.on('listening', () => {
             console.log(`Listen DHT protocol on ${this.udp.address().address}:${this.udp.address().port}`)
@@ -270,6 +271,11 @@ class Spider extends Emiter {
 
     close(callback)
     {
+        if(!this.initialized) {
+            if(callback)
+                callback()
+            return
+        }
         clearInterval(this.joinInterval)
         if(this.trafficInterval)
             clearInterval(this.trafficInterval)
