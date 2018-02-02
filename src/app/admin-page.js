@@ -4,6 +4,7 @@ import Footer from './footer';
 import {Header} from './index-page'
 
 import Toggle from 'material-ui/Toggle';
+import RaisedButton from 'material-ui/RaisedButton';
 
 export default class AdminPage extends Page {
   constructor(props) {
@@ -29,6 +30,11 @@ export default class AdminPage extends Page {
     return (
       <div>
       	<Header />
+        <div className='row center pad0-75'>
+          <RaisedButton label="Back to main page" primary={true} onClick={() => {
+            window.router('/')
+          }} />
+        </div>
       	<div className='column center w100p pad0-75'>
           <Toggle
 			  style={{marginTop: '10px'}}
