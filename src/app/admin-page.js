@@ -15,14 +15,14 @@ export default class AdminPage extends Page {
   	this.loadSettings()
   }
   loadSettings() {
-  	window.torrentSocket.emit('admin', window.customLoader((options) => {
+  	window.torrentSocket.emit('config', window.customLoader((options) => {
   		this.options = options;
       console.log(this.options)
   		this.forceUpdate();
   	}));
   }
   saveSettings() {
-  	window.torrentSocket.emit('setAdmin', this.options)
+  	window.torrentSocket.emit('setConfig', this.options)
   	this.forceUpdate()
   }
   render() {
@@ -32,12 +32,12 @@ export default class AdminPage extends Page {
       	<div className='column center w100p pad0-75'>
           <Toggle
 			  style={{marginTop: '10px'}}
-		      label="Disable DHT scanning"
-		      toggled={this.options.dhtDisabled}
+		      label="Enabled network scanning"
+		      toggled={this.options.indexer}
           thumbSwitchedStyle={{backgroundColor: 'red'}}
           trackSwitchedStyle={{backgroundColor: '#ff9d9d'}}
 		      onToggle={(e, checked) => {
-		      	this.options.dhtDisabled = checked
+		      	this.options.indexer = checked
 		      	this.saveSettings()
 		      }}
 		    />

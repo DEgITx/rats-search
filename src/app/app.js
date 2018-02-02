@@ -40,6 +40,12 @@ const { ipcRenderer, remote } = require('electron');
  });
 
 
+ ipcRenderer.on('url', (event, url) => {
+	 console.log('url', url)
+	 router(url)	
+ });
+
+
 // Needed for onTouchTap 
 // http://stackoverflow.com/a/34015469/988941 
 injectTapEventPlugin();
