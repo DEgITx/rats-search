@@ -33,12 +33,6 @@ module.exports = function (send, recive)
 let torrentsId = 1;
 let filesId = 1;
 
-let mysqlPool = mysql.createPool({
-  connectionLimit: config.mysql.connectionLimit,
-  host     : config.sphinx.host,
-  port     : config.sphinx.port
-});
-
 let sphinx = mysql.createPool({
   connectionLimit: config.sphinx.connectionLimit,
   host     : config.sphinx.host,
@@ -155,7 +149,7 @@ handleListenerDisconnect();
 app.use(express.static('build', {index: false}));
 
 app.get('/sitemap.xml', function(req, res) {
-  mysqlPool.query('SELECT count(*) as cnt FROM `torrents` WHERE contentCategory != \'xxx\' OR contentCategory IS NULL', function (error, rows, fields) {
+  sphinx.query('SELECT count(*) as cnt FROM `torrents` WHERE contentCategory != \'xxx\' OR contentCategory IS NULL', function (error, rows, fields) {
 	  if(!rows) {
 	  	return;
 	  }
@@ -176,7 +170,7 @@ app.get('/sitemap:id.xml', function(req, res) {
 
   let page = (req.params.id - 1) * config.sitemapMaxSize
 
-  mysqlPool.query('SELECT hash FROM `torrents` WHERE contentCategory != \'xxx\' OR contentCategory IS NULL LIMIT ?, ?', [page, config.sitemapMaxSize], function (error, rows, fields) {
+  sphinx.query('SELECT hash FROM `torrents` WHERE contentCategory != \'xxx\' OR contentCategory IS NULL LIMIT ?, ?', [page, config.sitemapMaxSize], function (error, rows, fields) {
 	  if(!rows) {
 	  	return;
 	  }
@@ -261,7 +255,7 @@ setInterval(() => {
 		if(typeof callback != 'function')
 			return;
 
-		mysqlPool.query('SELECT * FROM `torrents` ORDER BY added DESC LIMIT 0,10', function (error, rows, fields) {
+		sphinx.query('SELECT * FROM `torrents` ORDER BY added DESC LIMIT 0,10', function (error, rows, fields) {
 		  if(!rows) {
 		  	callback(undefined)
 		  	return;
@@ -281,7 +275,7 @@ setInterval(() => {
 		if(typeof callback != 'function')
 			return;
 
-		mysqlPool.query('SELECT count(*) AS torrents, sum(size) AS sz FROM `torrents`', function (error, rows, fields) {
+		sphinx.query('SELECT count(*) AS torrents, sum(size) AS sz FROM `torrents`', function (error, rows, fields) {
 		  if(!rows) {
 		  	console.error(error)
 		  	callback(undefined)
@@ -290,7 +284,7 @@ setInterval(() => {
 
 		  let result = {torrents: rows[0].torrents || 0, size: rows[0].sz || 0}
 
-		  mysqlPool.query('SELECT count(*) AS files FROM `files`', function (error, rows, fields) {
+		  sphinx.query('SELECT count(*) AS files FROM `files`', function (error, rows, fields) {
 		  	if(!rows) {
 		  		console.error(error)
 			  	callback(undefined)
@@ -312,7 +306,7 @@ setInterval(() => {
 		if(typeof callback != 'function')
 			return;
 
-		mysqlPool.query('SELECT * FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
+		sphinx.query('SELECT * FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
 		  if(!rows || rows.length == 0) {
 		  	callback(undefined)
 		  	return;
@@ -321,7 +315,7 @@ setInterval(() => {
 
 		  if(options.files)
 		  {
-			  mysqlPool.query('SELECT * FROM `files` WHERE `hash` = ?', hash, function (error, rows, fields) {
+			  sphinx.query('SELECT * FROM `files` WHERE `hash` = ?', hash, function (error, rows, fields) {
 				  torrent.filesList = rows;
 				  callback(baseRowData(torrent))
 			  });
@@ -363,27 +357,27 @@ setInterval(() => {
 		}
 		if(navigation.type && navigation.type.length > 0)
 		{
-			where += ' and contentType = ' + mysqlPool.escape(navigation.type) + ' ';
+			where += ' and contentType = ' + sphinx.escape(navigation.type) + ' ';
 		}
 		if(navigation.size)
 		{
 			if(navigation.size.max > 0)
-				where += ' and size < ' + mysqlPool.escape(navigation.size.max) + ' ';
+				where += ' and size < ' + sphinx.escape(navigation.size.max) + ' ';
 			if(navigation.size.min > 0)
-				where += ' and size > ' + mysqlPool.escape(navigation.size.min) + ' ';
+				where += ' and size > ' + sphinx.escape(navigation.size.min) + ' ';
 		}
 		if(navigation.files)
 		{
 			if(navigation.files.max > 0)
-				where += ' and files < ' + mysqlPool.escape(navigation.files.max) + ' ';
+				where += ' and files < ' + sphinx.escape(navigation.files.max) + ' ';
 			if(navigation.files.min > 0)
-				where += ' and files > ' + mysqlPool.escape(navigation.files.min) + ' ';
+				where += ' and files > ' + sphinx.escape(navigation.files.min) + ' ';
 		}
 		console.log(navigation, where)
 
 		let searchList = [];
 		//args.splice(orderBy && orderBy.length > 0 ? 1 : 0, 1);
-		//mysqlPool.query('SELECT * FROM `torrents` WHERE `name` like \'%' + text + '%\' ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
+		//sphinx.query('SELECT * FROM `torrents` WHERE `name` like \'%' + text + '%\' ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
 		sphinx.query('SELECT * FROM `torrents` WHERE MATCH(?) ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
 			if(!rows) {
 				console.log(error)
@@ -429,27 +423,27 @@ setInterval(() => {
 		}
 		if(navigation.type && navigation.type.length > 0)
 		{
-			where += ' and contentType = ' + mysqlPool.escape(navigation.type) + ' ';
+			where += ' and contentType = ' + sphinx.escape(navigation.type) + ' ';
 		}
 		if(navigation.size)
 		{
 			if(navigation.size.max > 0)
-				where += ' and torrentSize < ' + mysqlPool.escape(navigation.size.max) + ' ';
+				where += ' and torrentSize < ' + sphinx.escape(navigation.size.max) + ' ';
 			if(navigation.size.min > 0)
-				where += ' and torrentSize > ' + mysqlPool.escape(navigation.size.min) + ' ';
+				where += ' and torrentSize > ' + sphinx.escape(navigation.size.min) + ' ';
 		}
 		if(navigation.files)
 		{
 			if(navigation.files.max > 0)
-				where += ' and files < ' + mysqlPool.escape(navigation.files.max) + ' ';
+				where += ' and files < ' + sphinx.escape(navigation.files.max) + ' ';
 			if(navigation.files.min > 0)
-				where += ' and files > ' + mysqlPool.escape(navigation.files.min) + ' ';
+				where += ' and files > ' + sphinx.escape(navigation.files.min) + ' ';
 		}
 		*/
 
 		let search = {};
 		//args.splice(orderBy && orderBy.length > 0 ? 1 : 0, 1);
-		//mysqlPool.query('SELECT * FROM `files` inner join torrents on(torrents.hash = files.hash) WHERE files.path like \'%' + text + '%\' ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
+		//sphinx.query('SELECT * FROM `files` inner join torrents on(torrents.hash = files.hash) WHERE files.path like \'%' + text + '%\' ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
 		sphinx.query('SELECT * FROM `files` WHERE MATCH(?) ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, files, fields) {
 			if(!files) {
 				console.log(error)
@@ -500,7 +494,7 @@ setInterval(() => {
 		let max = 20;
 		if(type && type.length > 0)
 		{
-			where += ' and contentType = ' + mysqlPool.escape(type) + ' ';
+			where += ' and contentType = ' + sphinx.escape(type) + ' ';
 			max = 15;
 
 			if(type == 'hours')
@@ -523,7 +517,7 @@ setInterval(() => {
 			callback(topCache[query]);
 			return;
 		}
-		mysqlPool.query(query, function (error, rows) {
+		sphinx.query(query, function (error, rows) {
 			if(!rows || rows.length == 0) {
 				callback(undefined)
 				return;
@@ -537,29 +531,24 @@ setInterval(() => {
 		});
 	});
 
-	recive('admin', function(callback)
+	recive('config', (callback) =>
 	{
 		if(typeof callback != 'function')
 			return;
 
-		callback({
-			dhtDisabled: !config.indexer
-		})
+		callback(config)
 	});
 
-	recive('setAdmin', function(options, callback)
+	recive('setConfig', (options, callback) =>
 	{
 		if(typeof options !== 'object')
 			return;
 
-		config.indexer = !options.dhtDisabled;
-		spider.ignore = !config.indexer;
-
-		if(!config.indexer)
-			showFakeTorrents()
-		else {
-			hideFakeTorrents()
-			spider.listen(config.spiderPort)
+		for(const option in options)
+		{
+			console.log('set', option, options[option])
+			if(config[option])
+				config[option] = options[option]
 		}
 		
 		if(typeof callback === 'function')
@@ -590,7 +579,7 @@ setInterval(() => {
 		const ip = socketIPV4();
 		isGood = !!isGood;
 
-		mysqlPool.query('SELECT * FROM `torrents_actions` WHERE `hash` = ? AND (`action` = \'good\' OR `action` = \'bad\') AND ipv4 = ?', [hash, ip], function (error, rows, fields) {
+		sphinx.query('SELECT * FROM `torrents_actions` WHERE `hash` = ? AND (`action` = \'good\' OR `action` = \'bad\') AND ipv4 = ?', [hash, ip], function (error, rows, fields) {
 		  if(!rows) {
 		  	console.error(error);
 		  }
@@ -599,17 +588,17 @@ setInterval(() => {
 		  	return
 		  }
 
-		  mysqlPool.query('SELECT good, bad FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
+		  sphinx.query('SELECT good, bad FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
 		  	if(!rows || rows.length == 0)
 		  		return;
 
 		  	let {good, bad} = rows[0];
 		  	const action = isGood ? 'good' : 'bad';
-			mysqlPool.query('INSERT INTO `torrents_actions` SET ?', {hash, action, ipv4: ip}, function(err, result) {
+			sphinx.query('INSERT INTO `torrents_actions` SET ?', {hash, action, ipv4: ip}, function(err, result) {
 				  if(!result) {
 				  	console.error(err);
 				  }
-				  mysqlPool.query('UPDATE torrents SET ' + action + ' = ' + action + ' + 1 WHERE hash = ?', hash, function(err, result) {
+				  sphinx.query('UPDATE torrents SET ' + action + ' = ' + action + ' + 1 WHERE hash = ?', hash, function(err, result) {
 				  	if(!result) {
 					  console.error(err);
 					}
@@ -653,17 +642,17 @@ let popDatabaseBalance = () => {
 /*
 setInterval(() => {
 	let stats = {};
-	mysqlPool.query('SELECT COUNT(*) as tornum FROM `torrents`', function (error, rows, fields) {
+	sphinx.query('SELECT COUNT(*) as tornum FROM `torrents`', function (error, rows, fields) {
 	  stats.torrents = rows[0].tornum;
-	  mysqlPool.query('SELECT COUNT(*) as filesnum, SUM(`size`) as filesizes FROM `files`', function (error, rows, fields) {
+	  sphinx.query('SELECT COUNT(*) as filesnum, SUM(`size`) as filesizes FROM `files`', function (error, rows, fields) {
 	  	stats.files = rows[0].filesnum;
 	  	stats.size = rows[0].filesizes;
 	  	send('newStatistic', stats);
-	  	mysqlPool.query('DELETE FROM `statistic`', function (err, result) {
+	  	sphinx.query('DELETE FROM `statistic`', function (err, result) {
 	  		if(!result) {
 		  	  console.error(err);
 		    }
-			mysqlPool.query('INSERT INTO `statistic` SET ?', stats, function(err, result) {
+			sphinx.query('INSERT INTO `statistic` SET ?', stats, function(err, result) {
 			  if(!result) {
 			  	console.error(err);
 			  }
@@ -964,7 +953,7 @@ if(config.spaceQuota)
 
 this.stop = (callback) => {
 	console.log('closing spider')
-	mysqlPool.end(() => spider.close(() => {
+	sphinx.end(() => spider.close(() => {
 		mysqlSingle.destroy()
 		callback()
 	}))

@@ -8,6 +8,7 @@ import url from "url";
 import { app, Menu, ipcMain, Tray } from "electron";
 import { devMenuTemplate } from "./menu/dev_menu_template";
 import { editMenuTemplate } from "./menu/edit_menu_template";
+import { settingsMenuTemplate } from "./menu/config_menu_template";
 import createWindow from "./helpers/window";
 
 // Special module holding environment variables which you declared
@@ -19,7 +20,7 @@ const { spawn, exec } = require('child_process')
 const fs = require('fs')
 
 const setApplicationMenu = () => {
-  const menus = [editMenuTemplate];
+  const menus = [editMenuTemplate, settingsMenuTemplate];
   if (env.name !== "production") {
     menus.push(devMenuTemplate);
   }

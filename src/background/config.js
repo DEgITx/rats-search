@@ -1,3 +1,5 @@
+import { app } from 'electron'
+
 let config = {
 	indexer: true,
 
@@ -13,14 +15,6 @@ let config = {
 	  host     : 'localhost',
 	  port     : 9306,
 	  connectionLimit: 30
-	},
-
-	mysql: {
-	  host     : 'localhost',
-	  user     : 'btsearch',
-	  password : 'pirateal100x',
-	  database : 'btsearch',
-	  connectionLimit: 40
 	},
 
 	spider: {
@@ -48,28 +42,34 @@ let config = {
 const fs = require('fs');
 const debug = require('debug')('config')
 
+let configPath = 'config.json'
+if(app.getPath("userData") && app.getPath("userData").length > 0)
+{
+	configPath = app.getPath("userData") + '/config.json'
+}
+
 const configProxy = new Proxy(config, {
 	set: (target, prop, value, receiver) => {
 		target[prop] = value
+		console.log('set op', configPath)
 	    
-	    if(!fs.existsSync('config.json'))
-			fs.writeFileSync('config.json', '{}')
+	    if(!fs.existsSync(configPath))
+			fs.writeFileSync(configPath, '{}')
 
-		fs.readFile('config.json', 'utf8', (err, data) => {
-			let obj = JSON.parse(data)
-			obj[prop] = value;
-			fs.writeFileSync('config.json', JSON.stringify(obj, null, 4), 'utf8');
-			debug('saving config.json:', prop, '=', value)
-		})
+		const data = fs.readFileSync(configPath)
+		let obj = JSON.parse(data)
+		obj[prop] = value;
+		fs.writeFileSync(configPath, JSON.stringify(obj, null, 4), 'utf8');
+		debug('saving config.json:', prop, '=', value)
 	}
 })
 
 config.load = () => {
 	debug('loading configuration')
-	if(fs.existsSync('config.json'))
+	if(fs.existsSync(configPath))
 	{
-		debug('finded configuration config.json')
-		const data = fs.readFileSync('config.json', 'utf8')
+		debug('finded configuration', configPath)
+		const data = fs.readFileSync(configPath, 'utf8')
 		const obj = JSON.parse(data);
 		for(let prop in obj) 
 		{

@@ -71,7 +71,7 @@ router('/DMCA', () => {
 });
 
 
-router('/admi5p', () => {
+router('/config', () => {
 	//singleton
 	let pie = new PagesPie;
 	pie.open(AdminPage, {replace: 'all'});
