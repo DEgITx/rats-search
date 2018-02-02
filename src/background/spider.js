@@ -544,10 +544,17 @@ setInterval(() => {
 		if(typeof options !== 'object')
 			return;
 
+		if(typeof options.indexer !== 'undefined')
+		{
+			if(options.indexer)
+				spider.listen(config.spiderPort)
+			else
+				spider.close()
+		}
+
 		for(const option in options)
 		{
-			console.log('set', option, options[option])
-			if(config[option])
+			if(option in config)
 				config[option] = options[option]
 		}
 		

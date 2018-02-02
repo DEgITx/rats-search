@@ -51,7 +51,6 @@ if(app.getPath("userData") && app.getPath("userData").length > 0)
 const configProxy = new Proxy(config, {
 	set: (target, prop, value, receiver) => {
 		target[prop] = value
-		console.log('set op', configPath)
 	    
 	    if(!fs.existsSync(configPath))
 			fs.writeFileSync(configPath, '{}')
