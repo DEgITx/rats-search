@@ -7,7 +7,7 @@ export const settingsMenuTemplate = {
       label: "Main settings",
       accelerator: "CmdOrCtrl+O",
       click: () => {
-        console.log(BrowserWindow.getFocusedWindow().webContents.send('url', '/config'))
+        BrowserWindow.getFocusedWindow().webContents.send('url', '/config')
       }
     }
   ]

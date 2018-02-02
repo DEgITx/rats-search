@@ -641,7 +641,7 @@ let popDatabaseBalance = () => {
 	if(undoneQueries == 0)
 	{
 		balanceDebug('balance done');
-		spider.ignore = !config.indexer;
+		spider.ignore = false;
 	}
 };
 
