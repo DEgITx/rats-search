@@ -1,0 +1,29 @@
+
+jobs:
+  include:
+    - if: branch = master
+      os: osx
+      osx_image: xcode9.0
+      language: node_js
+      node_js: "8"
+
+cache:
+  yarn: true
+  directories:
+    - node_modules
+
+before_install: git pull
+
+before_install: 
+  - brew install rpm
+  - brew install dpkg
+  - brew install jq
+
+script:
+  - yarn test
+
+deploy:
+  provider: script
+  skip_cleanup: true
+  script:
+    - npx travis-deploy-once "npx semantic-release@13"
