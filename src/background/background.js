@@ -162,21 +162,13 @@ const writeSphinxConfig = (path) => {
 
 const sphinxPath = path.resolve(getSphinxPath())
 console.log('Sphinx Path:', sphinxPath)
-let closerPath = sphinxPath.replace('searchd', 'consolekill')
-if(/^win/.test(process.platform))
-{
-  console.log('windows console closer path: ', closerPath)
-  console.log('cmd path', process.env.COMSPEC || 'cmd')
-}
 
 const startSphinx = (callback) => {
   const sphinxConfigDirectory = app.getPath("userData")
   writeSphinxConfig(sphinxConfigDirectory)
 
-  if(/^win/.test(process.platform))
-    sphinx = spawn(process.env.COMSPEC || 'cmd', ['/c', sphinxPath, '--config', `${sphinxConfigDirectory}/sphinx.conf`])
-  else
-    sphinx = spawn(sphinxPath, ['--config', `${sphinxConfigDirectory}/sphinx.conf`])
+  const config = `${sphinxConfigDirectory}/sphinx.conf`
+  sphinx = spawn(sphinxPath, ['--config', config])
 
   sphinx.stdout.on('data', (data) => {
     console.log(`sphinx: ${data}`)
@@ -191,6 +183,10 @@ const startSphinx = (callback) => {
     console.log(`sphinx closed with code ${code} and signal ${signal}`)
     app.quit()
   })
+
+  sphinx.stop = () => {
+  	exec(`${sphinxPath} --config "${config}" --stopwait`)
+  }
 }
 
 let tray = undefined
@@ -285,17 +281,11 @@ const stop = () => {
 
   if(spider)
   {
-    if(/^win/.test(process.platform))
-      spider.stop(() => exec(`${closerPath} ${sphinx.pid}`))
-    else
-      spider.stop(() => sphinx.kill())
+      spider.stop(() => sphinx.stop())
   }
   else
   {
-    if(/^win/.test(process.platform))
-      exec(`${closerPath} ${sphinx.pid}`)
-    else
-      sphinx.kill()
+      sphinx.stop()
   }
 }
 
