@@ -191,7 +191,7 @@ const startSphinx = (callback) => {
 
   const config = `${sphinxConfigDirectory}/sphinx.conf`
   const options = ['--config', config]
-  if(process.platform === 'linux')
+  if(!(/^win/.test(process.platform)))
   {
   	options.push('--nodetach')
   }
