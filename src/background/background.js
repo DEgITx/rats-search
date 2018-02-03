@@ -152,6 +152,28 @@ const writeSphinxConfig = (path) => {
   }
   `;
 
+  // clear dir in test env
+  if(env.name === 'test')
+  {
+    if (fs.existsSync(`${path}/database`)) {
+      fs.readdirSync(`${path}/database`).forEach(function(file, index){
+        const curPath = `${path}/database` + "/" + file;
+        if (!fs.lstatSync(curPath).isDirectory()) {
+          fs.unlinkSync(curPath);
+        }
+      });
+
+      fs.readdirSync(path).forEach(function(file, index){
+        if(!file.startsWith('binlog'))
+          return;
+        const curPath = path + "/" + file;
+        if (!fs.lstatSync(curPath).isDirectory()) {
+          fs.unlinkSync(curPath);
+        }
+      });
+    }
+  }
+
   if (!fs.existsSync(`${path}/database`)){
     fs.mkdirSync(`${path}/database`);
   }
