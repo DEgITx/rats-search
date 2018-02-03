@@ -20,7 +20,7 @@ before_install:
   - brew install jq
 
 script:
-  - yarn test
+  - npm test
 
 deploy:
   provider: script

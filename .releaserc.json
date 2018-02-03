@@ -3,7 +3,7 @@
     "@semantic-release/npm",
     {
       "path": "@semantic-release/exec",
-      "cmd": "yarn build --linux --win --mac"
+      "cmd": "npm run build --linux --win --mac"
     },
     "@semantic-release/github"
   ],
