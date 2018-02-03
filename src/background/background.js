@@ -168,7 +168,12 @@ const startSphinx = (callback) => {
   writeSphinxConfig(sphinxConfigDirectory)
 
   const config = `${sphinxConfigDirectory}/sphinx.conf`
-  sphinx = spawn(sphinxPath, ['--config', config])
+  const options = ['--config', config]
+  if(process.platform === 'linux')
+  {
+  	options.push('--nodetach')
+  }
+  sphinx = spawn(sphinxPath, options)
 
   sphinx.stdout.on('data', (data) => {
     console.log(`sphinx: ${data}`)
