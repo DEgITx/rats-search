@@ -5,7 +5,7 @@ let keepTime = process.hrtime()
 let keepUsage = process.cpuUsage()
 let sw = false
 
-setInterval(() => {
+const cpuTimer = setInterval(() => {
 	if(!sw) {
 		keepTime = process.hrtime();
     	keepUsage = process.cpuUsage();
@@ -14,8 +14,10 @@ setInterval(() => {
 		startTime = keepTime;
 		startUsage = keepUsage;
 		sw = false;
-	} 
+  } 
 }, 500)
+
+cpuTimer.unref()
 
 module.exports = () => {
     function secNSec2ms (secNSec) {
