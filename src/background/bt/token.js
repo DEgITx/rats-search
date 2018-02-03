@@ -3,7 +3,8 @@
 module.exports = class {
 	constructor() {
 		this.generate()
-		setInterval(()=> this.generate(), 60000*15)
+		const it = setInterval(() => this.generate(), 60000*15)
+		it.unref()
 	}
 
 	isValid(t) {

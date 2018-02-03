@@ -43,7 +43,7 @@ const fs = require('fs');
 const debug = require('debug')('config')
 
 let configPath = 'config.json'
-if(app.getPath("userData") && app.getPath("userData").length > 0)
+if(app && app.getPath("userData") && app.getPath("userData").length > 0)
 {
 	configPath = app.getPath("userData") + '/config.json'
 }
