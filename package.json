@@ -38,7 +38,7 @@
       ]
     },
     "linux": {
-      "category": "Files",
+      "category": "Network",
       "target": [
         "AppImage",
         "rpm",
