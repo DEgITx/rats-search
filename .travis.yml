@@ -1,7 +1,6 @@
 
 jobs:
   include:
-    - if: branch = master
       os: osx
       osx_image: xcode9.0
       language: node_js
@@ -22,3 +21,6 @@ deploy:
   skip_cleanup: true
   script:
     - npx travis-deploy-once "npx semantic-release@13"
+  on:
+    tags: true
+    branch: master

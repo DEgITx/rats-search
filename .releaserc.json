@@ -2,6 +2,7 @@
   "publish": [
   	"@semantic-release/changelog",
     "@semantic-release/npm",
+    "@semantic-release/git",
     {
       "path": "@semantic-release/exec",
       "cmd": "brew install rpm && brew install dpkg && brew install jq && npm run build -- --linux --win --mac"
