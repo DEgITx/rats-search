@@ -22,5 +22,5 @@ deploy:
   script:
     - npx travis-deploy-once "npx semantic-release@13"
   on:
-    tags: true
     branch: master
+    condition: $TRAVIS_COMMIT_MESSAGE = "release"
