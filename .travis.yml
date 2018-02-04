@@ -14,11 +14,6 @@ cache:
 
 before_install: git pull
 
-before_install: 
-  - brew install rpm
-  - brew install dpkg
-  - brew install jq
-
 script:
   - npm test
 

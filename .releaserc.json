@@ -3,7 +3,7 @@
     "@semantic-release/npm",
     {
       "path": "@semantic-release/exec",
-      "cmd": "npm run build --linux --win --mac"
+      "cmd": "brew install rpm && brew install dpkg && brew install jq && npm run build --linux --win --mac"
     },
     "@semantic-release/github"
   ],
