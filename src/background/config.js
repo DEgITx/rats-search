@@ -36,7 +36,9 @@ let config = {
 	trafficInterface: 'enp2s0',
 	trafficMax: 0,
 	trafficUpdateTime: 3, //secs
-	trafficIgnoreDHT: false
+	trafficIgnoreDHT: false,
+
+	dbPath: '',
 }
 
 const fs = require('fs');
@@ -59,7 +61,8 @@ const configProxy = new Proxy(config, {
 		let obj = JSON.parse(data)
 		obj[prop] = value;
 		fs.writeFileSync(configPath, JSON.stringify(obj, null, 4), 'utf8');
-		debug('saving config.json:', prop, '=', value)
+		debug('saving rats.json:', prop, '=', value)
+		return true
 	}
 })
 
@@ -73,7 +76,7 @@ config.load = () => {
 		for(let prop in obj) 
 		{
 			config[prop] = obj[prop]
-			debug('config.json:', prop, '=', obj[prop])
+			debug('rats.json:', prop, '=', obj[prop])
 		}
 	}
 	return configProxy

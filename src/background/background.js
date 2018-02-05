@@ -14,7 +14,6 @@ import createWindow from "./helpers/window";
 // Special module holding environment variables which you declared
 // in config/env_xxx.json file.
 import env from "env";
-import spiderCall from './spider'
 
 const { spawn, exec } = require('child_process')
 const fs = require('fs')
@@ -34,6 +33,9 @@ if (env.name !== "production") {
   const userDataPath = app.getPath("userData");
   app.setPath("userData", `${userDataPath} (${env.name})`);
 }
+
+const spiderCall = require('./spider')
+const appConfig = require('./config')
 
 let sphinx = undefined
 let spider = undefined
@@ -88,12 +90,12 @@ const getSphinxPath = () => {
   return 'searchd'
 }
 
-const writeSphinxConfig = (path) => {
+const writeSphinxConfig = (path, dbPath) => {
   const config = `
   index torrents
   {
     type = rt
-    path = ${path}/database/torrents
+    path = ${dbPath}/database/torrents
     
     rt_attr_string = hash
     rt_attr_string = name
@@ -117,7 +119,7 @@ const writeSphinxConfig = (path) => {
   index files
   {
       type = rt
-      path = ${path}/database/files
+      path = ${dbPath}/database/files
       
       rt_attr_string = path
       rt_field = pathIndex
@@ -128,7 +130,7 @@ const writeSphinxConfig = (path) => {
   index statistic
   {
       type = rt
-      path = ${path}/database/statistic
+      path = ${dbPath}/database/statistic
       
     rt_attr_bigint = size
     rt_attr_bigint = files
@@ -155,9 +157,9 @@ const writeSphinxConfig = (path) => {
   // clear dir in test env
   if(env.name === 'test')
   {
-    if (fs.existsSync(`${path}/database`)) {
-      fs.readdirSync(`${path}/database`).forEach(function(file, index){
-        const curPath = `${path}/database` + "/" + file;
+    if (fs.existsSync(`${dbPath}/database`)) {
+      fs.readdirSync(`${dbPath}/database`).forEach(function(file, index){
+        const curPath = `${dbPath}/database` + "/" + file;
         if (!fs.lstatSync(curPath).isDirectory()) {
           fs.unlinkSync(curPath);
         }
@@ -174,12 +176,13 @@ const writeSphinxConfig = (path) => {
     }
   }
 
-  if (!fs.existsSync(`${path}/database`)){
-    fs.mkdirSync(`${path}/database`);
+  if (!fs.existsSync(`${dbPath}/database`)){
+    fs.mkdirSync(`${dbPath}/database`);
   }
 
   fs.writeFileSync(`${path}/sphinx.conf`, config)
   console.log(`writed sphinx config to ${path}`)
+  console.log('db path:', dbPath)
 }
 
 const sphinxPath = path.resolve(getSphinxPath())
@@ -187,7 +190,8 @@ console.log('Sphinx Path:', sphinxPath)
 
 const startSphinx = (callback) => {
   const sphinxConfigDirectory = app.getPath("userData")
-  writeSphinxConfig(sphinxConfigDirectory)
+  appConfig['dbPath'] = appConfig.dbPath && appConfig.dbPath.length > 0 ? appConfig.dbPath : sphinxConfigDirectory;
+  writeSphinxConfig(sphinxConfigDirectory, appConfig.dbPath)
 
   const config = `${sphinxConfigDirectory}/sphinx.conf`
   const options = ['--config', config]
