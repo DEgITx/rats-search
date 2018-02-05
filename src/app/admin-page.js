@@ -28,8 +28,13 @@ export default class AdminPage extends Page {
   	}));
   }
   saveSettings() {
-  	window.torrentSocket.emit('setConfig', this.options)
-  	this.forceUpdate()
+    window.torrentSocket.emit('setConfig', this.options)
+    this.settingsSavedMessage = true
+    this.forceUpdate()
+    setTimeout(() => {
+      this.settingsSavedMessage = false
+      this.forceUpdate()
+    }, 1000)
   }
   render() {
     return (
@@ -131,6 +136,12 @@ export default class AdminPage extends Page {
             }}
           />
         </div>
+
+        {
+          this.settingsSavedMessage
+          &&
+          <div style={{color: 'green'}}>Settings saved</div>
+        }
 
         <div className='row center pad0-75'>
           <RaisedButton label="Save Sttings" primary={true} onClick={() => {
