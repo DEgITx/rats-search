@@ -951,7 +951,7 @@ function hideFakeTorrents()
 if(config.indexer) {
 	spider.listen(config.spiderPort)
 } else {
-	showFakeTorrents();
+//	showFakeTorrents();
 }
 
 if(config.cleanup && config.indexer)
