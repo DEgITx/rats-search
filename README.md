@@ -10,7 +10,7 @@
 BitTorrent search program for desktop and web. Collect and navigate over base of torrents statistic, categories, and give easy access to it. Work over p2p network and support Windows, Linux, Mac OS platforms.
 
 ## Features
-* Works over p2p torrent network
+* Works over p2p torrent network, doesn't require any trackers
 * Search over torrent collection
 * Torrent and files search
 * Search filters
@@ -18,6 +18,9 @@ BitTorrent search program for desktop and web. Collect and navigate over base of
 * Pretty safe to use and don't send any information about collected torrents data (statistic)
 * Collect only statistic information and don't save any torrents internal data
 * Supports torrents ratings for web version
+
+## Contributing
+We are welcome any contributing: bug fixes, improvements, code refactoring and other stuffs.
 
 ## License
 [MIT](https://github.com/DEgiTx/rats-search/blob/master/LICENSE)
