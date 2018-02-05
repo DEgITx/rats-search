@@ -546,10 +546,17 @@ setInterval(() => {
 
 		if(typeof options.indexer !== 'undefined')
 		{
-			if(options.indexer)
-				spider.listen(config.spiderPort)
+			const upSpider = () => {
+				if(options.indexer)
+					spider.listen(config.spiderPort)
+				else
+					spider.close()
+			}
+
+			if(options.spiderPort !== config.spiderPort)
+				spider.close(upSpider)
 			else
-				spider.close()
+				upSpider()
 		}
 
 		for(const option in options)
