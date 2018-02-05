@@ -6,6 +6,7 @@ import TorrentPage from './torrent-page.js'
 import DMCAPage from './dmca-page.js'
 import AdminPage from './admin-page.js'
 import TopPage from './top-page.js'
+import ChangelogPage from './changelog-page.js'
 
 let routers = {}
 const router = (page, callback) => {
@@ -81,4 +82,11 @@ router('/top', () => {
 	//singleton
 	let pie = new PagesPie;
 	pie.open(TopPage, {replace: 'all'});
+});
+
+router('/changelog', () => {
+	//singleton
+	let pie = new PagesPie;
+	console.log('changelog')
+	pie.open(ChangelogPage, {replace: 'all'});
 });

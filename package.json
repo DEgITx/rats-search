@@ -23,7 +23,8 @@
       {
         "from": "resources/icons/512x512.png",
         "to": "icons/512x512.png"
-      }
+      },
+      "CHANGELOG.md"
     ],
     "directories": {
       "buildResources": "resources"
@@ -81,6 +82,7 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-input-range": "^1.3.0",
+    "react-markdown": "^3.1.5",
     "react-tap-event-plugin": "^3.0.2"
   },
   "devDependencies": {
