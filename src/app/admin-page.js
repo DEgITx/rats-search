@@ -8,6 +8,9 @@ import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField'
 import Slider from 'material-ui/Slider'
 
+import fs from 'fs'
+const {dialog} = require('electron').remote
+
 export default class AdminPage extends Page {
   constructor(props) {
     super(props)
@@ -85,6 +88,30 @@ export default class AdminPage extends Page {
               this.forceUpdate()
             }}
           />
+        </div>
+
+        <div className='row inline w100p'>
+          <div style={{flex: 1}}>Collection directory</div>
+          <TextField
+            hintText="Port"
+            errorText={this.options.dbPath && this.options.dbPath.length > 0 ? undefined : "This field is required"}
+            value={this.options.dbPath}
+            onChange={(e, value) => {
+              if(!fs.existsSync(value))
+                return
+
+              this.options.dbPath = value
+              this.forceUpdate()
+            }}
+          />
+          <RaisedButton style={{marginLeft: 20}} label="Browse" primary={true} onClick={() => {
+           const dir = dialog.showOpenDialog({properties: ['openDirectory']})[0]
+           if(dir)
+            {
+              this.options.dbPath = dir
+              this.forceUpdate()
+            }
+          }} />
         </div>
 
         <div className='row inline w100p'>
