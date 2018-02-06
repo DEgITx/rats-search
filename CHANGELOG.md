@@ -1,3 +1,11 @@
+<a name="0.3.1"></a>
+## [0.3.1](https://github.com/DEgITx/rats-search/compare/v0.3.0...v0.3.1) (2018-02-06)
+
+
+### Bug Fixes
+
+* **windows:** resolve some encoding problem with search daemon process ([91c99d1](https://github.com/DEgITx/rats-search/commit/91c99d1))
+
 <a name="0.3.0"></a>
 # [0.3.0](https://github.com/DEgITx/rats-search/compare/v0.2.0...v0.3.0) (2018-02-05)
 
