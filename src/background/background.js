@@ -19,6 +19,7 @@ import env from "env";
 
 const { spawn, exec } = require('child_process')
 const fs = require('fs')
+const iconv = require('iconv-lite');
 
 const setApplicationMenu = () => {
   const menus = [editMenuTemplate, settingsMenuTemplate, aboutMenuTemplate];
@@ -93,7 +94,7 @@ const getSphinxPath = () => {
 }
 
 const writeSphinxConfig = (path, dbPath) => {
-  const config = `
+  let config = `
   index torrents
   {
     type = rt
@@ -181,6 +182,9 @@ const writeSphinxConfig = (path, dbPath) => {
   if (!fs.existsSync(`${dbPath}/database`)){
     fs.mkdirSync(`${dbPath}/database`);
   }
+
+  if(/^win/.test(process.platform))
+    config = iconv.encode(config, 'win1251')
 
   fs.writeFileSync(`${path}/sphinx.conf`, config)
   console.log(`writed sphinx config to ${path}`)

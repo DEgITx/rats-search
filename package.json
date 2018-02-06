@@ -75,6 +75,7 @@
     "debug": "^3.1.0",
     "diskusage": "^0.2.4",
     "fs-jetpack": "^1.2.0",
+    "iconv-lite": "^0.4.19",
     "ipaddr.js": "^1.5.4",
     "material-ui": "^0.20.0",
     "moment": "^2.20.1",
