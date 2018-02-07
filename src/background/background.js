@@ -37,6 +37,8 @@ if (env.name !== "production") {
   app.setPath("userData", `${userDataPath} (${env.name})`);
 }
 
+const resourcesPath = env.name === "production" ? process.resourcesPath : 'resources'
+
 const spiderCall = require('./spider')
 const appConfig = require('./config')
 
@@ -249,7 +251,7 @@ app.on("ready", () => {
       mainWindow.openDevTools();
     }
 
-    tray = new Tray('resources/icons/512x512.png')
+    tray = new Tray(`${resourcesPath}/icons/512x512.png`)
 
     tray.on('click', () => {
 	  mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
