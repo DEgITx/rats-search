@@ -6,6 +6,7 @@
 [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/1eh0lug97fboscib?svg=true)](https://ci.appveyor.com/project/DEgITx/rats-search)
 [![Travis Build Status](https://travis-ci.org/DEgITx/rats-search.svg?branch=master)](https://travis-ci.org/DEgITx/rats-search)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+[![Release](https://img.shields.io/github/release/DEgITx/rats-search.svg)](https://github.com/DEgITx/rats-search/releases)
 
 BitTorrent search program for desktop and web. Collect and navigate over base of torrents statistic, categories, and give easy access to it. Work over p2p network and support Windows, Linux, Mac OS platforms.
 
