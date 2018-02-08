@@ -23,6 +23,8 @@ const quotaDebug = _debug('main:quota');
 
 const {torrentTypeDetect} = require('../app/content');
 
+const torrentClient = require('./torrentClient')
+
 // Start server
 //server.listen(config.httpPort);
 //console.log('Listening web server on', config.httpPort, 'port')
@@ -569,6 +571,25 @@ setInterval(() => {
 			callback(true)
 	});
 
+	recive('download', (magnet) =>
+	{
+		console.log('download', magnet)
+		torrentClient.add(magnet, {path: config.client.downloadPath}, (torrent) =>{
+			send('downloadMetadata', torrent.infoHash)
+
+			torrent.on('done', () => send('downloadDone', torrent.infoHash))
+
+			torrent.on('download', (bytes) => {
+				send('downloadProgress', torrent.infoHash, {
+					bytes,
+					downloaded: torrent.downloaded,
+					speed: torrent.downloadSpeed,
+					progress: torrent.progress
+				})
+			})
+		})
+	});
+
 	let socketIPV4 = () => {
 		let ip = socket.request.connection.remoteAddress;
 		if (ipaddr.IPv4.isValid(ip)) {
@@ -967,10 +988,12 @@ if(config.spaceQuota)
 
 this.stop = (callback) => {
 	console.log('closing spider')
-	sphinx.end(() => spider.close(() => {
-		mysqlSingle.destroy()
-		callback()
-	}))
+	torrentClient.destroy(() => {
+		sphinx.end(() => spider.close(() => {
+			mysqlSingle.destroy()
+			callback()
+		}))
+	})
 }
 return this
 
