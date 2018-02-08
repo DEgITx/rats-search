@@ -74,6 +74,7 @@
     "bitfield": "^1.1.2",
     "debug": "^3.1.0",
     "diskusage": "^0.2.4",
+    "electron-context-menu": "^0.9.1",
     "fs-jetpack": "^1.2.0",
     "iconv-lite": "^0.4.19",
     "ipaddr.js": "^1.5.4",
