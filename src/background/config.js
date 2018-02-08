@@ -1,4 +1,5 @@
 import { app } from 'electron'
+const os = require('os')
 
 let config = {
 	indexer: true,
@@ -41,7 +42,7 @@ let config = {
 	dbPath: '',
 
 	client: {
-		downloadPath: ''
+		downloadPath: os.homedir() + '/Downloads'
 	}
 }
 
