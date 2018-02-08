@@ -24,6 +24,7 @@ const quotaDebug = _debug('main:quota');
 const {torrentTypeDetect} = require('../app/content');
 
 const torrentClient = require('./torrentClient')
+let torrentClientHashMap = {}
 
 // Start server
 //server.listen(config.httpPort);
@@ -326,6 +327,15 @@ setInterval(() => {
 		  {
 		  	  callback(baseRowData(torrent))
 		  }
+
+		  if(torrentClientHashMap[hash])
+		  {
+			const torrent = torrentClient.get(torrentClientHashMap[hash])
+			if(!torrent)
+				return
+
+			send('downloading', torrent.infoHash)
+		  }
 		});
 	});
 
@@ -575,11 +585,20 @@ setInterval(() => {
 	{
 		console.log('download', magnet)
 		torrentClient.add(magnet, {path: config.client.downloadPath}, (torrent) =>{
-			send('downloadMetadata', torrent.infoHash)
+			torrentClientHashMap[torrent.infoHash] = magnet
+			send('downloading', torrent.infoHash)
 
-			torrent.on('done', () => send('downloadDone', torrent.infoHash))
+			torrent.on('done', () => { 
+				delete torrentClientHashMap[torrent.infoHash]
+				send('downloadDone', torrent.infoHash)
+			})
 
+			let now = Date.now()
 			torrent.on('download', (bytes) => {
+				if(Date.now() - now < 100)
+					return
+				now = Date.now()
+
 				send('downloadProgress', torrent.infoHash, {
 					bytes,
 					downloaded: torrent.downloaded,
@@ -589,6 +608,28 @@ setInterval(() => {
 			})
 		})
 	});
+
+	recive('downloadCancel', (hash, callback) =>
+	{
+		const id = torrentClientHashMap[hash]
+		if(!id)
+		{
+			callback(false)
+			return
+		}
+
+		client.remove(id, (err) => {
+			if(err)
+			{
+				callback(false)
+				return
+			}
+
+			delete torrentClientHashMap[hash]
+			if(callback)
+				callback(true)
+		})
+	})
 
 	let socketIPV4 = () => {
 		let ip = socket.request.connection.remoteAddress;
