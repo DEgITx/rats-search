@@ -12,16 +12,26 @@ const { ipcRenderer, remote } = require('electron');
 //window.torrentSocket = io(document.location.protocol + '//' + document.location.hostname + (process.env.NODE_ENV === 'production' ? '/' : ':8095/'));
  window.torrentSocket = {}
  window.torrentSocket.callbacks = {}
+ window.torrentSocket.listeners = {}
  window.torrentSocket.on = (name, func) => {
- 	ipcRenderer.on(name, (event, ...data) => {
+	const newListener = (event, ...data) => {
         func(...data)
-    });
+    }
+	window.torrentSocket.listeners[func] = newListener
+ 	ipcRenderer.on(name, newListener);
  }
  window.torrentSocket.off = (name, func) => {
  	if(!func)
- 		ipcRenderer.removeListener(name);
- 	else
- 		ipcRenderer.removeListener(name, func);
+ 		ipcRenderer.removeAllListeners(name);
+	 else
+	 {
+		const realListener = window.torrentSocket.listeners[func]
+		if(realListener)
+		{
+			ipcRenderer.removeListener(name, realListener);
+			delete window.torrentSocket.listeners[func]
+		}
+	 }
  }
  window.torrentSocket.emit = (name, ...data) => {
  	if(typeof data[data.length - 1] === 'function')
