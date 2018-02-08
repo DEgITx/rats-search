@@ -182,7 +182,7 @@ export default class TorrentPage extends Page {
   	window.torrentSocket.emit('torrent', this.props.hash, {files: true}, window.customLoader((data) => {
   		if(data) {
   			this.torrent = data
-  			this.setTitle(this.torrent.name + ' - RatsOnTheBoat.org');
+  			this.setTitle(this.torrent.name + ' - Rats On TheBoat');
         if(this.torrent.contentCategory == 'xxx') {
           this.setMetaTag('robots', 'noindex');
         }
@@ -206,7 +206,6 @@ export default class TorrentPage extends Page {
   componentDidMount() {
   	super.componentDidMount();
 
-  	this.getTorrentInfo();
   	this.filesUpdated = (hash) => {
   		if(this.props.hash != hash)
       		return;
@@ -240,13 +239,13 @@ export default class TorrentPage extends Page {
     }
     window.torrentSocket.on('vote', this.onVote);
 
-    this.downloadMetadata = (hash) => {
+    this.downloading = (hash) => {
       if(this.props.hash != hash)
         return;
 
       this.setState({downloading: true})
     }
-    window.torrentSocket.on('downloadMetadata', this.downloadMetadata);
+    window.torrentSocket.on('downloading', this.downloading);
     
     this.downloadDone = (hash) => {
       if(this.props.hash != hash)
@@ -264,6 +263,8 @@ export default class TorrentPage extends Page {
       this.setState({downloadProgress: progress})
     }
     window.torrentSocket.on('downloadProgress', this.downloadProgress);
+
+    this.getTorrentInfo();
   }
   componentWillUnmount() {
   	if(this.filesUpdated)
@@ -275,8 +276,8 @@ export default class TorrentPage extends Page {
     if(this.torrent && this.torrent.contentCategory == 'xxx') {
       this.removeMetaTag('robots');
     }
-    if(this.downloadMetadata)
-      window.torrentSocket.off('downloadMetadata', this.downloadMetadata);
+    if(this.downloading)
+      window.torrentSocket.off('downloading', this.downloading);
     if(this.downloadDone)
       window.torrentSocket.off('downloadDone', this.downloadDone);
     if(this.downloadProgress)
@@ -346,7 +347,7 @@ export default class TorrentPage extends Page {
    								<RaisedButton
 								      href={`magnet:?xt=urn:btih:${this.torrent.hash}`}
 								      target="_self"
-								      label="Download"
+								      label="Magnet"
 								      secondary={true}
                       onClick={(e) => {
                         e.preventDefault();
@@ -355,28 +356,55 @@ export default class TorrentPage extends Page {
 								      icon={<svg fill='white' viewBox="0 0 24 24"><path d="M17.374 20.235c2.444-2.981 6.626-8.157 6.626-8.157l-3.846-3.092s-2.857 3.523-6.571 8.097c-4.312 5.312-11.881-2.41-6.671-6.671 4.561-3.729 8.097-6.57 8.097-6.57l-3.092-3.842s-5.173 4.181-8.157 6.621c-2.662 2.175-3.76 4.749-3.76 7.24 0 5.254 4.867 10.139 10.121 10.139 2.487 0 5.064-1.095 7.253-3.765zm4.724-7.953l-1.699 2.111-1.74-1.397 1.701-2.114 1.738 1.4zm-10.386-10.385l1.4 1.738-2.113 1.701-1.397-1.74 2.11-1.699z"/></svg>}
 								    />
                     {
-                      !this.state.askDownloading
-                      ?
+                      !this.state.askDownloading && !this.state.downloading
+                      &&
                       <RaisedButton
                         href={`magnet:?xt=urn:btih:${this.torrent.hash}`}
                         target="_self"
-                        label="Download Iternal client"
-                        secondary={true}
+                        label="Download"
+                        backgroundColor='#00C853'
+                        labelColor='white'
+                        style={{marginTop: 8}}
                         onClick={(e) => {
                           e.preventDefault();
                           this.setState({askDownloading: true})
                           window.torrentSocket.emit('download', `magnet:?xt=urn:btih:${this.torrent.hash}`)
                         }}
-                        icon={<svg fill='white' viewBox="0 0 24 24"><path d="M17.374 20.235c2.444-2.981 6.626-8.157 6.626-8.157l-3.846-3.092s-2.857 3.523-6.571 8.097c-4.312 5.312-11.881-2.41-6.671-6.671 4.561-3.729 8.097-6.57 8.097-6.57l-3.092-3.842s-5.173 4.181-8.157 6.621c-2.662 2.175-3.76 4.749-3.76 7.24 0 5.254 4.867 10.139 10.121 10.139 2.487 0 5.064-1.095 7.253-3.765zm4.724-7.953l-1.699 2.111-1.74-1.397 1.701-2.114 1.738 1.4zm-10.386-10.385l1.4 1.738-2.113 1.701-1.397-1.74 2.11-1.699z"/></svg>}
+                        icon={
+                          <svg viewBox="0 0 56 56" fill='white'>
+                            <g>
+                              <path d="M35.586,41.586L31,46.172V28c0-1.104-0.896-2-2-2s-2,0.896-2,2v18.172l-4.586-4.586c-0.781-0.781-2.047-0.781-2.828,0
+                                s-0.781,2.047,0,2.828l7.999,7.999c0.093,0.094,0.196,0.177,0.307,0.251c0.047,0.032,0.099,0.053,0.148,0.081
+                                c0.065,0.036,0.127,0.075,0.196,0.103c0.065,0.027,0.133,0.042,0.2,0.062c0.058,0.017,0.113,0.04,0.173,0.051
+                                C28.738,52.986,28.869,53,29,53s0.262-0.014,0.392-0.04c0.06-0.012,0.115-0.034,0.173-0.051c0.067-0.02,0.135-0.035,0.2-0.062
+                                c0.069-0.028,0.131-0.067,0.196-0.103c0.05-0.027,0.101-0.049,0.148-0.081c0.11-0.074,0.213-0.157,0.307-0.251l7.999-7.999
+                                c0.781-0.781,0.781-2.047,0-2.828S36.367,40.805,35.586,41.586z"/>
+                              <path d="M47.835,18.986c-0.137-0.019-2.457-0.335-4.684,0.002C43.1,18.996,43.049,19,42.999,19c-0.486,0-0.912-0.354-0.987-0.85
+                                c-0.083-0.546,0.292-1.056,0.838-1.139c1.531-0.233,3.062-0.196,4.083-0.124C46.262,9.135,39.83,3,32.085,3
+                                C27.388,3,22.667,5.379,19.8,9.129C21.754,10.781,23,13.246,23,16c0,0.553-0.447,1-1,1s-1-0.447-1-1
+                                c0-2.462-1.281-4.627-3.209-5.876c-0.227-0.147-0.462-0.277-0.702-0.396c-0.069-0.034-0.139-0.069-0.21-0.101
+                                c-0.272-0.124-0.55-0.234-0.835-0.321c-0.035-0.01-0.071-0.017-0.106-0.027c-0.259-0.075-0.522-0.132-0.789-0.177
+                                c-0.078-0.013-0.155-0.025-0.233-0.036C14.614,9.027,14.309,9,14,9c-3.859,0-7,3.141-7,7c0,0.082,0.006,0.163,0.012,0.244
+                                l0.012,0.21l-0.009,0.16C7.008,16.744,7,16.873,7,17v0.63l-0.567,0.271C2.705,19.688,0,24,0,28.154C0,34.135,4.865,39,10.845,39H25
+                                V28c0-2.209,1.791-4,4-4s4,1.791,4,4v11h2.353c0.059,0,0.116-0.005,0.174-0.009l0.198-0.011l0.271,0.011
+                                C36.053,38.995,36.11,39,36.169,39h9.803C51.501,39,56,34.501,56,28.972C56,24.161,52.49,19.872,47.835,18.986z"/>
+                            </g>
+                          </svg>
+                        }
                       />
-                      :
-                        this.state.downloading
-                        &&
+                      }
+                      {
+                      this.state.downloading
+                      &&
+                      <div className='column center pad0-75' style={{width: '300px'}}>
+                        <div className='fs0-75' style={{color: 'rgb(0, 188, 212)'}}>downloading {this.state.downloadProgress && (this.state.downloadProgress.progress * 100).toFixed(1)}%</div>
                         <LinearProgress 
+                          style={{marginTop: 3}}
                           mode="determinate" 
                           value={this.state.downloadProgress && this.state.downloadProgress.progress * 100}
                         />
-                    }
+                      </div>
+                      }
 								 <div className='fs0-75 pad0-75 center column' style={{color: 'rgba(0, 0, 0, 0.541176)'}}><div>BTIH:</div><div>{this.torrent.hash}</div></div>
 								 {
 								 	this.torrent.seeders || this.torrent.leechers || this.torrent.completed
