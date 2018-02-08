@@ -13,8 +13,8 @@ const { ipcRenderer, remote } = require('electron');
  window.torrentSocket = {}
  window.torrentSocket.callbacks = {}
  window.torrentSocket.on = (name, func) => {
- 	ipcRenderer.on(name, (event, data) => {
-        func(data)
+ 	ipcRenderer.on(name, (event, ...data) => {
+        func(...data)
     });
  }
  window.torrentSocket.off = (name, func) => {
