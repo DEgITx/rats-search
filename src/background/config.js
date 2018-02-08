@@ -39,6 +39,10 @@ let config = {
 	trafficIgnoreDHT: false,
 
 	dbPath: '',
+
+	client: {
+		downloadPath: ''
+	}
 }
 
 const fs = require('fs');
