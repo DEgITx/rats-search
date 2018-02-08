@@ -18,6 +18,7 @@ var moment = require('moment');
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 let rating = require('./rating');
 import LinearProgress from 'material-ui/LinearProgress';
+import FlatButton from 'material-ui/FlatButton';
 import {fileTypeDetect} from './content'
 import {contentIcon} from './torrent'
 
@@ -247,11 +248,14 @@ export default class TorrentPage extends Page {
     }
     window.torrentSocket.on('downloading', this.downloading);
     
-    this.downloadDone = (hash) => {
+    this.downloadDone = (hash, canceled) => {
       if(this.props.hash != hash)
         return;
 
-      this.setState({downloading: false})
+      this.setState({
+        downloading: false,
+        askDownloading: !canceled
+      })
     }
     window.torrentSocket.on('downloadDone', this.downloadDone);
 
@@ -401,6 +405,14 @@ export default class TorrentPage extends Page {
                           style={{marginTop: 3}}
                           mode="determinate" 
                           value={this.state.downloadProgress && this.state.downloadProgress.progress * 100}
+                        />
+                        <FlatButton
+                          onClick={() => {
+                            window.torrentSocket.emit('downloadCancel', this.torrent.hash)
+                          }}
+                          label="Cancel download"
+                          secondary={true}
+                          icon={<svg fill='rgb(255, 64, 129)' viewBox="0 0 18 18"><path d="M9 1C4.58 1 1 4.58 1 9s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm4 10.87L11.87 13 9 10.13 6.13 13 5 11.87 7.87 9 5 6.13 6.13 5 9 7.87 11.87 5 13 6.13 10.13 9 13 11.87z"/></svg>}
                         />
                       </div>
                       }
