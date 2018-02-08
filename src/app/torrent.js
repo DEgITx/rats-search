@@ -3,6 +3,9 @@ import formatBytes from './format-bytes'
 import {ListItem} from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 
+import Spinner24 from './images/spinner_24.gif'
+import LinearProgress from 'material-ui/LinearProgress';
+
 const contentIcon = (type, category) => {
   if(category == 'xxx')
   {
@@ -150,98 +153,195 @@ const contentIcon = (type, category) => {
 };
 export {contentIcon}
 
-export default (props) => {
-  
-const torrent = props.torrent;
-return (
-    <div>
-      <ListItem 
-        onClick={(e) => {
-        	const link = '/torrent/' + torrent.hash;
-        	if(e.button === 1)
-        		return false;
+export default class Torrent extends Component {
+  state = {
+    downloading: false,
+    askDownloading: false,
+    downloadProgress: {}
+  }
+  componentDidMount()
+  {
+    this.downloading = (hash) => {
+      if(this.props.torrent.hash != hash)
+        return;
 
-        	if(e.ctrlKey && e.button === 0) {
-        		let win = window.open(link, '_blank');
-        		//win.focus();
-        		return true;
-        	}
+      this.setState({downloading: true})
+    }
+    window.torrentSocket.on('downloading', this.downloading);
 
-        	window.router(link)
-        }} 
-        primaryText={
-          <a href={'/torrent/' + torrent.hash} ref={(node) => {
-            if(node)
-              node.onclick = () => { return false }
-          }}>
-            <span className='break-word' style={{
-          	 color: torrent.contentCategory != 'xxx' ? 'black' : 'grey'
+    this.downloadDone = (hash) => {
+      if(this.props.torrent.hash != hash)
+        return;
+
+      this.setState({downloading: false})
+    }
+    window.torrentSocket.on('downloadDone', this.downloadDone);
+
+    this.downloadProgress = (hash, progress) => {
+      if(this.props.torrent.hash != hash)
+        return;
+
+      this.setState({
+        downloading: true,
+        downloadProgress: progress
+      })
+    }
+    window.torrentSocket.on('downloadProgress', this.downloadProgress);
+  }
+  componentWillUnmount()
+  {
+    if(this.downloading)
+      window.torrentSocket.off('downloading', this.downloading);
+    if(this.downloadDone)
+      window.torrentSocket.off('downloadDone', this.downloadDone);
+    if(this.downloadProgress)
+      window.torrentSocket.off('downloadProgress', this.downloadProgress);
+  }
+  render()
+  {
+    const torrent = this.props.torrent;
+    return (
+      <div>
+        <ListItem 
+          onClick={(e) => {
+            const link = '/torrent/' + torrent.hash;
+            if(e.button === 1)
+              return false;
+
+            if(e.ctrlKey && e.button === 0) {
+              let win = window.open(link, '_blank');
+              //win.focus();
+              return true;
+            }
+
+            window.router(link)
+          }} 
+          primaryText={
+            <a href={'/torrent/' + torrent.hash} ref={(node) => {
+              if(node)
+                node.onclick = () => { return false }
             }}>
-              {torrent.name}
-            </span>
-          </a>
-        }
-        secondaryText={
-          <a href={'/torrent/' + torrent.hash} ref={(node) => {
-            if(node)
-              node.onclick = () => { return false }
-          }}>
-            <div className='column' style={{height: 'auto', whiteSpace: 'normal', paddingTop: '0.30em'}}>
-              <div>
-              {
-                formatBytes(torrent.size, 1) + ' (' + torrent.files + ' files)'
-              }
-              </div>
-              {
-                torrent.path && torrent.path.length > 0
-                ?
-                torrent.path.map((path, index) => {
-                  return <div key={index} className='break-word fs0-75' style={{paddingTop: '0.3em', marginLeft: '0.6em'}}>{path}</div>
-                })
-                :
-                null
-              }
-              {
-                torrent.seeders || torrent.leechers || torrent.completed
-                ?
-                <div className='break-word fs0-85' style={{paddingTop: '0.35em'}}>
-                  <span style={{color: (torrent.seeders > 0 ? '#00C853' : 'grey')}}>{torrent.seeders} seeders</span>
-                  <span style={{color: (torrent.leechers > 0 ? '#AA00FF' : 'grey'), marginLeft: '12px'}}>{torrent.leechers} leechers</span>
-                  <span style={{color: (torrent.completed > 0 ? '#FF6D00' : 'grey'), marginLeft: '12px'}}>{torrent.completed} completed</span>
-                </div>
-                :
-                null
-              }
-            </div>
-          </a>
-        }
-        leftIcon={contentIcon(torrent.contentType, torrent.contentCategory)}
-        rightIcon={
-          <a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
-	          <svg style={{
-	          	height: '24px',
-	          	fill: torrent.contentCategory != 'xxx' ? 'black' : 'grey'
-	      	}} onClick={(e) => {
-	            e.preventDefault();
-	            e.stopPropagation();
-	            var win = window.open(`magnet:?xt=urn:btih:${torrent.hash}`, '_self');
-	         }} viewBox="0 0 24 24">
-	            <path d="M15.82 10.736l-5.451 6.717c-.561.691-1.214 1.042-1.94 1.042-1.144 
-	            0-2.327-.899-2.753-2.091-.214-.6-.386-1.76.865-2.784 3.417-2.794 6.716-5.446 
-	            6.716-5.446l-3.363-4.174s-4.532 3.657-6.771 5.487c-2.581 2.108-3.123 4.468-3.123 
-	            6.075 0 4.416 4.014 8.438 8.42 8.438 1.604 0 3.963-.543 6.084-3.128 1.835-2.237 
-	            5.496-6.773 5.496-6.773l-4.18-3.363zm-2.604 9.079c-1.353 1.647-3.01 2.519-4.796 
-	            2.519-3.471 0-6.753-3.291-6.753-6.771 0-1.789.867-3.443 2.51-4.785 1.206-.986 
-	            2.885-2.348 4.18-3.398l1.247 1.599c-1.074.87-2.507 2.033-4.118 3.352-1.471 
-	            1.202-1.987 2.935-1.38 4.634.661 1.853 2.479 3.197 4.322 3.197h.001c.86 0 
-	            2.122-.288 3.233-1.658l3.355-4.134 1.572 1.294c-1.044 1.291-2.392 2.954-3.373 
-	            4.151zm6.152-7.934l4.318-2.88-1.575-.638 1.889-2.414-4.421 2.788 1.716.695-1.927 
-	            2.449zm-7.292-7.186l4.916-1.667-1.356-1.022 2.448-2.006-4.991 1.712 
-	            1.478 1.114-2.495 1.869z"/></svg>
+              <span className='break-word' style={{
+              color: torrent.contentCategory != 'xxx' ? 'black' : 'grey'
+              }}>
+                {torrent.name}
+              </span>
             </a>
-        }
-      />
-      <Divider />
-    </div>
-  )
+          }
+          secondaryText={
+            <a href={'/torrent/' + torrent.hash} ref={(node) => {
+              if(node)
+                node.onclick = () => { return false }
+            }}>
+              <div className='column' style={{height: 'auto', whiteSpace: 'normal', paddingTop: '0.30em'}}>
+                <div className='row w100p inline'>
+                  <div>
+                    {
+                      formatBytes(torrent.size, 1) + ' (' + torrent.files + ' files)'
+                    }
+                  </div>
+                  {
+                    this.state.downloading
+                    &&
+                    <LinearProgress 
+                      style={{width: '44%', marginLeft: 20}}
+                      mode="determinate" 
+                      value={this.state.downloadProgress && this.state.downloadProgress.progress * 100}
+                   />
+                  }
+                </div>
+                {
+                  torrent.path && torrent.path.length > 0
+                  ?
+                  torrent.path.map((path, index) => {
+                    return <div key={index} className='break-word fs0-75' style={{paddingTop: '0.3em', marginLeft: '0.6em'}}>{path}</div>
+                  })
+                  :
+                  null
+                }
+                {
+                  torrent.seeders || torrent.leechers || torrent.completed
+                  ?
+                  <div className='break-word fs0-85' style={{paddingTop: '0.35em'}}>
+                    <span style={{color: (torrent.seeders > 0 ? '#00C853' : 'grey')}}>{torrent.seeders} seeders</span>
+                    <span style={{color: (torrent.leechers > 0 ? '#AA00FF' : 'grey'), marginLeft: '12px'}}>{torrent.leechers} leechers</span>
+                    <span style={{color: (torrent.completed > 0 ? '#FF6D00' : 'grey'), marginLeft: '12px'}}>{torrent.completed} completed</span>
+                  </div>
+                  :
+                  null
+                }
+              </div>
+            </a>
+          }
+          leftIcon={contentIcon(torrent.contentType, torrent.contentCategory)}
+          rightIcon={
+            <div className='row inline' style={{width: 63}}>
+              {
+               !this.state.askDownloading && !this.state.downloading
+               ?
+               <a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
+                <svg style={{
+                  height: '24px',
+                  marginRight: 12,
+                  fill: torrent.contentCategory != 'xxx' ? 'black' : 'grey'
+              }} onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  this.setState({askDownloading: true})
+                  window.torrentSocket.emit('download', `magnet:?xt=urn:btih:${torrent.hash}`)
+              }} viewBox="0 0 56 56">
+                  <g>
+                              <path d="M35.586,41.586L31,46.172V28c0-1.104-0.896-2-2-2s-2,0.896-2,2v18.172l-4.586-4.586c-0.781-0.781-2.047-0.781-2.828,0
+                                s-0.781,2.047,0,2.828l7.999,7.999c0.093,0.094,0.196,0.177,0.307,0.251c0.047,0.032,0.099,0.053,0.148,0.081
+                                c0.065,0.036,0.127,0.075,0.196,0.103c0.065,0.027,0.133,0.042,0.2,0.062c0.058,0.017,0.113,0.04,0.173,0.051
+                                C28.738,52.986,28.869,53,29,53s0.262-0.014,0.392-0.04c0.06-0.012,0.115-0.034,0.173-0.051c0.067-0.02,0.135-0.035,0.2-0.062
+                                c0.069-0.028,0.131-0.067,0.196-0.103c0.05-0.027,0.101-0.049,0.148-0.081c0.11-0.074,0.213-0.157,0.307-0.251l7.999-7.999
+                                c0.781-0.781,0.781-2.047,0-2.828S36.367,40.805,35.586,41.586z"/>
+                              <path d="M47.835,18.986c-0.137-0.019-2.457-0.335-4.684,0.002C43.1,18.996,43.049,19,42.999,19c-0.486,0-0.912-0.354-0.987-0.85
+                                c-0.083-0.546,0.292-1.056,0.838-1.139c1.531-0.233,3.062-0.196,4.083-0.124C46.262,9.135,39.83,3,32.085,3
+                                C27.388,3,22.667,5.379,19.8,9.129C21.754,10.781,23,13.246,23,16c0,0.553-0.447,1-1,1s-1-0.447-1-1
+                                c0-2.462-1.281-4.627-3.209-5.876c-0.227-0.147-0.462-0.277-0.702-0.396c-0.069-0.034-0.139-0.069-0.21-0.101
+                                c-0.272-0.124-0.55-0.234-0.835-0.321c-0.035-0.01-0.071-0.017-0.106-0.027c-0.259-0.075-0.522-0.132-0.789-0.177
+                                c-0.078-0.013-0.155-0.025-0.233-0.036C14.614,9.027,14.309,9,14,9c-3.859,0-7,3.141-7,7c0,0.082,0.006,0.163,0.012,0.244
+                                l0.012,0.21l-0.009,0.16C7.008,16.744,7,16.873,7,17v0.63l-0.567,0.271C2.705,19.688,0,24,0,28.154C0,34.135,4.865,39,10.845,39H25
+                                V28c0-2.209,1.791-4,4-4s4,1.791,4,4v11h2.353c0.059,0,0.116-0.005,0.174-0.009l0.198-0.011l0.271,0.011
+                                C36.053,38.995,36.11,39,36.169,39h9.803C51.501,39,56,34.501,56,28.972C56,24.161,52.49,19.872,47.835,18.986z"/>
+                  </g>
+                 
+                 </svg>
+              </a>
+              :
+              this.state.askDownloading && !this.state.downloading
+              &&
+              <img src={Spinner24} />
+              }
+              <a style={{float: 'right'}} href={`magnet:?xt=urn:btih:${torrent.hash}`}>
+                <svg style={{
+                  height: '24px',
+                  fill: torrent.contentCategory != 'xxx' ? 'black' : 'grey'
+              }} onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  var win = window.open(`magnet:?xt=urn:btih:${torrent.hash}`, '_self');
+              }} viewBox="0 0 24 24">
+                  <path d="M15.82 10.736l-5.451 6.717c-.561.691-1.214 1.042-1.94 1.042-1.144 
+                  0-2.327-.899-2.753-2.091-.214-.6-.386-1.76.865-2.784 3.417-2.794 6.716-5.446 
+                  6.716-5.446l-3.363-4.174s-4.532 3.657-6.771 5.487c-2.581 2.108-3.123 4.468-3.123 
+                  6.075 0 4.416 4.014 8.438 8.42 8.438 1.604 0 3.963-.543 6.084-3.128 1.835-2.237 
+                  5.496-6.773 5.496-6.773l-4.18-3.363zm-2.604 9.079c-1.353 1.647-3.01 2.519-4.796 
+                  2.519-3.471 0-6.753-3.291-6.753-6.771 0-1.789.867-3.443 2.51-4.785 1.206-.986 
+                  2.885-2.348 4.18-3.398l1.247 1.599c-1.074.87-2.507 2.033-4.118 3.352-1.471 
+                  1.202-1.987 2.935-1.38 4.634.661 1.853 2.479 3.197 4.322 3.197h.001c.86 0 
+                  2.122-.288 3.233-1.658l3.355-4.134 1.572 1.294c-1.044 1.291-2.392 2.954-3.373 
+                  4.151zm6.152-7.934l4.318-2.88-1.575-.638 1.889-2.414-4.421 2.788 1.716.695-1.927 
+                  2.449zm-7.292-7.186l4.916-1.667-1.356-1.022 2.448-2.006-4.991 1.712 
+                  1.478 1.114-2.495 1.869z"/></svg>
+                </a>
+              </div>
+          }
+        />
+        <Divider />
+      </div>
+    )
+  }
 }
