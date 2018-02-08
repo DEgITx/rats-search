@@ -259,7 +259,6 @@ export default class TorrentPage extends Page {
       if(this.props.hash != hash)
         return;
 
-      console.log(progress)
       this.setState({downloadProgress: progress})
     }
     window.torrentSocket.on('downloadProgress', this.downloadProgress);

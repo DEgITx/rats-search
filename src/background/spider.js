@@ -584,11 +584,15 @@ setInterval(() => {
 	recive('download', (magnet) =>
 	{
 		console.log('download', magnet)
+		if(torrentClient.get(magnet))
+			return
+
 		torrentClient.add(magnet, {path: config.client.downloadPath}, (torrent) =>{
 			torrentClientHashMap[torrent.infoHash] = magnet
 			send('downloading', torrent.infoHash)
 
 			torrent.on('done', () => { 
+				console.log('download done', torrent.infoHash)
 				delete torrentClientHashMap[torrent.infoHash]
 				send('downloadDone', torrent.infoHash)
 			})
