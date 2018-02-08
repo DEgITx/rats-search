@@ -21,6 +21,9 @@ const { spawn, exec } = require('child_process')
 const fs = require('fs')
 const iconv = require('iconv-lite');
 
+// plugins and dev tool
+require('electron-context-menu')({})
+
 const setApplicationMenu = () => {
   const menus = [editMenuTemplate, settingsMenuTemplate, aboutMenuTemplate];
   if (env.name !== "production") {
