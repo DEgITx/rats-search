@@ -169,11 +169,14 @@ export default class Torrent extends Component {
     }
     window.torrentSocket.on('downloading', this.downloading);
 
-    this.downloadDone = (hash) => {
+    this.downloadDone = (hash, canceled) => {
       if(this.props.torrent.hash != hash)
         return;
 
-      this.setState({downloading: false})
+      this.setState({
+        downloading: false,
+        askDownloading: !canceled
+      })
     }
     window.torrentSocket.on('downloadDone', this.downloadDone);
 
@@ -246,7 +249,7 @@ export default class Torrent extends Component {
                     <LinearProgress 
                       style={{width: '44%', marginLeft: 20}}
                       mode="determinate" 
-                      value={this.state.downloadProgress && this.state.downloadProgress.progress * 100}
+                      value={this.state.downloadProgress && (this.state.downloadProgress.progress ? this.state.downloadProgress.progress : 0) * 100}
                    />
                   }
                 </div>
@@ -312,8 +315,22 @@ export default class Torrent extends Component {
               </a>
               :
               this.state.askDownloading && !this.state.downloading
-              &&
+              ?
               <img src={Spinner24} />
+              :
+              this.state.askDownloading && this.state.downloading
+              &&
+              <a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
+                <svg style={{
+                  height: '24px',
+                  fill: torrent.contentCategory != 'xxx' ? 'black' : 'grey'
+              }} onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  window.torrentSocket.emit('downloadCancel', torrent.hash)
+              }} viewBox="0 0 18 18"><path d="M9 1C4.58 1 1 4.58 1 9s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm4 10.87L11.87 13 9 10.13 6.13 13 5 11.87 7.87 9 5 6.13 6.13 5 9 7.87 11.87 5 13 6.13 10.13 9 13 11.87z"/></svg>
+                </a>
               }
               <a style={{float: 'right'}} href={`magnet:?xt=urn:btih:${torrent.hash}`}>
                 <svg style={{
