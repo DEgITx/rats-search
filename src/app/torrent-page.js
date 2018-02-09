@@ -404,7 +404,7 @@ export default class TorrentPage extends Page {
                         <LinearProgress 
                           style={{marginTop: 3}}
                           mode="determinate" 
-                          value={this.state.downloadProgress && this.state.downloadProgress.progress * 100}
+                          value={this.state.downloadProgress && (this.state.downloadProgress.progress ? this.state.downloadProgress.progress : 0) * 100}
                         />
                         <FlatButton
                           onClick={() => {

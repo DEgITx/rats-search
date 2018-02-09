@@ -621,14 +621,16 @@ setInterval(() => {
 		const id = torrentClientHashMap[hash]
 		if(!id)
 		{
-			callback(false)
+			if(callback)
+				callback(false)
 			return
 		}
 
 		torrentClient.remove(id, (err) => {
 			if(err)
 			{
-				callback(false)
+				if(callback)
+					callback(false)
 				return
 			}
 
