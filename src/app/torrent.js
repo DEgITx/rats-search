@@ -186,6 +186,7 @@ export default class Torrent extends Component {
 
       this.setState({
         downloading: true,
+        askDownloading: true,
         downloadProgress: progress
       })
     }
