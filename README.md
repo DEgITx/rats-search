@@ -16,6 +16,7 @@ BitTorrent search program for desktop and web. Collect and navigate over base of
 * Torrent and files search
 * Search filters
 * Trackers peers scan supported
+* Integrated torrent client
 * Pretty safe to use and don't send any information about collected torrents data (statistic)
 * Collect only statistic information and don't save any torrents internal data
 * Supports torrents ratings for web version
