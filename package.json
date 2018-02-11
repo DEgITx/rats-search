@@ -29,6 +29,12 @@
     "directories": {
       "buildResources": "resources"
     },
+    "nsis": {
+        "artifactName": "Rats.on.The.Boat-${version}.${ext}"
+    },
+    "dmg": {
+        "artifactName": "Rats.on.The.Boat-${version}.${ext}"
+    },
     "publish": {
       "provider": "github"
     },
