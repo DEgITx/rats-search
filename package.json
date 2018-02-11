@@ -32,9 +32,6 @@
     "nsis": {
       "artifactName": "Rats.on.The.Boat-${version}.${ext}"
     },
-    "dmg": {
-      "artifactName": "Rats.on.The.Boat-${version}.${ext}"
-    },
     "publish": {
       "provider": "github"
     },
@@ -61,6 +58,7 @@
       ]
     },
     "mac": {
+      "artifactName": "${name}-${version}-mac.${ext}",
       "extraFiles": [
         {
           "from": "./imports/darwin",
