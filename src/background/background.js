@@ -5,8 +5,9 @@
 
 import path from "path";
 import url from "url";
-import { app, Menu, ipcMain, Tray } from "electron";
+import { app, Menu, ipcMain, Tray, dialog } from "electron";
 import createWindow from "./helpers/window";
+import { autoUpdater } from 'electron-updater'
 
 import { devMenuTemplate } from "./menu/dev_menu_template";
 import { editMenuTemplate } from "./menu/edit_menu_template";
@@ -231,6 +232,24 @@ const startSphinx = (callback) => {
   }
 }
 
+autoUpdater.on('update-downloaded', () => {
+  console.log('update-downloaded lats quitAndInstall');
+  if (env.name === "production") { 
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Found Updates',
+      message: 'Found updates, do you want update now?',
+      buttons: ['Sure', 'No']
+    }, (buttonIndex) => {
+      if (buttonIndex === 0) {
+        const isSilent = true;
+        const isForceRunAfter = true; 
+        autoUpdater.quitAndInstall(isSilent, isForceRunAfter); 
+      }
+    })
+  }
+})
+
 let tray = undefined
 
 app.on("ready", () => {
@@ -296,6 +315,7 @@ app.on("ready", () => {
     }
   })
 
+  if (env.name === "production") { autoUpdater.checkForUpdates() }
 
     spider = spiderCall((...data) => mainWindow.webContents.send(...data), (message, callback) => {
       ipcMain.on(message, (event, arg) => {
