@@ -1,3 +1,16 @@
+<a name="0.5.0"></a>
+# [0.5.0](https://github.com/DEgITx/rats-search/compare/v0.4.0...v0.5.0) (2018-02-11)
+
+
+### Bug Fixes
+
+* **autoupdate:** fix error on downloading updater ([023bb97](https://github.com/DEgITx/rats-search/commit/023bb97))
+
+
+### Features
+
+* **autoupdate:** autoupdate on statup ([b308bb5](https://github.com/DEgITx/rats-search/commit/b308bb5))
+
 <a name="0.4.0"></a>
 # [0.4.0](https://github.com/DEgITx/rats-search/compare/v0.3.1...v0.4.0) (2018-02-10)
 
