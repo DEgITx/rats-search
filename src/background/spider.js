@@ -1039,10 +1039,11 @@ if(config.spaceQuota)
 }
 
 this.stop = (callback) => {
-	console.log('closing spider')
+	console.log('spider closing...')
 	torrentClient.destroy(() => {
 		sphinx.end(() => spider.close(() => {
 			mysqlSingle.destroy()
+			console.log('spider closed')
 			callback()
 		}))
 	})

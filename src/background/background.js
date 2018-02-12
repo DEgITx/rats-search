@@ -220,7 +220,8 @@ const startSphinx = (callback) => {
   })
 
   sphinx.stop = () => {
-  	exec(`${sphinxPath} --config "${config}" --stopwait`)
+    console.log('sphinx closing...')
+  	exec(`"${sphinxPath}" --config "${config}" --stopwait`)
   }
 }
 
