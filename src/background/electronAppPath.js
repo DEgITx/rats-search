@@ -10,6 +10,10 @@ export default (app) => {
     return `./${app}.exe`
   }
 
+  if(/^win/.test(process.platform) && fs.existsSync(path.dirname(process.execPath) + `/${app}.exe`)) {
+    return path.dirname(process.execPath) + `/${app}.exe`
+  }
+
   if (fs.existsSync(fs.realpathSync(__dirname) + `/${app}`)) {
     return fs.realpathSync(__dirname) + `/${app}`
   }
