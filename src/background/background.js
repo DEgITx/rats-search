@@ -48,6 +48,7 @@ const resourcesPath = env.name === "production" ? process.resourcesPath : 'resou
 const spiderCall = require('./spider')
 const appConfig = require('./config')
 
+let mainWindow = undefined
 let sphinx = undefined
 let spider = undefined
 
@@ -73,6 +74,22 @@ console.log('CPU:', os.cpus()[0].model)
 console.log('CPU Logic cores:', os.cpus().length)
 console.log('Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB')
 console.log('Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
+
+
+const shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
+  // Someone tried to run a second instance, we should focus our window.
+  console.log('openned second application, just focus this one')
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) 
+      mainWindow.restore();
+    mainWindow.focus();
+  }
+});
+
+if (shouldQuit) {
+  console.log('closed because of second application')
+  app.exit(0);
+}
 
 const writeSphinxConfig = (path, dbPath) => {
   let config = `
@@ -241,7 +258,7 @@ app.on("ready", () => {
   startSphinx(() => {
     setApplicationMenu();
 
-    const mainWindow = createWindow("main", {
+    mainWindow = createWindow("main", {
       width: 1000,
       height: 600
     });
@@ -268,7 +285,10 @@ app.on("ready", () => {
 	})
 	mainWindow.on('hide', () => {
 	  tray.setHighlightMode('never')
-	})
+  })
+  mainWindow.on('closed', () => {
+    mainWindow = undefined
+  })
 
 	mainWindow.on('minimize', (event) => {
 	    event.preventDefault();
