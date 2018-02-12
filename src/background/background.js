@@ -57,7 +57,8 @@ const logFile = fs.createWriteStream(app.getPath("userData") + '/rats.log', {fla
 const logStdout = process.stdout;
 
 console.log = (...d) => {
-  logFile.write(util.format(...d) + '\n');
+  const date = (new Date).toLocaleTimeString()
+  logFile.write(`[${date}] ` + util.format(...d) + '\n');
   logStdout.write(util.format(...d) + '\n');
 };
 
@@ -231,6 +232,16 @@ const startSphinx = (callback) => {
   	exec(`${sphinxPath} --config "${config}" --stopwait`)
   }
 }
+
+// log autoupdate
+const log = require('electron-log')
+log.transports.file.level = false;
+log.transports.console.level = false;
+log.transports.console = function(msg) {
+  const text = util.format.apply(util, msg.data);
+  console.log(text);
+};
+autoUpdater.logger = log;
 
 autoUpdater.on('update-downloaded', () => {
   console.log('update-downloaded lats quitAndInstall');
