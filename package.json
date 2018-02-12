@@ -81,6 +81,7 @@
     "debug": "^3.1.0",
     "diskusage": "^0.2.4",
     "electron-context-menu": "^0.9.1",
+    "electron-log": "^2.2.14",
     "electron-updater": "^2.20.1",
     "fs-jetpack": "^1.2.0",
     "iconv-lite": "^0.4.19",
