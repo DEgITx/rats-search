@@ -9,6 +9,7 @@ import os from 'os';
 import { app, Menu, ipcMain, Tray, dialog } from "electron";
 import createWindow from "./helpers/window";
 import { autoUpdater } from 'electron-updater'
+import appPath from './electronAppPath'
 
 import { devMenuTemplate } from "./menu/dev_menu_template";
 import { editMenuTemplate } from "./menu/edit_menu_template";
@@ -72,44 +73,6 @@ console.log('CPU:', os.cpus()[0].model)
 console.log('CPU Logic cores:', os.cpus().length)
 console.log('Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB')
 console.log('Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
-
-const getSphinxPath = () => {
-  if (fs.existsSync('./searchd')) {
-    return './searchd'
-  }
-
-  if (/^win/.test(process.platform) && fs.existsSync('./searchd.exe')) {
-    return './searchd.exe'
-  }
-
-  if (fs.existsSync(fs.realpathSync(__dirname) + '/searchd')) {
-    return fs.realpathSync(__dirname) + '/searchd'
-  }
-
-  if (fs.existsSync(fs.realpathSync(path.join(__dirname, '/../../..')) + '/searchd')) {
-    return fs.realpathSync(path.join(__dirname, '/../../..')) + '/searchd'
-  }
-
-  try {
-    if (process.platform === 'darwin' && fs.existsSync(fs.realpathSync(path.join(__dirname, '/../../../MacOS')) + '/searchd')) {
-      return fs.realpathSync(path.join(__dirname, '/../../../MacOS')) + '/searchd'
-    }
-  } catch (e) {}
-
-  if (/^win/.test(process.platform) && fs.existsSync('imports/win/searchd.exe')) {
-    return 'imports/win/searchd.exe'
-  }
-
-  if (process.platform === 'linux' && fs.existsSync('imports/linux/searchd')) {
-    return 'imports/linux/searchd'
-  }
-
-  if (process.platform === 'darwin' && fs.existsSync('imports/darwin/searchd')) {
-    return 'imports/darwin/searchd'
-  }
-
-  return 'searchd'
-}
 
 const writeSphinxConfig = (path, dbPath) => {
   let config = `
@@ -209,7 +172,7 @@ const writeSphinxConfig = (path, dbPath) => {
   console.log('db path:', dbPath)
 }
 
-const sphinxPath = path.resolve(getSphinxPath())
+const sphinxPath = path.resolve(appPath('searchd'))
 console.log('Sphinx Path:', sphinxPath)
 
 const startSphinx = (callback) => {
