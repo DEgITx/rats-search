@@ -1,3 +1,11 @@
+<a name="0.6.1"></a>
+## [0.6.1](https://github.com/DEgITx/rats-search/compare/v0.6.0...v0.6.1) (2018-02-12)
+
+
+### Bug Fixes
+
+* **macos:** fix closing under some platforms ([c765145](https://github.com/DEgITx/rats-search/commit/c765145))
+
 <a name="0.6.0"></a>
 # [0.6.0](https://github.com/DEgITx/rats-search/compare/v0.5.0...v0.6.0) (2018-02-12)
 
