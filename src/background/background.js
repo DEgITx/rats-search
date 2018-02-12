@@ -5,6 +5,7 @@
 
 import path from "path";
 import url from "url";
+import os from 'os';
 import { app, Menu, ipcMain, Tray, dialog } from "electron";
 import createWindow from "./helpers/window";
 import { autoUpdater } from 'electron-updater'
@@ -61,6 +62,16 @@ console.log = (...d) => {
   logFile.write(`[${date}] ` + util.format(...d) + '\n');
   logStdout.write(util.format(...d) + '\n');
 };
+
+// print os info
+console.log('Rats', app.getVersion())
+console.log('Platform:', os.platform())
+console.log('Arch:', os.arch())
+console.log('OS Release:', os.release())
+console.log('CPU:', os.cpus()[0].model)
+console.log('CPU Logic cores:', os.cpus().length)
+console.log('Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB')
+console.log('Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
 
 const getSphinxPath = () => {
   if (fs.existsSync('./searchd')) {
