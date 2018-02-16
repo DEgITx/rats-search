@@ -163,9 +163,8 @@ class Spider extends Emiter {
         if(!peers || peers.length == 0)
             return;
 
-        const nodes = Node.decodeNodes(peers)
-        console.log('peers', peers, nodes)
-        this.emit('peer', nodes)
+        const ips = Node.decodeCompactIP(peers)
+        this.emit('peer', ips)
     }
 
     onFindNodeRequest(message, address) {

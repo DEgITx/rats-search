@@ -31,6 +31,15 @@ class Node {
 		return nodes
 	}
 
+	static decodeCompactIP(data) {
+		return data.map((compact) => {
+			return {
+				address: `${compact[0]}.${compact[1]}.${compact[2]}.${compact[3]}`,
+				port: compact.readUInt16BE(4)
+			}
+		})
+	}
+
 	static encodeIP(ip) {
 		return Buffer.from(ip.split('.').map((i)=>parseInt(i)))
 	}
