@@ -51,6 +51,8 @@ class Spider extends Emiter {
         this.walkInterval = config.spider.walkInterval;
         this.cpuLimit = config.spider.cpuLimit;
         this.cpuInterval = config.spider.cpuInterval;
+
+        this.announceHashes = [crypto.createHash('sha1').update('degrats-v1').digest()]
     }
 
     send(message, address) {
@@ -87,24 +89,21 @@ class Spider extends Emiter {
         }
     }
 
-    onFoundPeers(peers, token, address) {
-        console.log('found peers', peers)
-        this.announcePeer(crypto.createHash('sha1').update('degrats-v3').digest(), token, address)
-    }
-
     announcePeer(infoHash, token, address, port)
     {
         const message = {
+            t: generateTid(),
+            y: 'q',
             q: 'announce_peer',
             a: {
                 id: this.table.id,
-                token: token, // queryAll sets this
+                token: token,
                 info_hash: infoHash,
                 port: port,
                 implied_port: port ? 0 : 1
             }
         }
-        //this.send(message, address)
+        this.send(message, address)
     }
 
     join() {
@@ -133,7 +132,7 @@ class Spider extends Emiter {
         setTimeout(()=>this.walk(), this.walkInterval)
     }
 
-    onFoundNodes(data) {
+    onFoundNodes(data, token, address) {
         const nodes = Node.decodeNodes(data)
         nodes.forEach((node) => {
             if (node.id != this.table.id && isValidPort(node.port)) {
@@ -141,6 +140,32 @@ class Spider extends Emiter {
             }
         })
         this.emit('nodes', nodes)
+
+        // announce torrents
+        if(token)
+        {
+            for(const hash of this.announceHashes)
+            {
+                this.announcePeer(hash, token, address)
+            }
+        }
+    }
+
+    onFoundPeers(peers, token, address) {
+        if(token)
+        {
+            for(const hash of this.announceHashes)
+            {
+                this.announcePeer(hash, token, address)
+            }
+        }
+
+        if(!peers || peers.length == 0)
+            return;
+
+        const nodes = Node.decodeNodes(peers)
+        console.log('peers', peers, nodes)
+        this.emit('peer', nodes)
     }
 
     onFindNodeRequest(message, address) {
@@ -179,13 +204,6 @@ class Spider extends Emiter {
 
         const {t: tid, a: {id: nid, info_hash: infohash}} = message
 
-        if(infohash.toString('hex') == crypto.createHash('sha1').update('degrats-v2').digest('hex'))
-        {
-            console.log('-----------------------')
-            console.log('-----------------------')
-            console.log('-----------------------')
-        }
-
         if (tid === undefined || infohash.length != 20 || nid.length != 20) {
             return
         }
@@ -222,7 +240,7 @@ class Spider extends Emiter {
         if(this.client && !this.ignore) {
             cpuDebug('cpu usage:' + cpuUsage())
             if(this.cpuLimit <= 0 || cpuUsage() <= this.cpuLimit + this.cpuInterval) {
-                this.client.add(addressPair, infohash);
+        //        this.client.add(addressPair, infohash);
             }
         }
     }
@@ -244,7 +262,7 @@ class Spider extends Emiter {
             const message = bencode.decode(data)
             if (message.y.toString() == 'r') {
                 if(message.r.nodes) {
-                    this.onFoundNodes(message.r.nodes)
+                    this.onFoundNodes(message.r.nodes, message.r.token, address)
                 } else if(message.r.values) {
                     this.onFoundPeers(message.r.values, message.r.token, address)
                 }
@@ -316,15 +334,16 @@ class Spider extends Emiter {
             }
         }
 
-        const m = crypto.createHash('sha1').update('degrats-v3').digest()
-        setTimeout(() => {
-            //console.log('m')
-            //this.announcePeer(m)
-        }, 8000)
+        this.announceSearchInterval = setInterval(() => this.getPeersRequest(this.announceHashes[0]), 2000)
 
-        setTimeout(() => {
-            this.getPeersRequest(m)
-        }, 8000)
+        /*
+        setInterval(() => {
+            for(const address of this.table.nodes)
+            {
+                this.announcePeer(this.announcePeer[0], null, address)
+            }
+        }, 3000)
+        */
     }
 
     close(callback)
@@ -337,6 +356,8 @@ class Spider extends Emiter {
         clearInterval(this.joinInterval)
         if(this.trafficInterval)
             clearInterval(this.trafficInterval)
+        if(this.announceSearchInterval)
+            clearInterval(this.announceSearchInterval)
         this.closing = true
         this.udp.close(() => {
             this.initialized = false
