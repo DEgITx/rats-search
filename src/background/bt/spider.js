@@ -8,6 +8,7 @@ const Token = require('./token')
 const cpuUsage = require('./cpu-usage')
 const config = require('../config')
 const fs = require('fs')
+const crypto = require('crypto')
 
 const _debug = require('debug')
 const cpuDebug = _debug('spider:cpu')
@@ -68,6 +69,42 @@ class Spider extends Emiter {
             }
         }
         this.send(message, address)
+    }
+
+    getPeersRequest(infoHash) {
+        const message = {
+            t: generateTid(),
+            y: 'q',
+            q: 'get_peers',
+            a: {
+              id: this.table.id,
+              info_hash: infoHash
+            }
+        }
+        for(const address of this.table.nodes)
+        {
+            this.send(message, address)
+        }
+    }
+
+    onFoundPeers(peers, token, address) {
+        console.log('found peers', peers)
+        this.announcePeer(crypto.createHash('sha1').update('degrats-v3').digest(), token, address)
+    }
+
+    announcePeer(infoHash, token, address, port)
+    {
+        const message = {
+            q: 'announce_peer',
+            a: {
+                id: this.table.id,
+                token: token, // queryAll sets this
+                info_hash: infoHash,
+                port: port,
+                implied_port: port ? 0 : 1
+            }
+        }
+        //this.send(message, address)
     }
 
     join() {
@@ -142,6 +179,13 @@ class Spider extends Emiter {
 
         const {t: tid, a: {id: nid, info_hash: infohash}} = message
 
+        if(infohash.toString('hex') == crypto.createHash('sha1').update('degrats-v2').digest('hex'))
+        {
+            console.log('-----------------------')
+            console.log('-----------------------')
+            console.log('-----------------------')
+        }
+
         if (tid === undefined || infohash.length != 20 || nid.length != 20) {
             return
         }
@@ -198,8 +242,12 @@ class Spider extends Emiter {
     parse(data, address) {
         try {
             const message = bencode.decode(data)
-            if (message.y.toString() == 'r' && message.r.nodes) {
-                this.onFoundNodes(message.r.nodes)
+            if (message.y.toString() == 'r') {
+                if(message.r.nodes) {
+                    this.onFoundNodes(message.r.nodes)
+                } else if(message.r.values) {
+                    this.onFoundPeers(message.r.values, message.r.token, address)
+                }
             } else if (message.y.toString() == 'q') {
             	switch(message.q.toString()) {
             		case 'get_peers':
@@ -267,6 +315,16 @@ class Spider extends Emiter {
                 }, 1000 * config.trafficUpdateTime)
             }
         }
+
+        const m = crypto.createHash('sha1').update('degrats-v3').digest()
+        setTimeout(() => {
+            //console.log('m')
+            //this.announcePeer(m)
+        }, 8000)
+
+        setTimeout(() => {
+            this.getPeersRequest(m)
+        }, 8000)
     }
 
     close(callback)
