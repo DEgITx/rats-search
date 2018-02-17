@@ -5,6 +5,7 @@ const mysql = require('mysql');
 const getPeersStatisticUDP = require('./bt/udp-tracker-request')
 const net = require('net')
 const JsonSocket = require('json-socket')
+const crypto = require('crypto')
 
 //var express = require('express');
 //var app = express();
@@ -630,6 +631,15 @@ tcpServer.on('connection', (socket) => {
 			if(option in config)
 				config[option] = options[option]
 		}
+
+		if(config.p2p)
+		{
+			spider.announceHashes = [crypto.createHash('sha1').update('degrats-v1').digest()]
+		}
+		else
+		{
+			spider.announceHashes = []
+		}
 		
 		if(typeof callback === 'function')
 			callback(true)
@@ -1157,6 +1167,10 @@ function hideFakeTorrents()
 
 if(config.indexer) {
 	spider.listen(config.spiderPort)
+	if(config.p2p)
+	{
+		spider.announceHashes = [crypto.createHash('sha1').update('degrats-v1').digest()]
+	}
 } else {
 //	showFakeTorrents();
 }

@@ -101,9 +101,11 @@ class App extends Component {
 	render() {
 		return (
 			<MuiThemeProvider>
-				<PagesPie />
-				<div className='fs0-85 pad0-75' style={{position: 'fixed', bottom: 0, left: 0, color: window.peers > 0 ? 'green' : 'grey'}}>
-					rats peers: {window.peers} {window.peers > 0 ? ' (p2p rats search enabled)' : ' (p2p rats search not available at this moment)'}
+				<div>
+					<PagesPie />
+					<div className='fs0-85 pad0-75' style={{position: 'fixed', bottom: 0, left: 0, color: window.peers > 0 ? 'green' : 'grey'}}>
+						rats peers: {window.peers} {window.peers > 0 ? ' (p2p rats search enabled)' : ' (p2p rats search not available at this moment)'}
+					</div>
 				</div>
 			</MuiThemeProvider>
 		);
