@@ -50,10 +50,19 @@ export default class AdminPage extends Page {
 			  style={{marginTop: '10px'}}
 		      label="Enabled network scanning"
 		      toggled={this.options.indexer}
-          	  thumbSwitchedStyle={{backgroundColor: 'red'}}
-              trackSwitchedStyle={{backgroundColor: '#ff9d9d'}}
 		      onToggle={(e, checked) => {
-		      	this.options.indexer = checked
+            this.options.indexer = checked
+            if(!this.options.indexer)
+              this.options.p2p = false
+		      	this.forceUpdate()
+		      }}
+		    />
+        <Toggle
+			  style={{marginTop: '10px'}}
+		      label="Enabled p2p search"
+		      toggled={this.options.p2p}
+		      onToggle={(e, checked) => {
+		      	this.options.p2p = this.options.indexer && checked
 		      	this.forceUpdate()
 		      }}
 		    />
