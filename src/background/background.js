@@ -323,7 +323,10 @@ app.on("ready", () => {
 
   if (env.name === "production") { autoUpdater.checkForUpdates() }
 
-    spider = spiderCall((...data) => mainWindow.webContents.send(...data), (message, callback) => {
+    spider = spiderCall((...data) => { 
+      if(mainWindow)
+        mainWindow.webContents.send(...data) 
+    }, (message, callback) => {
       ipcMain.on(message, (event, arg) => {
          if(Array.isArray(arg) && typeof arg[arg.length - 1] === 'object' && arg[arg.length - 1].callback)
          {
