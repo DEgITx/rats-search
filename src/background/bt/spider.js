@@ -8,7 +8,6 @@ const Token = require('./token')
 const cpuUsage = require('./cpu-usage')
 const config = require('../config')
 const fs = require('fs')
-const crypto = require('crypto')
 
 const _debug = require('debug')
 const cpuDebug = _debug('spider:cpu')
@@ -52,7 +51,7 @@ class Spider extends Emiter {
         this.cpuLimit = config.spider.cpuLimit;
         this.cpuInterval = config.spider.cpuInterval;
 
-        this.announceHashes = [crypto.createHash('sha1').update('degrats-v1').digest()]
+        this.announceHashes = []
     }
 
     send(message, address) {
@@ -333,16 +332,12 @@ class Spider extends Emiter {
             }
         }
 
-        this.announceSearchInterval = setInterval(() => this.getPeersRequest(this.announceHashes[0]), 2000)
-
-        /*
-        setInterval(() => {
-            for(const address of this.table.nodes)
+        this.announceSearchInterval = setInterval(() => { 
+            for(const hash of this.announceHashes)
             {
-                this.announcePeer(this.announcePeer[0], null, address)
+                this.getPeersRequest(hash) 
             }
         }, 3000)
-        */
     }
 
     close(callback)
