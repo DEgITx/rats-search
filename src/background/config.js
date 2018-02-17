@@ -9,6 +9,7 @@ let config = {
 	spiderPort: 4445,
 	udpTrackersPort: 4446,
 	udpTrackersTimeout: 3 * 60 * 1000, 
+	p2p: true,
 
 	sitemapMaxSize: 25000,
 
