@@ -1111,6 +1111,8 @@ const p2p = {
 				send('peer', this.peers.length)
 			}
 		})
+		
+		socket.on('error', (err) => {})
 	},
 	emit(type, data, callback)
 	{
