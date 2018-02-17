@@ -17,6 +17,8 @@ import MenuItem from 'material-ui/MenuItem';
 
 import formatBytes from './format-bytes'
 
+import _ from 'lodash'
+
 let session;
 
 class TorrentsStatistic extends Component {
@@ -217,9 +219,16 @@ export default class Search extends Component {
     window.torrentSocket.on('newStatistic', this.newStatisticFunc);
 
     this.remoteSearchTorrent = (torrents) => {
-      console.log(torrents)
+      this.searchTorrents = _.unionBy(this.searchTorrents, torrents, 'hash')
+      this.forceUpdate();
     }
     window.torrentSocket.on('remoteSearchTorrent', this.remoteSearchTorrent);
+
+    this.remoteSearchFiles = (torrents) => {
+      this.searchFiles = _.unionBy(this.searchFiles, torrents, 'hash')
+      this.forceUpdate();
+    }
+    window.torrentSocket.on('remoteSearchFiles', this.remoteSearchFiles);
   }
   componentWillUnmount()
   {
@@ -228,6 +237,9 @@ export default class Search extends Component {
 
     if(this.remoteSearchTorrent)
       window.torrentSocket.off('remoteSearchTorrent', this.remoteSearchTorrent);
+
+    if(this.remoteSearchFiles)
+      window.torrentSocket.off('remoteSearchFiles', this.remoteSearchFiles);
 
     session = {
       searchTorrents: this.searchTorrents,

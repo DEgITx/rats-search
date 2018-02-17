@@ -239,7 +239,7 @@ class Spider extends Emiter {
         if(this.client && !this.ignore) {
             cpuDebug('cpu usage:' + cpuUsage())
             if(this.cpuLimit <= 0 || cpuUsage() <= this.cpuLimit + this.cpuInterval) {
-        //        this.client.add(addressPair, infohash);
+                this.client.add(addressPair, infohash);
             }
         }
     }

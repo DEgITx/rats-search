@@ -264,7 +264,6 @@ tcpServer.listen(config.spiderPort);
 tcpServer.on('connection', (socket) => {
 	socket = new JsonSocket(socket);
 	socket.on('message', (message) => {    
-		console.log(message)
 		if(message.type && messageHandlers[message.type])
 		{
 			messageHandlers[message.type](message.data, (data) => {
@@ -411,7 +410,6 @@ tcpServer.on('connection', (socket) => {
 			if(navigation.files.min > 0)
 				where += ' and files > ' + sphinx.escape(navigation.files.min) + ' ';
 		}
-		console.log(navigation, where)
 
 		let searchList = [];
 		//args.splice(orderBy && orderBy.length > 0 ? 1 : 0, 1);
@@ -432,20 +430,19 @@ tcpServer.on('connection', (socket) => {
 	recive('searchTorrent', (text, navigation, callback) => {
 		searchTorrentCall(text, navigation, callback)
 		p2p.emit('searchTorrent', {text, navigation}, (remote) => {
-			console.log('remote search responce')
+			console.log('remote search results', remote && remote.length)
 			send('remoteSearchTorrent', remote)
 		})
 	});
 
 	onSocketMessage('searchTorrent', ({text, navigation} = {}, callback) => {
-		console.log('search remote', text)
 		if(!text)
 			return;
 
 		searchTorrentCall(text, navigation, (data) => callback(data))
 	})
 
-	recive('searchFiles', function(text, navigation, callback)
+	const searchFilesCall = function(text, navigation, callback)
 	{
 		if(typeof callback != 'function')
 			return;
@@ -532,7 +529,22 @@ tcpServer.on('connection', (socket) => {
 				callback(Object.values(search));
 			})
 		});
+	}
+
+	recive('searchFiles', (text, navigation, callback) => {
+		searchFilesCall(text, navigation, callback)
+		p2p.emit('searchFiles', {text, navigation}, (remote) => {
+			console.log('remote search files results', remote && remote.length)
+			send('remoteSearchFiles', remote)
+		})
 	});
+
+	onSocketMessage('searchFiles', ({text, navigation} = {}, callback) => {
+		if(!text)
+			return;
+
+		searchFilesCall(text, navigation, (data) => callback(data))
+	})
 
 	recive('checkTrackers', function(hash)
 	{
