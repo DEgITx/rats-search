@@ -264,10 +264,11 @@ tcpServer.listen(config.spiderPort);
 tcpServer.on('connection', (socket) => {
 	socket = new JsonSocket(socket);
 	socket.on('message', (message) => {    
+		console.log(message)
 		if(message.type && messageHandlers[message.type])
 		{
 			messageHandlers[message.type](message.data, (data) => {
-				socket.sendEndMessage({
+				socket.sendMessage({
 					id: message.id,
 					data
 				});
@@ -428,10 +429,11 @@ tcpServer.on('connection', (socket) => {
 		});
 	}
 
-	recive('searchTorrent', (...data) => {
-		searchTorrentCall(...data)
-		p2p.emit('searchTorrent', {text: data[0], navigation: data[1]}, (remote) => {
-			console.log('remote responce', remote)
+	recive('searchTorrent', (text, navigation, callback) => {
+		searchTorrentCall(text, navigation, callback)
+		p2p.emit('searchTorrent', {text, navigation}, (remote) => {
+			console.log('remote search responce')
+			send('remoteSearchTorrent', remote)
 		})
 	});
 
@@ -1043,11 +1045,11 @@ const p2p = {
 	},
 	connect(address)
 	{
+		this.peers.push(address)
 		const socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
 		socket.connect(address.port, address.address);
 		socket.on('connect', () => { //Don't send until we're connected
 			// add to peers
-			this.peers.push(address)
 			send('peer', this.peers.length)
 			console.log('new peer', address)
 
@@ -1072,6 +1074,17 @@ const p2p = {
 			}
 			address.emit = emit
 		});
+
+		socket.on('close', () => {
+			const index = this.peers.indexOf(address);
+			if(index >= 0)
+			{
+				this.peers.splice(index, 1);
+
+				console.log('close peer connection', address)
+				send('peer', this.peers.length)
+			}
+		})
 	},
 	emit(type, data, callback)
 	{

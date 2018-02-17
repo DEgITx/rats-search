@@ -133,6 +133,7 @@ export default class Search extends Component {
     
     window.torrentSocket.emit('searchFiles', oldSearch ? this.currentSearch : this.searchValue, searchFilesParams, window.customLoader((torrents) => {
       if(torrents) {
+        console.log('back torrents')
         this.searchFiles = torrents;
         let files = 0;
         torrents.forEach((torrent) => {
@@ -166,6 +167,7 @@ export default class Search extends Component {
         orderDesc: this.state.orderDesc,
     }, window.customLoader((torrents) => {
       if(torrents) {
+        console.log('back torrents')
         this.searchTorrents = this.searchTorrents.concat(torrents);
         if(torrents.length != this.searchLimit)
           this.moreSearchTorrents = false;
@@ -213,11 +215,19 @@ export default class Search extends Component {
     };
     window.torrentSocket.emit('statistic', window.customLoader(this.newStatisticFunc));
     window.torrentSocket.on('newStatistic', this.newStatisticFunc);
+
+    this.remoteSearchTorrent = (torrents) => {
+      console.log(torrents)
+    }
+    window.torrentSocket.on('remoteSearchTorrent', this.remoteSearchTorrent);
   }
   componentWillUnmount()
   {
     if(this.newStatisticFunc)
       window.torrentSocket.off('newStatistic', this.newStatisticFunc);
+
+    if(this.remoteSearchTorrent)
+      window.torrentSocket.off('remoteSearchTorrent', this.remoteSearchTorrent);
 
     session = {
       searchTorrents: this.searchTorrents,
