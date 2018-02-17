@@ -3,6 +3,8 @@ const client = new (require('./bt/client'))
 const spider = new (require('./bt/spider'))(client)
 const mysql = require('mysql');
 const getPeersStatisticUDP = require('./bt/udp-tracker-request')
+const net = require('net')
+const JsonSocket = require('json-socket')
 
 //var express = require('express');
 //var app = express();
@@ -251,6 +253,29 @@ setInterval(() => {
 }, 24 * 60 * 60 * 1000);
 
 
+
+// socket
+const messageHandlers = {}
+const onSocketMessage = (type, callback) => {
+	messageHandlers[type] = callback
+}
+const tcpServer = net.createServer();
+tcpServer.listen(config.spiderPort);
+tcpServer.on('connection', (socket) => {
+	socket = new JsonSocket(socket);
+	socket.on('message', (message) => {    
+		if(message.type && messageHandlers[message.type])
+		{
+			messageHandlers[message.type](message.data, (data) => {
+				socket.sendEndMessage({
+					id: message.id,
+					data
+				});
+			})
+		}
+	});
+})
+
 //io.on('connection', function(socket)
 //{
 	recive('recentTorrents', function(callback)
@@ -339,7 +364,7 @@ setInterval(() => {
 		});
 	});
 
-	recive('searchTorrent', function(text, navigation, callback)
+	const searchTorrentCall = function(text, navigation, callback)
 	{
 		if(typeof callback != 'function')
 			return;
@@ -401,7 +426,22 @@ setInterval(() => {
 		  	});
 		  	callback(searchList);
 		});
+	}
+
+	recive('searchTorrent', (...data) => {
+		searchTorrentCall(...data)
+		p2p.emit('searchTorrent', {text: data[0], navigation: data[1]}, (remote) => {
+			console.log('remote responce', remote)
+		})
 	});
+
+	onSocketMessage('searchTorrent', ({text, navigation} = {}, callback) => {
+		console.log('search remote', text)
+		if(!text)
+			return;
+
+		searchTorrentCall(text, navigation, (data) => callback(data))
+	})
 
 	recive('searchFiles', function(text, navigation, callback)
 	{
@@ -980,7 +1020,76 @@ client.on('complete', function (metadata, infohash, rinfo) {
 	}
 });
 
-// spider.on('nodes', (nodes)=>console.log('foundNodes'))
+
+const p2p = {
+	peers: [],
+	add(address) {
+		const { peers } = this
+
+		if(peers.length > 10)
+			return;
+
+		if(address.port <= 1 || address.port > 65535)
+			return;
+
+		for(let peer of peers)
+		{
+			if(peer.address === address.address) {
+				peer.port = address.port;
+				return;
+			}
+		}
+		this.connect(address)
+	},
+	connect(address)
+	{
+		const socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
+		socket.connect(address.port, address.address);
+		socket.on('connect', () => { //Don't send until we're connected
+			// add to peers
+			this.peers.push(address)
+			send('peer', this.peers.length)
+			console.log('new peer', address)
+
+			const callbacks = {}
+			socket.on('message', (message) => {
+				if(message.id && callbacks[message.id])
+				{
+					callbacks[message.id](message.data);
+					delete callbacks[message.id];
+				}
+			});
+			
+			const emit = (type, data, callback) => {
+				const id = Math.random().toString(36).substring(5)
+				if(callback)
+					callbacks[id] = callback;
+				socket.sendMessage({
+					id,
+					type,
+					data
+				});
+			}
+			address.emit = emit
+		});
+	},
+	emit(type, data, callback)
+	{
+		for(const peer of this.peers)
+		{
+			if(peer.emit)
+				peer.emit(type, data, callback)
+		}
+	}
+}
+spider.on('peer', (IPs) => {
+	const { peers } = p2p;
+
+	if(peers.length > 10)
+		return
+
+	IPs.forEach(ip => p2p.add(ip))
+})
 
 let fakeTorrents = [];
 function showFakeTorrentsPage(page)

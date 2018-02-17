@@ -86,6 +86,7 @@
     "fs-jetpack": "^1.2.0",
     "iconv-lite": "^0.4.19",
     "ipaddr.js": "^1.5.4",
+    "json-socket": "^0.3.0",
     "material-ui": "^0.20.0",
     "moment": "^2.20.1",
     "mysql": "^2.15.0",
