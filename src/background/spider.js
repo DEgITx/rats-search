@@ -6,7 +6,7 @@ const getPeersStatisticUDP = require('./bt/udp-tracker-request')
 const net = require('net')
 const JsonSocket = require('json-socket')
 const crypto = require('crypto')
-
+const stun = require('stun')
 //var express = require('express');
 //var app = express();
 //var server = require('http').Server(app);
@@ -1047,6 +1047,7 @@ client.on('complete', function (metadata, infohash, rinfo) {
 
 const p2p = {
 	peers: [],
+	ignoreAddresses: [],
 	add(address) {
 		const { peers } = this
 
@@ -1054,6 +1055,9 @@ const p2p = {
 			return;
 
 		if(address.port <= 1 || address.port > 65535)
+			return;
+
+		if(this.ignoreAddresses.includes(address.address))
 			return;
 
 		for(let peer of peers)
@@ -1117,6 +1121,19 @@ const p2p = {
 		}
 	}
 }
+
+const { STUN_BINDING_REQUEST, STUN_ATTR_XOR_MAPPED_ADDRESS } = stun.constants
+const stunServer = stun.createServer()
+const stunRequest = stun.createMessage(STUN_BINDING_REQUEST)
+stunServer.once('bindingResponse', stunMsg => {
+  const {address, port} = stunMsg.getAttribute(STUN_ATTR_XOR_MAPPED_ADDRESS).value
+  stunServer.close()
+
+  console.log('p2p ignore my address', address)
+  p2p.ignoreAddresses.push(address)
+})
+stunServer.send(stunRequest, 19302, 'stun.l.google.com')
+
 spider.on('peer', (IPs) => {
 	const { peers } = p2p;
 
