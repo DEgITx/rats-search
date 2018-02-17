@@ -1174,15 +1174,12 @@ if(config.spaceQuota)
 
 this.stop = (callback) => {
 	console.log('spider closing...')
-	tcpServer.close(() => {
-		console.log('p2p server closed')
-		torrentClient.destroy(() => {
-			sphinx.end(() => spider.close(() => {
-				mysqlSingle.destroy()
-				console.log('spider closed')
-				callback()
-			}))
-		})
+	torrentClient.destroy(() => {
+		sphinx.end(() => spider.close(() => {
+			mysqlSingle.destroy()
+			console.log('spider closed')
+			callback()
+		}))
 	})
 }
 return this
