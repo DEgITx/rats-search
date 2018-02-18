@@ -84,6 +84,9 @@ class Spider extends Emiter {
         }
         for(const address of this.table.nodes)
         {
+            if(parseInt(Math.random() * 5) !== 1)
+                continue;
+
             this.send(message, address)
         }
     }
