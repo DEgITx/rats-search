@@ -20,6 +20,7 @@ BitTorrent search program for desktop and web. Collect and navigate over base of
 * Pretty safe to use and don't send any information about collected torrents data (statistic)
 * Collect only statistic information and don't save any torrents internal data
 * Supports torrents ratings for web version
+* P2P Search. Search in other Rats clients.
 
 ## Contributing
 We are welcome any contributing: bug fixes, improvements, code refactoring and other stuffs.
