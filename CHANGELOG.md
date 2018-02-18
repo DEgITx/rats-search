@@ -1,3 +1,32 @@
+<a name="0.7.0"></a>
+# [0.7.0](https://github.com/DEgITx/rats-search/compare/v0.6.1...v0.7.0) (2018-02-18)
+
+
+### Bug Fixes
+
+* **app:** messaging on closing ([f117b61](https://github.com/DEgITx/rats-search/commit/f117b61))
+* **config:** color of search indicator ([69c391b](https://github.com/DEgITx/rats-search/commit/69c391b))
+* **p2p:** closing on end ([a1c9adb](https://github.com/DEgITx/rats-search/commit/a1c9adb))
+* **p2p:** closing on end reverted (it was ok by default) ([ee3df81](https://github.com/DEgITx/rats-search/commit/ee3df81))
+* **p2p:** compact convert ip's ([b84c9da](https://github.com/DEgITx/rats-search/commit/b84c9da))
+* **p2p:** fix disconnects after each call ([12d66ff](https://github.com/DEgITx/rats-search/commit/12d66ff))
+* **p2p:** ignore errors on conn ([8e81bbc](https://github.com/DEgITx/rats-search/commit/8e81bbc))
+
+
+### Features
+
+* **app:** p2p peers indicator ([3d4dbd5](https://github.com/DEgITx/rats-search/commit/3d4dbd5))
+* **config:** p2p enable/disable ([5bd2e75](https://github.com/DEgITx/rats-search/commit/5bd2e75))
+* **p2p:** basic search retransfer ([da7ea2a](https://github.com/DEgITx/rats-search/commit/da7ea2a))
+* **p2p:** files search also ([8c79960](https://github.com/DEgITx/rats-search/commit/8c79960))
+* **p2p:** ignore your address ([f0f3692](https://github.com/DEgITx/rats-search/commit/f0f3692))
+* **p2p:** other rats peers detection ([24c50d3](https://github.com/DEgITx/rats-search/commit/24c50d3))
+
+
+### Performance Improvements
+
+* **p2p:** reduce traffic of p2p calls ([cd6d0a2](https://github.com/DEgITx/rats-search/commit/cd6d0a2))
+
 <a name="0.6.1"></a>
 ## [0.6.1](https://github.com/DEgITx/rats-search/compare/v0.6.0...v0.6.1) (2018-02-12)
 
