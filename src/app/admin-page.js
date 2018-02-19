@@ -66,42 +66,48 @@ export default class AdminPage extends Page {
 		      	this.forceUpdate()
 		      }}
 		    />
-        <div className='row inline w100p'>
-          <div style={{flex: 1}}>Scanning port</div>
-          <TextField
-            style={{width: 65}}
-            hintText="Port"
-            errorText={this.options.spiderPort > 0 ? undefined : "This field is required"}
-            value={this.options.spiderPort}
-            onChange={(e, value) => {
-              if(!value)
-                value = 0
-              if(value > 65535)
-                value = 65535
+        <div className='column w100p'>
+          <div className='row inline w100p'>
+            <div style={{flex: 1}}>Scanning port</div>
+            <TextField
+              style={{width: 65}}
+              hintText="Port"
+              errorText={this.options.spiderPort > 0 ? undefined : "This field is required"}
+              value={this.options.spiderPort}
+              onChange={(e, value) => {
+                if(!value)
+                  value = 0
+                if(value > 65535)
+                  value = 65535
 
-              this.options.spiderPort = parseInt(value)
-              this.forceUpdate()
-            }}
-          />
+                this.options.spiderPort = parseInt(value)
+                this.forceUpdate()
+              }}
+            />
+          </div>
+          <div className='fs0-75' style={{color: 'grey'}}>* For current work TCP and UDP ports must be fully open and forward in case of router usage</div>
         </div>
 
-        <div className='row inline w100p'>
-          <div style={{flex: 1}}>Trackers responce port</div>
-          <TextField
-            style={{width: 65}}
-            hintText="Port"
-            errorText={this.options.udpTrackersPort > 0 ? undefined : "This field is required"}
-            value={this.options.udpTrackersPort}
-            onChange={(e, value) => {
-              if(!value)
-                value = 0
-              if(value > 65535)
-                value = 65535
+        <div className='column w100p'>
+          <div className='row inline w100p'>
+            <div style={{flex: 1}}>Trackers responce port</div>
+            <TextField
+              style={{width: 65}}
+              hintText="Port"
+              errorText={this.options.udpTrackersPort > 0 ? undefined : "This field is required"}
+              value={this.options.udpTrackersPort}
+              onChange={(e, value) => {
+                if(!value)
+                  value = 0
+                if(value > 65535)
+                  value = 65535
 
-              this.options.udpTrackersPort = parseInt(value)
-              this.forceUpdate()
-            }}
-          />
+                this.options.udpTrackersPort = parseInt(value)
+                this.forceUpdate()
+              }}
+            />
+          </div>
+          <div className='fs0-75' style={{color: 'grey'}}>* For current work UDP port must be fully open and forward in case of router usage</div>
         </div>
 
         <div className='row inline w100p'>
