@@ -264,6 +264,7 @@ const tcpServer = net.createServer();
 tcpServer.listen(config.spiderPort);
 tcpServer.on('connection', (socket) => {
 	socket = new JsonSocket(socket);
+	socket.on('error', (err) => {})
 	socket.on('message', (message) => {    
 		if(message.type && messageHandlers[message.type])
 		{
@@ -1073,7 +1074,6 @@ const p2p = {
 	{
 		this.peers.push(address)
 		const socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
-		socket.connect(address.port, address.address);
 		socket.on('connect', () => { //Don't send until we're connected
 			// add to peers
 			send('peer', this.peers.length)
@@ -1113,6 +1113,8 @@ const p2p = {
 		})
 		
 		socket.on('error', (err) => {})
+
+		socket.connect(address.port, address.address);
 	},
 	emit(type, data, callback)
 	{
