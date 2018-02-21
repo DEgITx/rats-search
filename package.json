@@ -2,7 +2,7 @@
   "name": "rats-search",
   "productName": "Rats on The Boat",
   "description": "P2P BitTorrent search engine",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "private": true,
   "author": "Alexey Kasyanchuk <degitx@gmail.com>",
   "copyright": "Copyright © 2018 Alexey Kasyanchuk",

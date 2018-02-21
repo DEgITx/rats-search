@@ -1,3 +1,12 @@
+<a name="0.7.1"></a>
+## [0.7.1](https://github.com/DEgITx/rats-search/compare/v0.7.0...v0.7.1) (2018-02-21)
+
+
+### Bug Fixes
+
+* **config:** settings port descriptions ([e7b30ab](https://github.com/DEgITx/rats-search/commit/e7b30ab))
+* **p2p:** errors on peers ignore ([4b21c38](https://github.com/DEgITx/rats-search/commit/4b21c38))
+
 <a name="0.7.0"></a>
 # [0.7.0](https://github.com/DEgITx/rats-search/compare/v0.6.1...v0.7.0) (2018-02-18)
 
