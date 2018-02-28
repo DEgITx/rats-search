@@ -57,9 +57,11 @@ class Table{
 		this.nodes = []
 		this.caption = cap
 	}
-	add(node) {
+	add(node, onAdd) {
 		if (this.nodes.length < this.caption) {
 			this.nodes.push(node)
+			if(onAdd)
+				onAdd(node)
 		}
 	}
 	shift() {
