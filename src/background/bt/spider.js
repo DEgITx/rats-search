@@ -5,13 +5,8 @@ const Emiter = require('events')
 const bencode = require('bencode')
 const {Table, Node} = require('./table')
 const Token = require('./token')
-const cpuUsage = require('./cpu-usage')
 const config = require('../config')
 const fs = require('fs')
-
-const _debug = require('debug')
-const cpuDebug = _debug('spider:cpu')
-const trafficDebug = _debug('spider:traffic')
 
 const bootstraps = [{
     address: 'router.bittorrent.com',
@@ -45,21 +40,16 @@ class Spider extends Emiter {
         this.client = client
         this.ignore = false; // ignore all requests
         this.initialized = false;
-        this.trafficSpeed = 0
 
         this.walkInterval = config.spider.walkInterval;
-        this.cpuLimit = config.spider.cpuLimit;
-        this.cpuInterval = config.spider.cpuInterval;
         this.foundSpeed = 0;
         this.foundCounter = 0;
         setInterval(() => { 
             this.foundSpeed = this.foundCounter;
             this.foundCounter = 0;
-            console.log('found speed', this.foundSpeed)
         }, 1000)
 
         this.announceHashes = []
-        this.searchHashes = []
     }
 
     send(message, address) {
@@ -124,9 +114,7 @@ class Spider extends Emiter {
             if(!this.ignore) 
             {
                 const node = this.table.shift()
-                //if (node) {
-                if (node && parseInt(Math.random() * this.table.nodes.length / 100) === 0) {
-                    //console.log('walk', this.table.nodes.length)
+                if (node && (config.spider.nodesUsage === 0 || parseInt(Math.random() * this.table.nodes.length / config.spider.nodesUsage) === 0)) {
                     this.findNode(Node.neighbor(node.id, this.table.id), {address: node.address, port: node.port})
                 }
             }
@@ -171,7 +159,7 @@ class Spider extends Emiter {
     }
 
     onFindNodeRequest(message, address) {
-        if(this.foundSpeed > 500)
+        if(config.spider.packagesLimit !== 0 && this.foundSpeed > config.spider.packagesLimit)
         {
             return
         }
@@ -199,7 +187,7 @@ class Spider extends Emiter {
     }
 
     onGetPeersRequest(message, address) {
-        if(this.foundSpeed > 500)
+        if(config.spider.packagesLimit !== 0 && this.foundSpeed > config.spider.packagesLimit)
         {
             return
         }
@@ -246,15 +234,12 @@ class Spider extends Emiter {
         };
     	this.emit('ensureHash', infohash.toString('hex').toUpperCase(), addressPair)
         if(this.client && !this.ignore) {
-            cpuDebug('cpu usage:' + cpuUsage())
-            if(this.cpuLimit <= 0 || cpuUsage() <= this.cpuLimit + this.cpuInterval) {
-                this.client.add(addressPair, infohash);
-            }
+            this.client.add(addressPair, infohash);
         }
     }
 
     onPingRequest(message, address) {
-        if(this.foundSpeed > 500)
+        if(config.spider.packagesLimit !== 0 && this.foundSpeed > config.spider.packagesLimit)
         {
             return
         }
