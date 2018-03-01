@@ -1,3 +1,19 @@
+<a name="0.8.0"></a>
+# [0.8.0](https://github.com/DEgITx/rats-search/compare/v0.7.1...v0.8.0) (2018-03-01)
+
+
+### Features
+
+* **config:** new scanning options ([b946877](https://github.com/DEgITx/rats-search/commit/b946877))
+* **config:** some network limitations ([1751ad6](https://github.com/DEgITx/rats-search/commit/1751ad6))
+* **menu:** report bug in application ([1a8af14](https://github.com/DEgITx/rats-search/commit/1a8af14))
+
+
+### Performance Improvements
+
+* **network:** limit package usage ([f6a8e89](https://github.com/DEgITx/rats-search/commit/f6a8e89))
+* **network:** network usage optimization ([e1e0074](https://github.com/DEgITx/rats-search/commit/e1e0074))
+
 <a name="0.7.1"></a>
 ## [0.7.1](https://github.com/DEgITx/rats-search/compare/v0.7.0...v0.7.1) (2018-02-21)
 
