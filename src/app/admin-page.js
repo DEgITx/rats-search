@@ -135,24 +135,6 @@ export default class AdminPage extends Page {
         </div>
 
         <div className='row inline w100p'>
-          <div style={{flex: 1}}>CPU usage limitation</div>
-          <Slider
-            min={0}
-            max={100}
-            step={1}
-            style={{width: 300}}
-            value={this.options.spider && this.options.spider.cpuLimit === 0 ? 100 : this.options.spider && this.options.spider.cpuLimit}
-            onChange={(event, value) => {
-              if(value === 100)
-                value = 0
-              
-              this.options.spider.cpuLimit = value
-              this.forceUpdate()
-            }}
-          />
-        </div>
-
-        <div className='row inline w100p'>
           <div style={{flex: 1}}>Download torrents directory</div>
           <TextField
             hintText="Download path"
@@ -173,6 +155,64 @@ export default class AdminPage extends Page {
               this.forceUpdate()
             }
           }} />
+        </div>
+
+        <div style={{marginTop: 10}}>Torrent network scanner settings:</div>
+        <div className='column w100p'>
+          <div className='row inline w100p'>
+            <div style={{flex: 1}}>Scanner walk speed (current: {this.options.spider && this.options.spider.walkInterval}) [affected after program reload]</div>
+            <Slider
+              min={1}
+              max={150}
+              step={1}
+              style={{width: 300}}
+              value={this.options.spider && this.options.spider.walkInterval}
+              onChange={(event, value) => {
+                this.options.spider.walkInterval = value
+                this.forceUpdate()
+              }}
+            />
+          </div>
+          <div className='fs0-75' style={{color: 'grey'}}>* Low value - fast initial scanning and high cpu usage. High Value - low cpu usage but very slow scanning. 
+            Good value between 3-60. Defaul value: 5</div>
+        </div>
+        <div className='column w100p'>
+          <div className='row inline w100p'>
+            <div style={{flex: 1}}>Nodes usage (current: {this.options.spider && this.options.spider.nodesUsage})</div>
+            <Slider
+              min={0}
+              max={1000}
+              step={1}
+              style={{width: 300}}
+              value={this.options.spider && this.options.spider.nodesUsage}
+              onChange={(event, value) => {
+                this.options.spider.nodesUsage = value
+                this.forceUpdate()
+              }}
+            />
+          </div>
+          <div className='fs0-75' style={{color: 'grey'}}>* Low Value - very low usage of nodes, low network traffic, slow torrent scanning. High value - high traffic, fast scanning, high routers usage. 
+          Recomended value between 10-1000. Defaul value: 100. 0 - Ignore this option (no limit).
+          </div>
+        </div>
+        <div className='column w100p'>
+          <div className='row inline w100p'>
+            <div style={{flex: 1}}>Reduce network packages (current: {this.options.spider && this.options.spider.packagesLimit})</div>
+            <Slider
+              min={0}
+              max={2000}
+              step={1}
+              style={{width: 300}}
+              value={this.options.spider && this.options.spider.packagesLimit}
+              onChange={(event, value) => {
+                this.options.spider.packagesLimit = value
+                this.forceUpdate()
+              }}
+            />
+          </div>
+          <div className='fs0-75' style={{color: 'grey'}}>* Low Value - ignore more usless network packages, lower traffic and routers usage. High Value - high traffic and router usage in prospectю
+          Recomended value between 300-2000. Defaul value: 500. 0 - Ignore this option (no limit).
+          </div>
         </div>
 
         {
