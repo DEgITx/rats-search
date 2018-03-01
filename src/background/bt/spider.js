@@ -50,6 +50,13 @@ class Spider extends Emiter {
         this.walkInterval = config.spider.walkInterval;
         this.cpuLimit = config.spider.cpuLimit;
         this.cpuInterval = config.spider.cpuInterval;
+        this.foundSpeed = 0;
+        this.foundCounter = 0;
+        setInterval(() => { 
+            this.foundSpeed = this.foundCounter;
+            this.foundCounter = 0;
+            console.log('found speed', this.foundSpeed)
+        }, 1000)
 
         this.announceHashes = []
         this.searchHashes = []
@@ -114,16 +121,11 @@ class Spider extends Emiter {
             return
 
     	if(!this.client || this.client.isIdle()) {
-            if(
-                !this.ignore 
-                && (this.cpuLimit <= 0 || cpuUsage() < this.cpuLimit + this.cpuInterval)
-                && (config.trafficMax <= 0 || this.trafficSpeed == 0 || this.trafficSpeed < config.trafficMax)
-            ) 
+            if(!this.ignore) 
             {
                 const node = this.table.shift()
-                //console.log(parseInt(Math.random() * this.table.caption / (this.table.nodes.length || 0)))
                 //if (node) {
-                if (node && parseInt(Math.random() * this.table.nodes.length / 8) === 0) {
+                if (node && parseInt(Math.random() * this.table.nodes.length / 100) === 0) {
                     //console.log('walk', this.table.nodes.length)
                     this.findNode(Node.neighbor(node.id, this.table.id), {address: node.address, port: node.port})
                 }
@@ -139,7 +141,6 @@ class Spider extends Emiter {
                 this.table.add(node)
             }
         })
-        //console.log('nodes', this.table.nodes.length)
         this.emit('nodes', nodes)
 
         // announce torrents
@@ -153,7 +154,6 @@ class Spider extends Emiter {
     }
 
     onFoundPeers(peers, token, address) {
-        console.log('responce')
         if(token)
         {
             for(const hash of this.announceHashes)
@@ -171,11 +171,8 @@ class Spider extends Emiter {
     }
 
     onFindNodeRequest(message, address) {
-        if(this.cpuLimit > 0 && cpuUsage() > this.cpuLimit) {
-            return
-        }
-
-        if(config.trafficIgnoreDHT && config.trafficMax > 0 && this.trafficSpeed > 0 && this.trafficSpeed > config.trafficMax) {
+        if(this.foundSpeed > 500)
+        {
             return
         }
 
@@ -202,11 +199,8 @@ class Spider extends Emiter {
     }
 
     onGetPeersRequest(message, address) {
-        if(this.cpuLimit > 0 && cpuUsage() > this.cpuLimit) {
-            return
-        }
-
-        if(config.trafficIgnoreDHT && config.trafficMax > 0 && this.trafficSpeed > 0 && this.trafficSpeed > config.trafficMax) {
+        if(this.foundSpeed > 500)
+        {
             return
         }
 
@@ -254,17 +248,14 @@ class Spider extends Emiter {
         if(this.client && !this.ignore) {
             cpuDebug('cpu usage:' + cpuUsage())
             if(this.cpuLimit <= 0 || cpuUsage() <= this.cpuLimit + this.cpuInterval) {
-         //       this.client.add(addressPair, infohash);
+                this.client.add(addressPair, infohash);
             }
         }
     }
 
     onPingRequest(message, address) {
-        if(this.cpuLimit > 0 && cpuUsage() > this.cpuLimit) {
-            return
-        }
-
-        if(config.trafficIgnoreDHT && config.trafficMax > 0 && this.trafficSpeed > 0 && this.trafficSpeed > config.trafficMax) {
+        if(this.foundSpeed > 500)
+        {
             return
         }
 
@@ -276,11 +267,13 @@ class Spider extends Emiter {
             const message = bencode.decode(data)
             if (message.y.toString() == 'r') {
                 if(message.r.nodes) {
+                    this.foundCounter++;
                     this.onFoundNodes(message.r.nodes, message.r.token, address)
                 } else if(message.r.values) {
                     this.onFoundPeers(message.r.values, message.r.token, address)
                 }
             } else if (message.y.toString() == 'q') {
+                this.foundCounter++;
             	switch(message.q.toString()) {
             		case 'get_peers':
             		this.onGetPeersRequest(message, address)
@@ -321,41 +314,6 @@ class Spider extends Emiter {
         }, 3000)
         this.join()
         this.walk()
-
-        if(config.trafficMax > 0)
-        {
-            trafficDebug('inore dht traffic', config.trafficIgnoreDHT)
-            const path = `/sys/class/net/${config.trafficInterface}/statistics/rx_bytes`
-            if(fs.existsSync(path))
-            {
-                trafficDebug('limitation', config.trafficMax / 1024, 'kbps/s')
-                let traffic = 0
-                this.trafficInterval = setInterval(() => { 
-                    fs.readFile(path, (err, newTraffic) => {
-                        if(err)
-                            return
-
-                        if(traffic === 0)
-                            traffic = newTraffic
-
-                        this.trafficSpeed = (newTraffic - traffic) / config.trafficUpdateTime
-
-                        trafficDebug('traffic rx', this.trafficSpeed / 1024, 'kbps/s')
-
-                        traffic = newTraffic
-                    })
-                }, 1000 * config.trafficUpdateTime)
-            }
-        }
-
-        /*
-        this.announceSearchInterval = setInterval(() => { 
-            for(const hash of this.announceHashes)
-            {
-                this.getPeersRequest(hash) 
-            }
-        }, 3000)
-        */
     }
 
     close(callback)
@@ -366,10 +324,6 @@ class Spider extends Emiter {
             return
         }
         clearInterval(this.joinInterval)
-        if(this.trafficInterval)
-            clearInterval(this.trafficInterval)
-        //if(this.announceSearchInterval)
-        //    clearInterval(this.announceSearchInterval)
         this.closing = true
         this.udp.close(() => {
             this.initialized = false
