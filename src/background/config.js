@@ -76,7 +76,18 @@ config.load = () => {
 		const obj = JSON.parse(data);
 		for(let prop in obj) 
 		{
-			config[prop] = obj[prop]
+			// объединяем объекты
+			if(typeof config[prop] === 'object' && typeof obj[prop] === 'object')
+			{
+				for(const subProp in obj[prop])
+				{
+					config[prop][subProp] = obj[prop][subProp]
+				}
+			}
+			else
+			{
+				config[prop] = obj[prop]
+			}
 			debug('rats.json:', prop, '=', obj[prop])
 		}
 	}
