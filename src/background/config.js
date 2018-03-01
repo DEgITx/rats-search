@@ -21,8 +21,8 @@ let config = {
 
 	spider: {
 		walkInterval: 5,
-		cpuLimit: 0,
-		cpuInterval: 10,
+		nodesUsage: 100,
+		packagesLimit: 500
 	},
 
 	downloader: {
@@ -34,11 +34,6 @@ let config = {
 	cleanupDiscLimit: 7 * 1024 * 1024 * 1024,
 	spaceQuota: false,
 	spaceDiskLimit: 7 * 1024 * 1024 * 1024,
-
-	trafficInterface: 'enp2s0',
-	trafficMax: 0,
-	trafficUpdateTime: 3, //secs
-	trafficIgnoreDHT: false,
 
 	dbPath: '',
 
@@ -81,7 +76,18 @@ config.load = () => {
 		const obj = JSON.parse(data);
 		for(let prop in obj) 
 		{
-			config[prop] = obj[prop]
+			// объединяем объекты
+			if(typeof config[prop] === 'object' && typeof obj[prop] === 'object')
+			{
+				for(const subProp in obj[prop])
+				{
+					config[prop][subProp] = obj[prop][subProp]
+				}
+			}
+			else
+			{
+				config[prop] = obj[prop]
+			}
 			debug('rats.json:', prop, '=', obj[prop])
 		}
 	}

@@ -3,9 +3,8 @@ const client = new (require('./bt/client'))
 const spider = new (require('./bt/spider'))(client)
 const mysql = require('mysql');
 const getPeersStatisticUDP = require('./bt/udp-tracker-request')
-const net = require('net')
-const JsonSocket = require('json-socket')
 const crypto = require('crypto')
+const P2PServer = require('./p2p')
 const stun = require('stun')
 //var express = require('express');
 //var app = express();
@@ -253,30 +252,8 @@ setInterval(() => {
 	topCache = {};
 }, 24 * 60 * 60 * 1000);
 
-
-
-// socket
-const messageHandlers = {}
-const onSocketMessage = (type, callback) => {
-	messageHandlers[type] = callback
-}
-const tcpServer = net.createServer();
-tcpServer.listen(config.spiderPort);
-tcpServer.on('connection', (socket) => {
-	socket = new JsonSocket(socket);
-	socket.on('error', (err) => {})
-	socket.on('message', (message) => {    
-		if(message.type && messageHandlers[message.type])
-		{
-			messageHandlers[message.type](message.data, (data) => {
-				socket.sendMessage({
-					id: message.id,
-					data
-				});
-			})
-		}
-	});
-})
+const p2p = new P2PServer(send)
+p2p.listen()
 
 //io.on('connection', function(socket)
 //{
@@ -437,7 +414,7 @@ tcpServer.on('connection', (socket) => {
 		})
 	});
 
-	onSocketMessage('searchTorrent', ({text, navigation} = {}, callback) => {
+	p2p.on('searchTorrent', ({text, navigation} = {}, callback) => {
 		if(!text)
 			return;
 
@@ -541,7 +518,7 @@ tcpServer.on('connection', (socket) => {
 		})
 	});
 
-	onSocketMessage('searchFiles', ({text, navigation} = {}, callback) => {
+	p2p.on('searchFiles', ({text, navigation} = {}, callback) => {
 		if(!text)
 			return;
 
@@ -1046,86 +1023,6 @@ client.on('complete', function (metadata, infohash, rinfo) {
 });
 
 
-const p2p = {
-	peers: [],
-	ignoreAddresses: [],
-	add(address) {
-		const { peers } = this
-
-		if(peers.length > 10)
-			return;
-
-		if(address.port <= 1 || address.port > 65535)
-			return;
-
-		if(this.ignoreAddresses.includes(address.address))
-			return;
-
-		for(let peer of peers)
-		{
-			if(peer.address === address.address) {
-				peer.port = address.port;
-				return;
-			}
-		}
-		this.connect(address)
-	},
-	connect(address)
-	{
-		this.peers.push(address)
-		const socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
-		socket.on('connect', () => { //Don't send until we're connected
-			// add to peers
-			send('peer', this.peers.length)
-			console.log('new peer', address)
-
-			const callbacks = {}
-			socket.on('message', (message) => {
-				if(message.id && callbacks[message.id])
-				{
-					callbacks[message.id](message.data);
-					delete callbacks[message.id];
-				}
-			});
-			
-			const emit = (type, data, callback) => {
-				const id = Math.random().toString(36).substring(5)
-				if(callback)
-					callbacks[id] = callback;
-				socket.sendMessage({
-					id,
-					type,
-					data
-				});
-			}
-			address.emit = emit
-		});
-
-		socket.on('close', () => {
-			const index = this.peers.indexOf(address);
-			if(index >= 0)
-			{
-				this.peers.splice(index, 1);
-
-				console.log('close peer connection', address)
-				send('peer', this.peers.length)
-			}
-		})
-		
-		socket.on('error', (err) => {})
-
-		socket.connect(address.port, address.address);
-	},
-	emit(type, data, callback)
-	{
-		for(const peer of this.peers)
-		{
-			if(peer.emit)
-				peer.emit(type, data, callback)
-		}
-	}
-}
-
 const { STUN_BINDING_REQUEST, STUN_ATTR_XOR_MAPPED_ADDRESS } = stun.constants
 const stunServer = stun.createServer()
 const stunRequest = stun.createMessage(STUN_BINDING_REQUEST)
@@ -1139,11 +1036,6 @@ stunServer.once('bindingResponse', stunMsg => {
 stunServer.send(stunRequest, 19302, 'stun.l.google.com')
 
 spider.on('peer', (IPs) => {
-	const { peers } = p2p;
-
-	if(peers.length > 10)
-		return
-
 	IPs.forEach(ip => p2p.add(ip))
 })
 
