@@ -21,8 +21,8 @@ let config = {
 
 	spider: {
 		walkInterval: 5,
-		cpuLimit: 0,
-		cpuInterval: 10,
+		nodesUsage: 100,
+		packagesLimit: 500
 	},
 
 	downloader: {
@@ -34,11 +34,6 @@ let config = {
 	cleanupDiscLimit: 7 * 1024 * 1024 * 1024,
 	spaceQuota: false,
 	spaceDiskLimit: 7 * 1024 * 1024 * 1024,
-
-	trafficInterface: 'enp2s0',
-	trafficMax: 0,
-	trafficUpdateTime: 3, //secs
-	trafficIgnoreDHT: false,
 
 	dbPath: '',
 
