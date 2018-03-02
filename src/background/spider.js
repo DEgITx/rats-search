@@ -6,6 +6,7 @@ const getPeersStatisticUDP = require('./bt/udp-tracker-request')
 const crypto = require('crypto')
 const P2PServer = require('./p2p')
 const stun = require('stun')
+const natUpnp = require('nat-upnp');
 //var express = require('express');
 //var app = express();
 //var server = require('http').Server(app);
@@ -604,11 +605,17 @@ p2p.listen()
 				upSpider()
 		}
 
+		if(upnp)
+			upnp.ratsUnmap()
+
 		for(const option in options)
 		{
 			if(option in config)
 				config[option] = options[option]
 		}
+
+		if(upnp)
+			upnp.ratsMap()
 
 		if(config.p2p)
 		{
@@ -1030,10 +1037,73 @@ stunServer.once('bindingResponse', stunMsg => {
   const {address, port} = stunMsg.getAttribute(STUN_ATTR_XOR_MAPPED_ADDRESS).value
   stunServer.close()
 
-  console.log('p2p ignore my address', address)
+  console.log('p2p stun ignore my address', address)
   p2p.ignoreAddresses.push(address)
 })
 stunServer.send(stunRequest, 19302, 'stun.l.google.com')
+
+let upnp
+if(config.upnp)
+{
+	upnp = natUpnp.createClient();
+	upnp.ratsMap = () => {
+		upnp.portMapping({
+			public: config.spiderPort,
+			private: config.spiderPort,
+			protocol: 'UDP',
+			description: 'Rats',
+			ttl: 0
+		  }, function(err) {
+			  if(err)
+				  console.log('upnp error', err)
+		});
+		upnp.portMapping({
+			public: config.spiderPort,
+			private: config.spiderPort,
+			protocol: 'TCP',
+			description: 'Rats',
+			ttl: 0
+		  }, function(err) {
+			  if(err)
+				  console.log('upnp error', err)
+		});
+		upnp.portMapping({
+			public: config.udpTrackersPort,
+			private: config.udpTrackersPort,
+			protocol: 'UDP',
+			description: 'Rats',
+			ttl: 0
+		  }, function(err) {
+			  if(err)
+				  console.log('upnp error', err)
+		});
+	}
+
+	upnp.ratsUnmap = () => {
+		upnp.portUnmapping({
+			public: config.spiderPort,
+			protocol: 'UDP'
+		});
+		upnp.portUnmapping({
+			public: config.spiderPort,
+			protocol: 'TCP'
+		});
+		upnp.portUnmapping({
+			public: config.udpTrackersPort,
+			protocol: 'UDP'
+		});
+	}
+
+	upnp.ratsMap();
+
+	upnp.externalIp(function(err, ip) {
+		if(err)
+			return
+
+		console.log('p2p upnp ignore my address', ip)
+		p2p.ignoreAddresses.push(ip)
+	});
+}
 
 spider.on('peer', (IPs) => {
 	IPs.forEach(ip => p2p.add(ip))
@@ -1101,6 +1171,9 @@ if(config.spaceQuota)
 
 this.stop = (callback) => {
 	console.log('spider closing...')
+	if(upnp)
+		upnp.ratsUnmap()
+
 	torrentClient.destroy(() => {
 		sphinx.end(() => spider.close(() => {
 			mysqlSingle.destroy()
