@@ -10,6 +10,7 @@ let config = {
 	udpTrackersPort: 4446,
 	udpTrackersTimeout: 3 * 60 * 1000, 
 	p2p: true,
+	upnp: true,
 
 	sitemapMaxSize: 25000,
 

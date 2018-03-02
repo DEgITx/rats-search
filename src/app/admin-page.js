@@ -110,6 +110,16 @@ export default class AdminPage extends Page {
           <div className='fs0-75' style={{color: 'grey'}}>* For current work UDP port must be fully open and forward in case of router usage</div>
         </div>
 
+        <Toggle
+			  style={{marginTop: '10px'}}
+		      label="Enabled UPnP"
+		      toggled={this.options.upnp}
+		      onToggle={(e, checked) => {
+		      	this.options.upnp = checked
+		      	this.forceUpdate()
+		      }}
+		    />
+
         <div className='row inline w100p'>
           <div style={{flex: 1}}>Collection directory</div>
           <TextField
