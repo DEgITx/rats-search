@@ -1,6 +1,7 @@
 const config = require('./config');
 const net = require('net')
 const JsonSocket = require('json-socket')
+const os = require('os');
 
 class p2p {
 	peers = []
@@ -14,7 +15,11 @@ class p2p {
 		this.tcpServer = net.createServer();
 		this.tcpServer.on('connection', (socket) => {
 			// try to setup back connection
-			this.add(socket.address())
+			const address = socket.address()
+			if(address.family == 'IPv4')
+			{
+				this.add(address)
+			}
 
 			socket = new JsonSocket(socket);
 			socket.on('error', (err) => {})
@@ -39,6 +44,25 @@ class p2p {
 				protocol: 'rats'
 			})
 		})
+
+		// ignore local addresses
+		const ifaces = os.networkInterfaces();
+		Object.keys(ifaces).forEach((ifname) => {
+			let alias = 0;
+			ifaces[ifname].forEach((iface) => {
+				if ('IPv4' !== iface.family || iface.internal !== false) {
+					return;
+				}
+
+				if (alias >= 1) {
+					// nothing
+				} else {
+					console.log('ignore local address', iface.address);
+					this.ignoreAddresses.push(iface.address)
+				}
+				++alias;
+			});
+		});
 	}
 
 	listen() {
