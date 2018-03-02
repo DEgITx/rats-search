@@ -25,5 +25,9 @@ BitTorrent search program for desktop and web. Collect and navigate over base of
 ## Contributing
 We are welcome any contributing: bug fixes, improvements, code refactoring and other stuffs.
 
+## Usage Manuals
+* [English](docs/USAGE.md)
+* [Russian](docs/USAGE.RU.md)
+
 ## License
 [MIT](https://github.com/DEgiTx/rats-search/blob/master/LICENSE)
