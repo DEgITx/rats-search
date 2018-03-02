@@ -41,14 +41,14 @@
 
 Рекомендованные значения:
 * Максимально быстрый поиск / высокая нагрузка:
-** Scanner walk speed: 5
-** Nodes usage: 0 (отключен = максимальное использование)
-** Reduce netowrk packages: 0 (отключено = неограниченно)
+  * Scanner walk speed: 5
+  * Nodes usage: 0 (отключен = максимальное использование)
+  * Reduce netowrk packages: 0 (отключено = неограниченно)
 * Средняя скорость поиска / средняя нагрузка:
-** Scanner walk speed: 15
-** Nodes usage: 100
-** Reduce netowrk packages: 600
+  * Scanner walk speed: 15
+  * Nodes usage: 100
+  * Reduce netowrk packages: 600
 * Низкая скорость поиска / средняя нагрузка:
-** Scanner walk speed: 30
-** Nodes usage: 10
-** Reduce netowrk packages: 450
+  * Scanner walk speed: 30
+  * Nodes usage: 10
+  * Reduce netowrk packages: 450
