@@ -33,7 +33,7 @@ In the case of the other ROTB clients found, there will be indicator at the bott
 
 You will be able to search advanced search among other ROTB clients, you need to perform a normal search, but additional results will be displayed. Depending on the number of peers and exactly those who found the result of the extended issue may vary.
 
-### Настройка сканнера торрентов
+### Torrent scanner settings
 
 [![Settings](img/settings.png)](https://github.com/DEgITx/rats-search)
 
