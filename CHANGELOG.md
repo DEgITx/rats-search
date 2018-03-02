@@ -1,3 +1,11 @@
+<a name="0.9.0"></a>
+# [0.9.0](https://github.com/DEgITx/rats-search/compare/v0.8.0...v0.9.0) (2018-03-02)
+
+
+### Features
+
+* **network:** UPnP support ([6ba0d05](https://github.com/DEgITx/rats-search/commit/6ba0d05))
+
 <a name="0.8.0"></a>
 # [0.8.0](https://github.com/DEgITx/rats-search/compare/v0.7.1...v0.8.0) (2018-03-01)
 
