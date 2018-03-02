@@ -13,7 +13,9 @@ class p2p {
 		this.send = send
 		this.tcpServer = net.createServer();
 		this.tcpServer.on('connection', (socket) => {
-			//console.log('p2p server connection', socket.remoteAddress)
+			// try to setup back connection
+			this.add(socket.address())
+
 			socket = new JsonSocket(socket);
 			socket.on('error', (err) => {})
 			socket.on('message', (message) => {    
@@ -27,6 +29,15 @@ class p2p {
 					})
 				}
 			});
+		})
+		// check protocol
+		this.on('protocol', (data, callback) => {
+			if(!data || data.protocol != 'rats')
+				return
+
+			callback({
+				protocol: 'rats'
+			})
 		})
 	}
 
@@ -64,13 +75,9 @@ class p2p {
 	connect(address)
 	{
 		this.peers.push(address)
-		const socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
+		const rawSocket = new net.Socket();
+		const socket = new JsonSocket(rawSocket); //Decorate a standard net.Socket with JsonSocket
 		socket.on('connect', () => { //Don't send until we're connected
-			// add to peers
-			this.size++;
-			this.send('peer', this.size)
-			console.log('new peer', address)
-
 			const callbacks = {}
 			socket.on('message', (message) => {
 				if(message.id && callbacks[message.id])
@@ -90,7 +97,21 @@ class p2p {
 					data
 				});
 			}
-			address.emit = emit
+
+			// check protocol
+			const protocolTimeout = setTimeout(() => rawSocket.destroy(), 7000)
+			emit('protocol', {protocol: 'rats'}, (data) => {
+				if(!data || data.protocol != 'rats')
+					return
+
+				// success
+				clearTimeout(protocolTimeout)
+				// add to peers
+				address.emit = emit
+				this.size++;
+				this.send('peer', this.size)
+				console.log('new peer', address)
+			})
 		});
 
 		socket.on('close', () => {
