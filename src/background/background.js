@@ -337,7 +337,7 @@ app.on("ready", () => {
          }
          callback.apply(null, arg)
       })
-    })
+    }, app.getPath("userData"))
   })
 });
 

@@ -1,6 +1,7 @@
 const config = require('./config');
 const client = new (require('./bt/client'))
 const spider = new (require('./bt/spider'))(client)
+const fs = require('fs');
 const mysql = require('mysql');
 const getPeersStatisticUDP = require('./bt/udp-tracker-request')
 const crypto = require('crypto')
@@ -15,6 +16,7 @@ const natUpnp = require('nat-upnp');
 //var phantomjs = require('phantomjs-prebuilt')
 var ipaddr = require('ipaddr.js');
 //const disk = require('diskusage');
+const encryptor = require('simple-encryptor')('rats-on-the-boat-enc-v0');
 const os = require('os');
 let rootPath = os.platform() === 'win32' ? 'c:' : '/';
 
@@ -33,7 +35,7 @@ let torrentClientHashMap = {}
 //server.listen(config.httpPort);
 //console.log('Listening web server on', config.httpPort, 'port')
 
-module.exports = function (send, recive)
+module.exports = function (send, recive, dataDirectory)
 {
 
 let torrentsId = 1;
@@ -255,6 +257,17 @@ setInterval(() => {
 
 const p2p = new P2PServer(send)
 p2p.listen()
+// load initial peers
+if(dataDirectory && fs.existsSync(dataDirectory + '/peers.p2p'))
+{
+	const peersEncrypted = fs.readFileSync(dataDirectory + '/peers.p2p', 'utf8')
+	const peers = encryptor.decrypt(peersEncrypted)
+	if(peers && peers.length > 0)
+	{
+		peers.forEach(peer => p2p.add(peer))
+		console.log('loaded', peers.length, 'peers')
+	}
+}
 
 //io.on('connection', function(socket)
 //{
@@ -587,6 +600,14 @@ p2p.listen()
 			topCache[query] = rows;
 		  	callback(rows);
 		});
+	});
+
+	recive('peers', (callback) =>
+	{
+		if(typeof callback != 'function')
+			return;
+
+		callback(p2p.size)
 	});
 
 	recive('config', (callback) =>
@@ -1186,6 +1207,14 @@ this.stop = (callback) => {
 	if(upnp)
 		upnp.ratsUnmap()
 
+	// safe future peers
+	if(dataDirectory)
+	{
+		const peersEncripted = encryptor.encrypt(p2p.addresses(p2p.peersList()))
+		fs.writeFileSync(dataDirectory + '/peers.p2p', peersEncripted, 'utf8');
+		console.log('peers saved')
+	}
+	
 	torrentClient.destroy(() => {
 		sphinx.end(() => spider.close(() => {
 			mysqlSingle.destroy()

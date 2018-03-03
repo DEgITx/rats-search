@@ -197,6 +197,13 @@ class p2p {
 	{
 		return this.peers.filter(peer => !!peer.emit)
 	}
+
+	addresses(peers)
+	{
+		if(!peers || !Array.isArray(peers))
+			return
+		return peers.map(peer => ({address: peer.address, port: peer.port}))
+	}
 }
 
 module.exports = p2p
