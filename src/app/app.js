@@ -91,8 +91,15 @@ class App extends Component {
 
 		window.torrentSocket.on('peer', (numOfPeers) => {
 			window.peers = numOfPeers
-			console.log(window.peers)
 			this.forceUpdate()
+		})
+
+		window.torrentSocket.emit('peers', (numOfPeers) => {
+			if(numOfPeers > 0)
+			{
+				window.peers = numOfPeers
+				this.forceUpdate()
+			}
 		})
 	}
 	componentWillUnmount() {
