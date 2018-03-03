@@ -34,7 +34,8 @@ class p2p {
 				return
 
 			callback({
-				protocol: 'rats'
+				protocol: 'rats',
+				peers: this.peersList().slice(0, 4).map(peer => ({address: peer.address, port: peer.port}))
 			})
 
 			// try to connect back
@@ -44,6 +45,12 @@ class p2p {
 					address: socket.remoteAddress,
 					port: data.port ? data.port : socket.remotePort
 				})
+			}
+
+			// add some other peers
+			if(data.peers && data.peers.length > 0)
+			{
+				data.peers.forEach(peer => this.add(peer))
 			}
 		})
 
@@ -128,7 +135,8 @@ class p2p {
 			const protocolTimeout = setTimeout(() => rawSocket.destroy(), 7000)
 			emit('protocol', {
 				protocol: 'rats',
-				port: config.spiderPort
+				port: config.spiderPort,
+				peers: this.peersList().slice(0, 4).map(peer => ({address: peer.address, port: peer.port}))
 			}, (data) => {
 				if(!data || data.protocol != 'rats')
 					return
@@ -140,6 +148,12 @@ class p2p {
 				this.size++;
 				this.send('peer', this.size)
 				console.log('new peer', address)
+
+				// add some other peers
+				if(data.peers && data.peers.length > 0)
+				{
+					data.peers.forEach(peer => this.add(peer))
+				}
 			})
 		});
 
@@ -170,6 +184,11 @@ class p2p {
 			if(peer.emit)
 				peer.emit(type, data, callback)
 		}
+	}
+
+	peersList()
+	{
+		return this.peers.filter(peer => !!peer.emit)
 	}
 }
 
