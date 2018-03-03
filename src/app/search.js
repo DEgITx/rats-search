@@ -219,12 +219,16 @@ export default class Search extends Component {
     window.torrentSocket.on('newStatistic', this.newStatisticFunc);
 
     this.remoteSearchTorrent = (torrents) => {
+      if(!torrents)
+        return
       this.searchTorrents = _.unionBy(this.searchTorrents, torrents, 'hash')
       this.forceUpdate();
     }
     window.torrentSocket.on('remoteSearchTorrent', this.remoteSearchTorrent);
 
     this.remoteSearchFiles = (torrents) => {
+      if(!torrents)
+        return
       this.searchFiles = _.unionBy(this.searchFiles, torrents, 'hash')
       this.forceUpdate();
     }

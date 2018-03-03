@@ -122,7 +122,7 @@ class p2p {
 			socket.on('message', (message) => {
 				if(message.id && callbacks[message.id])
 				{
-					callbacks[message.id](message.data);
+					callbacks[message.id](message.data, socket);
 					delete callbacks[message.id];
 				}
 			});
