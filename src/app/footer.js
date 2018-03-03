@@ -3,12 +3,6 @@ import React from 'react';
 export default (props) => {
 	return (
 		<div className='column center'  style={{color: 'grey', marginTop: '12px'}}>
-			<div className='clickable pad0-75 fs0-75' onClick={() => {
-				window.router('/DMCA');
-			}}>
-				DMCA / Copyright
-			</div>
-      		<div className='fs0-75 pad0-75 break-word donation-line' style={{color: 'grey'}}>Donation to support project (bitcoin): 1Ega5zeCSMPgyDn6fEMMiuGoqNNpS53ipK</div>
       		<svg style={{height: '100px', fill: 'grey'}} viewBox="0 0 264.725 264.725">
 				<path d="M220.195,71.427c-0.589-7.654-9.135-15.619-17.979-16.209c-8.844-0.584-17.398,0.301-12.087,6.483
 					c5.308,6.188,7.074,12.091,4.423,11.212c-2.66-0.896-13.267-7.08-45.104-2.066c-4.126,1.17-21.221-12.682-44.513-12.977
@@ -21,8 +15,6 @@ export default (props) => {
 					c2.65-5.59,12.674-21.229,24.463-22.988c11.789-1.777,42.451,7.361,47.459,0c5.012-7.372-6.783-11.512-15.918-28.611
 					C243.779,80.572,238.768,71.728,220.195,71.427z"/>
 			</svg>
-
-      		<div className='fs0-75 pad0-75'>Don't hesitate and visit the banners, we are trying to survive among dark blue sea</div>
       	</div>
 	)
 }
