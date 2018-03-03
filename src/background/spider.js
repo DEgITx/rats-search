@@ -26,6 +26,8 @@ const balanceDebug = _debug('main:balance');
 const fakeTorrentsDebug = _debug('main:fakeTorrents');
 const quotaDebug = _debug('main:quota');
 
+const checkInternet = require('./checkInternet')
+
 const {torrentTypeDetect} = require('../app/content');
 
 const torrentClient = require('./torrentClient')
@@ -1062,18 +1064,22 @@ client.on('complete', function (metadata, infohash, rinfo) {
 	}
 });
 
+checkInternet((connected) => {
+	if(!connected)
+		return
 
-const { STUN_BINDING_REQUEST, STUN_ATTR_XOR_MAPPED_ADDRESS } = stun.constants
-const stunServer = stun.createServer()
-const stunRequest = stun.createMessage(STUN_BINDING_REQUEST)
-stunServer.once('bindingResponse', stunMsg => {
-  const {address, port} = stunMsg.getAttribute(STUN_ATTR_XOR_MAPPED_ADDRESS).value
-  stunServer.close()
-
-  console.log('p2p stun ignore my address', address)
-  p2p.ignoreAddresses.push(address)
+	const { STUN_BINDING_REQUEST, STUN_ATTR_XOR_MAPPED_ADDRESS } = stun.constants
+	const stunServer = stun.createServer()
+	const stunRequest = stun.createMessage(STUN_BINDING_REQUEST)
+	stunServer.once('bindingResponse', stunMsg => {
+		const {address, port} = stunMsg.getAttribute(STUN_ATTR_XOR_MAPPED_ADDRESS).value
+		stunServer.close()
+	
+		console.log('p2p stun ignore my address', address)
+		p2p.ignoreAddresses.push(address)
+	})
+	stunServer.send(stunRequest, 19302, 'stun.l.google.com')	
 })
-stunServer.send(stunRequest, 19302, 'stun.l.google.com')
 
 let upnp
 if(config.upnp)

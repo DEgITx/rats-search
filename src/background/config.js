@@ -15,7 +15,7 @@ let config = {
 	sitemapMaxSize: 25000,
 
 	sphinx: {
-	  host     : 'localhost',
+	  host     : '127.0.0.1',
 	  port     : 9306,
 	  connectionLimit: 30
 	},
