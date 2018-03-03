@@ -204,10 +204,33 @@ export default class Search extends Component {
         if(files != this.searchLimit)
           this.moreSearchFiles = false;
 
+        this.mergeFiles()
+
         this.setState({moreFilesIndicator: false});
       }
     }));
   }
+  mergeFiles()
+  {
+    for(let i = 0; i < this.searchFiles.length; i++)
+    {
+      for(let j = i + 1; j < this.searchFiles.length; j++)
+      {
+        if(this.searchFiles[i].hash != this.searchFiles[j].hash)
+          continue
+
+        if(!this.searchFiles[i].remove)
+        {
+          this.searchFiles[i].path = this.searchFiles[i].path.concat(this.searchFiles[j].path)
+        }
+        
+        this.searchFiles[j].remove = true
+      }
+    }
+
+    this.searchFiles = this.searchFiles.filter(torrent => !torrent.remove)
+  }
+
   componentDidMount() {
     this.newStatisticFunc = (statistic) => {
       if(statistic) {
@@ -230,6 +253,7 @@ export default class Search extends Component {
       if(!torrents)
         return
       this.searchFiles = _.unionBy(this.searchFiles, torrents, 'hash')
+      this.mergeFiles()
       this.forceUpdate();
     }
     window.torrentSocket.on('remoteSearchFiles', this.remoteSearchFiles);
