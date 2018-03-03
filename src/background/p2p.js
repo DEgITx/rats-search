@@ -19,19 +19,26 @@ class p2p {
 			socket.on('message', (message) => {    
 				if(message.type && this.messageHandlers[message.type])
 				{
+					// responce only to rats messages
+					if(message.type != 'protocol' && !socket.rats)
+						return
+
 					this.messageHandlers[message.type](message.data, (data) => {
 						socket.sendMessage({
 							id: message.id,
 							data
 						});
-					}, socket._socket)
+					}, socket)
 				}
 			});
 		})
 		// check protocol
-		this.on('protocol', (data, callback, socket) => {
+		this.on('protocol', (data, callback, socketObject) => {
 			if(!data || data.protocol != 'rats')
 				return
+
+			const { _socket: socket } = socketObject
+			socketObject.rats = true
 
 			callback({
 				protocol: 'rats',
