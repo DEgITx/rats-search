@@ -1055,7 +1055,7 @@ if(config.upnp)
 			ttl: 0
 		  }, function(err) {
 			  if(err)
-				  console.log('upnp error', err)
+				  console.log('upnp server dont respond')
 		});
 		upnp.portMapping({
 			public: config.spiderPort,
@@ -1065,7 +1065,7 @@ if(config.upnp)
 			ttl: 0
 		  }, function(err) {
 			  if(err)
-				  console.log('upnp error', err)
+			  	console.log('upnp server dont respond')
 		});
 		upnp.portMapping({
 			public: config.udpTrackersPort,
@@ -1075,7 +1075,7 @@ if(config.upnp)
 			ttl: 0
 		  }, function(err) {
 			  if(err)
-				  console.log('upnp error', err)
+			  	console.log('upnp server dont respond')
 		});
 	}
 
