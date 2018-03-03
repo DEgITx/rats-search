@@ -14,13 +14,6 @@ class p2p {
 		this.send = send
 		this.tcpServer = net.createServer();
 		this.tcpServer.on('connection', (socket) => {
-			// try to setup back connection
-			const address = socket.address()
-			if(address.family == 'IPv4')
-			{
-				this.add(address)
-			}
-
 			socket = new JsonSocket(socket);
 			socket.on('error', (err) => {})
 			socket.on('message', (message) => {    
@@ -31,18 +24,27 @@ class p2p {
 							id: message.id,
 							data
 						});
-					})
+					}, socket._socket)
 				}
 			});
 		})
 		// check protocol
-		this.on('protocol', (data, callback) => {
+		this.on('protocol', (data, callback, socket) => {
 			if(!data || data.protocol != 'rats')
 				return
 
 			callback({
 				protocol: 'rats'
 			})
+
+			// try to connect back
+			if(socket.remoteFamily == 'IPv4')
+			{
+				this.add({
+					address: socket.remoteAddress,
+					port: data.port ? data.port : socket.remotePort
+				})
+			}
 		})
 
 		// ignore local addresses
@@ -67,7 +69,7 @@ class p2p {
 
 	listen() {
 		console.log('listen p2p on', config.spiderPort, 'port')
-		this.tcpServer.listen(config.spiderPort);
+		this.tcpServer.listen(config.spiderPort, '0.0.0.0');
 	}
 
 	on(type, callback) {
@@ -124,7 +126,10 @@ class p2p {
 
 			// check protocol
 			const protocolTimeout = setTimeout(() => rawSocket.destroy(), 7000)
-			emit('protocol', {protocol: 'rats'}, (data) => {
+			emit('protocol', {
+				protocol: 'rats',
+				port: config.spiderPort
+			}, (data) => {
 				if(!data || data.protocol != 'rats')
 					return
 
