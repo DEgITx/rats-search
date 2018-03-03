@@ -6,11 +6,11 @@ import Divider from 'material-ui/Divider';
 import Spinner24 from './images/spinner_24.gif'
 import LinearProgress from 'material-ui/LinearProgress';
 
-const contentIcon = (type, category) => {
+const contentIcon = (type, category, fill = 'grey') => {
   if(category == 'xxx')
   {
     return (
-      <svg viewBox="0 0 18.282 18.282" fill="grey">
+      <svg viewBox="0 0 18.282 18.282" fill={fill}>
         <g>
           <path d="M16.435,3.832H1.847C0.827,3.832,0,4.659,0,5.678v6.925c0,1.021,0.827,1.848,1.847,1.848h14.588
             c1.021,0,1.847-0.827,1.847-1.848V5.678C18.282,4.659,17.455,3.832,16.435,3.832z M3.194,7.123H2.583v4.042h0.611v0.54H1.876V6.583
@@ -32,7 +32,7 @@ const contentIcon = (type, category) => {
   {
       case 'video':
         return (
-          <svg viewBox="0 0 491.858 491.858" fill="grey">
+          <svg viewBox="0 0 491.858 491.858" fill={fill}>
                 <path d="M357.714,423.331c0,9.328-10.676,16.891-23.847,16.891H23.847C10.676,440.222,0,432.659,0,423.331V203.735
                   c0-9.33,10.676-16.892,23.847-16.892h310.02c13.171,0,23.847,7.564,23.847,16.892V423.331L357.714,423.331z"/>
                 <circle cx="89.428" cy="118.706" r="59.619"/>
@@ -43,7 +43,7 @@ const contentIcon = (type, category) => {
         )
       case 'audio':
         return (
-          <svg viewBox="0 0 46 46" fill="grey">
+          <svg viewBox="0 0 46 46" fill={fill}>
             <path d="M28.38,0c-0.551,0-1.097,0.153-1.579,0.444c-0.046,0.027-0.09,0.059-0.13,0.093L13.121,12H2.487c-0.553,0-1,0.447-1,1v19
               c0,0.553,0.447,1,1,1h10.61L26.64,45.436c0.05,0.046,0.104,0.086,0.161,0.12C27.284,45.847,27.83,46,28.38,46
               c1.713,0,3.106-1.416,3.106-3.156V3.156C31.487,1.416,30.093,0,28.38,0z M14.487,31c0,0.553-0.447,1-1,1s-1-0.447-1-1v-4
@@ -57,7 +57,7 @@ const contentIcon = (type, category) => {
         )
       case 'pictures':
         return (
-          <svg viewBox="0 0 58 58" fill="grey">
+          <svg viewBox="0 0 58 58" fill={fill}>
           <path d="M57,6H1C0.448,6,0,6.447,0,7v44c0,0.553,0.448,1,1,1h56c0.552,0,1-0.447,1-1V7C58,6.447,57.552,6,57,6z M16,17
             c3.071,0,5.569,2.498,5.569,5.569c0,3.07-2.498,5.568-5.569,5.568s-5.569-2.498-5.569-5.568C10.431,19.498,12.929,17,16,17z
              M52.737,35.676c-0.373,0.406-1.006,0.435-1.413,0.062L40.063,25.414l-9.181,10.054l4.807,4.807c0.391,0.391,0.391,1.023,0,1.414
@@ -68,7 +68,7 @@ const contentIcon = (type, category) => {
         )
        case 'application':
         return (
-          <svg viewBox="0 0 483.85 483.85" fill="grey">
+          <svg viewBox="0 0 483.85 483.85" fill={fill}>
               <path d="M471.325,211.856l-56.9-56.9c-23.4-23.4-9.1-48.1,16.4-49.6c42-2.6,65.6-47.4,31.3-84.7c-37.3-34.2-81.9-10.7-84.5,31.2
                 c-1.6,25.5-26.5,39.9-49.8,16.6l-55.7-55.7c-16.7-16.7-43.8-16.7-60.5,0l-56.4,56.4c-23.4,23.4-48.2,8.9-49.8-16.6
                 c-2.6-42-47.6-65.9-84.9-31.6c-34.4,37.4-10.5,82.4,31.5,85c25.5,1.6,40,26.5,16.7,49.9l-56.2,56.1c-16.7,16.7-16.7,43.8,0,60.5
@@ -80,7 +80,7 @@ const contentIcon = (type, category) => {
         )
       case 'books':
         return (
-          <svg viewBox="0 0 296.999 296.999" fill="grey">
+          <svg viewBox="0 0 296.999 296.999" fill={fill}>
               <g>
                 <path d="M45.432,35.049c-0.008,0-0.017,0-0.025,0c-2.809,0-5.451,1.095-7.446,3.085c-2.017,2.012-3.128,4.691-3.128,7.543
                   v159.365c0,5.844,4.773,10.61,10.641,10.625c24.738,0.059,66.184,5.215,94.776,35.136V84.023c0-1.981-0.506-3.842-1.461-5.382
@@ -99,7 +99,7 @@ const contentIcon = (type, category) => {
         )
       case 'archive':
         return (
-          <svg viewBox="0 0 390 390" fill="grey">
+          <svg viewBox="0 0 390 390" fill={fill}>
             <g>
               <path d="M182.681,205.334c0,5.21,4.227,9.436,9.436,9.436h5.765c5.21,0,9.436-4.226,9.436-9.436c0-5.211-4.226-9.438-9.436-9.438
                 h-5.765C186.908,195.897,182.681,200.123,182.681,205.334z"/>
@@ -124,7 +124,7 @@ const contentIcon = (type, category) => {
         )
       case 'disc':
         return (
-          <svg viewBox="0 0 49.652 49.652" fill="grey">
+          <svg viewBox="0 0 49.652 49.652" fill={fill}>
               <g>
                 <circle cx="24.826" cy="24.825" r="3.529"/>
                 <path d="M42.381,7.271C37.693,2.582,31.458,0,24.826,0C18.195,0,11.96,2.583,7.271,7.271c-9.68,9.68-9.68,25.43,0,35.11
@@ -138,7 +138,7 @@ const contentIcon = (type, category) => {
         )
       default:
         return (
-          <svg viewBox="0 0 123.769 123.769" fill="grey">
+          <svg viewBox="0 0 123.769 123.769" fill={fill}>
             <g>
               <path d="M76.05,1.568l-10.101,9.3c-2.3,2.1-5.8,2.1-8.1,0l-10.2-9.2c-3.1-2.8-8-1.7-9.6,2.1l-8.3,20h64.2l-8.3-20.1
                 C84.05-0.131,79.149-1.231,76.05,1.568z"/>
@@ -226,7 +226,7 @@ export default class Torrent extends Component {
                 node.onclick = () => { return false }
             }}>
               <span className='break-word' style={{
-              color: torrent.contentCategory != 'xxx' ? 'black' : 'grey'
+              color: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : 'grey'
               }}>
                 {torrent.name}
               </span>
@@ -239,7 +239,7 @@ export default class Torrent extends Component {
             }}>
               <div className='column' style={{height: 'auto', whiteSpace: 'normal', paddingTop: '0.30em'}}>
                 <div className='row w100p inline'>
-                  <div>
+                  <div style={{color: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5252d1' : 'black') : 'grey'}}>
                     {
                       formatBytes(torrent.size, 1) + ' (' + torrent.files + ' files)'
                     }
@@ -277,7 +277,7 @@ export default class Torrent extends Component {
               </div>
             </a>
           }
-          leftIcon={contentIcon(torrent.contentType, torrent.contentCategory)}
+          leftIcon={contentIcon(torrent.contentType, torrent.contentCategory, torrent.contentCategory != 'xxx' ? (torrent.peer ? '#6f5ee0' : 'grey') : '#d3d3d3')}
           rightIcon={
             <div className='row inline' style={{width: 63}}>
               {
@@ -287,7 +287,7 @@ export default class Torrent extends Component {
                 <svg style={{
                   height: '24px',
                   marginRight: 12,
-                  fill: torrent.contentCategory != 'xxx' ? 'black' : 'grey'
+                  fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : 'grey'
               }} onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -324,7 +324,7 @@ export default class Torrent extends Component {
               <a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
                 <svg style={{
                   height: '24px',
-                  fill: torrent.contentCategory != 'xxx' ? 'black' : 'grey'
+                  fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : 'grey'
               }} onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -336,7 +336,7 @@ export default class Torrent extends Component {
               <a style={{float: 'right'}} href={`magnet:?xt=urn:btih:${torrent.hash}`}>
                 <svg style={{
                   height: '24px',
-                  fill: torrent.contentCategory != 'xxx' ? 'black' : 'grey'
+                  fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : 'grey'
               }} onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();

@@ -409,8 +409,14 @@ p2p.listen()
 
 	recive('searchTorrent', (text, navigation, callback) => {
 		searchTorrentCall(text, navigation, callback)
-		p2p.emit('searchTorrent', {text, navigation}, (remote) => {
+		p2p.emit('searchTorrent', {text, navigation}, (remote, socketObject) => {
 			console.log('remote search results', remote && remote.length)
+			if(remote && remote.length > 0)
+			{
+				const { _socket: socket } = socketObject
+				const peer = { address: socket.remoteAddress, port: socket.remotePort }
+				remote = remote.map(torrent => Object.assign(torrent, {peer}))
+			}
 			send('remoteSearchTorrent', remote)
 		})
 	});
@@ -513,8 +519,14 @@ p2p.listen()
 
 	recive('searchFiles', (text, navigation, callback) => {
 		searchFilesCall(text, navigation, callback)
-		p2p.emit('searchFiles', {text, navigation}, (remote) => {
+		p2p.emit('searchFiles', {text, navigation}, (remote, socketObject) => {
 			console.log('remote search files results', remote && remote.length)
+			if(remote && remote.length > 0)
+			{
+				const { _socket: socket } = socketObject
+				const peer = { address: socket.remoteAddress, port: socket.remotePort }
+				remote = remote.map(torrent => Object.assign(torrent, {peer}))
+			}
 			send('remoteSearchFiles', remote)
 		})
 	});
