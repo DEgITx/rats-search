@@ -74,7 +74,7 @@ class p2p {
 					// nothing
 				} else {
 					console.log('ignore local address', iface.address);
-					this.ignoreAddresses.push(iface.address)
+					this.ignore(iface.address)
 				}
 				++alias;
 			});
@@ -152,6 +152,7 @@ class p2p {
 				clearTimeout(protocolTimeout)
 				// add to peers
 				address.emit = emit
+				address.disconnect = () => rawSocket.destroy()
 				this.size++;
 				this.send('peer', this.size)
 				console.log('new peer', address)
@@ -209,6 +210,19 @@ class p2p {
 	{
 		return this.peersList().find((localPeer) => {
 			return localPeer.address === peer.address
+		})
+	}
+
+	ignore(address)
+	{
+		this.ignoreAddresses.push(address)
+		// close all connected peers (if they connected already)
+		this.peers.forEach(peer => {
+			if(peer.address !== address)
+				return
+
+			if(peer.disconnect)
+				peer.disconnect()
 		})
 	}
 }

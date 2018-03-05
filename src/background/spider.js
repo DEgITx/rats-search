@@ -1101,7 +1101,7 @@ checkInternet((connected) => {
 		stunServer.close()
 	
 		console.log('p2p stun ignore my address', address)
-		p2p.ignoreAddresses.push(address)
+		p2p.ignore(address)
 	})
 	stunServer.send(stunRequest, 19302, 'stun.l.google.com')	
 })
@@ -1165,7 +1165,7 @@ if(config.upnp)
 			return
 
 		console.log('p2p upnp ignore my address', ip)
-		p2p.ignoreAddresses.push(ip)
+		p2p.ignore(ip)
 	});
 }
 
