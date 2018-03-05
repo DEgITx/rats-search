@@ -52,14 +52,12 @@ window.router = router;
 
 router('/', () => {
 	//singleton
-	let pie = new PagesPie;
-	pie.open(IndexPage, {replace: 'all'});
+	PagesPie.instance().open(IndexPage, {replace: 'all'});
 });
 
 router('/torrent/:hash', (e) => {
 	//singleton
-	let pie = new PagesPie;
-	pie.open(TorrentPage, {
+	PagesPie.instance().open(TorrentPage, {
 		replace: 'all',
 		hash: e.params.hash,
 	});
@@ -67,26 +65,21 @@ router('/torrent/:hash', (e) => {
 
 router('/DMCA', () => {
 	//singleton
-	let pie = new PagesPie;
-	pie.open(DMCAPage, {replace: 'all'});
+	PagesPie.instance().open(DMCAPage, {replace: 'all'});
 });
 
 
 router('/config', () => {
 	//singleton
-	let pie = new PagesPie;
-	pie.open(AdminPage, {replace: 'all'});
+	PagesPie.instance().open(AdminPage, {replace: 'all'});
 });
 
 router('/top', () => {
 	//singleton
-	let pie = new PagesPie;
-	pie.open(TopPage, {replace: 'all'});
+	PagesPie.instance().open(TopPage, {replace: 'all'});
 });
 
 router('/changelog', () => {
 	//singleton
-	let pie = new PagesPie;
-	console.log('changelog')
-	pie.open(ChangelogPage, {replace: 'all'});
+	PagesPie.instance().open(ChangelogPage, {replace: 'all'});
 });

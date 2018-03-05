@@ -180,7 +180,7 @@ export default class TorrentPage extends Page {
     });
   };
   getTorrentInfo() {
-  	window.torrentSocket.emit('torrent', this.props.hash, {files: true}, window.customLoader((data) => {
+  	window.torrentSocket.emit('torrent', this.props.hash, {files: true, peer: this.props.peer}, window.customLoader((data) => {
   		if(data) {
   			this.torrent = data
   			this.setTitle(this.torrent.name + ' - Rats On TheBoat');

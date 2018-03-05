@@ -3,6 +3,9 @@ import formatBytes from './format-bytes'
 import {ListItem} from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 
+import PagesPie from './pages-pie.js';
+import TorrentPage from './torrent-page'
+
 import Spinner24 from './images/spinner_24.gif'
 import LinearProgress from 'material-ui/LinearProgress';
 
@@ -212,13 +215,15 @@ export default class Torrent extends Component {
             if(e.button === 1)
               return false;
 
+            /*
             if(e.ctrlKey && e.button === 0) {
               let win = window.open(link, '_blank');
               //win.focus();
               return true;
             }
+            */
 
-            window.router(link)
+            PagesPie.instance().open(TorrentPage, {replace: 'all', hash: torrent.hash, peer: torrent.peer})
           }} 
           primaryText={
             <a href={'/torrent/' + torrent.hash} ref={(node) => {

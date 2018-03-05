@@ -1,15 +1,9 @@
 import React, { Component } from 'react';
+import singleton from './singleton'
 
-export default class PagesPie extends Component {
-	constructor(props) {
-		super(props);
-		// синглтон
-		if ( PagesPie.instance ) {
-    		return PagesPie.instance;
-		}
-  		PagesPie.instance = this;
-		this.pie = [];
-	}
+class PagesPie extends Component {
+	pie = [];
+
 	open(pages, params) {
 		if (params && params.replace) {
 			if (params.replace === 'all') {
@@ -87,3 +81,5 @@ export default class PagesPie extends Component {
 		}
 	}
 }
+
+export default singleton(PagesPie)
