@@ -321,13 +321,30 @@ if(dataDirectory && fs.existsSync(dataDirectory + '/peers.p2p'))
 		});
 	});
 
-	recive('torrent', function(hash, options, callback)
-	{
+	const onTorrent = (hash, options, callback) => {
 		if(hash.length != 40)
 			return;
 
 		if(typeof callback != 'function')
 			return;
+
+		// remote request
+		if(options.peer)
+		{
+			console.log('remote torrent request to peer')
+			const peer = p2p.find(options.peer)
+			if(!peer)
+			{
+				callback(undefined)
+				return;
+			}
+			delete options.peer;
+			peer.emit('torrent', {hash, options}, (data) => {
+				console.log('remote torrent result')
+				callback(data)
+			})
+			return;
+		}
 
 		sphinx.query('SELECT * FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
 		  if(!rows || rows.length == 0) {
@@ -357,7 +374,15 @@ if(dataDirectory && fs.existsSync(dataDirectory + '/peers.p2p'))
 			send('downloading', torrent.infoHash)
 		  }
 		});
-	});
+	}
+
+	recive('torrent', onTorrent);
+	p2p.on('torrent', ({hash, options} = {}, callback) => {
+		if(!hash)
+			return;
+
+		onTorrent(hash, options, (data) => callback(data))
+	})
 
 	const searchTorrentCall = function(text, navigation, callback)
 	{

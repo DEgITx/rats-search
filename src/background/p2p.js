@@ -204,6 +204,13 @@ class p2p {
 			return
 		return peers.map(peer => ({address: peer.address, port: peer.port}))
 	}
+
+	find(peer)
+	{
+		return this.peersList().find((localPeer) => {
+			return localPeer.address === peer.address
+		})
+	}
 }
 
 module.exports = p2p
