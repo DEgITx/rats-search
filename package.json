@@ -13,7 +13,7 @@
     "url": "https://github.com/DEgITx/rats-search.git"
   },
   "build": {
-    "appId": "com.example.electron-boilerplate",
+    "appId": "com.ratsontheboat.search",
     "files": [
       "app/**/*",
       "node_modules/**/*",
