@@ -20,7 +20,7 @@ export const aboutMenuTemplate = {
           slashes: true
         }))
         win.webContents.on('did-finish-load', () => {
-          win.send('url', '/changelog')
+          setTimeout(() => win.send('url', '/changelog'), 0)
         });
 
         const handleRedirect = (e, url) => {
