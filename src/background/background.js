@@ -15,6 +15,7 @@ import { devMenuTemplate } from "./menu/dev_menu_template";
 import { editMenuTemplate } from "./menu/edit_menu_template";
 import { settingsMenuTemplate } from "./menu/config_menu_template";
 import { aboutMenuTemplate } from "./menu/about_menu_template";
+import { manageMenuTemplate } from "./menu/manage_menu_template";
 
 // Special module holding environment variables which you declared
 // in config/env_xxx.json file.
@@ -28,7 +29,7 @@ const iconv = require('iconv-lite');
 require('electron-context-menu')({})
 
 const setApplicationMenu = () => {
-  const menus = [editMenuTemplate, settingsMenuTemplate, aboutMenuTemplate];
+  const menus = [editMenuTemplate, manageMenuTemplate, settingsMenuTemplate, aboutMenuTemplate];
   if (env.name !== "production") {
     menus.push(devMenuTemplate);
   }

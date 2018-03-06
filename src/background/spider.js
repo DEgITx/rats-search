@@ -690,8 +690,9 @@ if(dataDirectory && fs.existsSync(dataDirectory + '/peers.p2p'))
 			callback(true)
 	});
 
-	recive('download', (magnet) =>
+	recive('download', (torrentObject) =>
 	{
+		const magnet = `magnet:?xt=urn:btih:${torrentObject.hash}`
 		console.log('download', magnet)
 		if(torrentClient.get(magnet)) {
 			console.log('aready added')
@@ -700,6 +701,7 @@ if(dataDirectory && fs.existsSync(dataDirectory + '/peers.p2p'))
 
 		torrentClient.add(magnet, {path: config.client.downloadPath}, (torrent) =>{
 			torrentClientHashMap[torrent.infoHash] = magnet
+			torrent.torrentObject = torrentObject
 			console.log('start downloading', torrent.infoHash)
 			send('downloading', torrent.infoHash)
 
@@ -716,7 +718,7 @@ if(dataDirectory && fs.existsSync(dataDirectory + '/peers.p2p'))
 				now = Date.now()
 
 				send('downloadProgress', torrent.infoHash, {
-					bytes,
+					received: bytes,
 					downloaded: torrent.downloaded,
 					speed: torrent.downloadSpeed,
 					progress: torrent.progress
@@ -749,6 +751,17 @@ if(dataDirectory && fs.existsSync(dataDirectory + '/peers.p2p'))
 			if(callback)
 				callback(true)
 		})
+	})
+
+	recive('downloads', (callback) =>
+	{
+		callback(torrentClient.torrents.map(torrent => ({
+			torrentObject: torrent.torrentObject,
+			received: torrent.received,
+			downloaded: torrent.downloaded,
+			progress: torrent.progress,
+			speed: torrent.downloadSpeed
+		})))
 	})
 
 	let socketIPV4 = () => {

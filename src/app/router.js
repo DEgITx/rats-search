@@ -6,6 +6,7 @@ import TorrentPage from './torrent-page.js'
 import DMCAPage from './dmca-page.js'
 import AdminPage from './admin-page.js'
 import TopPage from './top-page.js'
+import DownloadPage from './download-page.js'
 import ChangelogPage from './changelog-page.js'
 
 let routers = {}
@@ -77,6 +78,11 @@ router('/config', () => {
 router('/top', () => {
 	//singleton
 	PagesPie.instance().open(TopPage, {replace: 'all'});
+});
+
+router('/downloads', () => {
+	//singleton
+	PagesPie.instance().open(DownloadPage, {replace: 'all'});
 });
 
 router('/changelog', () => {

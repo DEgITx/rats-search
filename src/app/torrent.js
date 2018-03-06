@@ -162,6 +162,17 @@ export default class Torrent extends Component {
     askDownloading: false,
     downloadProgress: {}
   }
+  constructor(props)
+  {
+    super(props)
+    if(props.download)
+    {
+      const { progress, downloaded, speed } = props.download
+      this.state.downloadProgress = {
+        progress, downloaded, speed
+      }
+    }
+  }
   componentDidMount()
   {
     this.downloading = (hash) => {
@@ -297,7 +308,7 @@ export default class Torrent extends Component {
                   e.preventDefault();
                   e.stopPropagation();
                   this.setState({askDownloading: true})
-                  window.torrentSocket.emit('download', `magnet:?xt=urn:btih:${torrent.hash}`)
+                  window.torrentSocket.emit('download', torrent)
               }} viewBox="0 0 56 56">
                   <g>
                               <path d="M35.586,41.586L31,46.172V28c0-1.104-0.896-2-2-2s-2,0.896-2,2v18.172l-4.586-4.586c-0.781-0.781-2.047-0.781-2.828,0
