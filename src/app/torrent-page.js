@@ -377,7 +377,7 @@ export default class TorrentPage extends Page {
                         onClick={(e) => {
                           e.preventDefault();
                           this.setState({askDownloading: true})
-                          window.torrentSocket.emit('download', `magnet:?xt=urn:btih:${this.torrent.hash}`)
+                          window.torrentSocket.emit('download', this.torrent)
                         }}
                         icon={
                           <svg viewBox="0 0 56 56" fill='white'>
