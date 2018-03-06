@@ -18,6 +18,13 @@ export const manageMenuTemplate = {
       click: () => {
         BrowserWindow.getFocusedWindow().webContents.send('url', '/')
       },
+    },
+    {
+      label: "Top",
+      accelerator: "CmdOrCtrl+t",
+      click: () => {
+        BrowserWindow.getFocusedWindow().webContents.send('url', '/top')
+      },
     }
   ]
 };
