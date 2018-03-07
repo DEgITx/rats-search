@@ -40,6 +40,22 @@ export const aboutMenuTemplate = {
       click: () => {
         shell.openExternal('https://github.com/DEgITx/rats-search/issues')
       },
+    },
+    {
+      label: "Donate",
+      accelerator: "CmdOrCtrl+]",
+      click: () => {
+        const win = new BrowserWindow({
+          parent: BrowserWindow.getFocusedWindow(),
+          modal: true
+        })
+        win.setMenu(null)
+        win.loadURL(url.format({
+          pathname: path.join(__dirname, "donate.html"),
+          protocol: "file:",
+          slashes: true
+        }))
+      },
     }
   ]
 };
