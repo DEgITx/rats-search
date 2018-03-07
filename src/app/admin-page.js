@@ -232,7 +232,7 @@ export default class AdminPage extends Page {
         }
 
         <div className='row center pad0-75'>
-          <RaisedButton label="Save Sttings" primary={true} onClick={() => {
+          <RaisedButton label="Save Settings" primary={true} onClick={() => {
             this.saveSettings()
           }} />
         </div>
