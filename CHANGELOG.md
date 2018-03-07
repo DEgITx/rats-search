@@ -1,3 +1,20 @@
+<a name="0.11.0"></a>
+# [0.11.0](https://github.com/DEgITx/rats-search/compare/v0.10.0...v0.11.0) (2018-03-07)
+
+
+### Bug Fixes
+
+* **changelog:** fix modal peers display ([fb3a28b](https://github.com/DEgITx/rats-search/commit/fb3a28b))
+* **p2p:** situation when ignoring yourself address is very slow ([d55c8f2](https://github.com/DEgITx/rats-search/commit/d55c8f2))
+* **search:** show torrent page from remote peer ([9a69f07](https://github.com/DEgITx/rats-search/commit/9a69f07))
+
+
+### Features
+
+* **donate:** donate window ([da3a646](https://github.com/DEgITx/rats-search/commit/da3a646))
+* **download:** torrent downloads manager ([73d2c3c](https://github.com/DEgITx/rats-search/commit/73d2c3c))
+* **gui:** access to top from menu ([20bd280](https://github.com/DEgITx/rats-search/commit/20bd280))
+
 <a name="0.10.0"></a>
 # [0.10.0](https://github.com/DEgITx/rats-search/compare/v0.9.0...v0.10.0) (2018-03-03)
 
