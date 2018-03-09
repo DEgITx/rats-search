@@ -8,9 +8,10 @@ const crypto = require('crypto')
 const P2PServer = require('./p2p')
 const stun = require('stun')
 const natUpnp = require('nat-upnp');
+const http = require('https')
 //var express = require('express');
 //var app = express();
-//var server = require('http').Server(app);
+//var server = http.Server(app);
 //var io = require('socket.io')(server);
 //var sm = require('sitemap');
 //var phantomjs = require('phantomjs-prebuilt')
@@ -269,6 +270,32 @@ if(dataDirectory && fs.existsSync(dataDirectory + '/peers.p2p'))
 		peers.forEach(peer => p2p.add(peer))
 		console.log('loaded', peers.length, 'peers')
 	}
+}
+if(config.p2pBootstrap)
+{
+	http.get('https://api.myjson.com/bins/1e5rmh', (resp) => {
+	let data = '';
+
+	resp.on('data', (chunk) => {
+		data += chunk;
+	});
+
+	resp.on('end', () => {
+		const json = JSON.parse(data)
+		if(json.bootstrap)
+		{
+			const peers = encryptor.decrypt(json.bootstrap)
+			if(peers && peers.length > 0)
+			{
+				peers.forEach(peer => p2p.add(peer))
+				console.log('loaded', peers.length, 'peers from bootstrap')
+			}
+		}
+	});
+	
+	}).on("error", (err) => {
+		console.log("Error: " + err.message);
+	});
 }
 
 //io.on('connection', function(socket)
@@ -1251,21 +1278,49 @@ this.stop = (callback) => {
 	if(upnp)
 		upnp.ratsUnmap()
 
+	const close = () => {
+		torrentClient.destroy(() => {
+			sphinx.end(() => spider.close(() => {
+				mysqlSingle.destroy()
+				console.log('spider closed')
+				callback()
+			}))
+		})
+	}
+	
 	// safe future peers
 	if(dataDirectory)
 	{
-		const peersEncripted = encryptor.encrypt(p2p.addresses(p2p.peersList()))
+		const addresses = p2p.addresses(p2p.peersList())
+		const peersEncripted = encryptor.encrypt(addresses)
 		fs.writeFileSync(dataDirectory + '/peers.p2p', peersEncripted, 'utf8');
 		console.log('peers saved')
+
+		if(config.p2pBootstrap && addresses.length > 5)
+		{
+			const options = {
+				port: 443,
+				host: 'api.myjson.com',
+				method: 'PUT',
+				path: '/bins/1e5rmh',
+				headers: { 
+				  'Content-Type' : "application/json",
+				}
+			};
+			console.log('save bootstrap peers')
+			const req = http.request(options, close);
+			req.on('error', close)
+			req.end(JSON.stringify({bootstrap: peersEncripted}))
+		}
+		else
+		{
+			close()
+		}
 	}
-	
-	torrentClient.destroy(() => {
-		sphinx.end(() => spider.close(() => {
-			mysqlSingle.destroy()
-			console.log('spider closed')
-			callback()
-		}))
-	})
+	else
+	{
+		close()
+	}
 }
 return this
 

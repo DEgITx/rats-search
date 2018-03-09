@@ -66,6 +66,15 @@ export default class AdminPage extends Page {
 		      	this.forceUpdate()
 		      }}
 		    />
+        <Toggle
+			  style={{marginTop: '10px'}}
+		      label="Enabled bootstrap peers"
+		      toggled={this.options.p2pBootstrap}
+		      onToggle={(e, checked) => {
+		      	this.options.p2pBootstrap = checked
+		      	this.forceUpdate()
+		      }}
+		    />
         <div className='column w100p'>
           <div className='row inline w100p'>
             <div style={{flex: 1}}>Scanning port</div>

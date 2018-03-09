@@ -12,6 +12,7 @@ let config = {
 	
 	p2p: true,
 	p2pConnections: 10,
+	p2pBootstrap: true,
 
 	upnp: true,
 
