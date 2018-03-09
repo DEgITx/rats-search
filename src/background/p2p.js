@@ -65,6 +65,11 @@ class p2p {
 			}
 		})
 
+		// new peer with peer exchange
+		this.on('peer', (peer) => {
+			this.add(peer)
+		})
+
 		// ignore local addresses
 		const ifaces = os.networkInterfaces();
 		Object.keys(ifaces).forEach((ifname) => {
@@ -154,6 +159,10 @@ class p2p {
 
 				// success
 				clearTimeout(protocolTimeout)
+
+				// send some peers with pears exchange
+				this.emit('peer', address)
+
 				// add to peers
 				address.emit = emit
 				address.disconnect = () => rawSocket.destroy()
