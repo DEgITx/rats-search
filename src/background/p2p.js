@@ -13,7 +13,11 @@ class p2p {
 	{
 		this.send = send
 		this.tcpServer = net.createServer();
+		this.tcpServer.maxConnections = config.p2pConnections * 2;
 		this.tcpServer.on('connection', (socket) => {
+			this.tcpServer.getConnections((err, count) => {
+				console.log('connection', count)
+			})
 			socket = new JsonSocket(socket);
 			socket.on('error', (err) => {})
 			socket.on('message', (message) => {    
@@ -93,7 +97,7 @@ class p2p {
 	add(address) {
 		const { peers } = this
 
-		if(this.size > 10)
+		if(this.size > config.p2pConnections)
 			return;
 
 		if(address.port <= 1 || address.port > 65535)
