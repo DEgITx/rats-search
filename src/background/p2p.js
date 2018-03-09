@@ -15,9 +15,6 @@ class p2p {
 		this.tcpServer = net.createServer();
 		this.tcpServer.maxConnections = config.p2pConnections * 2;
 		this.tcpServer.on('connection', (socket) => {
-			this.tcpServer.getConnections((err, count) => {
-				console.log('connection', count)
-			})
 			socket = new JsonSocket(socket);
 			socket.on('error', (err) => {})
 			socket.on('message', (message) => {    
