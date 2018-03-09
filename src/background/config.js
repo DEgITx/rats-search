@@ -9,7 +9,10 @@ let config = {
 	spiderPort: 4445,
 	udpTrackersPort: 4446,
 	udpTrackersTimeout: 3 * 60 * 1000, 
+	
 	p2p: true,
+	p2pConnections: 10,
+
 	upnp: true,
 
 	sitemapMaxSize: 25000,
@@ -54,6 +57,13 @@ if(app && app.getPath("userData") && app.getPath("userData").length > 0)
 
 const configProxy = new Proxy(config, {
 	set: (target, prop, value, receiver) => {
+		// some values check (important!)
+		if(prop == 'p2pConnections' && value < 10)
+			value = 10
+		if(prop == 'p2pConnections' && value > 300)
+			value = 300
+
+
 		target[prop] = value
 	    
 	    if(!fs.existsSync(configPath))
