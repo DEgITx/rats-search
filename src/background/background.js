@@ -43,6 +43,15 @@ if (env.name !== "production") {
   const userDataPath = app.getPath("userData");
   app.setPath("userData", `${userDataPath} (${env.name})`);
 }
+// portative version
+let portative = false
+if(env.name === "production") {
+  if(fs.existsSync(path.dirname(process.execPath) + `/data`))
+  {
+    portative = true;
+    app.setPath("userData", path.dirname(process.execPath) + `/data`);
+  }
+}
 
 const resourcesPath = env.name === "production" ? process.resourcesPath : 'resources'
 
@@ -76,6 +85,8 @@ console.log('CPU Logic cores:', os.cpus().length)
 console.log('Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB')
 console.log('Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
 
+if(portative)
+console.log('portative compability')
 
 const shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
   // Someone tried to run a second instance, we should focus our window.
@@ -325,7 +336,7 @@ app.on("ready", () => {
     }
   })
 
-  if (env.name === "production") { autoUpdater.checkForUpdates() }
+  if (env.name === "production" && !portative) { autoUpdater.checkForUpdates() }
 
     spider = spiderCall((...data) => { 
       if(mainWindow)
