@@ -185,7 +185,7 @@ export default class AdminPage extends Page {
             <div style={{flex: 1}}>Max peers limit (current: {this.options.p2pConnections})</div>
             <Slider
               min={10}
-              max={100}
+              max={25}
               step={1}
               style={{width: 300}}
               value={this.options.p2pConnections}
