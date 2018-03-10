@@ -57,24 +57,6 @@ export default class AdminPage extends Page {
 		      	this.forceUpdate()
 		      }}
 		    />
-        <Toggle
-			  style={{marginTop: '10px'}}
-		      label="Enabled p2p search"
-		      toggled={this.options.p2p}
-		      onToggle={(e, checked) => {
-		      	this.options.p2p = this.options.indexer && checked
-		      	this.forceUpdate()
-		      }}
-		    />
-        <Toggle
-			  style={{marginTop: '10px'}}
-		      label="Enabled bootstrap peers"
-		      toggled={this.options.p2pBootstrap}
-		      onToggle={(e, checked) => {
-		      	this.options.p2pBootstrap = checked
-		      	this.forceUpdate()
-		      }}
-		    />
         <div className='column w100p'>
           <div className='row inline w100p'>
             <div style={{flex: 1}}>Scanning port</div>
@@ -175,6 +157,46 @@ export default class AdminPage extends Page {
             }
           }} />
         </div>
+
+        <div style={{marginTop: 10}}>P2P Rats network settings:</div>
+        <Toggle
+			  style={{marginTop: '10px'}}
+		      label="Enabled p2p search"
+		      toggled={this.options.p2p}
+		      onToggle={(e, checked) => {
+		      	this.options.p2p = this.options.indexer && checked
+		      	this.forceUpdate()
+		      }}
+		    />
+        <div className='column w100p'>
+          <Toggle
+          style={{marginTop: '10px'}}
+            label="Enabled bootstrap peers"
+            toggled={this.options.p2pBootstrap}
+            onToggle={(e, checked) => {
+              this.options.p2pBootstrap = checked
+              this.forceUpdate()
+            }}
+          />
+          <div className='fs0-75' style={{color: 'grey'}}>* Use extrnral bootstrap nodes to get p2p peers when network setted wrong or need external source</div>
+        </div>
+        <div className='column w100p'>
+          <div className='row inline w100p'>
+            <div style={{flex: 1}}>Max peers limit (current: {this.options.p2pConnections})</div>
+            <Slider
+              min={10}
+              max={100}
+              step={1}
+              style={{width: 300}}
+              value={this.options.p2pConnections}
+              onChange={(event, value) => {
+                this.options.p2pConnections = value
+                this.forceUpdate()
+              }}
+            />
+          </div>
+        </div>
+
 
         <div style={{marginTop: 10}}>Torrent network scanner settings:</div>
         <div className='column w100p'>
