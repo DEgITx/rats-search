@@ -43,7 +43,7 @@ export const aboutMenuTemplate = {
     },
     {
       label: "Donate",
-      accelerator: "CmdOrCtrl+]",
+      accelerator: "CmdOrCtrl+*",
       click: () => {
         const win = new BrowserWindow({
           parent: BrowserWindow.getFocusedWindow(),
@@ -55,6 +55,13 @@ export const aboutMenuTemplate = {
           protocol: "file:",
           slashes: true
         }))
+      },
+    },
+    {
+      label: "Help",
+      accelerator: "CmdOrCtrl+?",
+      click: () => {
+        shell.openExternal('https://github.com/DEgITx/rats-search/blob/master/docs/MANUAL.md')
       },
     }
   ]
