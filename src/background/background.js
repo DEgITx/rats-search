@@ -277,7 +277,10 @@ app.on("ready", () => {
       mainWindow.openDevTools();
     }
 
-    tray = new Tray(`${resourcesPath}/icons/512x512.png`)
+    if(process.platform === 'darwin')
+      tray = new Tray(`${resourcesPath}/icons/19x19.png`)
+    else
+      tray = new Tray(`${resourcesPath}/icons/512x512.png`)
 
     tray.on('click', () => {
 	  mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()

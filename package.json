@@ -24,6 +24,10 @@
         "from": "resources/icons/512x512.png",
         "to": "icons/512x512.png"
       },
+      {
+        "from": "resources/icons/19x19.png",
+        "to": "icons/19x19.png"
+      },
       "CHANGELOG.md"
     ],
     "directories": {
