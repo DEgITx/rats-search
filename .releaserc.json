@@ -8,7 +8,7 @@
   	},
     {
       "path": "@semantic-release/exec",
-      "cmd": "brew install rpm && brew install dpkg && brew install jq && npm run build -- --linux --win --mac"
+      "cmd": "brew install rpm && brew install dpkg && brew install jq && npm run build -- --linux --win --mac && cd dist/win-unpacked && mkdir data && cd .. && zip -vr rats-search-`node -p \"require('../package.json').version\"`-portable.win.x64.zip win-unpacked/"
     },
     "@semantic-release/github"
   ],
