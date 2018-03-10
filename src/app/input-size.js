@@ -54,13 +54,14 @@ export default class InputSize extends Component {
               onChange={size => this.setState({ size })} 
             />
             <SelectField
-              floatingLabelText="Size type"
+              floatingLabelText="Size type max"
               value={this.state.maxSize}
               onChange={(event, index, value) => this.setState({maxSize: value})}
               className='filter-control-border'
             >
               <MenuItem value={1024} primaryText="KB" />
               <MenuItem value={1024 * 1024} primaryText="MB" />
+              <MenuItem value={1024 * 1024 * 100} primaryText="100 MB" />
               <MenuItem value={1024 * 1024 * 1024} primaryText="GB" />
               <MenuItem value={10 * 1024 * 1024 * 1024} primaryText="10 GB" />
               <MenuItem value={100 * 1024 * 1024 * 1024} primaryText="100 GB" />
