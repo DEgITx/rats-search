@@ -411,6 +411,66 @@ if(config.p2pBootstrap)
 		onTorrent(hash, options, (data) => callback(data))
 	})
 
+	if(config.p2pReplication)
+	{
+		console.log('p2p replication enabled')
+
+		p2p.on('randomTorrents', (nil, callback) => {
+			if(typeof callback != 'function')
+				return;
+	
+			sphinx.query('SELECT * FROM `torrents` ORDER BY rand() limit 5', (error, torrents) => {
+				if(!torrents || torrents.length == 0) {
+					callback(undefined)
+					return;
+				}
+	
+				let hashes = {}
+				for(const torrent of torrents)
+				{
+					delete torrent.id
+					hashes[torrent.hash] = torrent
+				}
+	
+				const inSql = Object.keys(hashes).map(hash => sphinx.escape(hash)).join(',');
+				sphinx.query(`SELECT * FROM files WHERE hash IN(${inSql}) limit 50000`, (error, files) => {
+					if(!files)
+					{
+						files = []
+					}
+	
+					files.forEach((file) => {
+						if(!hashes[file.hash].filesList)
+							hashes[file.hash].filesList = []
+						hashes[file.hash].filesList.push(file)
+					})
+					callback(Object.values(hashes))
+				})
+			})
+		});
+
+		const getReplicationTorrents = (nextTimeout = 5000) => {
+			console.log('call replication')
+			let gotTorrents = 0
+
+			p2p.emit('randomTorrents', null, (torrents) => {
+				if(!torrents || torrents.length == 0)
+					return
+
+				gotTorrents += torrents.length
+
+				torrents.forEach((torrent) => {
+					console.log('replicate remote torrent', torrent)
+					insertTorrentToDB(torrent)
+				})
+			})
+
+			setTimeout(() => getReplicationTorrents(gotTorrents > 8 ? gotTorrents * 600 : 10000), nextTimeout)
+		}
+		// start
+		getReplicationTorrents()
+	}
+
 	const searchTorrentCall = function(text, navigation, callback)
 	{
 		if(typeof callback != 'function')
@@ -985,8 +1045,79 @@ const cleanupTorrents = (cleanTorrents = 1) => {
 	*/
 }
 
+const insertTorrentToDB = (torrent) => {
+	if(!torrent)
+		return
+
+	const { filesList } = torrent
+	delete torrent.filesList;
+
+	mysqlSingle.query("SELECT id FROM torrents WHERE hash = ?", torrent.hash, (err, single) => {
+		if(!single)
+		{
+			console.log(err)
+			return
+		}
+
+		if(single.length > 0)
+		{
+			return
+		}
+
+		mysqlSingle.insertValues('torrents', torrent, function(err, result) {
+			if(result) {
+				send('newTorrent', {
+					hash: torrent.hash,
+					name: torrent.name,
+					size: torrent.size,
+					files: torrent.files,
+					piecelength: torrent.piecelength,
+					contentType: torrent.contentType,
+					contentCategory: torrent.contentCategory,
+				});
+				updateTorrentTrackers(torrent.hash);
+			}
+			else
+			{
+				console.log(torrent);
+				console.error(err);
+			}
+		});
+	})
+
+	let filesToAdd = filesList.length;
+	mysqlSingle.query('SELECT count(*) as files_count FROM files WHERE hash = ?', [torrent.hash], function(err, rows) {
+		if(!rows)
+			return
+
+		const db_files = rows[0]['files_count'];
+		if(db_files !== torrent.files)
+		{
+			mysqlSingle.query('DELETE FROM files WHERE hash = ?', torrent.hash, function (err, result) {
+				if(err)
+				{
+					return;
+				}
+
+				filesList.forEach((file) => {
+					mysqlSingle.insertValues('files', file, function(err, result) {
+					  if(!result) {
+					  	console.log(file);
+					  	console.error(err);
+					  	return
+					  }
+					  if(--filesToAdd === 0) {
+					  	send('filesReady', torrent.hash);
+					  }
+					});
+				});
+			})
+		}
+	})
+}
+
 const updateTorrent = (metadata, infohash, rinfo) => {
-	console.log('writing torrent', metadata.info.name, 'to database');
+	console.log('finded torrent', metadata.info.name, ' and add to database');
 
 	const hash = infohash.toString('hex');
 	let size = metadata.info.length ? metadata.info.length : 0;
@@ -1019,37 +1150,7 @@ const updateTorrent = (metadata, infohash, rinfo) => {
 		filesAdd(metadata.info.name, size)
 	}
 
-	let filesToAdd = filesArray.length;
-	mysqlSingle.query('SELECT count(*) as files_count FROM files WHERE hash = ?', [hash], function(err, rows) {
-		if(!rows)
-			return
-
-		const db_files = rows[0]['files_count'];
-		if(db_files !== filesCount)
-		{
-			mysqlSingle.query('DELETE FROM files WHERE hash = ?', hash, function (err, result) {
-				if(err)
-				{
-					return;
-				}
-
-				filesArray.forEach((file) => {
-					mysqlSingle.insertValues('files', file, function(err, result) {
-					  if(!result) {
-					  	console.log(file);
-					  	console.error(err);
-					  	return
-					  }
-					  if(--filesToAdd === 0) {
-					  	send('filesReady', hash);
-					  }
-					});
-				});
-			})
-		}
-	})
-
-	var torrentQ = {
+	const torrentQ = {
 		id: torrentsId++,
 		hash: hash,
 		name: metadata.info.name,
@@ -1063,39 +1164,8 @@ const updateTorrent = (metadata, infohash, rinfo) => {
 	};
 
 	torrentTypeDetect(torrentQ, filesArray);
-
-	mysqlSingle.query("SELECT id FROM torrents WHERE hash = ?", hash, (err, single) => {
-		if(!single)
-		{
-			console.log(err)
-			return
-		}
-
-		if(single.length > 0)
-		{
-			return
-		}
-
-		mysqlSingle.insertValues('torrents', torrentQ, function(err, result) {
-			if(result) {
-				send('newTorrent', {
-					hash: hash,
-				name: metadata.info.name,
-				size: size,
-				files: filesCount,
-				piecelength: metadata.info['piece length'],
-				contentType: torrentQ.contentType,
-				contentCategory: torrentQ.contentCategory,
-				});
-				updateTorrentTrackers(hash);
-			}
-			else
-			{
-				console.log(torrentQ);
-				console.error(err);
-			}
-		});
-	})
+	torrentQ.filesList = filesArray;
+	insertTorrentToDB(torrentQ)
 }
 
 client.on('complete', function (metadata, infohash, rinfo) {

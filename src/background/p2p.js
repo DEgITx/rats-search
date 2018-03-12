@@ -64,6 +64,7 @@ class p2p {
 
 		// new peer with peer exchange
 		this.on('peer', (peer) => {
+			console.log('got peer exchange', peer)
 			this.add(peer)
 		})
 
