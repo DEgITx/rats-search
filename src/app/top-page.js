@@ -5,6 +5,7 @@ import TorrentLine from './torrent'
 import {List} from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import RaisedButton from 'material-ui/RaisedButton';
+import LinearProgress from 'material-ui/LinearProgress';
 
 export default class TopPage extends Page {
   constructor(props) {
@@ -43,6 +44,13 @@ export default class TopPage extends Page {
           <RaisedButton label="Back to main page" primary={true} onClick={() => {
             window.router('/')
           }} />
+          {
+            Object.keys(this.topTorrents).length == 0
+            &&
+            <div className='pad0-75 w100p '>
+              <LinearProgress mode="indeterminate" />
+            </div>
+          }
           {
             this.types.map((type, index) => {
               const torrents = this.topTorrents[type];
