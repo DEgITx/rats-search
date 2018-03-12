@@ -1,7 +1,6 @@
 import React from 'react';
 import Page from './page';
 import formatBytes from './format-bytes'
-import Footer from './footer';
 
 import {List, ListItem} from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
@@ -510,7 +509,6 @@ export default class TorrentPage extends Page {
    			:
    			null
       }
-      	<Footer />
       </div>
     );
   }
