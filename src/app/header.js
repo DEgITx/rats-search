@@ -7,7 +7,9 @@ const Header = (props) => {
   return (
     <Card>
       <CardMedia
-        overlay={<CardTitle title="Yarrr, Landlubbers!" subtitle="Welcome to torrent project" />}
+        overlay={<CardTitle title="Yarrr, Landlubbers!" subtitle="Welcome to ROTB! This is file search engine based on the torrents from the internet. 
+        Here you can easily find torrent or file that you intrested for. We are not responsible for any content:
+        this is only information about content that collected automatically!" />}
       >
         <div className='row' style={{
             padding: '15px',
@@ -72,11 +74,6 @@ const Header = (props) => {
 					}
         </div>
       </CardMedia>
-      <CardText>
-        Welcome to ROTB! This is file search engine based on the torrents from the internet. 
-      Here you can easily find torrent or file that you intrested for. We are not responsible for any content:
-      this is only information about content that collected automatically!
-      </CardText>
     </Card>
   )
 }
