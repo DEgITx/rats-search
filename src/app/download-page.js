@@ -1,6 +1,7 @@
 import React from 'react';
 import Page from './page';
 import Footer from './footer';
+import { Header } from './index-page'
 
 import TorrentLine from './torrent'
 import {List} from 'material-ui/List';
@@ -40,6 +41,7 @@ export default class TopPage extends Page {
   render() {
     return (
       <div>
+        <Header />
       	<div className='column center w100p pad0-75'>
           <RaisedButton label="Back to main page" primary={true} onClick={() => {
             window.router('/')
