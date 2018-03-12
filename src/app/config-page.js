@@ -1,7 +1,5 @@
 import React from 'react';
 import Page from './page';
-import Footer from './footer';
-import {Header} from './index-page'
 
 import Toggle from 'material-ui/Toggle';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -39,7 +37,6 @@ export default class ConfigPage extends Page {
   render() {
     return (
       <div>
-      	<Header />
         <div className='row center pad0-75'>
           <RaisedButton label="Back to main page" primary={true} onClick={() => {
             window.router('/')
@@ -279,7 +276,7 @@ export default class ConfigPage extends Page {
             this.saveSettings()
           }} />
         </div>
-          <Footer />
+
         </div>
       </div>
     );

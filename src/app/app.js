@@ -6,8 +6,11 @@ import PagesPie from './pages-pie.js';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
+import {Header} from './header'
+import Footer from './footer'
+
 const { ipcRenderer, remote } = require('electron');
-const currentWindow = remote.getCurrentWindow()
+window.currentWindow = remote.getCurrentWindow()
 
 //var io = require("socket.io-client");
 //window.torrentSocket = io(document.location.protocol + '//' + document.location.hostname + (process.env.NODE_ENV === 'production' ? '/' : ':8095/'));
@@ -110,14 +113,13 @@ class App extends Component {
 		return (
 			<MuiThemeProvider>
 				<div>
-					<PagesPie />
 					{
-						!currentWindow.isModal()
+						!window.currentWindow.isModal()
 						&&
-						<div className='fs0-85 pad0-75' style={{position: 'fixed', bottom: 0, left: 0, color: window.peers > 0 ? 'green' : 'grey'}}>
-							rats peers: {window.peers} {window.peers > 0 ? ' (p2p rats search enabled)' : ' (p2p rats search not available at this moment)'}
-						</div>
+						<Header />
 					}
+					<PagesPie />
+					<Footer />
 				</div>
 			</MuiThemeProvider>
 		);
