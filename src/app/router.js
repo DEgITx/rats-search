@@ -4,7 +4,7 @@ import PagesPie from './pages-pie.js';
 import IndexPage from './index-page.js'
 import TorrentPage from './torrent-page.js'
 import DMCAPage from './dmca-page.js'
-import AdminPage from './admin-page.js'
+import ConfigPage from './config-page.js'
 import TopPage from './top-page.js'
 import DownloadPage from './download-page.js'
 import ChangelogPage from './changelog-page.js'
@@ -72,7 +72,7 @@ router('/DMCA', () => {
 
 router('/config', () => {
 	//singleton
-	PagesPie.instance().open(AdminPage, {replace: 'all'});
+	PagesPie.instance().open(ConfigPage, {replace: 'all'});
 });
 
 router('/top', () => {

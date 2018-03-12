@@ -11,7 +11,7 @@ import Slider from 'material-ui/Slider'
 import fs from 'fs'
 const {dialog} = require('electron').remote
 
-export default class AdminPage extends Page {
+export default class ConfigPage extends Page {
   constructor(props) {
     super(props)
     this.setTitle('Rats settings');
@@ -195,6 +195,18 @@ export default class AdminPage extends Page {
               }}
             />
           </div>
+        </div>
+        <div className='column w100p'>
+          <Toggle
+          style={{marginTop: '10px'}}
+            label="P2P torrents replication"
+            toggled={this.options.p2pReplication}
+            onToggle={(e, checked) => {
+              this.options.p2pReplication = checked
+              this.forceUpdate()
+            }}
+          />
+          <div className='fs0-75' style={{color: 'grey'}}>* Enable torrents replication from another rats clients. Dont recomended if torrent scanner works correct.</div>
         </div>
 
 
