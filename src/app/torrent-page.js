@@ -121,7 +121,7 @@ const TorrentInformation = (props) => {
 	       // leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
 	        rightIcon={<ActionInfo />}
 	        primaryText="Indexed/Added torrent date"
-	        secondaryText={moment(torrent.added).format('MMMM Do YYYY, h:mm:ss')}
+	        secondaryText={moment(torrent.added * 1000).format('MMMM Do YYYY, hh:mm')}
 	      />
 	       <ListItem
 	       // leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
