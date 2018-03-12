@@ -154,6 +154,10 @@ class p2p {
 				if(!data || data.protocol != 'rats')
 					return
 
+				// can be added to ignore list while connecting
+				if(this.ignoreAddresses.includes(address.address))
+					return;
+
 				// success
 				clearTimeout(protocolTimeout)
 
