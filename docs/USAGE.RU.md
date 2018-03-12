@@ -33,6 +33,10 @@
 
 Вам будет доступен расширенный поиск среди других клиентов ROTB, для этого вам нужно выполнить обычный поиск, однако будут отображены дополнительные результаты выдачи. В зависимости от количества пиров и именно тех кого нашло результат расширенной выдачи может изменяться.
 
+[![External torrents](img/peers_search.png)](https://github.com/DEgITx/rats-search)
+
+Результаты выдачи других участников помечаются отдельным цветом.
+
 ### Настройка сканнера торрентов
 
 [![Settings](img/settings.png)](https://github.com/DEgITx/rats-search)
@@ -43,12 +47,12 @@
 * Максимально быстрый поиск / высокая нагрузка:
   * Scanner walk speed: 5
   * Nodes usage: 0 (отключен = максимальное использование)
-  * Reduce netowork packages: 0 (отключено = неограниченно)
+  * Reduce network packages: 0 (отключено = неограниченно)
 * Средняя скорость поиска / средняя нагрузка:
   * Scanner walk speed: 15
   * Nodes usage: 100
-  * Reduce netowork packages: 600
+  * Reduce network packages: 600
 * Низкая скорость поиска / средняя нагрузка:
   * Scanner walk speed: 30
   * Nodes usage: 10
-  * Reduce netowork packages: 450
+  * Reduce network packages: 450
