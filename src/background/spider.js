@@ -1052,6 +1052,8 @@ const insertTorrentToDB = (torrent) => {
 	const { filesList } = torrent
 	delete torrent.filesList;
 
+	torrent.id = torrentsId++;
+
 	mysqlSingle.query("SELECT id FROM torrents WHERE hash = ?", torrent.hash, (err, single) => {
 		if(!single)
 		{
@@ -1100,6 +1102,7 @@ const insertTorrentToDB = (torrent) => {
 				}
 
 				filesList.forEach((file) => {
+					file.id = filesId++;
 					mysqlSingle.insertValues('files', file, function(err, result) {
 					  if(!result) {
 					  	console.log(file);
@@ -1125,7 +1128,6 @@ const updateTorrent = (metadata, infohash, rinfo) => {
 	let filesArray = [];
 
 	const filesAdd = (path, size) => filesArray.push({
-		id: filesId++,
 		hash,
 		path,
 		pathIndex: path,
@@ -1151,7 +1153,6 @@ const updateTorrent = (metadata, infohash, rinfo) => {
 	}
 
 	const torrentQ = {
-		id: torrentsId++,
 		hash: hash,
 		name: metadata.info.name,
 		nameIndex: metadata.info.name,
