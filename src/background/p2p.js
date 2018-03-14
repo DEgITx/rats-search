@@ -15,6 +15,9 @@ class p2p {
 		this.tcpServer = net.createServer();
 		this.tcpServer.maxConnections = config.p2pConnections * 2;
 		this.tcpServer.on('connection', (socket) => {
+			this.tcpServer.getConnections((err,con) => {
+				console.log('server connected', con, 'max', this.tcpServer.maxConnections)
+			})
 			socket = new JsonSocket(socket);
 			socket.on('error', (err) => {})
 			socket.on('message', (message) => {    
@@ -32,12 +35,15 @@ class p2p {
 					}, socket)
 				}
 			});
+			socket.protocolTimeout = setTimeout(() => socket._socket.destroy(), 7000)
 		})
 		// check protocol
 		this.on('protocol', (data, callback, socketObject) => {
 			if(!data || data.protocol != 'rats')
 				return
 
+			// protocol ok
+			clearTimeout(socketObject.protocolTimeout)
 			const { _socket: socket } = socketObject
 			socketObject.rats = true
 
@@ -188,6 +194,8 @@ class p2p {
 				{
 					this.size--;
 					this.send('peer', this.size)
+					// trying reconnect once
+					setTimeout(() => this.add(this.addr(address)), 5000)
 				}
 				this.peers.splice(index, 1);
 
@@ -219,6 +227,11 @@ class p2p {
 		if(!peers || !Array.isArray(peers))
 			return
 		return peers.map(peer => ({address: peer.address, port: peer.port}))
+	}
+
+	addr(peer)
+	{
+		return {address: peer.address, port: peer.port}
 	}
 
 	find(peer)
