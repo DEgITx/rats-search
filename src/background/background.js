@@ -33,6 +33,10 @@ const setApplicationMenu = () => {
   if (env.name !== "production") {
     menus.push(devMenuTemplate);
   }
+  // append version as disabled menu item
+  menus.push({
+    label: app.getVersion()
+  })
   Menu.setApplicationMenu(Menu.buildFromTemplate(menus));
 };
 
