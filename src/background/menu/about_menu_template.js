@@ -58,10 +58,24 @@ export const aboutMenuTemplate = {
       },
     },
     {
-      label: "Help",
+      label: "Help (Documentation)",
       accelerator: "CmdOrCtrl+?",
       click: () => {
         shell.openExternal('https://github.com/DEgITx/rats-search/blob/master/docs/MANUAL.md')
+      },
+    },
+    {
+      label: "Support (Discussion)",
+      accelerator: "CmdOrCtrl+>",
+      click: () => {
+        shell.openExternal('https://discord.gg/t9GQtxA')
+      },
+    },
+    {
+      label: "About (GitHub)",
+      accelerator: "CmdOrCtrl+<",
+      click: () => {
+        shell.openExternal('https://github.com/DEgITx/rats-search')
       },
     }
   ]
