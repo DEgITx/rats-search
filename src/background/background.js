@@ -211,6 +211,12 @@ console.log('Sphinx Path:', sphinxPath)
 const startSphinx = (callback) => {
   const sphinxConfigDirectory = app.getPath("userData")
   appConfig['dbPath'] = appConfig.dbPath && appConfig.dbPath.length > 0 ? appConfig.dbPath : sphinxConfigDirectory;
+  // on portable dir can move database directory
+  if(!fs.existsSync(appConfig.dbPath) && fs.existsSync(sphinxConfigDirectory))
+  {
+    appConfig['dbPath'] = sphinxConfigDirectory
+  }
+
   writeSphinxConfig(sphinxConfigDirectory, appConfig.dbPath)
 
   const config = `${sphinxConfigDirectory}/sphinx.conf`
