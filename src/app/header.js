@@ -118,7 +118,7 @@ const Header = (props) => {
               {
                 window.p2pStatus == 0
                 &&
-                <div style={{color: 'red'}}>extenal connection not avaible (check port forwarding)</div>
+                <div style={{color: 'red'}}>external connections not available (check port forwarding)</div>
               }
               {
                 window.p2pStatus == 1
@@ -128,7 +128,7 @@ const Header = (props) => {
               {
                 window.p2pStatus == 2
                 &&
-                <div style={{color: 'green'}}>port connections fully avaible</div>
+                <div style={{color: 'green'}}>port connections fully available</div>
               }
 						</div>
           }
