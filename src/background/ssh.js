@@ -19,13 +19,13 @@ const startSSH = (port, host, user, password, callback) => {
 	}
 
 	const options = [
+		'-N',
 		'-T', 
 		'-R', `0.0.0.0:${remotePort}:127.0.0.1:${port}`,
 		`${user}@${host}`,
 		'-pw', password,
 		'-v'
 	]
-	console.log(options)
 
 	const ssh = spawn(appPath('plink'), options)
 
@@ -56,15 +56,13 @@ const startSSH = (port, host, user, password, callback) => {
 		if(data.includes('Password authentication failed'))
 		{
 			ssh.kill()
-			if(callback)
-				callback(false)
 		}
 	});
 
 	ssh.on('close', (code, signal) => {
+		console.log(`ssh closed with code ${code} and signal ${signal}`)
 		if(callback)
 			callback(false)
-		console.log(`ssh closed with code ${code} and signal ${signal}`)
 	})
 
 	return ssh

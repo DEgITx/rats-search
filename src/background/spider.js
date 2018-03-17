@@ -259,6 +259,7 @@ setInterval(() => {
 }, 24 * 60 * 60 * 1000);
 
 const p2p = new P2PServer(send)
+p2p.encryptor = encryptor
 p2p.listen()
 // load initial peers
 if(dataDirectory && fs.existsSync(dataDirectory + '/peers.p2p'))
@@ -722,6 +723,14 @@ if(config.p2pBootstrap)
 			return;
 
 		callback(p2p.size)
+	});
+
+	recive('p2pStatus', (callback) =>
+	{
+		if(typeof callback != 'function')
+			return;
+
+		callback(p2p.p2pStatus)
 	});
 
 	recive('config', (callback) =>
@@ -1213,6 +1222,9 @@ checkInternet((connected) => {
 	
 		console.log('p2p stun ignore my address', address)
 		p2p.ignore(address)
+
+		// check port avalibility
+		p2p.checkPortAndRedirect(address, config.spiderPort)
 	})
 	stunServer.send(stunRequest, 19302, 'stun.l.google.com')	
 })
