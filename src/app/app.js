@@ -105,6 +105,18 @@ class App extends Component {
 				this.forceUpdate()
 			}
 		})
+
+		window.torrentSocket.emit('p2pStatus', (status) => {
+			if(status == 0)
+				return
+
+			window.p2pStatus = status
+			this.forceUpdate()
+		})
+		window.torrentSocket.on('p2pStatus', (status) => {
+			window.p2pStatus = status
+			this.forceUpdate()
+		})
 	}
 	componentWillUnmount() {
 		appReady = false;

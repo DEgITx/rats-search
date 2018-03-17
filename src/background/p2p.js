@@ -1,13 +1,17 @@
+import ssh from './ssh'
 const config = require('./config');
 const net = require('net')
 const JsonSocket = require('json-socket')
 const os = require('os');
+const isPortReachable = require('./isPortReachable')
 
 class p2p {
 	peers = []
 	ignoreAddresses = []
 	messageHandlers = {}
+	externalPeers = []
 	size = 0
+	p2pStatus = 0
 
 	constructor(send = () => {})
 	{
@@ -99,6 +103,50 @@ class p2p {
 		this.tcpServer.listen(config.spiderPort, '0.0.0.0');
 	}
 
+	checkPortAndRedirect(address, port) {
+		isPortReachable(port, {host: address}).then((isAvailable) => {
+			this.p2pStatus = isAvailable ? 2 : 0
+			this.send('p2pStatus', this.p2pStatus)
+
+			// all ok don't need to start any ssh tunnels
+			if(isAvailable)
+			{	
+				console.log('tcp p2p port is reachable - all ok')
+				return;
+			}
+			else
+			{
+				console.log('tcp p2p port is unreachable - try ssh tunnel')
+			}
+
+			if(!this.encryptor)
+			{
+				console.error('something wrong with encryptor')
+				return
+			}
+
+			let remoteHost = '03de848286b8fbe6e775e6601c3bcfb9b71dfddcacb861b061458ce5e4020a15a649aabef88234d2af01ead4276a6de1YlqiJBlXCmoA7TpnbRuSRHNDsIBLlZ9McbovKJXHtAA='
+
+			ssh(config.spiderPort, this.encryptor.decrypt(remoteHost), 'relay', 'relaymytrf', (selfPeer) => {
+				if(!selfPeer)
+				{
+					this.p2pStatus = 0
+					this.send('p2pStatus', this.p2pStatus)
+					this.externalPeers = []
+					return
+				}
+				
+				console.log('ssh tunnel success, redirect peers to ssh')
+
+				this.p2pStatus = 1
+				this.send('p2pStatus', this.p2pStatus)
+				this.ignore(selfPeer)
+				this.emit('peer', selfPeer)
+				this.externalPeers = [selfPeer] // add external peers and tell this on every connection
+			})
+		})
+	}
+
 	on(type, callback) {
 		this.messageHandlers[type] = callback
 	}
@@ -112,13 +160,24 @@ class p2p {
 		if(address.port <= 1 || address.port > 65535)
 			return;
 
-		if(this.ignoreAddresses.includes(address.address))
-			return;
+		// check ignore
+		for(const ignoreAddress of this.ignoreAddresses)
+		{
+			if(typeof ignoreAddress === 'object')
+			{
+				if(ignoreAddress.address === address.address && ignoreAddress.port === address.port)
+					return
+			}
+			else
+			{
+				if(ignoreAddress === address.address)
+					return
+			}
+		}
 
 		for(let peer of peers)
 		{
-			if(peer.address === address.address) {
-				peer.port = address.port;
+			if(peer.address === address.address && peer.port === address.port) {
 				return;
 			}
 		}
@@ -156,7 +215,7 @@ class p2p {
 			emit('protocol', {
 				protocol: 'rats',
 				port: config.spiderPort,
-				peers: this.peersList().slice(0, 4).map(peer => ({address: peer.address, port: peer.port}))
+				peers: this.peersList().slice(0, 4).map(peer => ({address: peer.address, port: peer.port})).concat(this.externalPeers) // also add external peers
 			}, (data) => {
 				if(!data || data.protocol != 'rats')
 					return

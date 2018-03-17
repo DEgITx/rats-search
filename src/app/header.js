@@ -113,10 +113,25 @@ const Header = (props) => {
           {
 						!window.currentWindow.isModal()
 						&&
-						<div className='fs0-85 pad0-75' style={{marginLeft: 'auto', marginTop: '-10px', color: window.peers > 0 ? '#42f445' : 'white'}}>
-							rats peers: {window.peers} {window.peers > 0 ? ' (p2p rats search enabled)' : ' (p2p rats search not available at this moment)'}
+						<div className='fs0-85 pad0-75 column' style={{marginLeft: 'auto', marginTop: '-10px', color: window.peers > 0 ? '#42f445' : 'white'}}>
+              <div>rats peers: {window.peers} {window.peers > 0 ? ' (p2p rats search enabled)' : ' (p2p rats search not available at this moment)'}</div>
+              {
+                window.p2pStatus == 0
+                &&
+                <div style={{color: 'red'}}>extenal connection not avaible (check port forwarding)</div>
+              }
+              {
+                window.p2pStatus == 1
+                &&
+                <div style={{color: 'orange'}}>port not available, but connections redirected</div>
+              }
+              {
+                window.p2pStatus == 2
+                &&
+                <div style={{color: 'green'}}>port connections fully avaible</div>
+              }
 						</div>
-					}
+          }
         </div>
       </CardMedia>
     </Card>
