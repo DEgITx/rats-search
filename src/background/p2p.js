@@ -7,7 +7,7 @@ const isPortReachable = require('./isPortReachable')
 
 class p2p {
 	peers = []
-	ignoreAddresses = []
+	ignoreAddresses = ['127.0.0.1']
 	messageHandlers = {}
 	externalPeers = []
 	size = 0
