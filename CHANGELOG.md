@@ -1,3 +1,11 @@
+<a name="0.14.1"></a>
+## [0.14.1](https://github.com/DEgITx/rats-search/compare/v0.14.0...v0.14.1) (2018-03-17)
+
+
+### Bug Fixes
+
+* **p2p:** still fix adding youself to list ([bfad498](https://github.com/DEgITx/rats-search/commit/bfad498))
+
 <a name="0.14.0"></a>
 # [0.14.0](https://github.com/DEgITx/rats-search/compare/v0.13.0...v0.14.0) (2018-03-17)
 
