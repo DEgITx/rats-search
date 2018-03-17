@@ -1,3 +1,21 @@
+<a name="0.14.0"></a>
+# [0.14.0](https://github.com/DEgITx/rats-search/compare/v0.13.0...v0.14.0) (2018-03-17)
+
+
+### Bug Fixes
+
+* **p2p:** disconnect on protocol bad handshake on server side ([c6b73ee](https://github.com/DEgITx/rats-search/commit/c6b73ee))
+* **portable:** fix error on renaming portable directory ([4714728](https://github.com/DEgITx/rats-search/commit/4714728))
+* **ssh:** fix closing ssh on exit ([426886d](https://github.com/DEgITx/rats-search/commit/426886d))
+
+
+### Features
+
+* **menu:** new menu items (support) ([c6b28f0](https://github.com/DEgITx/rats-search/commit/c6b28f0))
+* **menu:** version as menu item ([e139256](https://github.com/DEgITx/rats-search/commit/e139256))
+* **p2p:** tunnels support for bad peers ([ec143d9](https://github.com/DEgITx/rats-search/commit/ec143d9))
+* **ssh:** fix key store ([5b26500](https://github.com/DEgITx/rats-search/commit/5b26500))
+
 <a name="0.13.0"></a>
 # [0.13.0](https://github.com/DEgITx/rats-search/compare/v0.12.0...v0.13.0) (2018-03-13)
 
