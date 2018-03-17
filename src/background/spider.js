@@ -1361,6 +1361,9 @@ this.stop = (callback) => {
 	if(upnp)
 		upnp.ratsUnmap()
 
+	console.log('closing p2p...')
+	p2p.close()
+
 	const close = () => {
 		torrentClient.destroy(() => {
 			sphinx.end(() => spider.close(() => {
