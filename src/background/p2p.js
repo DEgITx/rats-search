@@ -127,7 +127,7 @@ class p2p {
 
 			let remoteHost = '03de848286b8fbe6e775e6601c3bcfb9b71dfddcacb861b061458ce5e4020a15a649aabef88234d2af01ead4276a6de1YlqiJBlXCmoA7TpnbRuSRHNDsIBLlZ9McbovKJXHtAA='
 
-			ssh(config.spiderPort, this.encryptor.decrypt(remoteHost), 'relay', 'relaymytrf', (selfPeer) => {
+			this.ssh = ssh(config.spiderPort, this.encryptor.decrypt(remoteHost), 'relay', 'relaymytrf', (selfPeer) => {
 				if(!selfPeer)
 				{
 					this.p2pStatus = 0
@@ -145,6 +145,15 @@ class p2p {
 				this.externalPeers = [selfPeer] // add external peers and tell this on every connection
 			})
 		})
+	}
+
+	close()
+	{
+		if(this.ssh)
+		{
+			console.log('closing ssh...')
+			this.ssh.kill()
+		}
 	}
 
 	on(type, callback) {
