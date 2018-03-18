@@ -7,6 +7,7 @@
 [![Travis Build Status](https://travis-ci.org/DEgITx/rats-search.svg?branch=master)](https://travis-ci.org/DEgITx/rats-search)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![Release](https://img.shields.io/github/release/DEgITx/rats-search.svg)](https://github.com/DEgITx/rats-search/releases)
+[![Documentation](https://img.shields.io/badge/docs-faq-brightgreen.svg)](https://github.com/DEgITx/rats-search/blob/master/docs/MANUAL.md)
 
 BitTorrent search program for desktop and web. Collect and navigate over base of torrents statistic, categories, and give easy access to it. Work over p2p network and support Windows, Linux, Mac OS platforms.
 
@@ -28,6 +29,11 @@ We are welcome any contributing: bug fixes, improvements, code refactoring and o
 ## Usage Manuals
 * [English](docs/USAGE.md)
 * [Russian](docs/USAGE.RU.md)
+
+## Screenshots
+
+![Main Window](docs/img/screen_1.png)
+![Torrent Details](docs/img/screen_2.png)
 
 ## License
 [MIT](https://github.com/DEgiTx/rats-search/blob/master/LICENSE)
