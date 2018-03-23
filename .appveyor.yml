@@ -9,9 +9,9 @@ cache:
 
 install:
   - ps: Install-Product node 8 x64
-  - yarn
+  - npm install
 
 build_script:
-  - yarn test
+  - npm test
 
 test: false
