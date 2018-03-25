@@ -10,8 +10,16 @@ export default (app) => {
     return `./${app}.exe`
   }
 
+  if (/^win/.test(process.platform) && fs.existsSync(`./${process.arch}/${app}.exe`)) {
+    return `./${process.arch}/${app}.exe`
+  }
+
   if(/^win/.test(process.platform) && fs.existsSync(path.dirname(process.execPath) + `/${app}.exe`)) {
     return path.dirname(process.execPath) + `/${app}.exe`
+  }
+
+  if(/^win/.test(process.platform) && fs.existsSync(path.dirname(process.execPath) + `/${process.arch}/${app}.exe`)) {
+    return path.dirname(process.execPath) + `/${process.arch}/${app}.exe`
   }
 
   if (fs.existsSync(fs.realpathSync(__dirname) + `/${app}`)) {
@@ -30,6 +38,10 @@ export default (app) => {
 
   if (/^win/.test(process.platform) && fs.existsSync(`imports/win/${app}.exe`)) {
     return `imports/win/${app}.exe`
+  }
+
+  if (/^win/.test(process.platform) && fs.existsSync(`imports/win/${process.arch}/${app}.exe`)) {
+    return `imports/win/${process.arch}/${app}.exe`
   }
 
   if (process.platform === 'linux' && fs.existsSync(`imports/linux/${app}`)) {
