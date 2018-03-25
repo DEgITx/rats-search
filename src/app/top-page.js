@@ -36,6 +36,18 @@ export default class TopPage extends Page {
         this.forceUpdate()
       }))
     }
+    this.remoteTopTorrents = ({torrents, type}) => {
+      if(!torrents)
+        return
+      this.topTorrents[type] = _.orderBy(_.unionBy(this.topTorrents[type], torrents, 'hash'), ['seeders'], ['desc'])
+      this.forceUpdate();
+    }
+    window.torrentSocket.on('remoteTopTorrents', this.remoteTopTorrents);
+  }
+  componentWillUnmount()
+  {
+    if(this.remoteTopTorrents)
+      window.torrentSocket.off('remoteTopTorrents', this.remoteTopTorrents);
   }
   render() {
     return (
