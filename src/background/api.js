@@ -389,8 +389,7 @@ module.exports = ({
 		updateTorrentTrackers(hash);
 	});
 
-	recive('topTorrents', function(type, callback)
-	{
+	const topTorrentsCall = (type, callback) => {
 		let where = '';
 		let max = 20;
 		if(type && type.length > 0)
@@ -430,7 +429,26 @@ module.exports = ({
 			topCache[query] = rows;
 		  	callback(rows);
 		});
+	}
+
+	recive('topTorrents', (type, callback) =>
+	{
+		topTorrentsCall(type, callback)
+		p2p.emit('topTorrents', {type}, (remote, socketObject) => {
+			console.log('remote top results', remote && remote.length)
+			if(remote && remote.length > 0)
+			{
+				const { _socket: socket } = socketObject
+				const peer = { address: socket.remoteAddress, port: socket.remotePort }
+				remote = remote.map(torrent => Object.assign(torrent, {peer}))
+			}
+			send('remoteTopTorrents', {torrents: remote, type})
+		})
 	});
+
+	p2p.on('topTorrents', ({type} = {}, callback) => {
+		topTorrentsCall(type, (data) => callback(data))
+	})
 
 	recive('peers', (callback) =>
 	{
