@@ -1,3 +1,20 @@
+<a name="0.15.0"></a>
+# [0.15.0](https://github.com/DEgITx/rats-search/compare/v0.14.1...v0.15.0) (2018-03-26)
+
+
+### Bug Fixes
+
+* **portable:** portable win32 build ([bec76e7](https://github.com/DEgITx/rats-search/commit/bec76e7))
+* **top:** fix week and month top load ([84cd86d](https://github.com/DEgITx/rats-search/commit/84cd86d))
+
+
+### Features
+
+* **header:** back to main button at top ([0cb81ec](https://github.com/DEgITx/rats-search/commit/0cb81ec))
+* **top:** categories to tab items and new items load ([6f1a3c3](https://github.com/DEgITx/rats-search/commit/6f1a3c3))
+* **top:** p2p top search ([7f10267](https://github.com/DEgITx/rats-search/commit/7f10267))
+* **win:** win 32bit build ([80f56aa](https://github.com/DEgITx/rats-search/commit/80f56aa)), closes [#18](https://github.com/DEgITx/rats-search/issues/18)
+
 <a name="0.14.1"></a>
 ## [0.14.1](https://github.com/DEgITx/rats-search/compare/v0.14.0...v0.14.1) (2018-03-17)
 
