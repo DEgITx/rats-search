@@ -389,29 +389,34 @@ module.exports = ({
 		updateTorrentTrackers(hash);
 	});
 
-	const topTorrentsCall = (type, callback) => {
+	const topTorrentsCall = (type, navigation = {}, callback) => {
 		let where = '';
-		let max = 20;
+
+		const index = parseInt(navigation.index) || 0;
+		const limit = parseInt(navigation.limit) || 20;
+
 		if(type && type.length > 0)
 		{
-			where += ' and contentType = ' + sphinx.escape(type) + ' ';
-			max = 15;
-
 			if(type == 'hours')
 			{
-				where = ' and `added` > ' + Math.floor(Date.now() / 1000) - (60 * 60 * 24)
+				where = ' and `added` > ' + (Math.floor(Date.now() / 1000) - (60 * 60 * 24))
 			}
-			if(type == 'week')
+			else if(type == 'week')
 			{
-				where = ' and `added` > ' + Math.floor(Date.now() / 1000) - (60 * 60 * 24 * 7)
+				where = ' and `added` > ' + (Math.floor(Date.now() / 1000) - (60 * 60 * 24 * 7))
 			}
-			if(type == 'month')
+			else if(type == 'month')
 			{
-				where = ' and `added` > ' + Math.floor(Date.now() / 1000) - (60 * 60 * 24 * 30)
+				where = ' and `added` > ' + (Math.floor(Date.now() / 1000) - (60 * 60 * 24 * 30))
+			}
+			else
+			{
+				where += ' and contentType = ' + sphinx.escape(type) + ' ';
 			}
 		}
 
-		const query = `SELECT * FROM torrents WHERE seeders > 0 and contentCategory != 'xxx' ${where} ORDER BY seeders DESC LIMIT ${max}`;
+		const query = `SELECT * FROM torrents WHERE seeders > 0 and contentCategory != 'xxx' ${where} ORDER BY seeders DESC LIMIT ${index},${limit}`;
+		console.log(query)
 		if(topCache[query])
 		{
 			callback(topCache[query]);
@@ -423,18 +428,16 @@ module.exports = ({
 				return;
 			}
 			
-			rows = rows.map((row) => {
-				return baseRowData(row);
-			});
+			rows = rows.map((row) => baseRowData(row));
 			topCache[query] = rows;
 		  	callback(rows);
 		});
 	}
 
-	recive('topTorrents', (type, callback) =>
+	recive('topTorrents', (type, navigation, callback) =>
 	{
-		topTorrentsCall(type, callback)
-		p2p.emit('topTorrents', {type}, (remote, socketObject) => {
+		topTorrentsCall(type, navigation, callback)
+		p2p.emit('topTorrents', {type, navigation}, (remote, socketObject) => {
 			console.log('remote top results', remote && remote.length)
 			if(remote && remote.length > 0)
 			{
@@ -446,8 +449,8 @@ module.exports = ({
 		})
 	});
 
-	p2p.on('topTorrents', ({type} = {}, callback) => {
-		topTorrentsCall(type, (data) => callback(data))
+	p2p.on('topTorrents', ({type, navigation} = {}, callback) => {
+		topTorrentsCall(type, navigation, (data) => callback(data))
 	})
 
 	recive('peers', (callback) =>

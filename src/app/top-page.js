@@ -2,10 +2,13 @@ import React from 'react';
 import Page from './page';
 
 import TorrentLine from './torrent'
-import {List} from 'material-ui/List';
+import {List, ListItem} from 'material-ui/List';
+import Divider from 'material-ui/Divider';
 import Subheader from 'material-ui/Subheader';
 import RaisedButton from 'material-ui/RaisedButton';
 import LinearProgress from 'material-ui/LinearProgress';
+
+import {Tabs, Tab} from 'material-ui/Tabs';
 
 export default class TopPage extends Page {
   constructor(props) {
@@ -25,16 +28,31 @@ export default class TopPage extends Page {
       hours: 'Last 24 hours',
       month: 'Last month'
     }
+    this.state = {value: 'All'}
+  }
+  loadMoreTorrents(type)
+  {
+    window.torrentSocket.emit('topTorrents', 
+        type == 'main' ? null : type, 
+        {index: (this.topTorrents[type] && this.topTorrents[type].length) || 0},
+        window.customLoader((data) => {
+          if(!this.topTorrents[type])
+            this.topTorrents[type] = []
+          if(data && data.length > 0)
+          {
+            this.topTorrents[type] = this.topTorrents[type].concat(data);
+            this.forceUpdate()
+          }
+          console.log(type, this.topTorrents[type])
+        })
+    )
   }
   componentDidMount()
   {
     super.componentDidMount();
     for(const type of this.types)
     {
-      window.torrentSocket.emit('topTorrents', type == 'main' ? null : type, window.customLoader((data) => {
-        this.topTorrents[type] = data;
-        this.forceUpdate()
-      }))
+      this.loadMoreTorrents(type)
     }
     this.remoteTopTorrents = ({torrents, type}) => {
       if(!torrents)
@@ -49,13 +67,16 @@ export default class TopPage extends Page {
     if(this.remoteTopTorrents)
       window.torrentSocket.off('remoteTopTorrents', this.remoteTopTorrents);
   }
+  handleChange = (value) =>
+  {
+    this.setState({
+      value,
+    });
+  }
   render() {
     return (
       <div>
-      	<div className='column center w100p pad0-75'>
-          <RaisedButton label="Back to main page" primary={true} onClick={() => {
-            window.router('/')
-          }} />
+      	<div className='column center w100p'>
           {
             Object.keys(this.topTorrents).length == 0
             &&
@@ -63,6 +84,11 @@ export default class TopPage extends Page {
               <LinearProgress mode="indeterminate" />
             </div>
           }
+          <Tabs
+            className='w100p'
+		        value={this.state.value}
+		        onChange={this.handleChange}
+		      >
           {
             this.types.map((type, index) => {
               const torrents = this.topTorrents[type];
@@ -71,22 +97,27 @@ export default class TopPage extends Page {
                 return null;
 
               return (
-                <List key={index} style={{paddingBottom: '70px'}} className='animated recent-torrents'>
-                  <Subheader inset={true}>
-                  {
-                    this.descriptions[type]
-                  }
-                  </Subheader>
-                {
-                  torrents.map((torrent, index) => {
-                    return <TorrentLine key={index} torrent={torrent} />
-                  })
-                }
-                </List>
+
+                <Tab key={index} label={this.descriptions[type]} value={this.descriptions[type]}>
+                  <List style={{minWidth: '20em'}}>
+                    {
+                      torrents.map((torrent, index) => {
+                        return <TorrentLine key={index} torrent={torrent} />
+                      })
+                    }
+                    <div>
+                      <ListItem innerDivStyle={{textAlign: 'center', padding: '1em'}} primaryText={<span>More Torrents</span>} onClick={() => {
+                        this.loadMoreTorrents(type)
+                      }} />
+                      <Divider />
+                    </div>
+                  </List>
+                </Tab>
               )
               
             })
           }
+          </Tabs>
         </div>
       </div>
     );
