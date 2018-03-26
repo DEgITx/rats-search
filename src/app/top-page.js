@@ -22,7 +22,7 @@ export default class TopPage extends Page {
       audio: 'Audio/Music',
       books: 'Books',
       pictures: 'Pictures/Images',
-      application: 'Applications/Games',
+      application: 'Apps/Games',
       archive: 'Archives',
       week: 'Last week',
       hours: 'Last 24 hours',
@@ -87,7 +87,9 @@ export default class TopPage extends Page {
           <Tabs
             className='w100p'
 		        value={this.state.value}
-		        onChange={this.handleChange}
+            onChange={this.handleChange}
+            tabItemContainerStyle={{flexWrap: 'wrap', alignItems: 'stretch'}}
+            inkBarStyle={{display: 'none'}}
 		      >
           {
             this.types.map((type, index) => {
@@ -98,7 +100,7 @@ export default class TopPage extends Page {
 
               return (
 
-                <Tab key={index} label={this.descriptions[type]} value={this.descriptions[type]}>
+                <Tab style={{minWidth: 150}} key={index} label={this.descriptions[type]} value={this.descriptions[type]}>
                   <List style={{minWidth: '20em'}}>
                     {
                       torrents.map((torrent, index) => {
