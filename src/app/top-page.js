@@ -43,7 +43,6 @@ export default class TopPage extends Page {
             this.topTorrents[type] = this.topTorrents[type].concat(data);
             this.forceUpdate()
           }
-          console.log(type, this.topTorrents[type])
         })
     )
   }
