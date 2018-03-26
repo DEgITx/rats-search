@@ -106,12 +106,16 @@ export default class TopPage extends Page {
                         return <TorrentLine key={index} torrent={torrent} />
                       })
                     }
+                    {
+                    torrents.length > 0
+                    &&
                     <div>
                       <ListItem innerDivStyle={{textAlign: 'center', padding: '1em'}} primaryText={<span>More Torrents</span>} onClick={() => {
                         this.loadMoreTorrents(type)
                       }} />
                       <Divider />
                     </div>
+                    }
                   </List>
                 </Tab>
               )
