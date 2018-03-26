@@ -3,3 +3,10 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+
+@media only screen and (max-width: 500px) 
+{ 
+	.peers-status {
+		display: none;
+	}
+}
