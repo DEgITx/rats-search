@@ -1,3 +1,11 @@
+<a name="0.15.1"></a>
+## [0.15.1](https://github.com/DEgITx/rats-search/compare/v0.15.0...v0.15.1) (2018-03-27)
+
+
+### Bug Fixes
+
+* **top:** remote top shown fix ([2f66398](https://github.com/DEgITx/rats-search/commit/2f66398))
+
 <a name="0.15.0"></a>
 # [0.15.0](https://github.com/DEgITx/rats-search/compare/v0.14.1...v0.15.0) (2018-03-26)
 
