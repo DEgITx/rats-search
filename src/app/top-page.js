@@ -9,6 +9,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import LinearProgress from 'material-ui/LinearProgress';
 
 import {Tabs, Tab} from 'material-ui/Tabs';
+import _ from 'lodash'
 
 export default class TopPage extends Page {
   constructor(props) {
@@ -56,6 +57,7 @@ export default class TopPage extends Page {
     this.remoteTopTorrents = ({torrents, type}) => {
       if(!torrents)
         return
+      type = type ? type : 'main'
       this.topTorrents[type] = _.orderBy(_.unionBy(this.topTorrents[type], torrents, 'hash'), ['seeders'], ['desc'])
       this.forceUpdate();
     }
