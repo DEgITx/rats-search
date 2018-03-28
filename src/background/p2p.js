@@ -12,6 +12,7 @@ class p2p {
 	externalPeers = []
 	size = 0
 	p2pStatus = 0
+	version = '0'
 
 	constructor(send = () => {})
 	{
@@ -53,6 +54,7 @@ class p2p {
 
 			callback({
 				protocol: 'rats',
+				version: this.version,
 				peers: this.peersList().slice(0, 4).map(peer => ({address: peer.address, port: peer.port}))
 			})
 
@@ -224,6 +226,7 @@ class p2p {
 			emit('protocol', {
 				protocol: 'rats',
 				port: config.spiderPort,
+				version: this.version,
 				peers: this.peersList().slice(0, 4).map(peer => ({address: peer.address, port: peer.port})).concat(this.externalPeers) // also add external peers
 			}, (data) => {
 				if(!data || data.protocol != 'rats')
