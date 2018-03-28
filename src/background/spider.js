@@ -37,7 +37,7 @@ const torrentClient = require('./torrentClient')
 //server.listen(config.httpPort);
 //console.log('Listening web server on', config.httpPort, 'port')
 
-module.exports = function (send, recive, dataDirectory)
+module.exports = function (send, recive, dataDirectory, version)
 {
 
 let torrentsId = 1;
@@ -253,6 +253,7 @@ function baseRowData(row)
 }
 
 const p2p = new P2PServer(send)
+p2p.version = version
 p2p.encryptor = encryptor
 p2p.listen()
 // load initial peers
