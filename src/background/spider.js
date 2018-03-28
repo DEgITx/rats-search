@@ -293,19 +293,6 @@ if(config.p2pBootstrap)
 	});
 }
 
-// setup api
-console.log(API)
-API({
-	sphinx,
-	recive,
-	send,
-	p2p,
-	config,
-	baseRowData,
-	torrentClient
-})
-
-
 let undoneQueries = 0;
 let pushDatabaseBalance = () => {
 	undoneQueries++;
@@ -676,6 +663,20 @@ if(config.upnp)
 
 spider.on('peer', (IPs) => {
 	IPs.forEach(ip => p2p.add(ip))
+})
+
+// setup api
+API({
+	sphinx,
+	recive,
+	send,
+	p2p,
+	config,
+	baseRowData,
+	torrentClient,
+	spider,
+	upnp,
+	crypto
 })
 
 let fakeTorrents = [];

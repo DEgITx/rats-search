@@ -7,7 +7,10 @@ module.exports = ({
 	p2p,
 	config,
 	baseRowData,
-	torrentClient
+	torrentClient,
+	spider,
+	upnp,
+	crypto
 }) => {
 	let torrentClientHashMap = {}
 
