@@ -1,3 +1,11 @@
+<a name="0.15.2"></a>
+## [0.15.2](https://github.com/DEgITx/rats-search/compare/v0.15.1...v0.15.2) (2018-03-28)
+
+
+### Bug Fixes
+
+* **settings:** save settings fix [#19](https://github.com/DEgITx/rats-search/issues/19) ([7544de3](https://github.com/DEgITx/rats-search/commit/7544de3))
+
 <a name="0.15.1"></a>
 ## [0.15.1](https://github.com/DEgITx/rats-search/compare/v0.15.0...v0.15.1) (2018-03-27)
 
