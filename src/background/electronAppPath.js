@@ -26,8 +26,16 @@ export default (app) => {
     return fs.realpathSync(__dirname) + `/${app}`
   }
 
+  if (fs.existsSync(fs.realpathSync(__dirname) + `/${process.arch}/${app}`)) {
+    return fs.realpathSync(__dirname) + `/${process.arch}/${app}`
+  }
+
   if (fs.existsSync(fs.realpathSync(path.join(__dirname, '/../../..')) + `/${app}`)) {
     return fs.realpathSync(path.join(__dirname, '/../../..')) + `/${app}`
+  }
+
+  if (fs.existsSync(fs.realpathSync(path.join(__dirname, '/../../..')) + `/${process.arch}/${app}`)) {
+    return fs.realpathSync(path.join(__dirname, '/../../..')) + `/${process.arch}/${app}`
   }
 
   try {
@@ -46,6 +54,10 @@ export default (app) => {
 
   if (process.platform === 'linux' && fs.existsSync(`imports/linux/${app}`)) {
     return `imports/linux/${app}`
+  }
+
+  if (process.platform === 'linux' && fs.existsSync(`imports/linux/${process.arch}/${app}`)) {
+    return `imports/linux/${process.arch}/${app}`
   }
 
   if (process.platform === 'darwin' && fs.existsSync(`imports/darwin/${app}`)) {
