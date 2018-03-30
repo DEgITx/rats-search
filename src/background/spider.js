@@ -151,6 +151,9 @@ function handleListenerDisconnect() {
 		let data = '';
 		for(const val in values)
 		{
+			if(values[val] === null)
+				continue;
+			
 			names += '`' + val + '`,';
 			data += mysqlSingle.escape(values[val]) + ',';
 		}
