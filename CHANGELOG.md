@@ -1,3 +1,20 @@
+<a name="0.16.0"></a>
+# [0.16.0](https://github.com/DEgITx/rats-search/compare/v0.15.2...v0.16.0) (2018-03-30)
+
+
+### Bug Fixes
+
+* **db:** fix some null values errors ([640cadd](https://github.com/DEgITx/rats-search/commit/640cadd))
+* **linux:** 32bit linux builds [#21](https://github.com/DEgITx/rats-search/issues/21) ([5a0da90](https://github.com/DEgITx/rats-search/commit/5a0da90))
+* **replication:** enable replication by default ([6e8b01a](https://github.com/DEgITx/rats-search/commit/6e8b01a))
+* **replication:** fix error on replication ([7ab42e9](https://github.com/DEgITx/rats-search/commit/7ab42e9))
+
+
+### Features
+
+* **p2p:** app version on p2p ([8c4e659](https://github.com/DEgITx/rats-search/commit/8c4e659))
+* **p2p:** show torrents number of other clients ([a4fa0b1](https://github.com/DEgITx/rats-search/commit/a4fa0b1))
+
 <a name="0.15.2"></a>
 ## [0.15.2](https://github.com/DEgITx/rats-search/compare/v0.15.1...v0.15.2) (2018-03-28)
 
