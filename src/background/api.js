@@ -10,7 +10,8 @@ module.exports = ({
 	torrentClient,
 	spider,
 	upnp,
-	crypto
+	crypto,
+	insertTorrentToDB
 }) => {
 	let torrentClientHashMap = {}
 

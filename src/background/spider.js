@@ -684,7 +684,8 @@ API({
 	torrentClient,
 	spider,
 	upnp,
-	crypto
+	crypto,
+	insertTorrentToDB
 })
 
 let fakeTorrents = [];
