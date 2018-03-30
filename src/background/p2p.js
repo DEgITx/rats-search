@@ -14,6 +14,8 @@ class p2p {
 	p2pStatus = 0
 	version = '0'
 
+	info = {}
+
 	constructor(send = () => {})
 	{
 		this.send = send
@@ -55,6 +57,7 @@ class p2p {
 			callback({
 				protocol: 'rats',
 				version: this.version,
+				info: this.info,
 				peers: this.peersList().slice(0, 4).map(peer => ({address: peer.address, port: peer.port}))
 			})
 
@@ -227,6 +230,7 @@ class p2p {
 				protocol: 'rats',
 				port: config.spiderPort,
 				version: this.version,
+				info: this.info,
 				peers: this.peersList().slice(0, 4).map(peer => ({address: peer.address, port: peer.port})).concat(this.externalPeers) // also add external peers
 			}, (data) => {
 				if(!data || data.protocol != 'rats')
@@ -246,8 +250,14 @@ class p2p {
 				address.emit = emit
 				address.disconnect = () => rawSocket.destroy()
 				this.size++;
-				this.send('peer', this.size)
-				console.log('new peer', address)
+				//extra info
+				address.version = data.version
+				address.info = data.info
+				this.send('peer', {
+					size: this.size,
+					torrents: data.info ? data.info.torrents || 0 : 0
+				})
+				console.log('new peer', address) 
 
 				// add some other peers
 				if(data.peers && data.peers.length > 0)
@@ -264,7 +274,10 @@ class p2p {
 				if(this.peers[index].emit) // only autorized peers
 				{
 					this.size--;
-					this.send('peer', this.size)
+					this.send('peer', {
+						size: this.size,
+						torrents: this.peers[index].info ? this.peers[index].info.torrents || 0 : 0
+					})
 					// trying reconnect once
 					setTimeout(() => this.add(this.addr(address)), 5000)
 				}

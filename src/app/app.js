@@ -87,21 +87,27 @@ window.isReady = () => {
 }
 
 window.peers = 0;
+window.peersTorrents = 0;
 
 class App extends Component {
 	componentDidMount() {
 		window.router()
 		appReady = true;
 
-		window.torrentSocket.on('peer', (numOfPeers) => {
-			window.peers = numOfPeers
+		window.torrentSocket.on('peer', (peer) => {
+			if(peer.size > window.peers)
+				window.peersTorrents = (window.peersTorrents || 0) + peer.torrents
+			else
+				window.peersTorrents = (window.peersTorrents || 0) - peer.torrents
+			window.peers = peer.size
 			this.forceUpdate()
 		})
 
-		window.torrentSocket.emit('peers', (numOfPeers) => {
-			if(numOfPeers > 0)
+		window.torrentSocket.emit('peers', (peers) => {
+			if(peers.size > 0 || window.peers == 1)
 			{
-				window.peers = numOfPeers
+				window.peers = peers.size
+				window.peersTorrents = peers.torrents
 				this.forceUpdate()
 			}
 		})
