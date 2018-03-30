@@ -93,8 +93,13 @@ function handleListenerDisconnect() {
 
 			if(rows[0] && rows[0].mx >= 1)
 				torrentsId = rows[0].mx + 1;
+		})
 
-			p2p.info.torrents = torrentsId
+		mysqlSingle.query("SELECT COUNT(*) as cnt from torrents", (err, rows) => {
+			if(err)
+				return
+
+			p2p.info.torrents = rows[0].cnt
 		})
 
 		mysqlSingle.query("SELECT MAX(`id`) as mx from files", (err, rows) => {
@@ -103,8 +108,13 @@ function handleListenerDisconnect() {
 
 			if(rows[0] &&rows[0].mx >= 1)
 				filesId = rows[0].mx + 1;
+		})
 
-			p2p.info.files = filesId
+		mysqlSingle.query("SELECT COUNT(*) as cnt from files", (err, rows) => {
+			if(err)
+				return
+
+			p2p.info.files = rows[0].cnt
 		})
 	});
 
