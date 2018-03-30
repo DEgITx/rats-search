@@ -461,7 +461,10 @@ module.exports = ({
 		if(typeof callback != 'function')
 			return;
 
-		callback(p2p.size)
+		callback({
+			size: p2p.size,
+			torrents: p2p.peersList().reduce((a, b) => (a.info ? a.info.torrents || 0 : 0) + (b.info ? b.info.torrents || 0 : 0), 0)
+		})
 	});
 
 	recive('p2pStatus', (callback) =>

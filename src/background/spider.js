@@ -49,6 +49,12 @@ let sphinx = mysql.createPool({
   port     : config.sphinx.port
 });
 
+// initialize p2p
+const p2p = new P2PServer(send)
+p2p.version = version
+p2p.encryptor = encryptor
+p2p.listen()
+
 const udpTrackers = [
 	{
 		host: 'tracker.coppersurfer.tk',
@@ -87,6 +93,8 @@ function handleListenerDisconnect() {
 
 			if(rows[0] && rows[0].mx >= 1)
 				torrentsId = rows[0].mx + 1;
+
+			p2p.info.torrents = torrentsId
 		})
 
 		mysqlSingle.query("SELECT MAX(`id`) as mx from files", (err, rows) => {
@@ -95,6 +103,8 @@ function handleListenerDisconnect() {
 
 			if(rows[0] &&rows[0].mx >= 1)
 				filesId = rows[0].mx + 1;
+
+			p2p.info.files = filesId
 		})
 	});
 
@@ -252,10 +262,6 @@ function baseRowData(row)
 	}
 }
 
-const p2p = new P2PServer(send)
-p2p.version = version
-p2p.encryptor = encryptor
-p2p.listen()
 // load initial peers
 if(dataDirectory && fs.existsSync(dataDirectory + '/peers.p2p'))
 {
@@ -267,6 +273,7 @@ if(dataDirectory && fs.existsSync(dataDirectory + '/peers.p2p'))
 		console.log('loaded', peers.length, 'peers')
 	}
 }
+
 if(config.p2pBootstrap)
 {
 	http.get('https://api.myjson.com/bins/1e5rmh', (resp) => {
