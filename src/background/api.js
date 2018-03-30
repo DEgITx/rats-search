@@ -170,9 +170,7 @@ module.exports = ({
 		});
 
 		const getReplicationTorrents = (nextTimeout = 5000) => {
-			console.log('call replication')
 			let gotTorrents = 0
-
 			p2p.emit('randomTorrents', null, (torrents) => {
 				if(!torrents || torrents.length == 0)
 					return
@@ -180,7 +178,7 @@ module.exports = ({
 				gotTorrents += torrents.length
 
 				torrents.forEach((torrent) => {
-					console.log('replicate remote torrent', torrent)
+					console.log('replicate remote torrent', torrent && torrent.name)
 					insertTorrentToDB(torrent)
 				})
 			})
