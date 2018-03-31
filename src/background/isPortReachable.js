@@ -4,7 +4,7 @@
 const net = require('net');
 
 module.exports = (port, opts) => {
-	opts = Object.assign({timeout: 1000}, opts);
+	opts = Object.assign({timeout: 3000}, opts);
 
 	return new Promise((resolve => {
 		const socket = new net.Socket();
