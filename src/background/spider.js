@@ -24,7 +24,6 @@ let rootPath = os.platform() === 'win32' ? 'c:' : '/';
 const _debug = require('debug')
 const cleanupDebug = _debug('main:cleanup');
 const balanceDebug = _debug('main:balance');
-const fakeTorrentsDebug = _debug('main:fakeTorrents');
 const quotaDebug = _debug('main:quota');
 
 const checkInternet = require('./checkInternet')
@@ -701,53 +700,12 @@ API({
 	insertTorrentToDB
 })
 
-let fakeTorrents = [];
-function showFakeTorrentsPage(page)
-{
-	mysqlSingle.query('SELECT * FROM torrents LIMIT ?, 100', [page], function(err, torrents) {
-		if(!torrents)
-			return;
-
-		torrents.forEach((torrent, index) => {
-			const fk = fakeTorrents.push(setTimeout(() => {
-				delete fakeTorrents[fk-1];
-				send('newTorrent', baseRowData(torrent));
-				updateTorrentTrackers(torrent.hash);
-				fakeTorrentsDebug('fake torrent', torrents.name, 'index, page:', index, page);
-			}, 700 * index))
-		})
-
-		const fk = fakeTorrents.push(setTimeout(()=>{ 
-			delete fakeTorrents[fk-1];
-			showFakeTorrentsPage(torrents.length > 0 ? page + torrents.length : 0)
-		}, 700 * torrents.length))
-	});
-}
-
-function showFakeTorrents()
-{
-	fakeTorrentsDebug('showing fake torrents');
-	hideFakeTorrents()
-	showFakeTorrentsPage(0);
-}
-
-function hideFakeTorrents()
-{
-	fakeTorrents.forEach((fk) => {
-		clearTimeout(fk)
-	})
-	fakeTorrents = []
-	fakeTorrentsDebug('hidding fake torrents');
-}
-
 if(config.indexer) {
 	spider.listen(config.spiderPort)
 	if(config.p2p)
 	{
 		spider.announceHashes = [crypto.createHash('sha1').update('degrats-v1').digest()]
 	}
-} else {
-//	showFakeTorrents();
 }
 
 if(config.cleanup && config.indexer)
