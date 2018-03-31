@@ -462,7 +462,7 @@ module.exports = ({
 
 		callback({
 			size: p2p.size,
-			torrents: p2p.peersList().reduce((a, b) => (a.info ? a.info.torrents || 0 : 0) + (b.info ? b.info.torrents || 0 : 0), 0)
+			torrents: p2p.peersList().reduce((prev, peer) => prev + (peer.info ? peer.info.torrents || 0 : 0), 0)
 		})
 	});
 
