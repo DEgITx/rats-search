@@ -754,8 +754,11 @@ this.stop = (callback) => {
 	{
 		const addresses = p2p.addresses(p2p.peersList())
 		const peersEncripted = encryptor.encrypt(addresses)
-		fs.writeFileSync(dataDirectory + '/peers.p2p', peersEncripted, 'utf8');
-		console.log('peers saved')
+		if(addresses.length > 0)
+		{
+			fs.writeFileSync(dataDirectory + '/peers.p2p', peersEncripted, 'utf8');
+			console.log('local peers saved')
+		}
 
 		if(config.p2pBootstrap && addresses.length > 5)
 		{
@@ -768,7 +771,7 @@ this.stop = (callback) => {
 				  'Content-Type' : "application/json",
 				}
 			};
-			console.log('save bootstrap peers')
+			console.log('bootstrap peers saved')
 			const req = http.request(options, close);
 			req.on('error', close)
 			req.end(JSON.stringify({bootstrap: peersEncripted}))
