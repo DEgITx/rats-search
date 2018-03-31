@@ -447,6 +447,18 @@ const insertTorrentToDB = (torrent) => {
 	if(!torrent)
 		return
 
+	// fix cases for low cases letters
+	if(torrent.contentcategory)
+	{
+		torrent.contentCategory = torrent.contentcategory;
+		delete torrent.contentcategory;
+	}
+	if(torrent.contenttype)
+	{
+		torrent.contentType = torrent.contenttype;
+		delete torrent.contenttype;
+	}
+
 	const { filesList } = torrent
 	delete torrent.filesList;
 
