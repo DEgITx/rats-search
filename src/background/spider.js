@@ -288,29 +288,33 @@ if(dataDirectory && fs.existsSync(dataDirectory + '/peers.p2p'))
 
 if(config.p2pBootstrap)
 {
-	http.get('https://api.myjson.com/bins/1e5rmh', (resp) => {
-	let data = '';
+	const loadBootstrapPeers = (url) => {
+		http.get(url, (resp) => {
+			let data = '';
 
-	resp.on('data', (chunk) => {
-		data += chunk;
-	});
+			resp.on('data', (chunk) => {
+				data += chunk;
+			});
 
-	resp.on('end', () => {
-		const json = JSON.parse(data)
-		if(json.bootstrap)
-		{
-			const peers = encryptor.decrypt(json.bootstrap)
-			if(peers && peers.length > 0)
-			{
-				peers.forEach(peer => p2p.add(peer))
-				console.log('loaded', peers.length, 'peers from bootstrap')
-			}
-		}
-	});
-	
-	}).on("error", (err) => {
-		console.log("Error: " + err.message);
-	});
+			resp.on('end', () => {
+				const json = JSON.parse(data)
+				if(json.bootstrap)
+				{
+					const peers = encryptor.decrypt(json.bootstrap)
+					if(peers && peers.length > 0)
+					{
+						peers.forEach(peer => p2p.add(peer))
+						console.log('loaded', peers.length, 'peers from bootstrap')
+					}
+				}
+			});
+		}).on("error", (err) => {
+			console.log("Error: " + err.message);
+		});
+	}
+
+	loadBootstrapPeers('https://api.myjson.com/bins/1e5rmh')
+	loadBootstrapPeers('https://jsonblob.com/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa')
 }
 
 let undoneQueries = 0;
@@ -760,21 +764,48 @@ this.stop = (callback) => {
 			console.log('local peers saved')
 		}
 
-		if(config.p2pBootstrap && addresses.length > 5)
+		if(config.p2pBootstrap)
 		{
-			const options = {
-				port: 443,
-				host: 'api.myjson.com',
-				method: 'PUT',
-				path: '/bins/1e5rmh',
-				headers: { 
-				  'Content-Type' : "application/json",
-				}
-			};
-			console.log('bootstrap peers saved')
-			const req = http.request(options, close);
-			req.on('error', close)
-			req.end(JSON.stringify({bootstrap: peersEncripted}))
+			const saveBootstrapPeers = (host, path, callback) => {
+				const options = {
+					port: 443,
+					host,
+					method: 'PUT',
+					path,
+					headers: { 
+					  'Content-Type' : "application/json",
+					}
+				};
+				console.log('bootstrap peers saved to', host)
+				const req = http.request(options, callback);
+				req.on('error', callback)
+				req.end(JSON.stringify({bootstrap: peersEncripted}))
+			}
+
+			if(addresses.length > 5)
+			{
+				saveBootstrapPeers(
+					'api.myjson.com', 
+					'/bins/1e5rmh', 
+					() => saveBootstrapPeers(
+						'jsonblob.com', 
+						'/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa', 
+						close
+					)
+				)
+			}
+			else if(addresses.length > 0)
+			{
+				saveBootstrapPeers(
+					'jsonblob.com', 
+					'/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa', 
+					close
+				)
+			}
+			else
+			{
+				close()
+			}
 		}
 		else
 		{
