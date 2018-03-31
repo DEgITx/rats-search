@@ -1,3 +1,11 @@
+<a name="0.16.1"></a>
+## [0.16.1](https://github.com/DEgITx/rats-search/compare/v0.16.0...v0.16.1) (2018-03-30)
+
+
+### Bug Fixes
+
+* **p2p:** fix torrents count ([d4b9958](https://github.com/DEgITx/rats-search/commit/d4b9958))
+
 <a name="0.16.0"></a>
 # [0.16.0](https://github.com/DEgITx/rats-search/compare/v0.15.2...v0.16.0) (2018-03-30)
 
