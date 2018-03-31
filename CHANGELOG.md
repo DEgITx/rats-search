@@ -1,3 +1,11 @@
+<a name="0.16.2"></a>
+## [0.16.2](https://github.com/DEgITx/rats-search/compare/v0.16.1...v0.16.2) (2018-03-31)
+
+
+### Bug Fixes
+
+* **replication:** show correct torrent types on replication ([3c6698e](https://github.com/DEgITx/rats-search/commit/3c6698e))
+
 <a name="0.16.1"></a>
 ## [0.16.1](https://github.com/DEgITx/rats-search/compare/v0.16.0...v0.16.1) (2018-03-30)
 
