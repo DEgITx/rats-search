@@ -362,7 +362,7 @@ app.on("ready", () => {
          }
          callback.apply(null, arg)
       })
-    }, app.getPath("userData"), app.getVersion())
+    }, app.getPath("userData"), app.getVersion(), env.name)
   })
 });
 

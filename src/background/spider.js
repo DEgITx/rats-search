@@ -36,7 +36,7 @@ const torrentClient = require('./torrentClient')
 //server.listen(config.httpPort);
 //console.log('Listening web server on', config.httpPort, 'port')
 
-module.exports = function (send, recive, dataDirectory, version)
+module.exports = function (send, recive, dataDirectory, version, env)
 {
 
 let torrentsId = 1;
@@ -767,6 +767,12 @@ this.stop = (callback) => {
 		if(config.p2pBootstrap)
 		{
 			const saveBootstrapPeers = (host, path, callback) => {
+				if(env === 'test')
+				{
+				    callback()
+				    return
+				}
+			
 				const options = {
 					port: 443,
 					host,
