@@ -454,6 +454,17 @@ const checkTorrent = (torrent) => {
 		return false
 	}
 
+	const nameRX = config.filters.namingRegExp && config.filters.namingRegExp.trim()
+	if(nameRX && nameRX.length > 0)
+	{
+		const rx = new RegExp(nameRX)
+		if(!rx.test(torrent.name))
+		{
+			console.log('ignore', torrent.name, 'by naming rx')
+			return false
+		}
+	}
+
 	return true
 }
 

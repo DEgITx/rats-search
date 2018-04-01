@@ -77,20 +77,26 @@ export default class ConfigPage extends Page {
           </div>
         </div>
 
-
-        <div className='row center pad0-75'>
-          <RaisedButton label="Check torrents" primary={true} onClick={() => {
-            window.torrentSocket.emit('removeTorrents', true, window.customLoader((toRemove) => {
-              this.toRemoveProbably = toRemove
-              this.forceUpdate()
-            }));
-          }} />
-          <RaisedButton label="Clean torrents" secondary={true} onClick={() => {
-            window.torrentSocket.emit('removeTorrents', false, window.customLoader((toRemove) => {
-              this.toRemove = toRemove
-              this.forceUpdate()
-            }));
-          }} />
+        <div className='column w100p'>
+          <div className='row inline w100p'>
+            <div style={{flex: 1}}>Torrent name regular extension filtering</div>
+            <TextField
+              hintText="regex"
+              className='pad0-75'
+              style={{width: 400}}
+              value={this.options.filters && this.options.filters.namingRegExp}
+              onChange={(e, value) => {
+                if(!this.options.filters)
+                  return
+                
+                this.options.filters.namingRegExp = value
+                this.forceUpdate()
+              }}
+            />
+          </div>
+          <div className='fs0-75' style={{color: 'grey'}}>
+          * - clean string means disabled
+          </div>
         </div>
 
         {
@@ -113,6 +119,21 @@ export default class ConfigPage extends Page {
           &&
           <div style={{color: 'green'}}>Settings saved</div>
         }
+
+        <div className='row center pad0-75'>
+          <RaisedButton label="Check torrents" primary={true} onClick={() => {
+            window.torrentSocket.emit('removeTorrents', true, window.customLoader((toRemove) => {
+              this.toRemoveProbably = toRemove
+              this.forceUpdate()
+            }));
+          }} />
+          <RaisedButton label="Clean torrents" secondary={true} onClick={() => {
+            window.torrentSocket.emit('removeTorrents', false, window.customLoader((toRemove) => {
+              this.toRemove = toRemove
+              this.forceUpdate()
+            }));
+          }} />
+        </div>
 
         <div className='row center pad0-75'>
           <RaisedButton label="Save Settings" primary={true} onClick={() => {
