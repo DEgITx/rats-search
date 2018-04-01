@@ -11,7 +11,9 @@ module.exports = ({
 	spider,
 	upnp,
 	crypto,
-	insertTorrentToDB
+	insertTorrentToDB,
+	removeTorrentFromDB,
+	checkTorrent
 }) => {
 	let torrentClientHashMap = {}
 
@@ -599,6 +601,44 @@ module.exports = ({
 			progress: torrent.progress,
 			speed: torrent.downloadSpeed
 		})))
+	})
+
+	recive('removeTorrents', (checkOnly = true, callback) =>
+	{
+		console.log('checktorrents call')
+
+		const toRemove = []
+
+		const done = () => {
+			console.log('torrents to remove founded', toRemove.length)
+			if(checkOnly)
+			{
+				callback(toRemove.length)
+				return
+			}
+
+			toRemove.forEach(torrent => removeTorrentFromDB(torrent))
+			callback(toRemove.length)
+			console.log('removed torrents by filter:', toRemove.length)
+		}
+
+		const checker = (index = 0) => {
+			sphinx.query(`SELECT * FROM torrents LIMIT ${index},50000`, (err, torrents) => {
+				if(err || torrents.length == 0)
+				{
+					done()
+					return
+				}
+				
+				torrents.forEach((torrent) => {
+					if(!checkTorrent(torrent))
+						toRemove.push(torrent)
+				})
+
+				checker(index + torrents.length)
+			});
+		}
+		checker()
 	})
 
 	let socketIPV4 = () => {

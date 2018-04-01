@@ -447,6 +447,16 @@ const cleanupTorrents = (cleanTorrents = 1) => {
 	*/
 }
 
+const checkTorrent = (torrent) => {
+	if(config.filters.maxFiles > 0 && torrent.files > config.filters.maxFiles)
+	{
+		console.log('ignore', torrent.name, 'because files', torrent.files, '>', config.filters.maxFiles)
+		return false
+	}
+
+	return true
+}
+
 const insertTorrentToDB = (torrent) => {
 	if(!torrent)
 		return
@@ -461,6 +471,11 @@ const insertTorrentToDB = (torrent) => {
 	{
 		torrent.contentType = torrent.contenttype;
 		delete torrent.contenttype;
+	}
+
+	if(!checkTorrent(torrent))
+	{
+		return
 	}
 
 	const { filesList } = torrent
@@ -531,6 +546,12 @@ const insertTorrentToDB = (torrent) => {
 			})
 		}
 	})
+}
+
+const removeTorrentFromDB = (torrent) => {
+	const {hash} = torrent
+	mysqlSingle.query('DELETE FROM torrents WHERE hash = ?', hash)
+	mysqlSingle.query('DELETE FROM files WHERE hash = ?', hash)
 }
 
 const updateTorrent = (metadata, infohash, rinfo) => {
@@ -713,7 +734,9 @@ API({
 	spider,
 	upnp,
 	crypto,
-	insertTorrentToDB
+	insertTorrentToDB,
+	removeTorrentFromDB,
+	checkTorrent
 })
 
 if(config.indexer) {

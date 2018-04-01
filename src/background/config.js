@@ -36,6 +36,10 @@ let config = {
 		timeout: 5000
 	},
 
+	filters: {
+		maxFiles: 0,
+	},
+
 	cleanup: true,
 	cleanupDiscLimit: 7 * 1024 * 1024 * 1024,
 	spaceQuota: false,
