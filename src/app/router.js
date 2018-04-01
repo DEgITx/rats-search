@@ -8,6 +8,7 @@ import ConfigPage from './config-page.js'
 import TopPage from './top-page.js'
 import DownloadPage from './download-page.js'
 import ChangelogPage from './changelog-page.js'
+import FiltersPage from './filters-page.js'
 
 let routers = {}
 const router = (page, callback) => {
@@ -73,6 +74,11 @@ router('/DMCA', () => {
 router('/config', () => {
 	//singleton
 	PagesPie.instance().open(ConfigPage, {replace: 'all'});
+});
+
+router('/filters', () => {
+	//singleton
+	PagesPie.instance().open(FiltersPage, {replace: 'all'});
 });
 
 router('/top', () => {
