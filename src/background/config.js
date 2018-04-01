@@ -38,6 +38,7 @@ let config = {
 
 	filters: {
 		maxFiles: 0,
+		namingRegExp: ''
 	},
 
 	cleanup: true,
