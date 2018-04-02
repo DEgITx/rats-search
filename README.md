@@ -23,6 +23,9 @@ BitTorrent search program for desktop and web. Collect and navigate over base of
 * Supports torrents ratings for web version
 * P2P Search. Search in other Rats clients.
 
+## Architecture
+![Basic Architecture](docs/img/ratsarch.png)
+
 ## Contributing
 We are welcome any contributing: bug fixes, improvements, code refactoring and other stuffs.
 
