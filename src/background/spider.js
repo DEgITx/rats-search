@@ -506,6 +506,8 @@ const insertTorrentToDB = (torrent) => {
 			return
 		}
 
+		torrent.nameIndex = torrent.name
+
 		mysqlSingle.insertValues('torrents', torrent, function(err, result) {
 			if(result) {
 				send('newTorrent', {
@@ -543,6 +545,7 @@ const insertTorrentToDB = (torrent) => {
 
 				filesList.forEach((file) => {
 					file.id = filesId++;
+					file.pathIndex = file.path;
 					mysqlSingle.insertValues('files', file, function(err, result) {
 					  if(!result) {
 					  	console.log(file);
@@ -576,7 +579,6 @@ const updateTorrent = (metadata, infohash, rinfo) => {
 	const filesAdd = (path, size) => filesArray.push({
 		hash,
 		path,
-		pathIndex: path,
 		size,
 	})
 
@@ -601,7 +603,6 @@ const updateTorrent = (metadata, infohash, rinfo) => {
 	const torrentQ = {
 		hash: hash,
 		name: metadata.info.name,
-		nameIndex: metadata.info.name,
 		size: size,
 		files: filesCount,
 		piecelength: metadata.info['piece length'],
