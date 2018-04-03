@@ -10,6 +10,7 @@ import { app, Menu, ipcMain, Tray, dialog } from "electron";
 import createWindow from "./helpers/window";
 import { autoUpdater } from 'electron-updater'
 import appPath from './electronAppPath'
+import dbPatcher from './dbPatcher'
 
 import { devMenuTemplate } from "./menu/dev_menu_template";
 import { editMenuTemplate } from "./menu/edit_menu_template";
@@ -144,14 +145,13 @@ const writeSphinxConfig = (path, dbPath) => {
     rt_attr_bigint = size
   }
 
-  index statistic
+  index version
   {
       type = rt
-      path = ${dbPath}/database/statistic
+      path = ${dbPath}/database/version
       
-    rt_attr_bigint = size
-    rt_attr_bigint = files
-    rt_attr_uint = torrents
+      rt_attr_uint = version
+      rt_field = versionIndex
   }
 
   searchd
@@ -279,12 +279,14 @@ let tray = undefined
 
 app.on("ready", () => {
   startSphinx(() => {
-    setApplicationMenu();
+  
+  mainWindow = createWindow("main", {
+    width: 1000,
+    height: 600
+  });
 
-    mainWindow = createWindow("main", {
-      width: 1000,
-      height: 600
-    });
+  dbPatcher(() => {
+    setApplicationMenu();
 
     mainWindow.loadURL(
       url.format({
@@ -363,6 +365,7 @@ app.on("ready", () => {
          callback.apply(null, arg)
       })
     }, app.getPath("userData"), app.getVersion(), env.name)
+  }, mainWindow)
   })
 });
 

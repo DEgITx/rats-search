@@ -10,8 +10,9 @@ export default (sphinx, table, callback, doneCallback, max = 1000) => new Promis
                 done(true)
                 return
             }
-            torrents.forEach(callback)
-            checker(torrents[torrents.length - 1].id)
+            Promise.all(torrents.map(callback)).then(() => {
+                checker(torrents[torrents.length - 1].id)
+            })
         });
     }
     checker()
