@@ -1,4 +1,5 @@
 const ipaddr = require('ipaddr.js');
+import forBigTable from './forBigTable'
 
 module.exports = ({
 	sphinx,
@@ -622,23 +623,10 @@ module.exports = ({
 			console.log('removed torrents by filter:', toRemove.length)
 		}
 
-		const checker = (index = 0) => {
-			sphinx.query(`SELECT * FROM torrents LIMIT ${index},50000`, (err, torrents) => {
-				if(err || torrents.length == 0)
-				{
-					done()
-					return
-				}
-				
-				torrents.forEach((torrent) => {
-					if(!checkTorrent(torrent))
-						toRemove.push(torrent)
-				})
-
-				checker(index + torrents.length)
-			});
-		}
-		checker()
+		forBigTable(sphinx, 'torrents', (torrent) => {
+			if(!checkTorrent(torrent))
+				toRemove.push(torrent)
+		}, done)
 	})
 
 	let socketIPV4 = () => {
