@@ -82,7 +82,7 @@ module.exports = (callback, mainWindow) => {
                 const files = (await query("SELECT COUNT(*) AS c FROM files"))[0].c
 
                 await forBigTable(sphinx, 'torrents', async (torrent) => {
-                    console.log('update index', torrent.id, torrent.name)
+                    console.log('update index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
                     if(patchWindow)
                         patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
 
@@ -90,9 +90,9 @@ module.exports = (callback, mainWindow) => {
                     await query(`DELETE FROM torrents WHERE id = ${torrent.id}`)
                     await insertValues('torrents', torrent)
                 })
-                i = 0
+                i = 1
                 await forBigTable(sphinx, 'files', async (file) => {
-                    console.log('update index', file.id, file.path)
+                    console.log('update index', file.id, file.path, '[', i, 'of', files, ']')
                     if(patchWindow)
                         patchWindow.webContents.send('reindex', {field: file.path, index: i++, all: files})
 
