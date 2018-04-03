@@ -10,7 +10,6 @@ import { app, Menu, ipcMain, Tray, dialog } from "electron";
 import createWindow from "./helpers/window";
 import { autoUpdater } from 'electron-updater'
 import appPath from './electronAppPath'
-import dbPatcher from './dbPatcher'
 
 import { devMenuTemplate } from "./menu/dev_menu_template";
 import { editMenuTemplate } from "./menu/edit_menu_template";
@@ -62,6 +61,7 @@ const resourcesPath = env.name === "production" ? process.resourcesPath : 'resou
 
 const spiderCall = require('./spider')
 const appConfig = require('./config')
+const dbPatcher = require('./dbPatcher')
 
 let mainWindow = undefined
 let sphinx = undefined
