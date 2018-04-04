@@ -15,7 +15,7 @@ export default class SearchResults extends Component {
 	      	|| (this.props.filesSearchResults && this.props.filesSearchResults.length > 0)
 	      	?
 	      	<div>
-	      		<Subheader inset={true}>Search results</Subheader>
+	      		<Subheader inset={true}>Search results for <b>{this.props.searchText}</b></Subheader>
 	      		<div className='w100p row center' style={{marginTop: '-16px'}}>{this.props.resultSelector}</div>
 	      	</div>
 	      	:
@@ -125,7 +125,7 @@ export default class SearchResults extends Component {
 							c-5.292-6.087-7.944-13.459-7.944-22.108C63.521,74.195,66.173,66.825,71.465,60.749z"/>
 					</g>
 				</svg>
-	      		<div className='fs0-85 pad0-75' style={{color: 'grey'}}>no torrents for this search request were found</div>
+	      		<div className='fs0-85 pad0-75' style={{color: 'grey'}}>no torrents for <b>{this.props.searchText}</b> were found</div>
 	      	</div>
 	      	:
 	      	null
