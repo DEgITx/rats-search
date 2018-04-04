@@ -403,7 +403,7 @@ export default class Search extends Component {
           torrentsSearchResults={this.searchTorrents} 
           filesSearchResults={this.searchFiles}
           currentSearching={this.state.searchingIndicator}
-          
+          searchText={this.currentSearch}
           resultSelector={
             <SelectField
             floatingLabelText="Sort by"
