@@ -227,12 +227,24 @@ const startSphinx = (callback) => {
   }
   sphinx = spawn(sphinxPath, options)
 
+  const optimizeResolvers = {}
+
   sphinx.stdout.on('data', (data) => {
     console.log(`sphinx: ${data}`)
     if (data.includes('accepting connections')) {
       console.log('catched sphinx start')
       if(callback)
         callback()
+    }
+    
+    const checkOptimized = String(data).match(/index ([\w]+): optimized/)
+    if(checkOptimized)
+    {
+      if(optimizeResolvers[checkOptimized[1]])
+      {
+        console.log('resolve optimizer', checkOptimized[1])
+        optimizeResolvers[checkOptimized[1]]()
+      }
     }
   })
 
@@ -245,6 +257,13 @@ const startSphinx = (callback) => {
     console.log('sphinx closing...')
   	exec(`"${sphinxPath}" --config "${config}" --stopwait`)
   }
+
+  sphinx.waitOptimized = (table) => new Promise((resolve) => {
+    optimizeResolvers[table] = () => {
+      delete optimizeResolvers[table];
+      resolve()
+    }
+  })
 }
 
 // log autoupdate
@@ -365,7 +384,7 @@ app.on("ready", () => {
          callback.apply(null, arg)
       })
     }, app.getPath("userData"), app.getVersion(), env.name)
-  }, mainWindow)
+  }, mainWindow, sphinx)
   })
 });
 
