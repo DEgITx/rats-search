@@ -233,6 +233,8 @@ const startSphinx = (callback) => {
   sphinx = spawn(sphinxPath, options)
   // remeber initizalizing of db
   sphinx.isInitDb = isInitDb
+  sphinx.directoryPath = appConfig.dbPath
+  sphinx.directoryPathDb = appConfig.dbPath + '/database'
 
   const optimizeResolvers = {}
 
