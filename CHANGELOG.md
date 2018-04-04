@@ -1,3 +1,16 @@
+<a name="0.17.1"></a>
+## [0.17.1](https://github.com/DEgITx/rats-search/compare/v0.17.0...v0.17.1) (2018-04-04)
+
+
+### Bug Fixes
+
+* **db:** fix search index on replication ([969d8dc](https://github.com/DEgITx/rats-search/commit/969d8dc))
+* **db:** ignore patching already created db ([4e22eb1](https://github.com/DEgITx/rats-search/commit/4e22eb1))
+* **db:** optimization after patching ([f14aefd](https://github.com/DEgITx/rats-search/commit/f14aefd))
+* **db:** resolving old database indexes ([cfd4459](https://github.com/DEgITx/rats-search/commit/cfd4459))
+* **filter:** cleaning fix on big db ([07c931c](https://github.com/DEgITx/rats-search/commit/07c931c))
+* **tests:** fixed patching on tests ([8d7359e](https://github.com/DEgITx/rats-search/commit/8d7359e))
+
 <a name="0.17.0"></a>
 # [0.17.0](https://github.com/DEgITx/rats-search/compare/v0.16.2...v0.17.0) (2018-04-01)
 
