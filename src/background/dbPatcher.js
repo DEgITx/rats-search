@@ -4,6 +4,9 @@ import forBigTable from './forBigTable'
 import { BrowserWindow } from "electron";
 import url from 'url'
 import path from 'path'
+import fs from 'fs'
+
+const currentVersion = 3
 
 module.exports = (callback, mainWindow, sphinxApp) => {
     const sphinx = mysql.createConnection({
@@ -40,6 +43,13 @@ module.exports = (callback, mainWindow, sphinxApp) => {
             resolve(...responce)
         })
     })
+
+    const setVersion = async (version) => {
+        await query(`delete from version where id = 1`)
+        await query(`insert into version(id, version) values(1, ${version})`)
+        if(sphinxApp)
+            fs.writeFileSync(`${sphinxApp.directoryPath}/version.vrs`, version)
+    }
     
     let patchWindow;
     const openPatchWindow = () => {
@@ -147,7 +157,8 @@ module.exports = (callback, mainWindow, sphinxApp) => {
                     await query(`DELETE FROM files WHERE id = ${file.id}`)
                     await insertValues('files', file)
                 })
-                await query(`UPDATE version SET version = 2 WHERE id = 1`)
+
+                await setVersion(2)
             }
             case 2:
             {
@@ -165,7 +176,7 @@ module.exports = (callback, mainWindow, sphinxApp) => {
                 query(`OPTIMIZE INDEX files`)
                 await sphinxApp.waitOptimized('files')
 
-                await query(`UPDATE version SET version = 3 WHERE id = 1`)
+                await setVersion(3)
             }
         }
         console.log('db patch done')
@@ -189,11 +200,11 @@ module.exports = (callback, mainWindow, sphinxApp) => {
         // init of db, we can set version to last
         if(sphinxApp && sphinxApp.isInitDb)
         {
-            console.log('new db, set version to last')
-            await query('insert into version(id, version) values(1, 3)')
+            console.log('new db, set version to last version', currentVersion)
+            await setVersion(currentVersion)
         }
 
-        sphinx.query('select * from version', (err, version) => {
+        sphinx.query('select * from version', async (err, version) => {
             if(err)
             {
                 console.log('error on version get on db patch')
@@ -202,14 +213,25 @@ module.exports = (callback, mainWindow, sphinxApp) => {
 
             if(!version || !version[0] || !version[0].version)
             {
-                sphinx.query('insert into version(id, version) values(1, 1)', (err) => {
-                    if(err)
+                if(sphinxApp && fs.existsSync(`${sphinxApp.directoryPath}/version.vrs`))
+                {
+                    const ver = parseInt(fs.readFileSync(`${sphinxApp.directoryPath}/version.vrs`))
+                    if(ver > 0)
                     {
-                        console.log('cant set first version')
-                        return
+                        console.log('readed version from version.vrs', ver)
+                        patch(ver)
                     }
+                    else
+                    {
+                        console.log('error: bad version in version.vrs')
+                    }
+                }
+                else
+                {
+                    console.log('version not founded, set db version to 1')
+                    await setVersion(1)
                     patch(1)
-                })
+                }
             }
             else
             {
