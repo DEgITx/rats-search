@@ -193,8 +193,11 @@ const writeSphinxConfig = (path, dbPath) => {
     }
   }
 
+  let isInitDb = false
+
   if (!fs.existsSync(`${dbPath}/database`)){
     fs.mkdirSync(`${dbPath}/database`);
+    isInitDb = true
   }
 
   if(/^win/.test(process.platform))
@@ -203,6 +206,8 @@ const writeSphinxConfig = (path, dbPath) => {
   fs.writeFileSync(`${path}/sphinx.conf`, config)
   console.log(`writed sphinx config to ${path}`)
   console.log('db path:', dbPath)
+
+  return {isInitDb}
 }
 
 const sphinxPath = path.resolve(appPath('searchd'))
@@ -217,7 +222,7 @@ const startSphinx = (callback) => {
     appConfig['dbPath'] = sphinxConfigDirectory
   }
 
-  writeSphinxConfig(sphinxConfigDirectory, appConfig.dbPath)
+  const { isInitDb } = writeSphinxConfig(sphinxConfigDirectory, appConfig.dbPath)
 
   const config = `${sphinxConfigDirectory}/sphinx.conf`
   const options = ['--config', config]
@@ -226,6 +231,8 @@ const startSphinx = (callback) => {
   	options.push('--nodetach')
   }
   sphinx = spawn(sphinxPath, options)
+  // remeber initizalizing of db
+  sphinx.isInitDb = isInitDb
 
   const optimizeResolvers = {}
 

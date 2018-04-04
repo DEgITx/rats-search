@@ -179,11 +179,18 @@ module.exports = (callback, mainWindow, sphinxApp) => {
         callback()
     }
 
-    sphinx.connect((mysqlError) => {
+    sphinx.connect(async (mysqlError) => {
         if(mysqlError)
         {
             console.log('error on sphinx connecting on db patching', mysqlError)
             return
+        }
+
+        // init of db, we can set version to last
+        if(sphinxApp && sphinxApp.isInitDb)
+        {
+            console.log('new db, set version to last')
+            await query('insert into version(id, version) values(1, 3)')
         }
 
         sphinx.query('select * from version', (err, version) => {
