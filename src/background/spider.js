@@ -770,23 +770,13 @@ if(config.spaceQuota)
 	quotaDebug('disk quota enabled');
 }
 
-this.stop = (callback) => {
+this.stop = async (callback) => {
 	console.log('spider closing...')
 	if(upnp)
 		upnp.ratsUnmap()
 
 	console.log('closing p2p...')
 	p2p.close()
-
-	const close = () => {
-		torrentClient.destroy(() => {
-			sphinx.end(() => spider.close(() => {
-				mysqlSingle.destroy()
-				console.log('spider closed')
-				callback()
-			}))
-		})
-	}
 	
 	// safe future peers
 	if(dataDirectory)
@@ -801,10 +791,10 @@ this.stop = (callback) => {
 
 		if(config.p2pBootstrap)
 		{
-			const saveBootstrapPeers = (host, path, callback) => {
+			const saveBootstrapPeers = (host, path) => new Promise(resolve => {
 				if(env === 'test')
 				{
-				    callback()
+				    resolve()
 				    return
 				}
 			
@@ -818,45 +808,25 @@ this.stop = (callback) => {
 					}
 				};
 				console.log('bootstrap peers saved to', host)
-				const req = http.request(options, callback);
-				req.on('error', callback)
+				const req = http.request(options, resolve);
+				req.on('error', resolve)
 				req.end(JSON.stringify({bootstrap: peersEncripted}))
-			}
+			})
 
 			if(addresses.length > 5)
-			{
-				saveBootstrapPeers(
-					'api.myjson.com', 
-					'/bins/1e5rmh', 
-					() => saveBootstrapPeers(
-						'jsonblob.com', 
-						'/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa', 
-						close
-					)
-				)
-			}
-			else if(addresses.length > 0)
-			{
-				saveBootstrapPeers(
-					'jsonblob.com', 
-					'/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa', 
-					close
-				)
-			}
-			else
-			{
-				close()
-			}
-		}
-		else
-		{
-			close()
+				await saveBootstrapPeers('api.myjson.com', '/bins/1e5rmh')
+			if(addresses.length > 0)
+				await saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa')
 		}
 	}
-	else
-	{
-		close()
-	}
+
+	torrentClient.destroy(() => {
+		sphinx.end(() => spider.close(() => {
+			mysqlSingle.destroy()
+			console.log('spider closed')
+			callback()
+		}))
+	})
 }
 return this
 
