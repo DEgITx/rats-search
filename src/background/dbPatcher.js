@@ -1,10 +1,10 @@
-import config from './config'
-import mysql from 'mysql'
-import forBigTable from './forBigTable'
-import { BrowserWindow } from "electron";
-import url from 'url'
-import path from 'path'
-import fs from 'fs'
+const config = require('./config')
+const mysql  = require( 'mysql')
+const forBigTable  = require('./forBigTable')
+const { BrowserWindow }  = require("electron");
+const url  = require('url')
+const path  = require('path')
+const fs  = require('fs')
 
 const currentVersion = 3
 

@@ -1,5 +1,5 @@
 const ipaddr = require('ipaddr.js');
-import forBigTable from './forBigTable'
+const forBigTable = require('./forBigTable')
 
 module.exports = ({
 	sphinx,
