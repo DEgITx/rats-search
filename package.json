@@ -104,7 +104,8 @@
     "test": "mocha temp/e2e.js --require @babel/core/lib --require source-map-support/register",
     "start": "node build/start.js",
     "prebuild": "webpack --config=build/webpack.app.config.js --env=production",
-    "build": "electron-builder"
+    "build": "electron-builder",
+    "server": "node src/background/server.js"
   },
   "dependencies": {
     "bencode": "^1.0.0",

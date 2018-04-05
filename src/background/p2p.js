@@ -1,5 +1,5 @@
-import ssh from './ssh'
-import shuffle from './shuffle'
+const ssh = require('./ssh')
+const shuffle = require('./shuffle')
 const config = require('./config');
 const net = require('net')
 const JsonSocket = require('json-socket')
@@ -7,18 +7,17 @@ const os = require('os');
 const isPortReachable = require('./isPortReachable')
 
 class p2p {
-	peers = []
-	ignoreAddresses = ['127.0.0.1']
-	messageHandlers = {}
-	externalPeers = []
-	size = 0
-	p2pStatus = 0
-	version = '0'
-
-	info = {}
-
 	constructor(send = () => {})
 	{
+		this.peers = []
+		this.ignoreAddresses = ['127.0.0.1']
+		this.messageHandlers = {}
+		this.externalPeers = []
+		this.size = 0
+		this.p2pStatus = 0
+		this.version = '0'
+		this.info = {}
+
 		this.send = send
 		this.tcpServer = net.createServer();
 		this.tcpServer.maxConnections = config.p2pConnections * 2;

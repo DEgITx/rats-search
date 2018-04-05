@@ -1,4 +1,4 @@
-import { app } from 'electron'
+const { app } = require('electron')
 const os = require('os')
 
 let config = {

@@ -1,4 +1,4 @@
-export default (sphinx, table, callback, doneCallback, max = 1000) => new Promise((done) => {
+module.exports = (sphinx, table, callback, doneCallback, max = 1000) => new Promise((done) => {
     const checker = (index = 0) => {
         sphinx.query(`SELECT * FROM ${table} WHERE id > ${index} LIMIT ${max}`, (err, torrents) => {
             if(err || torrents.length == 0)

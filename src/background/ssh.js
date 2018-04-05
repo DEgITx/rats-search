@@ -1,4 +1,4 @@
-import appPath from './electronAppPath'
+const appPath = require('./electronAppPath')
 const { spawn } = require('child_process')
 
 function getRandomInt(min, max) {
@@ -78,4 +78,4 @@ const startSSH = (port, host, user, password, callback) => {
 	return ssh
 }
 
-export default startSSH
+module.exports = startSSH
