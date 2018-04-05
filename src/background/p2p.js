@@ -1,4 +1,5 @@
 import ssh from './ssh'
+import shuffle from './shuffle'
 const config = require('./config');
 const net = require('net')
 const JsonSocket = require('json-socket')
@@ -58,7 +59,7 @@ class p2p {
 				protocol: 'rats',
 				version: this.version,
 				info: this.info,
-				peers: this.peersList().slice(0, 4).map(peer => ({address: peer.address, port: peer.port}))
+				peers: shuffle(this.peersList()).slice(0, 4).map(peer => ({address: peer.address, port: peer.port}))
 			})
 
 			// try to connect back
@@ -231,7 +232,7 @@ class p2p {
 				port: config.spiderPort,
 				version: this.version,
 				info: this.info,
-				peers: this.peersList().slice(0, 4).map(peer => ({address: peer.address, port: peer.port})).concat(this.externalPeers) // also add external peers
+				peers: shuffle(this.peersList()).slice(0, 4).map(peer => ({address: peer.address, port: peer.port})).concat(this.externalPeers) // also add external peers
 			}, (data) => {
 				if(!data || data.protocol != 'rats')
 					return
