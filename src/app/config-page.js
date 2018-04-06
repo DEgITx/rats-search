@@ -7,6 +7,10 @@ import TextField from 'material-ui/TextField'
 import Slider from 'material-ui/Slider'
 
 import fs from 'fs'
+let dialog
+if(typeof WEB === 'undefined')
+  dialog = require('electron').remote.dialog
+
 export default class ConfigPage extends Page {
   constructor(props) {
     super(props)
@@ -121,6 +125,8 @@ export default class ConfigPage extends Page {
             }}
           />
           <RaisedButton style={{marginLeft: 20}} label="Browse" primary={true} onClick={() => {
+           if(!dialog)
+              return
            const dir = dialog.showOpenDialog({properties: ['openDirectory']})[0]
            if(dir)
             {
@@ -144,6 +150,8 @@ export default class ConfigPage extends Page {
             }}
           />
           <RaisedButton style={{marginLeft: 20}} label="Browse" primary={true} onClick={() => {
+          if(!dialog)
+            return
            const dir = dialog.showOpenDialog({properties: ['openDirectory']})[0]
            if(dir)
             {
