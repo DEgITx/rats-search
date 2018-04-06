@@ -139,7 +139,7 @@ class App extends Component {
 			<MuiThemeProvider>
 				<div>
 					{
-						window.currentWindow && !window.currentWindow.isModal()
+						((window.currentWindow && !window.currentWindow.isModal()) || typeof WEB !== 'undefined')
 						&&
 						<Header />
 					}

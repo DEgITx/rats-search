@@ -202,7 +202,7 @@ const Header = (props) => {
              }
           />
           {
-						!window.currentWindow.isModal()
+						((window.currentWindow && !window.currentWindow.isModal()) || typeof WEB !== 'undefined')
 						&&
 						<div className='fs0-85 pad0-75 column peers-status' style={{marginLeft: 'auto', marginTop: '-10px', color: window.peers > 0 ? '#42f445' : 'white'}}>
               <div>rats peers: {window.peers} [{window.peersTorrents} torrents] {window.peers > 0 ? ' (p2p rats search enabled)' : ' (p2p rats search not available at this moment)'}</div>
