@@ -12,7 +12,7 @@ const io = require('socket.io')(server);
 server.listen(appConfig.httpPort);
 console.log('Listening web server on', appConfig.httpPort, 'port')
 
-app.use(express.static('web', {index: false}));
+app.use(express.static('web'));
 
 const socketMessages = {}
 
