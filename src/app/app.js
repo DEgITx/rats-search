@@ -9,11 +9,17 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import {Header} from './header'
 import Footer from './footer'
 
-const { ipcRenderer, remote } = require('electron');
-window.currentWindow = remote.getCurrentWindow()
 
-//var io = require("socket.io-client");
-//window.torrentSocket = io(document.location.protocol + '//' + document.location.hostname + (process.env.NODE_ENV === 'production' ? '/' : ':8095/'));
+if(typeof WEB !== 'undefined')
+{
+	const io = require("socket.io-client");
+	window.torrentSocket = io(document.location.protocol + '//' + document.location.hostname + (process.env.NODE_ENV === 'production' ? '/' : ':8095/'));
+}
+else
+{
+ const { ipcRenderer, remote } = require('electron');
+ window.currentWindow = remote.getCurrentWindow()
+
  window.torrentSocket = {}
  window.torrentSocket.callbacks = {}
  window.torrentSocket.listeners = {}
@@ -53,11 +59,12 @@ window.currentWindow = remote.getCurrentWindow()
  	delete window.torrentSocket.callbacks[id]
  });
 
-
  ipcRenderer.on('url', (event, url) => {
 	 console.log('url', url)
 	 router(url)	
  });
+
+}
 
 
 // Needed for onTouchTap 
@@ -132,7 +139,7 @@ class App extends Component {
 			<MuiThemeProvider>
 				<div>
 					{
-						!window.currentWindow.isModal()
+						window.currentWindow && !window.currentWindow.isModal()
 						&&
 						<Header />
 					}

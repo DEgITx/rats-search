@@ -7,8 +7,6 @@ import TextField from 'material-ui/TextField'
 import Slider from 'material-ui/Slider'
 
 import fs from 'fs'
-const {dialog} = require('electron').remote
-
 export default class ConfigPage extends Page {
   constructor(props) {
     super(props)

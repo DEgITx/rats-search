@@ -4,6 +4,7 @@ const FriendlyErrorsWebpackPlugin = require("friendly-errors-webpack-plugin");
 
 module.exports = env => {
   return {
+    mode: env || 'development',
     target: "node",
     node: {
       __dirname: false,
