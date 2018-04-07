@@ -1,3 +1,20 @@
+<a name="0.18.0"></a>
+# [0.18.0](https://github.com/DEgITx/rats-search/compare/v0.17.1...v0.18.0) (2018-04-07)
+
+
+### Bug Fixes
+
+* **server:** little makeup for server version ([99115f9](https://github.com/DEgITx/rats-search/commit/99115f9))
+* **server:** restored server messages ([e9da8db](https://github.com/DEgITx/rats-search/commit/e9da8db))
+
+
+### Features
+
+* **p2p:** random peer exchange ([c2a0933](https://github.com/DEgITx/rats-search/commit/c2a0933))
+* **search:** show current request with text [#23](https://github.com/DEgITx/rats-search/issues/23) ([e3ab4d4](https://github.com/DEgITx/rats-search/commit/e3ab4d4))
+* **server:** seperate server part and ability to run server without electron ([3246d15](https://github.com/DEgITx/rats-search/commit/3246d15))
+* **web:** web version available again ([bfbc660](https://github.com/DEgITx/rats-search/commit/bfbc660))
+
 <a name="0.17.1"></a>
 ## [0.17.1](https://github.com/DEgITx/rats-search/compare/v0.17.0...v0.17.1) (2018-04-04)
 
