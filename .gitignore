@@ -2,9 +2,11 @@ node_modules
 .DS_Store
 Thumbs.db
 *.log
+rats.json
 
 /dist
 /temp
+/web
 
 # ignore everything in 'app' folder what had been generated from 'src' folder
 /app/app.js

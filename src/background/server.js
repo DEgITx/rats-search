@@ -8,6 +8,10 @@ const express = require('express');
 const app = express();
 const server = http.Server(app);
 const io = require('socket.io')(server);
+const fs = require('fs');
+const path = require('path')
+
+const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 
 server.listen(appConfig.httpPort);
 console.log('Listening web server on', appConfig.httpPort, 'port')
@@ -28,6 +32,6 @@ sphinx = startSphinx(() => {
   dbPatcher(() => {
     spider = spiderCall((...data) => io.sockets.emit(...data), (message, callback) => {
       socketMessages[message] = callback
-    }, './', '0.7.1', 'development')
+    }, path.resolve(packageJson.serverDataDirectory), packageJson.version, 'production')
   }, null, sphinx)
-}, './', () => {})
+}, path.resolve(packageJson.serverDataDirectory), () => {})

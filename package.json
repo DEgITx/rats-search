@@ -12,6 +12,7 @@
     "type": "git",
     "url": "https://github.com/DEgITx/rats-search.git"
   },
+  "serverDataDirectory": "./",
   "build": {
     "appId": "com.ratsontheboat.search",
     "files": [
@@ -105,7 +106,8 @@
     "start": "node build/start.js",
     "prebuild": "webpack --config=build/webpack.app.config.js --env=production",
     "build": "electron-builder",
-    "server": "node src/background/server.js"
+    "server": "node src/background/server.js",
+    "buildweb": "node src/background/webpack.js"
   },
   "dependencies": {
     "bencode": "^1.0.0",
