@@ -33,6 +33,27 @@ We are welcome any contributing: bug fixes, improvements, code refactoring and o
 * [English](docs/USAGE.md)
 * [Russian](docs/USAGE.RU.md)
 
+## Server version install
+Clone repository, then make sure that you have Node.js and NPM (with Node.js) installed in your system, then:
+
+```bash
+npm install
+```
+
+Then compile web version:
+
+```bash
+npm run buildweb
+```
+
+Finally start server application:
+
+```bash
+npm run server
+```
+
+Now you can get access to web interface on 8095 port: http://localhost:8095
+
 ## Screenshots
 
 ![Main Window](docs/img/screen_1.png)
