@@ -12,7 +12,7 @@ class Header extends React.Component {
   componentDidMount()
   {
 		window.onscroll = () => {
-			if (window.pageYOffset >= 10)
+			if (window.pageYOffset >= 15)
 			{
         const scrollHeight = Math.max(
           document.body.scrollHeight, document.documentElement.scrollHeight,
@@ -159,7 +159,7 @@ class Header extends React.Component {
             padding: '15px',
             background: `url('${Background}') no-repeat`,
             backgroundSize: 'cover',
-            transition: '0.3s'
+            transition: '1s'
           }}>
           <RaisedButton
             label="Search"
@@ -271,7 +271,7 @@ class Header extends React.Component {
         </div>
       </CardMedia>
     </Card>
-    <div className='clear-header-space' style={{transition: '0.3s'}} />
+    <div className='clear-header-space' style={{transition: '1.0s'}} />
     </div>
   )
 
