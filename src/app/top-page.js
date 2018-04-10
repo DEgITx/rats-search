@@ -42,10 +42,19 @@ export default class TopPage extends Page {
           if(data && data.length > 0)
           {
             this.topTorrents[type] = this.topTorrents[type].concat(data);
-            this.forceUpdate()
+            this._update()
           }
         })
     )
+  }
+  _update()
+  {
+    if(this.timeForce)
+      return
+    this.timeForce = setTimeout(() => {
+      delete this.timeForce
+      this.forceUpdate()
+    }, 550)
   }
   componentDidMount()
   {
@@ -59,7 +68,7 @@ export default class TopPage extends Page {
         return
       type = type ? type : 'main'
       this.topTorrents[type] = _.orderBy(_.unionBy(this.topTorrents[type], torrents, 'hash'), ['seeders'], ['desc'])
-      this.forceUpdate();
+      this._update();
     }
     window.torrentSocket.on('remoteTopTorrents', this.remoteTopTorrents);
   }
