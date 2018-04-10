@@ -3,11 +3,56 @@ import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'mat
 import Background from './images/pirate-mod.jpg'
 import RaisedButton from 'material-ui/RaisedButton';
 
-const Header = (props) => {
+class Header extends React.Component {
+  constructor(props)
+  {
+    super(props)
+    this.header = React.createRef();
+  }
+  componentDidMount()
+  {
+		window.onscroll = () => {
+			if (window.pageYOffset >= 10)
+			{
+        const scrollHeight = Math.max(
+          document.body.scrollHeight, document.documentElement.scrollHeight,
+          document.body.offsetHeight, document.documentElement.offsetHeight,
+          document.body.clientHeight, document.documentElement.clientHeight
+        );
+
+        if(scrollHeight - 240 < document.documentElement.clientHeight)
+        {
+          return
+        }
+
+				if(!this.stickyHeader)
+				{
+          this.stickyHeader = true
+          this.header.current.classList.add("sticky");
+				}
+			}
+			else
+			{
+				if(this.stickyHeader)
+				{
+          this.stickyHeader = false
+          this.header.current.classList.remove("sticky");
+				}
+			}
+		};
+  }
+  componentWillUnmount()
+  {
+    window.onscroll = null
+  }
+
+  render()
+  {
   return (
-    <Card>
+    <div ref={this.header} className='header'>
+    <Card className='w100p header-main' style={{position: 'fixed', zIndex: 2}}>
       <CardMedia
-        overlay={<CardTitle title="Yarrr, Landlubbers!" subtitle={
+        overlay={<CardTitle className='header-title' title="Yarrr, Landlubbers!" subtitle={
         <div>
           <div className='row' style={{position: 'absolute', top: -65}}>
             <svg className='clickable'
@@ -110,11 +155,11 @@ const Header = (props) => {
           this is only information about content that collected automatically!
         </div>} />}
       >
-        <div className='row' style={{
+        <div className='row header-row' style={{
             padding: '15px',
             background: `url('${Background}') no-repeat`,
-            minHeight: 360,
-            backgroundSize: 'cover'
+            backgroundSize: 'cover',
+            transition: '0.3s'
           }}>
           <RaisedButton
             label="Search"
@@ -226,7 +271,11 @@ const Header = (props) => {
         </div>
       </CardMedia>
     </Card>
+    <div className='clear-header-space' style={{transition: '0.3s'}} />
+    </div>
   )
+
+  }
 }
 
 export {Header}
