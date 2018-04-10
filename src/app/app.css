@@ -14,6 +14,10 @@
   height: 120px;
 }
 
+.header .header-main > div > div > div:nth-child(2) > div > div:nth-child(1) {
+  transition: 0.5s;
+}
+
 .header.sticky .header-main > div > div > div:nth-child(2) > div > div:nth-child(1) {
-  display: none;
+  opacity:0;
 }
