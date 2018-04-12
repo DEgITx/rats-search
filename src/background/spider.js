@@ -6,6 +6,7 @@ const mysql = require('mysql');
 const getPeersStatisticUDP = require('./bt/udp-tracker-request')
 const crypto = require('crypto')
 const P2PServer = require('./p2p')
+const P2PStore = require('./store')
 const stun = require('stun')
 const natUpnp = require('nat-upnp');
 const http = require('https')
@@ -49,6 +50,7 @@ const p2p = new P2PServer(send)
 p2p.version = version
 p2p.encryptor = encryptor
 p2p.listen()
+const p2pStore = new P2PStore(p2p, sphinx)
 
 const udpTrackers = [
 	{
@@ -744,7 +746,8 @@ API({
 	crypto,
 	insertTorrentToDB,
 	removeTorrentFromDB,
-	checkTorrent
+	checkTorrent,
+	p2pStore
 })
 
 if(config.indexer) {
