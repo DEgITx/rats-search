@@ -55,6 +55,16 @@ const writeSphinxConfig = (path, dbPath) => {
       rt_field = versionIndex
   }
 
+  index store
+  {
+      type = rt
+      path = ${dbPath}/database/store
+      
+      rt_field = storeIndex
+      rt_attr_json = data
+      rt_attr_string = hash
+  }
+
   searchd
   {
     listen      = 9312

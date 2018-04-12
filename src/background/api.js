@@ -14,7 +14,8 @@ module.exports = ({
 	crypto,
 	insertTorrentToDB,
 	removeTorrentFromDB,
-	checkTorrent
+	checkTorrent,
+	p2pStore
 }) => {
 	let torrentClientHashMap = {}
 
@@ -629,20 +630,7 @@ module.exports = ({
 		}, done)
 	})
 
-	let socketIPV4 = () => {
-		let ip = socket.request.connection.remoteAddress;
-		if (ipaddr.IPv4.isValid(ip)) {
-		  // all ok
-		} else if (ipaddr.IPv6.isValid(ip)) {
-		  let ipv6 = ipaddr.IPv6.parse(ip);
-		  if (ipv6.isIPv4MappedAddress()) {
-		    ip = ipv6.toIPv4Address().toString();
-		  }
-		}
-		return ip
-	};
-
-	recive('vote', function(hash, isGood, callback)
+	recive('vote', async (hash, isGood, callback) =>
 	{
 		if(hash.length != 40)
 			return;
@@ -650,44 +638,35 @@ module.exports = ({
 		if(typeof callback != 'function')
 			return;
 
-		const ip = socketIPV4();
 		isGood = !!isGood;
 
-		sphinx.query('SELECT * FROM `torrents_actions` WHERE `hash` = ? AND (`action` = \'good\' OR `action` = \'bad\') AND ipv4 = ?', [hash, ip], function (error, rows, fields) {
-		  if(!rows) {
-		  	console.error(error);
-		  }
-		  if(rows.length > 0) {
-		  	callback(false)
-		  	return
-		  }
+		const action = isGood ? 'good' : 'bad';
 
-		  sphinx.query('SELECT good, bad FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
-		  	if(!rows || rows.length == 0)
-		  		return;
+		const votes = await p2pStore.find(`vote:${hash}`)
+		let good = isGood ? 1 : 0
+		let bad = !isGood ? 1 : 0
+		if(votes)
+		{
+			console.log(votes)
+			votes.forEach(({vote}) => {
+				if(vote == 'bad')
+					bad++
+				else
+					good++
+			})
+		}
+		console.log(bad, good)
 
-		  	let {good, bad} = rows[0];
-		  	const action = isGood ? 'good' : 'bad';
-			sphinx.query('INSERT INTO `torrents_actions` SET ?', {hash, action, ipv4: ip}, function(err, result) {
-				  if(!result) {
-				  	console.error(err);
-				  }
-				  sphinx.query('UPDATE torrents SET ' + action + ' = ' + action + ' + 1 WHERE hash = ?', hash, function(err, result) {
-				  	if(!result) {
-					  console.error(err);
-					}
-					if(isGood) {
-						good++;
-					} else {
-						bad++;
-					}
-					send('vote', {
-				  		hash, good, bad
-				  	});
-				  	callback(true)
-				  });
-			});
-		  });
+		p2pStore.store({
+			type: 'vote',
+			torrentHash: hash,
+			vote: action,
+			_index: `vote:${hash}`
+		})
+		send('vote', {
+			hash, good, bad
 		});
+		callback(true)
+
 	});
 }

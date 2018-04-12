@@ -289,12 +289,6 @@ export default class TorrentPage extends Page {
     if(!this.torrent)
       return;
 
-    if(true)
-    {
-      alert('Nice try :)! But this feature will be restored in later. Just keep go in other direction :D.')
-      return
-    }
-
     this.setState({
         voting: true
     });
