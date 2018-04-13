@@ -14,7 +14,9 @@ module.exports = class P2PStore {
 				return
 
 			if(rows[0] && rows[0].mx >= 1)
-				this.id = rows[0].mx + 1;
+                this.id = rows[0].mx + 1;
+                
+            console.log('store db index', this.id)
 		})
 
         this.p2p.on('dbStore', (record, callback) => {
@@ -79,8 +81,8 @@ module.exports = class P2PStore {
     {
         const data = this.sphinx.escape(JSON.stringify(value.data))
         this.sphinx.query(
-            `insert into store(id, hash, data` + (value.index ? ', storeIndex' : '') + `) 
-            values('${value.id}', '${value.hash}', ${data}` + (value.index ? ',' + this.sphinx.escape(value.index) : '') + ')', 
+            `insert into store(id, hash, peerId, data` + (value.index ? ', storeIndex' : '') + `) 
+            values('${value.id}', '${value.hash}', '${value.peerId}', ${data}` + (value.index ? ',' + this.sphinx.escape(value.index) : '') + ')', 
             (err) => {
             if(err)
             {
@@ -99,8 +101,10 @@ module.exports = class P2PStore {
             id: this.id++,
             hash: objectHash(obj),
             data: obj,
-            index: obj._index
+            index: obj._index,
+            peerId: this.p2p.peerId
         }
+        console.log('store object', value.id)
 
         this._pushToDb(value, () => {
             // store record
@@ -119,7 +123,7 @@ module.exports = class P2PStore {
                     return
                 }
     
-                resolve(records.map(({data}) => JSON.parse(data)))
+                resolve(records.map( ({data, peerid}) => Object.assign(JSON.parse(data), { _peerId: peerid }) ))
             })
         })
     }

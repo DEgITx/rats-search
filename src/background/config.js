@@ -8,7 +8,8 @@ let config = {
 	httpPort: 8095,
 	spiderPort: 4445,
 	udpTrackersPort: 4446,
-	udpTrackersTimeout: 3 * 60 * 1000, 
+	udpTrackersTimeout: 3 * 60 * 1000,
+	peerId: undefined, 
 	
 	p2p: true,
 	p2pConnections: 10,

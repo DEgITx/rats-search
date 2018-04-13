@@ -643,26 +643,35 @@ module.exports = ({
 		const action = isGood ? 'good' : 'bad';
 
 		const votes = await p2pStore.find(`vote:${hash}`)
-		let good = isGood ? 1 : 0
-		let bad = !isGood ? 1 : 0
+		let good = 0
+		let bad = 0
+		let selfVote = false
 		if(votes)
 		{
-			console.log(votes)
-			votes.forEach(({vote}) => {
+			votes.forEach(({vote, _peerId}) => {
+				if(_peerId === p2p.peerId)
+					selfVote = true
+
 				if(vote == 'bad')
 					bad++
 				else
 					good++
 			})
 		}
-		console.log(bad, good)
+		console.log('votes before', bad, good)
 
-		p2pStore.store({
-			type: 'vote',
-			torrentHash: hash,
-			vote: action,
-			_index: `vote:${hash}`
-		})
+		if(!selfVote)
+		{
+			p2pStore.store({
+				type: 'vote',
+				torrentHash: hash,
+				vote: action,
+				_index: `vote:${hash}`
+			})
+			good += isGood ? 1 : 0
+			bad += !isGood ? 1 : 0
+		}
+
 		send('vote', {
 			hash, good, bad
 		});

@@ -63,6 +63,7 @@ const writeSphinxConfig = (path, dbPath) => {
       rt_field = storeIndex
       rt_attr_json = data
       rt_attr_string = hash
+      rt_attr_string = peerId
   }
 
   searchd
