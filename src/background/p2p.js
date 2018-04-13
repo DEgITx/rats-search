@@ -17,6 +17,12 @@ class p2p {
 		this.p2pStatus = 0
 		this.version = '0'
 		this.info = {}
+		if(!config.peerId)
+		{
+			console.log('generate peerId')
+			config.peerId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+		}
+		this.peerId = config.peerId;
 
 		this.send = send
 		this.tcpServer = net.createServer();
