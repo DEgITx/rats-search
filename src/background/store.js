@@ -17,6 +17,7 @@ module.exports = class P2PStore {
                 this.id = rows[0].mx + 1;
                 
             console.log('store db index', this.id)
+            this.sync()
 		})
 
         this.p2p.on('dbStore', (record, callback) => {
