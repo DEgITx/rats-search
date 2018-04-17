@@ -41,10 +41,12 @@ module.exports = class P2PStore {
                 return
 
             // store
+            console.log('store record', record.id)
             this._pushToDb(record)
         })
 
         this.p2p.on('dbSync', ({id} = {}, callback) => {
+            console.log('ask to sync db from', id, 'version')
             if(!id || this.id <= id)
             {
                 callback(false)
