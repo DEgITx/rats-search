@@ -27,7 +27,15 @@ module.exports = class P2PStore {
             }, 10000)
 		})
 
-        this.p2p.on('dbStore', (record) => this._syncRecord(record))
+        this.p2p.on('dbStore', (record) => { 
+            if(!record || record.id - 1 !== this.id)
+            {
+                console.log('out of range peerdb store', record.id)
+                return
+            }
+
+            this._syncRecord(record)
+        })
 
         this.p2p.on('dbSync', ({id} = {}, callback) => {
             console.log('ask to sync db from', id, 'version')
