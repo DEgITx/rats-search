@@ -17,7 +17,14 @@ module.exports = class P2PStore {
                 this.id = rows[0].mx + 1;
                 
             console.log('store db index', this.id)
-            this.sync()
+
+            const syncTimeout = setInterval(() => {
+                if(this.p2p.size <= 0)
+                    return
+
+                clearInterval(syncTimeout)
+                this.sync()
+            }, 10000)
 		})
 
         this.p2p.on('dbStore', (record, callback) => {
@@ -60,6 +67,7 @@ module.exports = class P2PStore {
 
     sync()
     {
+        console.log('sync db on version', this.id)
         this.p2p.emit('dbSync', {id: this.id}, (data) => {
             if(!data || !data.records)
                 return
