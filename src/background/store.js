@@ -77,8 +77,17 @@ module.exports = class P2PStore {
                 if(!record.id)
                     return
 
-                if(record.id <= this.id)
+                if(record.id < this.id)
                     return
+                    
+                record.data = JSON.parse(record.data)
+                    
+                // check hash
+                if(objectHash(record.data) !== record.hash)
+                {
+            	    console.log('wrong hash for sync peerdb')
+            	    return
+            	}
 
                 // push to db
                 this._pushToDb(record)
@@ -90,8 +99,8 @@ module.exports = class P2PStore {
     {
         const data = this.sphinx.escape(JSON.stringify(value.data))
         this.sphinx.query(
-            `insert into store(id, hash, peerId, data` + (value.index ? ', storeIndex' : '') + `) 
-            values('${value.id}', '${value.hash}', '${value.peerId}', ${data}` + (value.index ? ',' + this.sphinx.escape(value.index) : '') + ')', 
+            `insert into store(id, hash, peerId, data` + (value.index || value.data._index ? ', storeIndex' : '') + `) 
+            values('${value.id}', '${value.hash}', '${value.peerId || value.peerid}', ${data}` + (value.index || value.data._index ? ',' + this.sphinx.escape(value.index || value.data._index) : '') + ')', 
             (err) => {
             if(err)
             {
