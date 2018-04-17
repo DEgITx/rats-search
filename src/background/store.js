@@ -86,6 +86,7 @@ module.exports = class P2PStore {
         // push to db
         console.log('sync peerdb record', record.id)
         this._pushToDb(record)
+        this.id = record.id
     }
 
     _pushToDb(value, callback)
