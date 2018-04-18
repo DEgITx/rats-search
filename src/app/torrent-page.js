@@ -20,7 +20,6 @@ import LinearProgress from 'material-ui/LinearProgress';
 import FlatButton from 'material-ui/FlatButton';
 import {fileTypeDetect} from './content'
 import {contentIcon} from './torrent'
-import waitObject from './waitObject'
 
 let buildFilesTree = (filesList) => {
 	let rootTree = {
@@ -231,8 +230,8 @@ export default class TorrentPage extends Page {
       if(this.props.hash != hash)
         return;
 
-      // in some cases torrent object can be resolve late
-      await waitObject(this, 'torrent')
+      if(!this.torrent)
+        return
 
       this.torrent.good = good;
       this.torrent.bad = bad;

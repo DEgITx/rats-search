@@ -2,7 +2,7 @@ const config = require('./config');
 const client = new (require('./bt/client'))
 const spider = new (require('./bt/spider'))(client)
 const fs = require('fs');
-const mysql = require('mysql');
+const {single, pool} = require('./mysql')
 const getPeersStatisticUDP = require('./bt/udp-tracker-request')
 const crypto = require('crypto')
 const P2PServer = require('./p2p')
@@ -39,11 +39,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 let torrentsId = 1;
 let filesId = 1;
 
-let sphinx = mysql.createPool({
-  connectionLimit: config.sphinx.connectionLimit,
-  host     : config.sphinx.host,
-  port     : config.sphinx.port
-});
+let sphinx = pool();
 
 // initialize p2p
 const p2p = new P2PServer(send)
@@ -71,109 +67,37 @@ const udpTrackers = [
 	}
 ]
 
-let mysqlSingle;
-function handleListenerDisconnect() {
-	mysqlSingle = mysql.createConnection({
-	  host     : config.sphinx.host,
-	  port     : config.sphinx.port
-	});
+let mysqlSingle = single((mysqlSingle) => {
+	mysqlSingle.query("SELECT MAX(`id`) as mx from torrents", (err, rows) => {
+		if(err)
+			return
 
-	mysqlSingle.connect(function(mysqlError) {
-		if (mysqlError) {
-			console.error('error connecting: ' + mysqlError.stack);
-			return;
-		}
+		if(rows[0] && rows[0].mx >= 1)
+			torrentsId = rows[0].mx + 1;
+	})
 
-		mysqlSingle.query("SELECT MAX(`id`) as mx from torrents", (err, rows) => {
-			if(err)
-				return
+	mysqlSingle.query("SELECT COUNT(*) as cnt from torrents", (err, rows) => {
+		if(err)
+			return
 
-			if(rows[0] && rows[0].mx >= 1)
-				torrentsId = rows[0].mx + 1;
-		})
+		p2p.info.torrents = rows[0].cnt
+	})
 
-		mysqlSingle.query("SELECT COUNT(*) as cnt from torrents", (err, rows) => {
-			if(err)
-				return
+	mysqlSingle.query("SELECT MAX(`id`) as mx from files", (err, rows) => {
+		if(err)
+			return
 
-			p2p.info.torrents = rows[0].cnt
-		})
+		if(rows[0] &&rows[0].mx >= 1)
+			filesId = rows[0].mx + 1;
+	})
 
-		mysqlSingle.query("SELECT MAX(`id`) as mx from files", (err, rows) => {
-			if(err)
-				return
+	mysqlSingle.query("SELECT COUNT(*) as cnt from files", (err, rows) => {
+		if(err)
+			return
 
-			if(rows[0] &&rows[0].mx >= 1)
-				filesId = rows[0].mx + 1;
-		})
-
-		mysqlSingle.query("SELECT COUNT(*) as cnt from files", (err, rows) => {
-			if(err)
-				return
-
-			p2p.info.files = rows[0].cnt
-		})
-	});
-
-	mysqlSingle.on('error', function(err) {
-	    console.log('db error', err);
-	    if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
-	      handleListenerDisconnect();                         // lost due to either server restart, or a
-	    } else {                                      // connnection idle timeout (the wait_timeout
-	      throw err;                                  // server variable configures this)
-	    }
-	});
-
-	const query = mysqlSingle.query;
-	mysqlSingle.query = (...args) => {
-		let callback, i;
-		for(i = 1; i < args.length; i++)
-		{
-			if(typeof args[i] == 'function')
-			{
-				callback = args[i];
-				break;
-			}
-		}
-		if(callback)
-		{
-			pushDatabaseBalance();
-			args[i] = (...a) => {
-				popDatabaseBalance();
-				callback(...a)
-			}
-		}
-		else if(args.length <= 2)
-		{
-			pushDatabaseBalance();
-			args.push(() => {
-				popDatabaseBalance();
-			});
-		}
-		query.apply(mysqlSingle, args)
-	}
-
-	mysqlSingle.insertValues = (table, values, callback) => {
-		let names = '';
-		let data = '';
-		for(const val in values)
-		{
-			if(values[val] === null)
-				continue;
-			
-			names += '`' + val + '`,';
-			data += mysqlSingle.escape(values[val]) + ',';
-		}
-		names = names.slice(0, -1)
-		data = data.slice(0, -1)
-		let query = `INSERT INTO ${table}(${names}) VALUES(${data})`;
-		if(callback)
-			return mysqlSingle.query(query, (...responce) => callback(...responce))
-		else
-			return mysqlSingle.query(query)
-	}
-}
-handleListenerDisconnect();
+		p2p.info.files = rows[0].cnt
+	})
+});
 
 /*
 app.use(express.static('build', {index: false}));
