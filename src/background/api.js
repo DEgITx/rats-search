@@ -97,7 +97,7 @@ module.exports = ({
 			return;
 		}
 
-		sphinx.query('SELECT * FROM `torrents` WHERE `hash` = ?', hash, function (error, rows, fields) {
+		sphinx.query('SELECT * FROM `torrents` WHERE `hash` = ?', hash, async function (error, rows, fields) {
 		  if(!rows || rows.length == 0) {
 		  	callback(undefined)
 		  	return;
@@ -119,11 +119,17 @@ module.exports = ({
 		  if(torrentClientHashMap[hash])
 		  {
 			const torrent = torrentClient.get(torrentClientHashMap[hash])
-			if(!torrent)
-				return
-
-			send('downloading', torrent.infoHash)
+			if(torrent)
+			{
+				send('downloading', torrent.infoHash)
+			}
 		  }
+
+		  // get votes
+		  const {good, bad, selfVote} = await getVotes(hash)
+		  send('votes', {
+			hash, good, bad
+		  });
 		});
 	}
 
@@ -630,18 +636,7 @@ module.exports = ({
 		}, done)
 	})
 
-	recive('vote', async (hash, isGood, callback) =>
-	{
-		if(hash.length != 40)
-			return;
-
-		if(typeof callback != 'function')
-			return;
-
-		isGood = !!isGood;
-
-		const action = isGood ? 'good' : 'bad';
-
+	const getVotes = async (hash) => {
 		const votes = await p2pStore.find(`vote:${hash}`)
 		let good = 0
 		let bad = 0
@@ -658,7 +653,22 @@ module.exports = ({
 					good++
 			})
 		}
-		console.log('votes before', bad, good)
+
+		return {good, bad, selfVote}
+	}
+
+	recive('vote', async (hash, isGood, callback) =>
+	{
+		if(hash.length != 40)
+			return;
+
+		if(typeof callback != 'function')
+			return;
+
+		isGood = !!isGood;
+
+		const action = isGood ? 'good' : 'bad';
+		let {good, bad, selfVote} = await getVotes(hash)
 
 		if(!selfVote)
 		{
@@ -672,7 +682,7 @@ module.exports = ({
 			bad += !isGood ? 1 : 0
 		}
 
-		send('vote', {
+		send('votes', {
 			hash, good, bad
 		});
 		callback(true)

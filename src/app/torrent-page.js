@@ -20,6 +20,7 @@ import LinearProgress from 'material-ui/LinearProgress';
 import FlatButton from 'material-ui/FlatButton';
 import {fileTypeDetect} from './content'
 import {contentIcon} from './torrent'
+import waitObject from './waitObject'
 
 let buildFilesTree = (filesList) => {
 	let rootTree = {
@@ -182,7 +183,7 @@ export default class TorrentPage extends Page {
   	window.torrentSocket.emit('torrent', this.props.hash, {files: true, peer: this.props.peer}, window.customLoader((data) => {
   		if(data) {
   			this.torrent = data
-  			this.setTitle(this.torrent.name + ' - Rats On TheBoat');
+  			this.setTitle(this.torrent.name + ' - Rats On The Boat');
         if(this.torrent.contentCategory == 'xxx') {
           this.setMetaTag('robots', 'noindex');
         }
@@ -226,18 +227,18 @@ export default class TorrentPage extends Page {
     }
     window.torrentSocket.on('trackerTorrentUpdate', this.trackerUpdate);
 
-    this.onVote = ({hash, good, bad}) => {
+    this.onVotes = async ({hash, good, bad}) => {
       if(this.props.hash != hash)
         return;
 
-      if(!this.torrent)
-        return;
+      // in some cases torrent object can be resolve late
+      await waitObject(this, 'torrent')
 
       this.torrent.good = good;
       this.torrent.bad = bad;
       this.forceUpdate();
     }
-    window.torrentSocket.on('vote', this.onVote);
+    window.torrentSocket.on('votes', this.onVotes);
 
     this.downloading = (hash) => {
       if(this.props.hash != hash)
@@ -273,8 +274,8 @@ export default class TorrentPage extends Page {
       window.torrentSocket.off('filesReady', this.filesUpdated);
   	if(this.trackerUpdate)
       window.torrentSocket.off('trackerTorrentUpdate', this.trackerUpdate);
-    if(this.onVote)
-      window.torrentSocket.off('vote', this.onVote);
+    if(this.onVotes)
+      window.torrentSocket.off('votes', this.onVotes);
     if(this.torrent && this.torrent.contentCategory == 'xxx') {
       this.removeMetaTag('robots');
     }
