@@ -106,14 +106,12 @@ module.exports = ({
 
 		  if(options.files)
 		  {
-			  sphinx.query('SELECT * FROM `files` WHERE `hash` = ? LIMIT 50000', hash, function (error, rows, fields) {
-				  torrent.filesList = rows;
-				  callback(baseRowData(torrent))
-			  });
+			torrent.filesList = await sphinx.query('SELECT * FROM `files` WHERE `hash` = ? LIMIT 50000', hash);
+			callback(baseRowData(torrent))
 		  }
 		  else
 		  {
-		  	  callback(baseRowData(torrent))
+		  	callback(baseRowData(torrent))
 		  }
 
 		  if(torrentClientHashMap[hash])
