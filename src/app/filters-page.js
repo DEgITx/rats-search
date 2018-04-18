@@ -5,6 +5,8 @@ import Toggle from 'material-ui/Toggle';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField'
 import Slider from 'material-ui/Slider'
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
 
 import fs from 'fs'
 
@@ -92,6 +94,21 @@ export default class ConfigPage extends Page {
                 this.forceUpdate()
               }}
             />
+            <SelectField
+              style={{marginLeft: 15}}
+              floatingLabelText="Examples"
+              value={this.options.filters && this.options.filters.namingRegExp}
+              onChange={(event, index, value) => {
+                if(!this.options.filters)
+                  return
+
+                this.options.filters.namingRegExp = value
+                this.forceUpdate()
+              }}
+            >
+              <MenuItem value={String.raw`^[А-Яа-я0-9A-Za-z.!@?#"$%&:;() *\+,\/;\-=[\\\]\^_{|}<>\u0400-\u04FF]+$`} primaryText="Russian + English only (With symbols)" />
+              <MenuItem value={'^[0-9A-Za-z.!@?#"$%&:;() *\+,\/;\-=[\\\]\^_{|}<>]+$'} primaryText="English only (With symbols)" />
+            </SelectField>
           </div>
           <div className='fs0-75' style={{color: 'grey'}}>
           * - clean string means disabled
