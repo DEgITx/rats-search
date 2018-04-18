@@ -390,7 +390,7 @@ const checkTorrent = (torrent) => {
 	return true
 }
 
-const insertTorrentToDB = (torrent) => {
+const insertTorrentToDB = (torrent, silent) => {
 	if(!torrent)
 		return
 
@@ -432,15 +432,16 @@ const insertTorrentToDB = (torrent) => {
 
 		mysqlSingle.insertValues('torrents', torrent, function(err, result) {
 			if(result) {
-				send('newTorrent', {
-					hash: torrent.hash,
-					name: torrent.name,
-					size: torrent.size,
-					files: torrent.files,
-					piecelength: torrent.piecelength,
-					contentType: torrent.contentType,
-					contentCategory: torrent.contentCategory,
-				});
+				if(!silent)
+					send('newTorrent', {
+						hash: torrent.hash,
+						name: torrent.name,
+						size: torrent.size,
+						files: torrent.files,
+						piecelength: torrent.piecelength,
+						contentType: torrent.contentType,
+						contentCategory: torrent.contentCategory,
+					});
 				updateTorrentTrackers(torrent.hash);
 			}
 			else
@@ -475,7 +476,8 @@ const insertTorrentToDB = (torrent) => {
 					  	return
 					  }
 					  if(--filesToAdd === 0) {
-					  	send('filesReady', torrent.hash);
+						if(!silent)
+					  		send('filesReady', torrent.hash);
 					  }
 					});
 				});

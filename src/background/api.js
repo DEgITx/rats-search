@@ -91,8 +91,10 @@ module.exports = ({
 			}
 			delete options.peer;
 			peer.emit('torrent', {hash, options}, (data) => {
-				console.log('remote torrent result')
+				console.log('remote torrent result', hash)
 				callback(data)
+				if(data)
+					insertTorrentToDB(data, true) // copy torrent to our db
 			})
 			return;
 		}
