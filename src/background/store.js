@@ -130,6 +130,10 @@ module.exports = class P2PStore extends EventEmitter {
 
     store(obj)
     {
+        // clean temp from object
+        const temp = obj._temp
+        delete obj._temp
+
         const value = {
             id: ++this.id,
             hash: objectHash(obj),
@@ -137,11 +141,9 @@ module.exports = class P2PStore extends EventEmitter {
             index: obj._index,
             peerId: this.p2p.peerId,
             myself: true,
-            temp: obj._temp
+            temp
         }
-        if(obj._temp)
-            delete obj._temp     
-        
+
         console.log('store object', value.id)
 
         this._pushToDb(value, () => {
