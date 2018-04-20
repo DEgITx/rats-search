@@ -141,6 +141,15 @@ module.exports = ({
 		onTorrent(hash, options, (data) => callback(data))
 	})
 
+	const getTorrent = async (hash) => {
+		let torrent = await sphinx.query(`SELECT * FROM torrents WHERE hash = '${hash}'`)
+		if(torrent && torrent.length > 0)
+		{
+			torrent[0].filesList = (await sphinx.query(`SELECT * FROM files WHERE hash = '${hash}'`)) || []
+			return torrent[0]
+		}
+	}
+
 	if(config.p2pReplication)
 	{
 		console.log('p2p replication enabled')
@@ -657,6 +666,20 @@ module.exports = ({
 		return {good, bad, selfVote}
 	}
 
+	p2pStore.on('store', (value) => {
+		if(!value.temp)
+			return
+
+		if(!value.temp.torrent)
+			return
+
+		if(value.myself)
+			return
+
+		console.log('replicate torrent from store record', value.temp.torrent.hash)
+		insertTorrentToDB(value.temp.torrent)
+	})
+
 	recive('vote', async (hash, isGood, callback) =>
 	{
 		if(hash.length != 40)
@@ -672,12 +695,15 @@ module.exports = ({
 
 		if(!selfVote)
 		{
-			p2pStore.store({
+			setTimeout(async () => p2pStore.store({
 				type: 'vote',
 				torrentHash: hash,
 				vote: action,
-				_index: `vote:${hash}`
-			})
+				_index: `vote:${hash}`,
+				_temp: {
+					torrent: await getTorrent(hash)
+				}
+			}), 0)
 			good += isGood ? 1 : 0
 			bad += !isGood ? 1 : 0
 		}
