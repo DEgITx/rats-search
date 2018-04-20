@@ -1,8 +1,10 @@
 const objectHash = require('object-hash');
+const EventEmitter = require('events');
 
-module.exports = class P2PStore {
+module.exports = class P2PStore extends EventEmitter {
     constructor(p2p, sphinx)
     {
+        super()
         this.id = 0
 
         console.log('connect p2p store...')
@@ -91,6 +93,9 @@ module.exports = class P2PStore {
             return
         }
 
+        // set myself to false
+        record.myself = false
+
         // push to db
         console.log('sync peerdb record', record.id)
         this._pushToDb(record)
@@ -99,6 +104,7 @@ module.exports = class P2PStore {
 
     _pushToDb(value, callback)
     {
+        this.emit('store', value)
         const data = this.sphinx.escape(JSON.stringify(value.data))
         this.sphinx.query(
             `insert into store(id, hash, peerId, data` + (value.index || value.data._index ? ', storeIndex' : '') + `) 
@@ -122,8 +128,13 @@ module.exports = class P2PStore {
             hash: objectHash(obj),
             data: obj,
             index: obj._index,
-            peerId: this.p2p.peerId
+            peerId: this.p2p.peerId,
+            myself: true,
+            temp: obj._temp
         }
+        if(obj._temp)
+            delete obj._temp     
+        
         console.log('store object', value.id)
 
         this._pushToDb(value, () => {
