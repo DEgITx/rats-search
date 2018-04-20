@@ -36,7 +36,10 @@ module.exports = class P2PStore extends EventEmitter {
                 return
             }
 
-            this._syncRecord(record)
+            this._syncRecord(record, () => {
+                // redirect other peers that record are stored
+                this.p2p.emit('dbStore', record)
+            })
         })
 
         this.p2p.on('dbSync', ({id} = {}, callback) => {
@@ -72,7 +75,7 @@ module.exports = class P2PStore extends EventEmitter {
         })
     }
 
-    _syncRecord(record)
+    _syncRecord(record, callback)
     {
         if(!record)
             return
@@ -100,6 +103,10 @@ module.exports = class P2PStore extends EventEmitter {
         console.log('sync peerdb record', record.id)
         this._pushToDb(record)
         this.id = record.id
+
+        // redirect to next
+        if(callback)
+            callback()
     }
 
     _pushToDb(value, callback)
