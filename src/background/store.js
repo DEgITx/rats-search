@@ -6,6 +6,7 @@ module.exports = class P2PStore extends EventEmitter {
     {
         super()
         this.id = 0
+        this.synchronized = false
 
         console.log('connect p2p store...')
         this.p2p = p2p
@@ -20,13 +21,13 @@ module.exports = class P2PStore extends EventEmitter {
                 
             console.log('store db index', this.id)
 
-            const syncTimeout = setInterval(() => {
-                if(this.p2p.size <= 0)
+            let lock = false
+            this.p2p.events.on('peer', () => {
+                if(lock)
                     return
-
-                clearInterval(syncTimeout)
-                this.sync()
-            }, 10000)
+                lock = true
+                setTimeout(() => this.sync(), 1000)
+            })
 		})
 
         this.p2p.on('dbStore', (record) => { 
@@ -73,6 +74,7 @@ module.exports = class P2PStore extends EventEmitter {
 
             data.records.forEach(record => this._syncRecord(record))
         })
+        this.synchronized = true
     }
 
     _syncRecord(record, callback)
@@ -130,6 +132,12 @@ module.exports = class P2PStore extends EventEmitter {
 
     store(obj)
     {
+        if(!this.synchronized)
+        {
+            console.log('cant store item on unsync db')
+            return false
+        }
+
         // clean temp from object
         const temp = obj._temp
         delete obj._temp
@@ -150,6 +158,8 @@ module.exports = class P2PStore extends EventEmitter {
             // store record
             this.p2p.emit('dbStore', value) 
         })
+
+        return true
     }
 
     find(index)

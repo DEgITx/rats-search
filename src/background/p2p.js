@@ -5,10 +5,12 @@ const net = require('net')
 const JsonSocket = require('json-socket')
 const os = require('os');
 const isPortReachable = require('./isPortReachable')
+const EventEmitter = require('events');
 
 class p2p {
 	constructor(send = () => {})
 	{
+		this.events = new EventEmitter
 		this.peers = []
 		this.ignoreAddresses = ['127.0.0.1']
 		this.messageHandlers = {}
@@ -263,6 +265,7 @@ class p2p {
 					size: this.size,
 					torrents: data.info ? data.info.torrents || 0 : 0
 				})
+				this.events.emit('peer', address)
 				console.log('new peer', address) 
 
 				// add some other peers
