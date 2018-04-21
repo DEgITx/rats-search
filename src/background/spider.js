@@ -387,6 +387,12 @@ const checkTorrent = (torrent) => {
 		}
 	}
 
+	if(torrent.contentType === 'bad')
+	{
+		console.log('ignore torrent', torrent.name, 'because this is a bad thing')
+		return false
+	}
+
 	return true
 }
 

@@ -1,4 +1,4 @@
-let XXX_BLOCK_WORDS = ['incestcash', 'asacp', 'xondemand', 'yankscash', 'klixxx', 'cybersitter', 'safesurf', 
+const XXX_BLOCK_WORDS = ['incestcash', 'asacp', 'xondemand', 'yankscash', 'klixxx', 'cybersitter', 'safesurf', 
 'surfwatch', 'netcash', 'watersport', 'fuck', 'threesome', 'tits', 
 'masturbating', 'incest', 'bestiality', 'analintercourse', 'analsex', 'animesex', 
 'anitablonde', 'autosex', 'blackass', 'blackasses', 'boner', 'boobcruise', 
@@ -244,9 +244,16 @@ let XXX_BLOCK_WORDS = ['incestcash', 'asacp', 'xondemand', 'yankscash', 'klixxx'
 'sleeping', 'speculums', 'spread', 'spreading', 'squirting', 'stripper', 
 'stripping', 'swapping', 'thong', 'topless', 'toying', 
 'trix', 'undressing', 'uniform', 'whipcream', 'brazzers', 'порно', 
-'порн', 'лесб', 'гей', 'геи', 'прон', 'catgoddess', 'gracel', 'fatman', 'falko', 'pthc', 
-'ptsc', 'yukikax', 'ls-models', '3yo', '4yo', '5yo', '6yo', '7yo', '8yo', '9yo', 
-'10yo', '11yo', '12yo', '13yo', '14yo', '15yo', '16yo'
+'порн', 'лесб', 'гей', 'геи', 'прон'
 ];
 
-module.exports = XXX_BLOCK_WORDS;
+const XXX_VERY_BAD_WORDS = [
+    'catgoddess', 'gracel', 'fatman', 'falko', 'pthc', 
+    'ptsc', 'yukikax', 'ls-models', '3yo', '4yo', '5yo', '6yo', '7yo', '8yo', '9yo', 
+    '10yo', '11yo', '12yo', '13yo', '14yo', '15yo', '16yo'
+]
+
+module.exports = {
+    XXX_BLOCK_WORDS,
+    XXX_VERY_BAD_WORDS
+};

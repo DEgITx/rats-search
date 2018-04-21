@@ -234,16 +234,22 @@ const ExtesionBase = {
 const ContentTypeProp = 'contentType';
 const ContentCategoryProp = 'contentCategory';
 
-const XXX_BLOCK_WORDS = require('./bad-words');
+const {
+	XXX_BLOCK_WORDS,
+    XXX_VERY_BAD_WORDS
+} = require('./bad-words');
 
 // блокируем порнографию
 const blockBadName = (torrent, name) => {
 	let splitName = name.split(/[`~!@#$%^&*()\]\[{}.,+?/\\;:\-_' "|]/);
 	splitName.some((word) => {
+		if (XXX_VERY_BAD_WORDS.some(function(v) { return word == v; })) {
+			torrent[ContentTypeProp] = 'bad';
+		} else
 		if (XXX_BLOCK_WORDS.some(function(v) { return word == v; })) {
 			torrent[ContentCategoryProp] = 'xxx';
 		}
-		return torrent[ContentCategoryProp] == 'xxx';
+		return torrent[ContentCategoryProp] == 'xxx' || torrent[ContentTypeProp] == 'bad';
 	})
 }
 
@@ -266,7 +272,7 @@ const detectSubCategory = (torrent, files, typesPriority, contentType) => {
 				blockBadName(torrent, fileCheck);
 				if(torrent[ContentCategoryProp] == 'xxx')
 				{
-					console.log('block because file ' + path);
+					console.log('marked torrent xxx because file ' + path);
 				}
 				return torrent[ContentCategoryProp] == 'xxx';
 			})
