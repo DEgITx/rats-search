@@ -374,6 +374,10 @@ module.exports = ({
 				for(const torrent of torrents)
 				{
 					search[torrent.hash] = Object.assign(baseRowData(torrent), search[torrent.hash])
+					
+					// temporary ignore adult content in search (workaroud)
+					if(safeSearch && search[torrent.hash].contentCategory == 'xxx')
+						delete search[torrent.hash]
 				}
 
 				callback(Object.values(search));
