@@ -373,7 +373,7 @@ module.exports = ({
 
 				for(const torrent of torrents)
 				{
-					search[torrent.hash] = Object.assign(torrent, search[torrent.hash])
+					search[torrent.hash] = Object.assign(baseRowData(torrent), search[torrent.hash])
 				}
 
 				callback(Object.values(search));
