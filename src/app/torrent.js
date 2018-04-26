@@ -242,7 +242,7 @@ export default class Torrent extends Component {
                 node.onclick = () => { return false }
             }}>
               <span className='break-word' style={{
-              color: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : 'grey'
+              color: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : (torrent.peer ? '#9083e2' : 'grey')
               }}>
                 {torrent.name}
               </span>
@@ -255,7 +255,7 @@ export default class Torrent extends Component {
             }}>
               <div className='column' style={{height: 'auto', whiteSpace: 'normal', paddingTop: '0.30em'}}>
                 <div className='row w100p inline'>
-                  <div style={{color: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5252d1' : 'black') : 'grey'}}>
+                  <div style={{color: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5252d1' : 'black') : (torrent.peer ? '#9083e2' : 'grey')}}>
                     {
                       formatBytes(torrent.size, 1) + ' (' + torrent.files + ' files)'
                     }
@@ -293,7 +293,7 @@ export default class Torrent extends Component {
               </div>
             </a>
           }
-          leftIcon={contentIcon(torrent.contentType, torrent.contentCategory, torrent.contentCategory != 'xxx' ? (torrent.peer ? '#6f5ee0' : 'grey') : '#d3d3d3')}
+          leftIcon={contentIcon(torrent.contentType, torrent.contentCategory, torrent.contentCategory != 'xxx' ? (torrent.peer ? '#6f5ee0' : 'grey') : (torrent.peer ? '#9083e2' : '#d3d3d3'))}
           rightIcon={
             <div className='row inline' style={{width: 63}}>
               {
@@ -303,7 +303,7 @@ export default class Torrent extends Component {
                 <svg style={{
                   height: '24px',
                   marginRight: 12,
-                  fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : 'grey'
+                  fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : (torrent.peer ? '#9083e2' : 'grey')
               }} onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -340,7 +340,7 @@ export default class Torrent extends Component {
               <a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
                 <svg style={{
                   height: '24px',
-                  fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : 'grey'
+                  fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : (torrent.peer ? '#9083e2' : 'grey')
               }} onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -352,7 +352,7 @@ export default class Torrent extends Component {
               <a style={{float: 'right'}} href={`magnet:?xt=urn:btih:${torrent.hash}`}>
                 <svg style={{
                   height: '24px',
-                  fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : 'grey'
+                  fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : (torrent.peer ? '#9083e2' : 'grey')
               }} onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
