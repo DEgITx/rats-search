@@ -115,6 +115,20 @@ export default class ConfigPage extends Page {
           </div>
         </div>
 
+        <Toggle
+			  style={{marginTop: '10px'}}
+		      label="Adult filter"
+		      toggled={this.options.filters && this.options.filters.adultFilter}
+		      onToggle={(e, checked) => {
+            if(!this.options.filters)
+              return
+
+		      	this.options.filters.adultFilter = checked
+		      	this.forceUpdate()
+		      }}
+		    />
+
+
         {
           this.toRemoveProbably && this.toRemoveProbably > 0
           ?
