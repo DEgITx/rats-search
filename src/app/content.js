@@ -249,7 +249,7 @@ const blockBadName = (torrent, name) => {
 		if (XXX_BLOCK_WORDS.some(function(v) { return word == v; })) {
 			torrent[ContentCategoryProp] = 'xxx';
 		}
-		return torrent[ContentCategoryProp] == 'xxx' || torrent[ContentTypeProp] == 'bad';
+		return torrent[ContentTypeProp] == 'bad'; // stop only if marked as bad, otherwise check all
 	})
 }
 
@@ -261,7 +261,7 @@ const detectSubCategory = (torrent, files, typesPriority, contentType) => {
 	{
 		blockBadName(torrent, name);
 		// блокируем так по названию файлов
-		if(torrent[ContentCategoryProp] != 'xxx')
+		if(torrent[ContentTypeProp] != 'bad')
 		{
 			files.some(({path}) => {
 				let fileCheck = path.toLowerCase().split('.');
@@ -270,11 +270,8 @@ const detectSubCategory = (torrent, files, typesPriority, contentType) => {
 				fileCheck = fileCheck.join('.');
 
 				blockBadName(torrent, fileCheck);
-				if(torrent[ContentCategoryProp] == 'xxx')
-				{
-					console.log('marked torrent xxx because file ' + path);
-				}
-				return torrent[ContentCategoryProp] == 'xxx';
+				
+				return torrent[ContentTypeProp] == 'bad';
 			})
 		}
 	}
