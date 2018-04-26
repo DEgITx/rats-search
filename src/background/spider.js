@@ -393,6 +393,12 @@ const checkTorrent = (torrent) => {
 		return false
 	}
 
+	if(config.filters.adultFilter && torrent.contentCategory === 'xxx')
+	{
+		console.log('ignore torrent', torrent.name, 'because adult filter')
+		return false
+	}
+
 	return true
 }
 

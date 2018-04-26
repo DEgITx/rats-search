@@ -39,7 +39,8 @@ let config = {
 
 	filters: {
 		maxFiles: 0,
-		namingRegExp: ''
+		namingRegExp: '',
+		adultFilter: false,
 	},
 
 	cleanup: true,
