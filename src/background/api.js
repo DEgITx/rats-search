@@ -1,5 +1,7 @@
 const ipaddr = require('ipaddr.js');
 const forBigTable = require('./forBigTable')
+const compareVersions = require('compare-versions');
+const getTorrent = require('./gettorrent')
 
 module.exports = ({
 	sphinx,
@@ -90,9 +92,16 @@ module.exports = ({
 				return;
 			}
 			delete options.peer;
-			peer.emit('torrent', {hash, options}, (data) => {
+			peer.emit('torrent', {hash, options}, (data, nil, address) => {
 				console.log('remote torrent result', hash)
 				callback(data)
+
+				if(compareVersions(address.version, '0.19.0') < 0)
+				{
+					console.log('replication selected torrent now works only with 0.19.0 version, ignore this torrent')
+					return
+				}
+
 				if(data)
 					insertTorrentToDB(data, true) // copy torrent to our db
 			})
@@ -141,15 +150,6 @@ module.exports = ({
 		onTorrent(hash, options, (data) => callback(data))
 	})
 
-	const getTorrent = async (hash) => {
-		let torrent = await sphinx.query(`SELECT * FROM torrents WHERE hash = '${hash}'`)
-		if(torrent && torrent.length > 0)
-		{
-			torrent[0].filesList = (await sphinx.query(`SELECT * FROM files WHERE hash = '${hash}'`)) || []
-			return torrent[0]
-		}
-	}
-
 	if(config.p2pReplication)
 	{
 		console.log('p2p replication enabled')
@@ -190,9 +190,15 @@ module.exports = ({
 
 		const getReplicationTorrents = (nextTimeout = 5000) => {
 			let gotTorrents = 0
-			p2p.emit('randomTorrents', null, (torrents) => {
+			p2p.emit('randomTorrents', null, (torrents, nil, address) => {
 				if(!torrents || torrents.length == 0)
 					return
+
+				if(compareVersions(address.version, '0.19.0') < 0)
+				{
+					console.log('replication now works only with 0.19.0 version, ignore this torrent')
+					return
+				}
 
 				gotTorrents += torrents.length
 
@@ -705,7 +711,7 @@ module.exports = ({
 				vote: action,
 				_index: `vote:${hash}`,
 				_temp: {
-					torrent: await getTorrent(hash)
+					torrent: await getTorrent(sphinx, hash)
 				}
 			}), 0)
 			good += isGood ? 1 : 0

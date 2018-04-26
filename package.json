@@ -112,6 +112,7 @@
   "dependencies": {
     "bencode": "^1.0.0",
     "bitfield": "^1.1.2",
+    "compare-versions": "^3.1.0",
     "debug": "^3.1.0",
     "diskusage": "^0.2.4",
     "electron-context-menu": "^0.9.1",

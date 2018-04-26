@@ -5,7 +5,12 @@ const url  = require('url')
 const path  = require('path')
 const fs  = require('fs')
 
-const currentVersion = 3
+const {torrentTypeDetect} = require('../app/content');
+const getTorrent = require('./gettorrent')
+
+
+const currentVersion = 4
+
 
 module.exports = async (callback, mainWindow, sphinxApp) => {
     const sphinx = await single().waitConnection()
@@ -143,6 +148,40 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
                 await sphinxApp.waitOptimized('files')
 
                 await setVersion(3)
+            }
+            case 3:
+            {
+                openPatchWindow()
+
+                // block xxx
+                let bad = 0
+
+                let i = 1
+                const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
+                await forBigTable(sphinx, 'torrents', async (torrent) => {
+                    console.log('update index', torrent.id, torrent.name, '[', i, 'of', torrents, '] - delete:', bad)
+                    if(patchWindow)
+                        patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
+
+                    if(torrent.contentcategory == 'xxx')
+                    {
+                        delete torrent.contentcategory
+                        delete torrent.contenttype
+                        torrent = await getTorrent(sphinx, null, torrent) // get files
+                        torrentTypeDetect(torrent, torrent.filesList)
+                        if(torrent.contentType == 'bad')
+                        {
+                            console.log('remove bad torrent', torrent.name)
+                            bad++
+                            await sphinx.query(`DELETE FROM torrents WHERE hash = '${torrent.hash}'`)
+                            await sphinx.query(`DELETE FROM files WHERE hash = '${torrent.hash}'`)
+                        }
+                    }
+                })
+
+                console.log('removed', bad, 'torrents')
+
+                await setVersion(4)
             }
         }
         console.log('db patch done')

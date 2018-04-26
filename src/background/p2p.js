@@ -47,7 +47,10 @@ class p2p {
 							id: message.id,
 							data
 						});
-					}, socket)
+					}, socket, {
+						version: message.version,
+						info: message.info
+					})
 				}
 			});
 			socket.protocolTimeout = setTimeout(() => socket._socket.destroy(), 7000)
@@ -216,7 +219,7 @@ class p2p {
 			socket.on('message', (message) => {
 				if(message.id && callbacks[message.id])
 				{
-					callbacks[message.id](message.data, socket);
+					callbacks[message.id](message.data, socket, address);
 					delete callbacks[message.id];
 				}
 			});
