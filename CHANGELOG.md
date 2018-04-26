@@ -1,3 +1,36 @@
+<a name="0.19.0"></a>
+# [0.19.0](https://github.com/DEgITx/rats-search/compare/v0.18.0...v0.19.0) (2018-04-26)
+
+
+### Bug Fixes
+
+* **content:** basic adult filtration ([6a85538](https://github.com/DEgITx/rats-search/commit/6a85538))
+* **header:** more pleasant animation ([3690d3a](https://github.com/DEgITx/rats-search/commit/3690d3a))
+* **peerdb:** transfer data fix ([cd054b3](https://github.com/DEgITx/rats-search/commit/cd054b3))
+* **search:** fix some unsafe results in safe search ([541acca](https://github.com/DEgITx/rats-search/commit/541acca))
+* **search:** show types of torrents on files search fix ([4b8ef41](https://github.com/DEgITx/rats-search/commit/4b8ef41))
+* **store:** store on all peers ([ed9c323](https://github.com/DEgITx/rats-search/commit/ed9c323))
+* **vote:** proper vote data sequencing ([e87e51e](https://github.com/DEgITx/rats-search/commit/e87e51e))
+* **votes:** actual votes display works now ([75e7159](https://github.com/DEgITx/rats-search/commit/75e7159))
+
+
+### Features
+
+* **filters:** adult filter ([6aa952a](https://github.com/DEgITx/rats-search/commit/6aa952a))
+* **filters:** some examples of regex [#25](https://github.com/DEgITx/rats-search/issues/25) ([b112900](https://github.com/DEgITx/rats-search/commit/b112900))
+* **header:** fixed header on main window ([e7cda54](https://github.com/DEgITx/rats-search/commit/e7cda54))
+* **peerDB:** store on peers feature ([912be10](https://github.com/DEgITx/rats-search/commit/912be10))
+* **replication:** replicate torrent on open ([6acf17f](https://github.com/DEgITx/rats-search/commit/6acf17f))
+* **search:** separate adult remote content on search ([660192e](https://github.com/DEgITx/rats-search/commit/660192e))
+* **vote:** replicate torrent on voting ([d524ff4](https://github.com/DEgITx/rats-search/commit/d524ff4))
+* **vote:** restored voting (now working over p2p) ([9caa593](https://github.com/DEgITx/rats-search/commit/9caa593))
+
+
+### Performance Improvements
+
+* **peerdb:** faster store sync ([fc0388c](https://github.com/DEgITx/rats-search/commit/fc0388c))
+* **top:** less cpu usage on top page update ([b39a933](https://github.com/DEgITx/rats-search/commit/b39a933))
+
 <a name="0.18.0"></a>
 # [0.18.0](https://github.com/DEgITx/rats-search/compare/v0.17.1...v0.18.0) (2018-04-07)
 
