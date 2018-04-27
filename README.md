@@ -54,6 +54,8 @@ npm run server
 
 Now you can get access to web interface on 8095 port: http://localhost:8095
 
+[More about configuration](docs/SERVER.md)
+
 ## Screenshots
 
 ![Main Window](docs/img/screen_1.png)
