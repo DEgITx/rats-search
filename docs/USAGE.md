@@ -15,7 +15,7 @@ In the case when the collection of torrents does not occur, or is very slow (1-2
 
 ### Port configuration
 
-[![Settings](img/settings.png)](https://github.com/DEgITx/rats-search)
+[![Settings](img/settings_ports.png)](https://github.com/DEgITx/rats-search)
 
 For correct operation, it is necessary that ports 4445 and 4446 (or others specified in the settings) are opened. Both types of ports (UDP and TCP) must be opened. On the router, the ports must necessarily be thrown through NAT (if enabled). In the case when router supports UPnP ports will be forwarded automatically. 
 
@@ -27,7 +27,7 @@ Over time, your database of torrents will naturally grow up, and you can search 
 
 ### Distributed search
 
-In the case of the other ROTB clients found, there will be indicator at the bottom
+In the case of the other ROTB clients found, there will be indicator at the top
 
 [![A lot of torrents](img/peer.png)](https://github.com/DEgITx/rats-search)
 
@@ -39,15 +39,15 @@ The results of search of other participants are marked with a separate color.
 
 ### Torrent scanner settings
 
-[![Settings](img/settings.png)](https://github.com/DEgITx/rats-search)
+[![Settings](img/settings_limits.png)](https://github.com/DEgITx/rats-search)
 
 In the settings there are 3 parameters responsible for configuring the search for torrents in the network, each of them affects the application load, the rate of collection of torrents, the generation of traffic, as well as the total load for equipping the intermediate nodes of the network (router, etc.)
 
 Recommended values:
 * Maximum fast search / high load:
   * Scanner walk speed: 5
-  * Nodes usage: 0 (отключен = максимальное использование)
-  * Reduce netowork packages: 0 (отключено = неограниченно)
+  * Nodes usage: 0 (disabled = max usage)
+  * Reduce netowork packages: 0 (disabled = unlimited)
 * Average search speed / average load:
   * Scanner walk speed: 15
   * Nodes usage: 100
