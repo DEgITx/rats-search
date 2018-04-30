@@ -47,7 +47,8 @@ export const aboutMenuTemplate = {
       click: () => {
         const win = new BrowserWindow({
           parent: BrowserWindow.getFocusedWindow(),
-          modal: true
+          modal: true,
+          width: 1000
         })
         win.setMenu(null)
         win.loadURL(url.format({
@@ -55,6 +56,19 @@ export const aboutMenuTemplate = {
           protocol: "file:",
           slashes: true
         }))
+
+        const handleRedirect = (e, url) => {
+          if(url != win.webContents.getURL()) {
+            if(!url.includes('patreon'))
+              return
+
+            e.preventDefault()
+            shell.openExternal(url)
+          }
+        }
+        
+        win.webContents.on('will-navigate', handleRedirect)
+        win.webContents.on('new-window', handleRedirect)
       },
     },
     {
