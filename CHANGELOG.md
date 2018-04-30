@@ -1,3 +1,11 @@
+<a name="0.19.1"></a>
+## [0.19.1](https://github.com/DEgITx/rats-search/compare/v0.19.0...v0.19.1) (2018-04-30)
+
+
+### Bug Fixes
+
+* **donate:** more relevant donate view, display also patreon donate :) ([7152b36](https://github.com/DEgITx/rats-search/commit/7152b36))
+
 <a name="0.19.0"></a>
 # [0.19.0](https://github.com/DEgITx/rats-search/compare/v0.18.0...v0.19.0) (2018-04-26)
 
