@@ -19,7 +19,6 @@ After server start in root folder will created rats.json - main configuration fi
 ```json
 {
     "dbPath": "e:\\Projects\\rats\\db",
-    "peerId": "qpxh1prxtvdp149dhw0nu",
     "httpPort": 8095
 } 
 ```
