@@ -2,6 +2,7 @@ const ipaddr = require('ipaddr.js');
 const forBigTable = require('./forBigTable')
 const compareVersions = require('compare-versions');
 const getTorrent = require('./gettorrent')
+const _ = require('lodash')
 
 module.exports = ({
 	sphinx,
@@ -317,12 +318,14 @@ module.exports = ({
 		let order = '';
 		let where = '';
 
+		/*
 		if(orderBy && orderBy.length > 0)
 		{
 			const orderDesc = navigation.orderDesc ? 'DESC' : 'ASC';
 			args.splice(1, 0, orderBy);
 			order = 'ORDER BY ?? ' + orderDesc;
 		}
+		*/
 		/*
 		if(safeSearch)
 		{
@@ -386,7 +389,14 @@ module.exports = ({
 						delete search[torrent.hash]
 				}
 
-				callback(Object.values(search));
+				let searchResult = Object.values(search)
+
+				if(orderBy && orderBy.length > 0 && searchResult.length > 0)
+				{
+					searchResult = _.orderBy(searchResult, [orderBy], [navigation.orderDesc ? 'desc' : 'asc'])
+				}
+
+				callback(searchResult);
 			})
 		});
 	}
