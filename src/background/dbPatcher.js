@@ -27,6 +27,9 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
         if(patchWindow)
             return
 
+        if(!BrowserWindow)
+        	return
+
         if(mainWindow)
             mainWindow.hide()
 
