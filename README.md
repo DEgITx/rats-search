@@ -58,10 +58,14 @@ Now you can get access to web interface on 8095 port: http://localhost:8095
 
 [More about configuration](docs/SERVER.md)
 
+[More about server compatibility](docs/SERVER_COMPATIBILITY.md)
+
 ## Screenshots
 
 ![Main Window](docs/img/screen_1.png)
 ![Torrent Details](docs/img/screen_2.png)
+
+## Donation
 
 ## License
 [MIT](https://github.com/DEgiTx/rats-search/blob/master/LICENSE)
