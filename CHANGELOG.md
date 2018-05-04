@@ -1,3 +1,13 @@
+<a name="0.19.2"></a>
+## [0.19.2](https://github.com/DEgITx/rats-search/compare/v0.19.1...v0.19.2) (2018-05-04)
+
+
+### Bug Fixes
+
+* **linux:** fix patching on some systems without electron ([7c39658](https://github.com/DEgITx/rats-search/commit/7c39658))
+* **search:** error on sorting files in search ([63768a2](https://github.com/DEgITx/rats-search/commit/63768a2))
+* **trackers:** fix possible trackers error on scrape ([81b5ead](https://github.com/DEgITx/rats-search/commit/81b5ead))
+
 <a name="0.19.1"></a>
 ## [0.19.1](https://github.com/DEgITx/rats-search/compare/v0.19.0...v0.19.1) (2018-04-30)
 
