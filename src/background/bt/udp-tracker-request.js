@@ -49,6 +49,9 @@ let scrapeTorrent = function (connectionIdHigh, connectionIdLow, transactionId) 
     if(!connection)
         return;
 
+    if(!connection.hash || connection.hash.length != 40)
+        return
+
     debug('start scrape');
     let buffer = new Buffer(56)
 
@@ -58,10 +61,16 @@ let scrapeTorrent = function (connectionIdHigh, connectionIdLow, transactionId) 
     buffer.writeUInt32BE(connectionIdLow, 4);
     buffer.writeUInt32BE(ACTION_SCRAPE, 8);
     buffer.writeUInt32BE(transactionId, 12);
-    buffer.write(connection.hash, 16, buffer.length, 'hex');
 
-    // do scrape
-    message(buffer, connection.host, connection.port);
+    try
+    {
+        buffer.write(connection.hash, 16, buffer.length, 'hex');
+        // do scrape
+        message(buffer, connection.host, connection.port);
+    } catch(error)
+    {
+        console.log('ERROR on scrape', error)
+    }
 };
 
 server.on("message", function (msg, rinfo) {
