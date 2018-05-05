@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 
-import SearchResults from './search-results'
 import AdvancedSearch from './search-advanced-controls'
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -12,20 +11,16 @@ import VisibilityOff from 'material-ui/svg-icons/action/visibility-off';
 import AddIcon from 'material-ui/svg-icons/content/add';
 import RemoveIcon from 'material-ui/svg-icons/content/remove';
 
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
-
 import formatBytes from './format-bytes'
 
 import _ from 'lodash'
-
-let session;
+import singleton from './singleton';
 
 class TorrentsStatistic extends Component {
   constructor(props)
   {
     super(props)
-
+    
     this.stats = props.stats || {}
   }
   componentDidMount()
@@ -52,10 +47,12 @@ class TorrentsStatistic extends Component {
   }
 }
 
-export default class Search extends Component {
+class Search extends Component {
   constructor(props)
   {
     super(props)
+    this.onSearchUpdate = () => {}
+
     this.state = { 
       searchingIndicator: false,
       safeSearchText: 'safe search enabled',
@@ -69,28 +66,14 @@ export default class Search extends Component {
     this.searchLimit = 10
     this.advanced = {}
     this.searchError = undefined;
-    
-    if(session)
-    {
-      this.searchTorrents = session.searchTorrents;
-      this.searchFiles = session.searchFiles;
-      this.moreSearchTorrents = session.moreSearchTorrents;
-      this.moreSearchFiles = session.moreSearchFiles;
-      this.currentSearch = session.currentSearch;
-      this.searchValue = session.searchValue;
-      Object.assign(this.state, this.setSafeSearch(session.notSafeSearch))
-      this.state.orderBy = session.orderBy;
-      this.state.orderDesc = session.orderDesc;
-      this.state.advancedSearch = session.advancedSearch;
-      this.advanced = session.advanced;
-      this.searchError = session.searchError;
-    }
   }
 
   search(oldSearch) {
     this.setState({
       searchingIndicator: true
     });
+    this.onSearchUpdate('indicator')
+    
     this.searchTorrents = [];
     this.moreSearchTorrents = true;
     this.searchFiles = [];
@@ -120,9 +103,8 @@ export default class Search extends Component {
         this.setState({
           searchingIndicator: false
         });
-      } else {
-        this.forceUpdate();
       }
+      this.onSearchUpdate('torrents')
     }));
     let searchFilesParams = {
       limit: this.searchLimit, 
@@ -135,7 +117,6 @@ export default class Search extends Component {
     
     window.torrentSocket.emit('searchFiles', oldSearch ? this.currentSearch : this.searchValue, searchFilesParams, window.customLoader((torrents) => {
       if(torrents) {
-        console.log('back torrents')
         this.searchFiles = torrents;
         let files = 0;
         torrents.forEach((torrent) => {
@@ -153,13 +134,13 @@ export default class Search extends Component {
         this.setState({
           searchingIndicator: false
         });
-      } else {
-        this.forceUpdate();
       }
+      this.onSearchUpdate('files')
     }));
   }
   moreTorrents() {
     this.setState({moreTorrentsIndicator: true});
+    this.onSearchUpdate('indicator')
 
     window.torrentSocket.emit('searchTorrent', this.currentSearch, {
         index: this.searchTorrents.length,
@@ -169,12 +150,12 @@ export default class Search extends Component {
         orderDesc: this.state.orderDesc,
     }, window.customLoader((torrents) => {
       if(torrents) {
-        console.log('back torrents')
         this.searchTorrents = this.searchTorrents.concat(torrents);
         if(torrents.length != this.searchLimit)
           this.moreSearchTorrents = false;
 
         this.setState({moreTorrentsIndicator: false});
+        this.onSearchUpdate('more torrents')
       }
     }));
   }
@@ -186,6 +167,7 @@ export default class Search extends Component {
     });
 
     this.setState({moreFilesIndicator: true});
+    this.onSearchUpdate('indicator')
 
     window.torrentSocket.emit('searchFiles', this.currentSearch, {
         index: index,
@@ -207,6 +189,7 @@ export default class Search extends Component {
         this.mergeFiles()
 
         this.setState({moreFilesIndicator: false});
+        this.onSearchUpdate('more files')
       }
     }));
   }
@@ -245,7 +228,7 @@ export default class Search extends Component {
       if(!torrents)
         return
       this.searchTorrents = _.unionBy(this.searchTorrents, torrents, 'hash')
-      this.forceUpdate();
+      this.onSearchUpdate('remote torrents')
     }
     window.torrentSocket.on('remoteSearchTorrent', this.remoteSearchTorrent);
 
@@ -254,7 +237,7 @@ export default class Search extends Component {
         return
       this.searchFiles = _.unionBy(this.searchFiles, torrents, 'hash')
       this.mergeFiles()
-      this.forceUpdate();
+      this.onSearchUpdate('remote files')
     }
     window.torrentSocket.on('remoteSearchFiles', this.remoteSearchFiles);
   }
@@ -268,21 +251,6 @@ export default class Search extends Component {
 
     if(this.remoteSearchFiles)
       window.torrentSocket.off('remoteSearchFiles', this.remoteSearchFiles);
-
-    session = {
-      searchTorrents: this.searchTorrents,
-      searchFiles: this.searchFiles,
-      moreSearchTorrents: this.moreSearchTorrents,
-      moreSearchFiles: this.moreSearchFiles,
-      currentSearch: this.currentSearch,
-      searchValue: this.searchValue,
-      notSafeSearch: this.notSafeSearch,
-      orderBy: this.state.orderBy,
-      orderDesc: this.state.orderDesc,
-      advancedSearch: this.state.advancedSearch,
-      advanced: this.advanced,
-      searchError: this.searchError,
-    } 
   }
   setSafeSearch(ch) {
     this.notSafeSearch = ch;
@@ -302,16 +270,6 @@ export default class Search extends Component {
         position: 'relative',
       },
     };
-
-    const orderText = (text, field) => {
-      if(field !== this.state.orderBy)
-        return text;
-
-      if(this.state.orderDesc)
-        return text + ' ⇩'
-      else
-        return text + ' ⇧'
-    }
 
     return (
       <div className="column w100p center">
@@ -399,59 +357,9 @@ export default class Search extends Component {
           :
           null
         }
-        <SearchResults 
-          torrentsSearchResults={this.searchTorrents} 
-          filesSearchResults={this.searchFiles}
-          currentSearching={this.state.searchingIndicator}
-          searchText={this.currentSearch}
-          resultSelector={
-            <SelectField
-            floatingLabelText="Sort by"
-            floatingLabelFixed={true}
-            value={this.state.orderBy}
-            onChange={(event, index, value) => {
-              event.preventDefault(); // fix overclick on torrent
-              if(value === 'none') {
-                this.setState({orderBy: null}, () => {
-                  this.search(true)
-                })
-                return;
-              }
-
-              if(value === this.state.orderBy)
-              {
-                this.setState({orderDesc: !this.state.orderDesc}, () => {
-                  this.search(true)
-                })
-                return;
-              }
-
-              this.setState({
-                orderBy: value, 
-                orderDesc: (value === 'seeders' || value === 'completed' || value === 'added') ? true : this.state.orderDesc
-              }, () => {
-                this.search(true)
-              })
-            }}
-          >
-              <MenuItem value='none' primaryText={'None'} />
-              <MenuItem value='seeders' primaryText={orderText('Seeders', 'seeders')} />
-              <MenuItem value='name' primaryText={orderText('Name', 'name')} />
-              <MenuItem value='files' primaryText={orderText('Files', 'files')} />
-              <MenuItem value='size' primaryText={orderText('Size', 'size')} />
-              <MenuItem value='added' primaryText={orderText('Added date', 'added')} />
-              <MenuItem value='completed' primaryText={orderText('Completed', 'completed')} />
-            </SelectField>
-          }
-
-          moreTorrentsEnabled={this.moreSearchTorrents && !this.state.searchingIndicator}
-          moreFilesEnabled={this.moreSearchFiles && !this.state.searchingIndicator}
-          onMoreTorrents={() => this.moreTorrents()}
-          onMoreFiles={() => this.moreFiles()}
-          moreTorrentsIndicator={this.state.moreTorrentsIndicator}
-          moreFilesIndicator={this.state.moreFilesIndicator}
-        />
       </div>
     );
   }
 }
+
+export default singleton(Search)

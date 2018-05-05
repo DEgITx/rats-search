@@ -2,6 +2,7 @@ import React from 'react';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import Background from './images/pirate-mod.jpg'
 import RaisedButton from 'material-ui/RaisedButton';
+import Search from './search'
 
 class Header extends React.Component {
   constructor(props)
@@ -249,7 +250,15 @@ class Header extends React.Component {
           {
 						((window.currentWindow && !window.currentWindow.isModal()) || typeof WEB !== 'undefined')
 						&&
-						<div className='fs0-85 pad0-75 column peers-status' style={{marginLeft: 'auto', marginTop: '-10px', color: window.peers > 0 ? '#42f445' : 'white'}}>
+						<div className='fs0-85 pad0-75 column peers-status' style={{
+              marginLeft: 'auto', 
+              marginTop: '-10px', 
+              color: window.peers > 0 ? '#42f445' : 'white',
+              backgroundColor: 'white',
+              zIndex: 2
+              }}>
+              <Search />
+
               <div>rats peers: {window.peers} [{window.peersTorrents} torrents] {window.peers > 0 ? ' (p2p rats search enabled)' : ' (p2p rats search not available at this moment)'}</div>
               {
                 window.p2pStatus == 0
