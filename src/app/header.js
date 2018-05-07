@@ -254,7 +254,6 @@ class Header extends React.Component {
               marginLeft: 'auto', 
               marginTop: '-10px', 
               color: window.peers > 0 ? '#42f445' : 'white',
-              backgroundColor: 'white',
               zIndex: 2
               }}>
               <Search />

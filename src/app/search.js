@@ -69,6 +69,7 @@ class Search extends Component {
   }
 
   search(oldSearch) {
+    window.router('/')
     this.setState({
       searchingIndicator: true
     });
@@ -273,7 +274,7 @@ class Search extends Component {
 
     return (
       <div className="column w100p center">
-        <div className='row inline w100p pad0-75' style={{maxWidth: '30em'}}>
+        <div className='row inline w100p pad0-75' style={{maxWidth: '30em', backgroundColor: 'white', paddingTop: 0}}>
           <TextField
               hintText="Search torrent or file"
               floatingLabelText="What to search?"
