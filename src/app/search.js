@@ -160,6 +160,15 @@ class Search extends Component {
       }
     }));
   }
+  calcTorrentsFiles(torrents)
+  {
+    let files = 0;
+    torrents.forEach((torrent) => {
+      if(torrent.path && torrent.path.length > 0)
+        files += torrent.path.length
+    });
+    return files
+  }
   moreFiles() {
     let index = 0;
     this.searchFiles.forEach((torrent) => {
@@ -179,12 +188,8 @@ class Search extends Component {
     }, window.customLoader((torrents) => {
       if(torrents) {
         this.searchFiles = this.searchFiles.concat(torrents);
-        let files = 0;
-        torrents.forEach((torrent) => {
-          if(torrent.path && torrent.path.length > 0)
-            files += torrent.path.length
-        });
-        if(files != this.searchLimit)
+
+        if(this.calcTorrentsFiles(torrents) != this.searchLimit)
           this.moreSearchFiles = false;
 
         this.mergeFiles()
@@ -228,6 +233,10 @@ class Search extends Component {
     this.remoteSearchTorrent = (torrents) => {
       if(!torrents)
         return
+      
+     if(torrents.length === this.searchLimit)
+        this.moreSearchTorrents = true;
+
       this.searchTorrents = _.unionBy(this.searchTorrents, torrents, 'hash')
       this.onSearchUpdate('remote torrents')
     }
@@ -236,6 +245,10 @@ class Search extends Component {
     this.remoteSearchFiles = (torrents) => {
       if(!torrents)
         return
+
+      if(torrents.length > 0 && this.calcTorrentsFiles(torrents) === this.searchLimit)
+        this.moreSearchFiles = true;
+
       this.searchFiles = _.unionBy(this.searchFiles, torrents, 'hash')
       this.mergeFiles()
       this.onSearchUpdate('remote files')
