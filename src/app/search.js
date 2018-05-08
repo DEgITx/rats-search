@@ -287,8 +287,9 @@ class Search extends Component {
 
     return (
       <div className="column w100p center">
-        <div className='row inline w100p pad0-75' style={{maxWidth: '30em', backgroundColor: 'white', paddingTop: 0}}>
+        <div className='row inline w100p pad0-75' style={{minWidth: '35em', backgroundColor: 'white', paddingTop: 0, paddingBottom: 0, margin: 5, borderRadius: 3}}>
           <TextField
+              style={{marginTop: -12}}
               hintText="Search torrent or file"
               floatingLabelText="What to search?"
               fullWidth={true}
@@ -309,18 +310,13 @@ class Search extends Component {
                this.forceUpdate()
              }}
           />
-          <RaisedButton style={{marginTop: '15px', marginLeft: '10px'}} label="Search" primary={true} onClick={() =>{
-            this.search()
-          }} />
-        </div>
-        <div className='row w100p center wrap' style={{padding: '0 8px'}}>
-        <div style={{padding: '0px 17px'}}>
+
+          <div style={{width: 25, height: 25, margin: 2}}>
             <Checkbox
               ref='safeSearch'
               checked={this.notSafeSearch ? true : false}
               checkedIcon={<Visibility />}
               uncheckedIcon={<VisibilityOff />}
-              label={<span className='text-nowrap' style={{fontSize: '0.87em', transition: '0.1s', color: this.state.safeSearchColor}}>{this.state.safeSearchText}</span>}
               iconStyle={{fill: this.state.safeSearchColor}}
               onCheck={(ev, ch) => {
                 this.setState(this.setSafeSearch(ch));
@@ -328,13 +324,12 @@ class Search extends Component {
               style={{paddingBottom: '0.8em'}}
             />
           </div>
-          <div style={{padding: '0px 17px'}}>
+          <div style={{width: 25, height: 25, margin: 2}}>
             <Checkbox
               ref='advancedSearch'
               checked={this.state.advancedSearch}
               checkedIcon={<RemoveIcon />}
               uncheckedIcon={<AddIcon />}
-              label={<span className='text-nowrap' style={{fontSize: '0.87em', transition: '0.1s', color: 'black'}}>advanced search</span>}
               iconStyle={{fill: 'black'}}
               onCheck={(ev, ch) => {
                 this.setState({advancedSearch: ch});
@@ -342,13 +337,18 @@ class Search extends Component {
               style={{paddingBottom: '0.8em'}}
             />
           </div>
+
+          <RaisedButton style={{marginLeft: '10px'}} label="Search" primary={true} onClick={() =>{
+            this.search()
+          }} />
         </div>
         {
           this.state.advancedSearch
           &&
-          <AdvancedSearch onChange={(state) => {
-            this.advanced = state;
-          }} state={this.advanced} />
+            <AdvancedSearch onChange={(state) => {
+              this.advanced = state;
+            }} state={this.advanced} />
+
         }
         {
             this.stats
