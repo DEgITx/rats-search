@@ -68,6 +68,7 @@ class p2p {
 			callback({
 				protocol: 'rats',
 				version: this.version,
+				peerId: this.peerId,
 				info: this.info,
 				peers: shuffle(this.peersList()).slice(0, 4).map(peer => ({address: peer.address, port: peer.port}))
 			})
@@ -241,6 +242,7 @@ class p2p {
 				protocol: 'rats',
 				port: config.spiderPort,
 				version: this.version,
+				peerId: this.peerId,
 				info: this.info,
 				peers: shuffle(this.peersList()).slice(0, 4).map(peer => ({address: peer.address, port: peer.port})).concat(this.externalPeers) // also add external peers
 			}, (data) => {
@@ -263,6 +265,7 @@ class p2p {
 				this.size++;
 				//extra info
 				address.version = data.version
+				address.peerId = data.peerId
 				address.info = data.info
 				this.send('peer', {
 					size: this.size,
