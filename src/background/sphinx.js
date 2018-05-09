@@ -105,6 +105,12 @@ const writeSphinxConfig = (path, dbPath) => {
     }
   }
 
+  // clean query.log because it too large and don't consist any good info
+  if(fs.existsSync(`${path}/query.log`))
+  {
+    fs.unlinkSync(`${path}/query.log`)
+  }
+
   let isInitDb = false
 
   if (!fs.existsSync(`${dbPath}/database`)){
