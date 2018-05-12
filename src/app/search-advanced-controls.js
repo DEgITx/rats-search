@@ -29,7 +29,7 @@ export default class AdvancedSearchControl extends Component {
   }
   render() {
     return (
-      <div className='column w100p' style={{maxWidth: 750, overflow: 'hidden', padding: '0px 18px 15px'}}>
+      <div className='column w100p' style={{maxWidth: 750, overflow: 'hidden', padding: '0px 18px 15px', background: 'white', borderRadius: 3}}>
       	<SelectField
           floatingLabelText="Filter content type"
           value={this.state.type}
