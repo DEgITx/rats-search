@@ -247,35 +247,13 @@ class Header extends React.Component {
                   </svg>
              }
           />
-          {
-						((window.currentWindow && !window.currentWindow.isModal()) || typeof WEB !== 'undefined')
-						&&
-						<div className='fs0-85 pad0-75 column peers-status' style={{
+						<div className='fs0-85 pad0-75 column search-panel' style={{
               marginLeft: 'auto', 
-              marginTop: '-10px', 
-              color: window.peers > 0 ? '#42f445' : 'white',
+              marginTop: '-10px',
               zIndex: 2
               }}>
               <Search />
-
-              <div>rats peers: {window.peers} [{window.peersTorrents} torrents] {window.peers > 0 ? ' (p2p rats search enabled)' : ' (p2p rats search not available at this moment)'}</div>
-              {
-                window.p2pStatus == 0
-                &&
-                <div style={{color: 'red'}}>external connections not available (check port forwarding)</div>
-              }
-              {
-                window.p2pStatus == 1
-                &&
-                <div style={{color: 'orange'}}>port not available, but connections redirected</div>
-              }
-              {
-                window.p2pStatus == 2
-                &&
-                <div style={{color: 'green'}}>port connections fully available</div>
-              }
 						</div>
-          }
         </div>
       </CardMedia>
     </Card>

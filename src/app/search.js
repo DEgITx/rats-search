@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 
 import AdvancedSearch from './search-advanced-controls'
+import TorrentsStatistic from './torrent-statistic'
+
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
@@ -11,41 +13,8 @@ import VisibilityOff from 'material-ui/svg-icons/action/visibility-off';
 import AddIcon from 'material-ui/svg-icons/content/add';
 import RemoveIcon from 'material-ui/svg-icons/content/remove';
 
-import formatBytes from './format-bytes'
-
 import _ from 'lodash'
 import singleton from './singleton';
-
-class TorrentsStatistic extends Component {
-  constructor(props)
-  {
-    super(props)
-    
-    this.stats = props.stats || {}
-  }
-  componentDidMount()
-  {
-    this.newTorrentFunc = (torrent) => {
-      this.stats.size += torrent.size;
-      this.stats.torrents++;
-      this.stats.files += torrent.files; 
-      this.forceUpdate()
-    }
-
-    window.torrentSocket.on('newTorrent', this.newTorrentFunc);
-  }
-  componentWillUnmount()
-  {
-    if(this.newTorrentFunc)
-      window.torrentSocket.off('newTorrent', this.newTorrentFunc);
-  }
-  render()
-  {
-    return (
-      <div className='fs0-75 pad0-75' style={{color: 'rgba(0, 0, 0, 0.541176)'}}>you have information about {this.stats.torrents} torrents and around {this.stats.files} files and { formatBytes(this.stats.size, 1) } of data</div>
-    )
-  }
-}
 
 class Search extends Component {
   constructor(props)
