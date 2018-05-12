@@ -21,3 +21,11 @@
 .header.sticky .header-main > div > div > div:nth-child(2) > div > div:nth-child(1) {
   opacity:0;
 }
+
+.header .counter-statistic {
+  transition: 0.5s;
+}
+
+.header.sticky .counter-statistic {
+  opacity: 0;
+}
