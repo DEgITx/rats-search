@@ -27,6 +27,7 @@ export default class TorrentsStatistic extends Component {
   render()
   {
     return (
+      <div style={{position: 'relative', width: '100%', height: 0}}>
       <div className='column w100p counter-statistic' style={{backgroundColor: 'rgba(0,0,0,0.7)', padding: 8, borderRadius: 4, marginTop: 2, marginBottom: 100}}>
         <div className='row w100p' style={{backgroundColor: 'rgba(0,0,0,0.7)', padding: 8, borderRadius: 4}}>
               <div className='row inline' style={{color: '#e5f442', fontSize: '1.15em', fill: '#e5f442'}}>
@@ -280,6 +281,7 @@ export default class TorrentsStatistic extends Component {
                 </div>
         </div>
                 
+      </div>
       </div>
     )
   }

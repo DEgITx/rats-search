@@ -1,5 +1,5 @@
 .header .header-row {
-  min-height: 360px;
+  min-height: 330px;
 }
 
 .header.sticky .header-row {
@@ -28,4 +28,5 @@
 
 .header.sticky .counter-statistic {
   opacity: 0;
+  margin: 0 !important;
 }

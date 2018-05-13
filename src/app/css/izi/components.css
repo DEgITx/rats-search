@@ -84,3 +84,29 @@
 		padding-left: 0px;
 	}
 }
+
+@media only screen and (max-width: 840px) 
+{ 
+	.header-row {
+		flex-wrap: wrap;
+		align-content: flex-start;
+		justify-content: flex-start;
+	}
+
+	.search-panel {
+		margin-left: inherit !important;
+	}
+
+	.header .header-row {
+		min-height: 450px;
+	}
+
+	.search-panel {
+		margin-top: 0px !important;
+		padding-left: 6px; 
+	}
+
+	.search-row {
+		min-width: 30em !important;
+	}
+}
