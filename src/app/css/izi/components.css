@@ -101,6 +101,10 @@
 		min-height: 450px;
 	}
 
+	.header .clear-header-space {
+		height: 450px;
+	  }
+
 	.search-panel {
 		margin-top: 0px !important;
 		padding-left: 6px; 
