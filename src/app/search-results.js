@@ -15,7 +15,7 @@ export default class SearchResults extends Component {
 	      	|| (this.props.filesSearchResults && this.props.filesSearchResults.length > 0)
 	      	?
 	      	<div>
-	      		<Subheader inset={true}>Search results for <b>{this.props.searchText}</b></Subheader>
+	      		<Subheader className='row center w100p' style={{paddingLeft: 0}} inset={true}><span>Search results for</span> <span style={{marginLeft: '0.4em'}}><b>{this.props.searchText}</b></span></Subheader>
 	      		<div className='w100p row center' style={{marginTop: '-16px'}}>{this.props.resultSelector}</div>
 	      	</div>
 	      	:
@@ -92,7 +92,7 @@ export default class SearchResults extends Component {
 	      	&& this.props.filesSearchResults && this.props.filesSearchResults.length == 0
 	      	&& !this.props.currentSearching
 	      	?
-	      	<div className='row inline'>
+	      	<div className='row inline center w100p pad0-75'>
 	      		<svg style={{fill: 'grey', height: '30px'}} viewBox="0 0 264.695 264.695">
 					<g>
 						<path d="M219.171,216.785c-4.762,0-10.322,2.3-16.672,6.881l-35.211-12.968l35.734-12.978

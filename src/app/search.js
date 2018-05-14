@@ -256,7 +256,7 @@ class Search extends Component {
 
     return (
       <div className="column w100p center">
-        <div className='row inline w100p pad0-75 search-row' style={{minWidth: '35em', backgroundColor: 'white', paddingTop: 0, paddingBottom: 0, margin: 5, borderRadius: 3}}>
+        <div className='row inline w100p pad0-75 search-row' style={{minWidth: '35em', backgroundColor: 'white', paddingTop: 0, paddingBottom: this.searchError ? 17 : 0, margin: 5, borderRadius: 3}}>
           <TextField
               style={{marginTop: -12}}
               hintText="Search torrent or file"
