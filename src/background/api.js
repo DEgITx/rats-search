@@ -435,29 +435,30 @@ module.exports = ({
 
 		const index = parseInt(navigation.index) || 0;
 		const limit = parseInt(navigation.limit) || 20;
+		const time = navigation.time
 
 		if(type && type.length > 0)
 		{
-			if(type == 'hours')
-			{
-				where = ' and `added` > ' + (Math.floor(Date.now() / 1000) - (60 * 60 * 24))
-			}
-			else if(type == 'week')
-			{
-				where = ' and `added` > ' + (Math.floor(Date.now() / 1000) - (60 * 60 * 24 * 7))
-			}
-			else if(type == 'month')
-			{
-				where = ' and `added` > ' + (Math.floor(Date.now() / 1000) - (60 * 60 * 24 * 30))
-			}
-			else
-			{
-				where += ' and contentType = ' + sphinx.escape(type) + ' ';
-			}
+			where += ' and contentType = ' + sphinx.escape(type) + ' ';
 		}
 
+		if(time)
+		{
+			if(time == 'hours')
+			{
+				where += ' and `added` > ' + (Math.floor(Date.now() / 1000) - (60 * 60 * 24))
+			}
+			else if(time == 'week')
+			{
+				where += ' and `added` > ' + (Math.floor(Date.now() / 1000) - (60 * 60 * 24 * 7))
+			}
+			else if(time == 'month')
+			{
+				where += ' and `added` > ' + (Math.floor(Date.now() / 1000) - (60 * 60 * 24 * 30))
+			}
+		}
+		
 		const query = `SELECT * FROM torrents WHERE seeders > 0 and contentCategory != 'xxx' ${where} ORDER BY seeders DESC LIMIT ${index},${limit}`;
-		console.log(query)
 		if(topCache[query])
 		{
 			callback(topCache[query]);
@@ -486,7 +487,7 @@ module.exports = ({
 				const peer = { address: socket.remoteAddress, port: socket.remotePort }
 				remote = remote.map(torrent => Object.assign(torrent, {peer}))
 			}
-			send('remoteTopTorrents', {torrents: remote, type})
+			send('remoteTopTorrents', {torrents: remote, type, time: navigation && navigation.time})
 		})
 	});
 
