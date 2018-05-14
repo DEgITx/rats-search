@@ -16,7 +16,7 @@ export default class TopPage extends Page {
     super(props)
     this.setTitle('Rats On The Boat - Torrents top');
     this.topTorrents = {};
-    this.types = ['main', 'week', 'hours', 'month', 'video', 'audio', 'books', 'pictures', 'application', 'archive']
+    this.types = ['main', 'video', 'audio', 'books', 'pictures', 'application', 'archive']
     this.descriptions = {
       main: 'All',
       video: 'Video',
@@ -24,24 +24,31 @@ export default class TopPage extends Page {
       books: 'Books',
       pictures: 'Pictures/Images',
       application: 'Apps/Games',
-      archive: 'Archives',
+      archive: 'Archives'
+    }
+    this.times = {
+      overall: 'Overall',
+      hours: 'Last hour',
       week: 'Last week',
-      hours: 'Last 24 hours',
       month: 'Last month'
     }
-    this.state = {value: 'All'}
+    this.state = {type: 'main', time: 'overall'}
   }
-  loadMoreTorrents(type)
+  loadMoreTorrents(type, time)
   {
+    time = time ? time : this.state.time
     window.torrentSocket.emit('topTorrents', 
         type == 'main' ? null : type, 
-        {index: (this.topTorrents[type] && this.topTorrents[type].length) || 0},
+        {index: (this.topTorrents[type] && this.topTorrents[type][time] && this.topTorrents[type][time].length) || 0, time},
         window.customLoader((data) => {
           if(!this.topTorrents[type])
-            this.topTorrents[type] = []
+            this.topTorrents[type] = {}
+          if(!this.topTorrents[type][time])
+            this.topTorrents[type][time] = []
+
           if(data && data.length > 0)
           {
-            this.topTorrents[type] = this.topTorrents[type].concat(data);
+            this.topTorrents[type][time] = this.topTorrents[type][time].concat(data);
             this._update()
           }
         })
@@ -63,11 +70,13 @@ export default class TopPage extends Page {
     {
       this.loadMoreTorrents(type)
     }
-    this.remoteTopTorrents = ({torrents, type}) => {
+    this.remoteTopTorrents = ({torrents, type, time}) => {
       if(!torrents)
         return
+
+      time = time ? time : 'overall'
       type = type ? type : 'main'
-      this.topTorrents[type] = _.orderBy(_.unionBy(this.topTorrents[type], torrents, 'hash'), ['seeders'], ['desc'])
+      this.topTorrents[type][time] = _.orderBy(_.unionBy(this.topTorrents[type][time], torrents, 'hash'), ['seeders'], ['desc'])
       this._update();
     }
     window.torrentSocket.on('remoteTopTorrents', this.remoteTopTorrents);
@@ -76,12 +85,6 @@ export default class TopPage extends Page {
   {
     if(this.remoteTopTorrents)
       window.torrentSocket.off('remoteTopTorrents', this.remoteTopTorrents);
-  }
-  handleChange = (value) =>
-  {
-    this.setState({
-      value,
-    });
   }
   render() {
     return (
@@ -96,38 +99,76 @@ export default class TopPage extends Page {
           }
           <Tabs
             className='w100p'
-		        value={this.state.value}
-            onChange={this.handleChange}
+		        value={this.state.type}
+            onChange={(type) => {
+              this.setState({type});
+              // lost other content
+              if(!this.topTorrents[type][this.state.time])
+              {
+                this.loadMoreTorrents(type, this.state.time)
+              }
+            }}
             tabItemContainerStyle={{flexWrap: 'wrap', alignItems: 'stretch'}}
             inkBarStyle={{display: 'none'}}
 		      >
           {
             this.types.map((type, index) => {
-              const torrents = this.topTorrents[type];
-
-              if(!torrents)
+              if(!this.topTorrents[type])
                 return null;
 
               return (
+                <Tab style={{minWidth: 150}} key={index} label={this.descriptions[type]} value={type}>
+                  <Tabs
+                    className='w100p'
+                    value={this.state.time}
+                    onChange={(time) => {
+                      this.setState({time})
+                      // lost other content
+                      if(!this.topTorrents[type][time])
+                      {
+                        this.loadMoreTorrents(type, time)
+                      }
+                    }}
+                    tabItemContainerStyle={{flexWrap: 'wrap', alignItems: 'stretch'}}
+                    inkBarStyle={{display: 'none'}}
+                  >
+                  {
+                    Object.keys(this.times).map((time, index) => {
+                      const torrents = this.topTorrents[type][time];
 
-                <Tab style={{minWidth: 150}} key={index} label={this.descriptions[type]} value={this.descriptions[type]}>
-                  <List style={{minWidth: '20em'}}>
-                    {
-                      torrents.map((torrent, index) => {
-                        return <TorrentLine key={index} torrent={torrent} />
-                      })
-                    }
-                    {
-                    torrents.length > 0
-                    &&
-                    <div>
-                      <ListItem innerDivStyle={{textAlign: 'center', padding: '1em'}} primaryText={<span>More Torrents</span>} onClick={() => {
-                        this.loadMoreTorrents(type)
-                      }} />
-                      <Divider />
-                    </div>
-                    }
-                  </List>
+                      if(!torrents)
+                        return (
+                          <Tab style={{minWidth: 150}} key={index} label={this.times[time]} value={time}>
+                            <div className='pad0-75 w100p '>
+                              <LinearProgress mode="indeterminate" />
+                            </div>
+                          </Tab>
+                        )
+
+                      return (
+                      <Tab style={{minWidth: 150}} key={index} label={this.times[time]} value={time}>
+                        <List style={{minWidth: '20em'}}>
+                          {
+                            torrents.map((torrent, index) => {
+                              return <TorrentLine key={index} torrent={torrent} />
+                            })
+                          }
+                          {
+                          torrents.length > 0
+                          &&
+                          <div>
+                            <ListItem innerDivStyle={{textAlign: 'center', padding: '1em'}} primaryText={<span>More Torrents</span>} onClick={() => {
+                              this.loadMoreTorrents(type)
+                            }} />
+                            <Divider />
+                          </div>
+                          }
+                        </List>
+                      </Tab>)
+                    })
+                  }
+                    
+                  </Tabs>
                 </Tab>
               )
               
