@@ -17,6 +17,8 @@ jobs:
     working_directory: ~/repo
 
     steps:
+      - run: sudo apt-get install libgconf-2-4
+
       - checkout
 
       # Download and cache dependencies
