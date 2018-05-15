@@ -208,31 +208,55 @@ if(dataDirectory && fs.existsSync(dataDirectory + '/peers.p2p'))
 	}
 }
 
+const getServiceJson = (url) => new Promise((resolve) => {
+	http.get(url, (resp) => {
+		let data = '';
+
+		resp.on('data', (chunk) => {
+			data += chunk;
+		});
+
+		resp.on('end', () => {
+			resolve(data.length > 0 && JSON.parse(data))
+		});
+	}).on("error", (err) => {
+		console.log(`${url} error: ` + err.message)
+		resolve(false)
+	});
+})
+
 if(config.p2pBootstrap)
 {
-	const loadBootstrapPeers = (url) => {
-		http.get(url, (resp) => {
-			let data = '';
-
-			resp.on('data', (chunk) => {
-				data += chunk;
-			});
-
-			resp.on('end', () => {
-				const json = JSON.parse(data)
-				if(json.bootstrap)
+	const loadBootstrapPeers = async (url) => {
+		const json = await getServiceJson(url)
+		if(json.bootstrap)
+		{
+			const peers = encryptor.decrypt(json.bootstrap)
+			if(peers && peers.length > 0)
+			{
+				peers.forEach(peer => p2p.add(peer))
+				console.log('loaded', peers.length, 'peers from bootstrap')
+			}
+		}
+		if(json.bootstrapMap)
+		{
+			const peersMap = encryptor.decrypt(json.bootstrapMap)
+			if(typeof peersMap === 'object')
+			{
+				for(const map in peersMap)
 				{
-					const peers = encryptor.decrypt(json.bootstrap)
-					if(peers && peers.length > 0)
+					if(parseInt(map) <= 0)
+						continue // break if this is not number
+
+					const peers = peersMap[map]
+					if(peers.length > 0)
 					{
 						peers.forEach(peer => p2p.add(peer))
-						console.log('loaded', peers.length, 'peers from bootstrap')
 					}
 				}
-			});
-		}).on("error", (err) => {
-			console.log("Error: " + err.message);
-		});
+			}
+			console.log('loaded peers map from bootstrap')
+		}
 	}
 
 	loadBootstrapPeers('https://api.myjson.com/bins/1e5rmh')
@@ -728,12 +752,29 @@ this.stop = async (callback) => {
 
 		if(config.p2pBootstrap)
 		{
-			const saveBootstrapPeers = (host, path) => new Promise(resolve => {
+			const saveBootstrapPeers = (host, path) => new Promise(async (resolve) => {
 				if(env === 'test')
 				{
 				    resolve()
 				    return
 				}
+
+				if(addresses.length <= 0)
+				{
+					resolve()
+				    return
+				}
+
+				// check bootstrap map
+				const json = await getServiceJson(`https://${host}${path}`)
+				let bootstrapMap = {}
+				if(json.bootstrapMap)
+				{
+					const bootstrapMapCandidate = encryptor.decrypt(json.bootstrapMap)
+					if(typeof bootstrapMapCandidate === 'object')
+						bootstrapMap = bootstrapMapCandidate
+				}
+				bootstrapMap[addresses.length] = addresses
 			
 				const options = {
 					port: 443,
@@ -747,13 +788,15 @@ this.stop = async (callback) => {
 				console.log('bootstrap peers saved to', host)
 				const req = http.request(options, resolve);
 				req.on('error', resolve)
-				req.end(JSON.stringify({bootstrap: peersEncripted}))
+				req.end(JSON.stringify({
+					bootstrap: peersEncripted,
+					bootstrapMap: encryptor.encrypt(bootstrapMap)
+				}))
 			})
 
-			if(addresses.length > 5)
-				await saveBootstrapPeers('api.myjson.com', '/bins/1e5rmh')
-			if(addresses.length > 0)
-				await saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa')
+
+			await saveBootstrapPeers('api.myjson.com', '/bins/1e5rmh')
+			await saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa')
 		}
 	}
 
