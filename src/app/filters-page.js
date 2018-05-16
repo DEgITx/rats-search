@@ -108,8 +108,21 @@ export default class ConfigPage extends Page {
             >
               <MenuItem value={String.raw`^[А-Яа-я0-9A-Za-z.!@?#"$%&:;() *\+,\/;\-=[\\\]\^_{|}<>\u0400-\u04FF]+$`} primaryText="Russian + English only (With symbols)" />
               <MenuItem value={'^[0-9A-Za-z.!@?#"$%&:;() *\+,\/;\-=[\\\]\^_{|}<>]+$'} primaryText="English only (With symbols)" />
+              <MenuItem value={'^((?!badword).)*$'} primaryText="Ignore badword" />
             </SelectField>
           </div>
+          <Toggle
+			    style={{marginTop: '10px'}}
+		      label="Negative regular extension filtering"
+		      toggled={this.options.filters && this.options.filters.namingRegExpNegative}
+		      onToggle={(e, checked) => {
+            if(!this.options.filters)
+              return
+
+            this.options.filters.namingRegExpNegative = checked
+		      	this.forceUpdate()
+		      }}
+		    />
           <div className='fs0-75' style={{color: 'grey'}}>
           * - clean string means disabled
           </div>
