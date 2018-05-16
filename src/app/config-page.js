@@ -266,7 +266,7 @@ export default class ConfigPage extends Page {
               }}
             />
           </div>
-          <div className='fs0-75' style={{color: 'grey'}}>* Low Value - ignore more usless network packages, lower traffic and routers usage. High Value - high traffic and router usage in prospectю
+          <div className='fs0-75' style={{color: 'grey'}}>* Low Value - ignore more usless network packages, lower traffic and routers usage. High Value - high traffic and router usage in prospect.
           Recomended value between 300-2000. Defaul value: 500. 0 - Ignore this option (no limit).
           </div>
         </div>
