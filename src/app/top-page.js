@@ -117,7 +117,7 @@ export default class TopPage extends Page {
                 return null;
 
               return (
-                <Tab style={{minWidth: 150}} key={index} label={this.descriptions[type]} value={type}>
+                <Tab buttonStyle={type === this.state.type ? {fontWeight: 'bold'} : undefined} style={{minWidth: 150}} key={index} label={this.descriptions[type]} value={type}>
                   <Tabs
                     className='w100p'
                     value={this.state.time}
@@ -138,7 +138,7 @@ export default class TopPage extends Page {
 
                       if(!torrents)
                         return (
-                          <Tab style={{minWidth: 150}} key={index} label={this.times[time]} value={time}>
+                          <Tab buttonStyle={time === this.state.time ? {fontWeight: 'bold'} : undefined} style={{minWidth: 150}} key={index} label={this.times[time]} value={time}>
                             <div className='pad0-75 w100p '>
                               <LinearProgress mode="indeterminate" />
                             </div>
@@ -146,7 +146,7 @@ export default class TopPage extends Page {
                         )
 
                       return (
-                      <Tab style={{minWidth: 150}} key={index} label={this.times[time]} value={time}>
+                      <Tab buttonStyle={time === this.state.time ? {fontWeight: 'bold'} : undefined} style={{minWidth: 150}} key={index} label={this.times[time]} value={time}>
                         <List style={{minWidth: '20em'}}>
                           {
                             torrents.map((torrent, index) => {

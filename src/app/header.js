@@ -53,7 +53,7 @@ class Header extends React.Component {
     <div ref={this.header} className='header'>
     <Card className='w100p header-main' style={{position: 'fixed', zIndex: 2}}>
       <CardMedia
-        overlay={<CardTitle className='header-title' title="Yarrr, Landlubbers!" subtitle={
+        overlay={<CardTitle className='header-title' title="Yarrr, Landlubbers!" style={{paddingTop: 2}} subtitle={
         <div>
           <div className='row' style={{position: 'absolute', top: -65}}>
             <svg className='clickable'
