@@ -10,6 +10,7 @@ let config = {
 	udpTrackersPort: 4446,
 	udpTrackersTimeout: 3 * 60 * 1000,
 	peerId: undefined, 
+	language: 'en',
 	
 	p2p: true,
 	p2pConnections: 10,

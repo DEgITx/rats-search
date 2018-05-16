@@ -5,9 +5,12 @@ import PagesPie from './pages-pie.js';
 //import registerServiceWorker from './registerServiceWorker';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import __, { changeLanguage } from './translation'
 
 import {Header} from './header'
 import Footer from './footer'
+
+window.__ = __
 
 
 if(typeof WEB !== 'undefined')
@@ -130,6 +133,10 @@ class App extends Component {
 			window.p2pStatus = status
 			this.forceUpdate()
 		})
+
+		window.torrentSocket.on('changeLanguage', (lang) => {
+			changeLanguage(lang, () => this.forceUpdate())
+		})
 	}
 	componentWillUnmount() {
 		appReady = false;
@@ -138,6 +145,7 @@ class App extends Component {
 		return (
 			<MuiThemeProvider>
 				<div>
+					{ __('welcome') }
 					{
 						((window.currentWindow && !window.currentWindow.isModal()) || typeof WEB !== 'undefined')
 						&&

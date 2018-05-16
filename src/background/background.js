@@ -12,7 +12,7 @@ import { autoUpdater } from 'electron-updater'
 
 import { devMenuTemplate } from "./menu/dev_menu_template";
 import { editMenuTemplate } from "./menu/edit_menu_template";
-import { settingsMenuTemplate } from "./menu/config_menu_template";
+import { settingsMenuTemplateFunc } from "./menu/config_menu_template";
 import { aboutMenuTemplate } from "./menu/about_menu_template";
 import { manageMenuTemplate } from "./menu/manage_menu_template";
 
@@ -23,18 +23,6 @@ import fs from 'fs';
 
 // plugins and dev tool
 require('electron-context-menu')({})
-
-const setApplicationMenu = () => {
-  const menus = [editMenuTemplate, manageMenuTemplate, settingsMenuTemplate, aboutMenuTemplate];
-  if (env.name !== "production") {
-    menus.push(devMenuTemplate);
-  }
-  // append version as disabled menu item
-  menus.push({
-    label: app.getVersion()
-  })
-  Menu.setApplicationMenu(Menu.buildFromTemplate(menus));
-};
 
 // Save userData in separate folders for each environment.
 // Thanks to this you can use production and development versions of the app
@@ -59,10 +47,28 @@ const appConfig = require('./config')
 const spiderCall = require('./spider')
 const dbPatcher = require('./dbPatcher')
 const startSphinx = require('./sphinx')
+const { changeLanguage } = require('../app/translation')
 
 let mainWindow = undefined
 let sphinx = undefined
 let spider = undefined
+
+const setApplicationMenu = () => {
+  const settingsMenuTemplate = settingsMenuTemplateFunc(appConfig, (lang) => {
+    // update menu translation
+    changeLanguage(lang, () => setApplicationMenu())
+  })
+  const menus = [editMenuTemplate, manageMenuTemplate, settingsMenuTemplate, aboutMenuTemplate];
+
+  if (env.name !== "production") {
+    menus.push(devMenuTemplate);
+  }
+  // append version as disabled menu item
+  menus.push({
+    label: app.getVersion()
+  })
+  Menu.setApplicationMenu(Menu.buildFromTemplate(menus));
+};
 
 const util = require('util');
 if (!fs.existsSync(app.getPath("userData"))){
@@ -144,7 +150,7 @@ app.on("ready", () => {
   });
 
   dbPatcher(() => {
-    setApplicationMenu();
+    changeLanguage(appConfig.language, () => setApplicationMenu())
 
     mainWindow.loadURL(
       url.format({

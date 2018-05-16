@@ -1,6 +1,9 @@
 import { app, BrowserWindow } from "electron";
+import fs from 'fs'
+import path from 'path'
+import __ from '../../app/translation'
 
-export const settingsMenuTemplate = {
+export const settingsMenuTemplateFunc = (config, onLanguageChange) => ({
   label: "Settings",
   submenu: [
     {
@@ -16,6 +19,27 @@ export const settingsMenuTemplate = {
       click: () => {
         BrowserWindow.getFocusedWindow().webContents.send('url', '/filters')
       }
+    },
+    {
+      label: __("Language"),
+      submenu: (() => {
+        const translations = []
+        fs.readdirSync('translations').forEach(translation => {
+          const translationJson = JSON.parse(fs.readFileSync(`translations/${translation}`, 'utf8'))
+          translations.push({
+            label: translationJson.nameOriginal,
+            click: () => {
+              const lang = path.basename(translation, '.json')
+              BrowserWindow.getFocusedWindow().webContents.send('changeLanguage', lang)
+              config.language = lang
+              if(onLanguageChange)
+                onLanguageChange(lang)
+              console.log('changed translation to:', lang)
+            }
+          })
+        })
+        return translations
+      })()
     }
   ]
-};
+});
