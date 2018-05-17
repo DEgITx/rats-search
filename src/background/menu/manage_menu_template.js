@@ -1,30 +1,31 @@
 import { app, BrowserWindow, shell } from "electron";
 import path from "path";
 import url from "url";
+import __ from '../../app/translation'
 
-export const manageMenuTemplate = {
-  label: "Manage",
+export const manageMenuTemplateFunc = () => ({
+  label: __("Manage"),
   submenu: [
     {
-      label: "Downloads",
+      label: __("Downloads"),
       accelerator: "CmdOrCtrl+d",
       click: () => {
         BrowserWindow.getFocusedWindow().webContents.send('url', '/downloads')
       },
     },
     {
-      label: "Search",
+      label: __("Search"),
       accelerator: "CmdOrCtrl+n",
       click: () => {
         BrowserWindow.getFocusedWindow().webContents.send('url', '/')
       },
     },
     {
-      label: "Top",
+      label: __("Top"),
       accelerator: "CmdOrCtrl+t",
       click: () => {
         BrowserWindow.getFocusedWindow().webContents.send('url', '/top')
       },
     }
   ]
-};
+});

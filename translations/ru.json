@@ -3,6 +3,26 @@
     "nameOriginal": "Русский",
     "translations": {
         "Language": "Язык",
-        "welcome": "Добро пожаловать"
+        "Settings": "Настройки",
+        "Main Settings": "Главные настройки",
+        "Torrents Filters": "Фильтры торрентов",
+        "Edit": "Редактировать",
+        "Undo": "Отменить",
+        "Redo": "Повторить",
+        "Cut": "Вырезать",
+        "Copy": "Копировать",
+        "Paste": "Вставить",
+        "Select All": "Выбрать все",
+        "Manage": "Управление",
+        "Downloads": "Закачки",
+        "Search": "Поиск",
+        "Top": "Топ",
+        "About": "О программе",
+        "Changelog": "Список изменений",
+        "Bug Report": "Сообщить об ошибке",
+        "Donate": "Пожертвовать на развитие",
+        "Help (Documentation)": "Помощь (Документация)",
+        "Support (Discussion)": "Помощь (Обсуждение)",
+        "About (GitHub)": "О программе (на GitHub)"
     }
 }

@@ -11,10 +11,10 @@ import createWindow from "./helpers/window";
 import { autoUpdater } from 'electron-updater'
 
 import { devMenuTemplate } from "./menu/dev_menu_template";
-import { editMenuTemplate } from "./menu/edit_menu_template";
+import { editMenuTemplateFunc } from "./menu/edit_menu_template";
 import { settingsMenuTemplateFunc } from "./menu/config_menu_template";
-import { aboutMenuTemplate } from "./menu/about_menu_template";
-import { manageMenuTemplate } from "./menu/manage_menu_template";
+import { aboutMenuTemplateFunc } from "./menu/about_menu_template";
+import { manageMenuTemplateFunc } from "./menu/manage_menu_template";
 
 // Special module holding environment variables which you declared
 // in config/env_xxx.json file.
@@ -58,7 +58,7 @@ const setApplicationMenu = () => {
     // update menu translation
     changeLanguage(lang, () => setApplicationMenu())
   })
-  const menus = [editMenuTemplate, manageMenuTemplate, settingsMenuTemplate, aboutMenuTemplate];
+  const menus = [editMenuTemplateFunc(), manageMenuTemplateFunc(), settingsMenuTemplate, aboutMenuTemplateFunc()];
 
   if (env.name !== "production") {
     menus.push(devMenuTemplate);

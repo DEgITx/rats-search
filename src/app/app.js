@@ -160,7 +160,6 @@ class App extends Component {
 		return (
 			<MuiThemeProvider>
 				<div>
-					{ __('welcome') }
 					{
 						((window.currentWindow && !window.currentWindow.isModal()) || typeof WEB !== 'undefined')
 						&&

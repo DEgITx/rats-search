@@ -3,6 +3,26 @@
     "nameOriginal": "English",
     "translations": {
         "Language": "Language",
-        "welcome": "welcome"
+        "Settings": "Settings",
+        "Main Settings": "Main Settings",
+        "Torrents Filters": "Torrents Filters",
+        "Edit": "Edit",
+        "Undo": "Undo",
+        "Redo": "Redo",
+        "Cut": "Cut",
+        "Copy": "Copy",
+        "Paste": "Paste",
+        "Select All": "Select All",
+        "Manage": "Manage",
+        "Downloads": "Downloads",
+        "Search": "Search",
+        "Top": "Top",
+        "About": "About",
+        "Changelog": "Changelog",
+        "Bug Report": "Bug Report",
+        "Donate": "Donate",
+        "Help (Documentation)": "Help (Documentation)",
+        "Support (Discussion)": "Support (Discussion)",
+        "About (GitHub)": "About (GitHub)"
     }
 }
