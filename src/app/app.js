@@ -100,10 +100,19 @@ window.peers = 0;
 window.peersTorrents = 0;
 
 class App extends Component {
-	componentDidMount() {
-		window.router()
-		appReady = true;
+	constructor(props)
+	{
+		super(props)
+		window.torrentSocket.emit('config', (config) => {
+			window.initConfig = config
+			changeLanguage(config.language, () => {
+				if(appReady)
+					this.forceUpdate()
+			})
+		});
+	}
 
+	componentDidMount() {
 		window.torrentSocket.on('peer', (peer) => {
 			if(peer.size > window.peers)
 				window.peersTorrents = (window.peersTorrents || 0) + peer.torrents
@@ -137,11 +146,17 @@ class App extends Component {
 		window.torrentSocket.on('changeLanguage', (lang) => {
 			changeLanguage(lang, () => this.forceUpdate())
 		})
+
+		window.router()
+		appReady = true;
 	}
 	componentWillUnmount() {
 		appReady = false;
 	}
 	render() {
+		if(!window.initConfig)
+			return null // nothing to do yet
+
 		return (
 			<MuiThemeProvider>
 				<div>
