@@ -1,7 +1,7 @@
 import { app, BrowserWindow } from "electron";
 import fs from 'fs'
 import path from 'path'
-import __ from '../../app/translation'
+import __, { translationsDir } from '../../app/translation'
 
 export const settingsMenuTemplateFunc = (config, onLanguageChange) => ({
   label: "Settings",
@@ -24,8 +24,9 @@ export const settingsMenuTemplateFunc = (config, onLanguageChange) => ({
       label: __("Language"),
       submenu: (() => {
         const translations = []
-        fs.readdirSync('translations').forEach(translation => {
-          const translationJson = JSON.parse(fs.readFileSync(`translations/${translation}`, 'utf8'))
+        const translationsDirectory = translationsDir()
+        fs.readdirSync(translationsDirectory).forEach(translation => {
+          const translationJson = JSON.parse(fs.readFileSync(`${translationsDirectory}/${translation}`, 'utf8'))
           const lang = path.basename(translation, '.json')
           translations.push({
             label: translationJson.nameOriginal,

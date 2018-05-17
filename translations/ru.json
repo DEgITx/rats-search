@@ -1,9 +1,8 @@
 {
-	"name": "Russian",
-	"nameOriginal": "Русский",
-	"translations":
-	{
-		"welcome": "приветствие",
-		"Language": "Язык"
-	}
+    "name": "Russian",
+    "nameOriginal": "Русский",
+    "translations": {
+        "Language": "Язык",
+        "welcome": "Добро пожаловать"
+    }
 }
