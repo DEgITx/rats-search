@@ -4,17 +4,17 @@ import path from 'path'
 import __, { translationsDir } from '../../app/translation'
 
 export const settingsMenuTemplateFunc = (config, onLanguageChange) => ({
-  label: "Settings",
+  label: __("Settings"),
   submenu: [
     {
-      label: "Main settings",
+      label: __("Main Settings"),
       accelerator: "CmdOrCtrl+O",
       click: () => {
         BrowserWindow.getFocusedWindow().webContents.send('url', '/config')
       }
     },
     {
-      label: "Torrents filters",
+      label: __("Torrents Filters"),
       accelerator: "CmdOrCtrl+\\",
       click: () => {
         BrowserWindow.getFocusedWindow().webContents.send('url', '/filters')

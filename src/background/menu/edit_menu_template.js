@@ -1,12 +1,14 @@
-export const editMenuTemplate = {
-  label: "Edit",
+import __ from '../../app/translation'
+
+export const editMenuTemplateFunc = () => ({
+  label: __("Edit"),
   submenu: [
-    { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-    { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+    { label: __("Undo"), accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+    { label: __("Redo"), accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
     { type: "separator" },
-    { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
-    { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
-    { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
-    { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+    { label: __("Cut"), accelerator: "CmdOrCtrl+X", selector: "cut:" },
+    { label: __("Copy"), accelerator: "CmdOrCtrl+C", selector: "copy:" },
+    { label: __("Paste"), accelerator: "CmdOrCtrl+V", selector: "paste:" },
+    { label: __("Select All"), accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
   ]
-};
+});

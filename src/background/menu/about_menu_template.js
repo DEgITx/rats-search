@@ -1,12 +1,13 @@
 import { app, BrowserWindow, shell } from "electron";
 import path from "path";
 import url from "url";
+import __ from '../../app/translation'
 
-export const aboutMenuTemplate = {
-  label: "About",
+export const aboutMenuTemplateFunc = () => ({
+  label: __("About"),
   submenu: [
     {
-      label: "Changelog",
+      label: __("Changelog"),
       accelerator: "CmdOrCtrl+]",
       click: () => {
         const win = new BrowserWindow({
@@ -35,14 +36,14 @@ export const aboutMenuTemplate = {
       },
     },
     {
-      label: "Bug Report",
+      label: __("Bug Report"),
       accelerator: "CmdOrCtrl+[",
       click: () => {
         shell.openExternal('https://github.com/DEgITx/rats-search/issues')
       },
     },
     {
-      label: "Donate",
+      label: __("Donate"),
       accelerator: "CmdOrCtrl+*",
       click: () => {
         const win = new BrowserWindow({
@@ -72,25 +73,25 @@ export const aboutMenuTemplate = {
       },
     },
     {
-      label: "Help (Documentation)",
+      label: __("Help (Documentation)"),
       accelerator: "CmdOrCtrl+?",
       click: () => {
         shell.openExternal('https://github.com/DEgITx/rats-search/blob/master/docs/MANUAL.md')
       },
     },
     {
-      label: "Support (Discussion)",
+      label: __("Support (Discussion)"),
       accelerator: "CmdOrCtrl+>",
       click: () => {
         shell.openExternal('https://discord.gg/t9GQtxA')
       },
     },
     {
-      label: "About (GitHub)",
+      label: __("About (GitHub)"),
       accelerator: "CmdOrCtrl+<",
       click: () => {
         shell.openExternal('https://github.com/DEgITx/rats-search')
       },
     }
   ]
-};
+});
