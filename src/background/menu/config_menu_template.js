@@ -26,10 +26,12 @@ export const settingsMenuTemplateFunc = (config, onLanguageChange) => ({
         const translations = []
         fs.readdirSync('translations').forEach(translation => {
           const translationJson = JSON.parse(fs.readFileSync(`translations/${translation}`, 'utf8'))
+          const lang = path.basename(translation, '.json')
           translations.push({
             label: translationJson.nameOriginal,
+            type: 'checkbox',
+            checked: config.language === lang,
             click: () => {
-              const lang = path.basename(translation, '.json')
               BrowserWindow.getFocusedWindow().webContents.send('changeLanguage', lang)
               config.language = lang
               if(onLanguageChange)
