@@ -29,6 +29,7 @@
         "from": "resources/icons/19x19.png",
         "to": "icons/19x19.png"
       },
+      "translations",
       "CHANGELOG.md"
     ],
     "directories": {

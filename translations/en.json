@@ -1,8 +1,8 @@
 {
-	"name": "English",
-	"nameOriginal": "English",
-	"translations":
-	{
-		"welcome": "welcome"
-	}
+    "name": "English",
+    "nameOriginal": "English",
+    "translations": {
+        "Language": "Language",
+        "welcome": "welcome"
+    }
 }
