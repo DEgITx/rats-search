@@ -40,14 +40,14 @@ export default class ConfigPage extends Page {
     return (
       <div>
         <div className='row center pad0-75'>
-          <RaisedButton label="Back to main page" primary={true} onClick={() => {
+          <RaisedButton label={__('Back to main page')} primary={true} onClick={() => {
             window.router('/')
           }} />
         </div>
       	<div className='column center w100p pad0-75'>
           <Toggle
 			  style={{marginTop: '10px'}}
-		      label="Enabled network scanning"
+		      label={__('Enabled network scanning')}
 		      toggled={this.options.indexer}
 		      onToggle={(e, checked) => {
             this.options.indexer = checked
@@ -58,11 +58,11 @@ export default class ConfigPage extends Page {
 		    />
         <div className='column w100p'>
           <div className='row inline w100p'>
-            <div style={{flex: 1}}>Scanning port</div>
+            <div style={{flex: 1}}>{__('Scanning port')}</div>
             <TextField
               style={{width: 65}}
-              hintText="Port"
-              errorText={this.options.spiderPort > 0 ? undefined : "This field is required"}
+              hintText={__('Port')}
+              errorText={this.options.spiderPort > 0 ? undefined : __('This field is required')}
               value={this.options.spiderPort}
               onChange={(e, value) => {
                 if(!value)
@@ -75,16 +75,16 @@ export default class ConfigPage extends Page {
               }}
             />
           </div>
-          <div className='fs0-75' style={{color: 'grey'}}>* For current work TCP and UDP ports must be fully open and forward in case of router usage</div>
+          <div className='fs0-75' style={{color: 'grey'}}>* {__('For current work TCP and UDP ports must be fully open and forward in case of router usage')}</div>
         </div>
 
         <div className='column w100p'>
           <div className='row inline w100p'>
-            <div style={{flex: 1}}>Trackers responce port</div>
+            <div style={{flex: 1}}>{__('Trackers responce port')}</div>
             <TextField
               style={{width: 65}}
               hintText="Port"
-              errorText={this.options.udpTrackersPort > 0 ? undefined : "This field is required"}
+              errorText={this.options.udpTrackersPort > 0 ? undefined : __('This field is required')}
               value={this.options.udpTrackersPort}
               onChange={(e, value) => {
                 if(!value)
@@ -97,12 +97,12 @@ export default class ConfigPage extends Page {
               }}
             />
           </div>
-          <div className='fs0-75' style={{color: 'grey'}}>* For current work UDP port must be fully open and forward in case of router usage</div>
+          <div className='fs0-75' style={{color: 'grey'}}>* {__('For current work UDP port must be fully open and forward in case of router usage')}</div>
         </div>
 
         <Toggle
 			  style={{marginTop: '10px'}}
-		      label="Enabled UPnP"
+		      label={__('Enabled UPnP')}
 		      toggled={this.options.upnp}
 		      onToggle={(e, checked) => {
 		      	this.options.upnp = checked
@@ -111,10 +111,10 @@ export default class ConfigPage extends Page {
 		    />
 
         <div className='row inline w100p'>
-          <div style={{flex: 1}}>Collection directory</div>
+          <div style={{flex: 1}}>{__('Collection directory')}</div>
           <TextField
-            hintText="Db path"
-            errorText={this.options.dbPath && this.options.dbPath.length > 0 ? undefined : "This field is required"}
+            hintText={__('Db path')}
+            errorText={this.options.dbPath && this.options.dbPath.length > 0 ? undefined : __('This field is required')}
             value={this.options.dbPath}
             onChange={(e, value) => {
               if(!fs.existsSync(value))
@@ -124,7 +124,7 @@ export default class ConfigPage extends Page {
               this.forceUpdate()
             }}
           />
-          <RaisedButton style={{marginLeft: 20}} label="Browse" primary={true} onClick={() => {
+          <RaisedButton style={{marginLeft: 20}} label={__('Browse')} primary={true} onClick={() => {
            if(!dialog)
               return
            const dir = dialog.showOpenDialog({properties: ['openDirectory']})[0]
@@ -137,9 +137,9 @@ export default class ConfigPage extends Page {
         </div>
 
         <div className='row inline w100p'>
-          <div style={{flex: 1}}>Download torrents directory</div>
+          <div style={{flex: 1}}>{__('Download torrents directory')}</div>
           <TextField
-            hintText="Download path"
+            hintText={__('Download path')}
             value={this.options.client && this.options.client.downloadPath}
             onChange={(e, value) => {
               if(!fs.existsSync(value))
@@ -149,7 +149,7 @@ export default class ConfigPage extends Page {
               this.forceUpdate()
             }}
           />
-          <RaisedButton style={{marginLeft: 20}} label="Browse" primary={true} onClick={() => {
+          <RaisedButton style={{marginLeft: 20}} label={__('Browse')} primary={true} onClick={() => {
           if(!dialog)
             return
            const dir = dialog.showOpenDialog({properties: ['openDirectory']})[0]
@@ -161,10 +161,10 @@ export default class ConfigPage extends Page {
           }} />
         </div>
 
-        <div style={{marginTop: 10}}>P2P Rats network settings:</div>
+        <div style={{marginTop: 10}}>{__('P2P Rats network settings')}:</div>
         <Toggle
 			  style={{marginTop: '10px'}}
-		      label="Enabled p2p search"
+		      label={__('Enabled p2p search')}
 		      toggled={this.options.p2p}
 		      onToggle={(e, checked) => {
 		      	this.options.p2p = this.options.indexer && checked
@@ -174,18 +174,18 @@ export default class ConfigPage extends Page {
         <div className='column w100p'>
           <Toggle
           style={{marginTop: '10px'}}
-            label="Enabled bootstrap peers"
+            label={__('Enabled bootstrap peers')}
             toggled={this.options.p2pBootstrap}
             onToggle={(e, checked) => {
               this.options.p2pBootstrap = checked
               this.forceUpdate()
             }}
           />
-          <div className='fs0-75' style={{color: 'grey'}}>* Use extrnral bootstrap nodes to get p2p peers when network setted wrong or need external source</div>
+          <div className='fs0-75' style={{color: 'grey'}}>* {__('Use extrnral bootstrap nodes to get p2p peers when network setted wrong or need external source')}</div>
         </div>
         <div className='column w100p'>
           <div className='row inline w100p'>
-            <div style={{flex: 1}}>Max peers limit (current: {this.options.p2pConnections})</div>
+            <div style={{flex: 1}}>{__('Max peers limit')} ({__('current')}: {this.options.p2pConnections})</div>
             <Slider
               min={10}
               max={25}
@@ -202,21 +202,21 @@ export default class ConfigPage extends Page {
         <div className='column w100p'>
           <Toggle
           style={{marginTop: '10px'}}
-            label="P2P torrents replication"
+            label={__('P2P torrents replication')}
             toggled={this.options.p2pReplication}
             onToggle={(e, checked) => {
               this.options.p2pReplication = checked
               this.forceUpdate()
             }}
           />
-          <div className='fs0-75' style={{color: 'grey'}}>* Enable torrents replication from another rats clients. Dont recomended if torrent scanner works correct.</div>
+          <div className='fs0-75' style={{color: 'grey'}}>* {__('Enable torrents replication from another rats clients. Dont recomended if torrent scanner works correct')}.</div>
         </div>
 
 
-        <div style={{marginTop: 10}}>Torrent network scanner settings:</div>
+        <div style={{marginTop: 10}}>{__('Torrent network scanner settings')}:</div>
         <div className='column w100p'>
           <div className='row inline w100p'>
-            <div style={{flex: 1}}>Scanner walk speed (current: {this.options.spider && this.options.spider.walkInterval}) [affected after program reload]</div>
+            <div style={{flex: 1}}>{__('Scanner walk speed')} ({__('current')}: {this.options.spider && this.options.spider.walkInterval}) [{__('affected after program reload')}]</div>
             <Slider
               min={1}
               max={150}
@@ -229,12 +229,12 @@ export default class ConfigPage extends Page {
               }}
             />
           </div>
-          <div className='fs0-75' style={{color: 'grey'}}>* Low value - fast initial scanning and high cpu usage. High Value - low cpu usage but very slow scanning. 
-            Good value between 3-60. Defaul value: 5</div>
+          <div className='fs0-75' style={{color: 'grey'}}>* {__('Low value')} - {__('fast initial scanning and high cpu usage')}. {__('High Value')} - {__('low cpu usage but very slow scanning')}. 
+          {__('Good value between')} 3-60. {__('Defaul value')}: 5</div>
         </div>
         <div className='column w100p'>
           <div className='row inline w100p'>
-            <div style={{flex: 1}}>Nodes usage (current: {this.options.spider && this.options.spider.nodesUsage})</div>
+            <div style={{flex: 1}}>{__('Nodes usage')} ({__('current')}: {this.options.spider && this.options.spider.nodesUsage})</div>
             <Slider
               min={0}
               max={1000}
@@ -247,13 +247,13 @@ export default class ConfigPage extends Page {
               }}
             />
           </div>
-          <div className='fs0-75' style={{color: 'grey'}}>* Low Value - very low usage of nodes, low network traffic, slow torrent scanning. High value - high traffic, fast scanning, high routers usage. 
-          Recomended value between 10-1000. Defaul value: 100. 0 - Ignore this option (no limit).
+          <div className='fs0-75' style={{color: 'grey'}}>* {__('Low Value')} - {__('very low usage of nodes, low network traffic, slow torrent scanning')}. {__('High value')} - {__('high traffic, fast scanning, high routers usage')}. 
+          {__('Recomended value between')} 10-1000. {__('Defaul value')}: 100. 0 - {__('Ignore this option')} ({__('no limit')}).
           </div>
         </div>
         <div className='column w100p'>
           <div className='row inline w100p'>
-            <div style={{flex: 1}}>Reduce network packages (current: {this.options.spider && this.options.spider.packagesLimit})</div>
+            <div style={{flex: 1}}>{__('Reduce network packages')} ({__('current')}: {this.options.spider && this.options.spider.packagesLimit})</div>
             <Slider
               min={0}
               max={2000}
@@ -266,19 +266,19 @@ export default class ConfigPage extends Page {
               }}
             />
           </div>
-          <div className='fs0-75' style={{color: 'grey'}}>* Low Value - ignore more usless network packages, lower traffic and routers usage. High Value - high traffic and router usage in prospect.
-          Recomended value between 300-2000. Defaul value: 500. 0 - Ignore this option (no limit).
+          <div className='fs0-75' style={{color: 'grey'}}>* {__('Low Value')} - {__('ignore more usless network packages, lower traffic and routers usage')}. {__('High Value')} - {__('high traffic and router usage in prospect')}.
+          {__('Recomended value between')} 300-2000. {__('Defaul value')}: 500. 0 - {__('Ignore this option')} ({__('no limit')}).
           </div>
         </div>
 
         {
           this.settingsSavedMessage
           &&
-          <div style={{color: 'green'}}>Settings saved</div>
+          <div style={{color: 'green'}}>{__('Settings saved')}</div>
         }
 
         <div className='row center pad0-75'>
-          <RaisedButton label="Save Settings" primary={true} onClick={() => {
+          <RaisedButton label={__('Save Settings')} primary={true} onClick={() => {
             this.saveSettings()
           }} />
         </div>

@@ -40,7 +40,7 @@ export default class TopPage extends Page {
     return (
       <div>
       	<div className='column center w100p pad0-75'>
-          <RaisedButton label="Back to main page" primary={true} onClick={() => {
+          <RaisedButton label={__('Back to main page')} primary={true} onClick={() => {
             window.router('/')
           }} />
             <List style={{paddingBottom: '70px'}} className='animated recent-torrents'>

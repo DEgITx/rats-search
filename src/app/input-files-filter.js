@@ -38,7 +38,7 @@ export default class InputFilesFilter extends Component {
     return (
       <div className='filter-row row inline w100p'>
         <Checkbox
-          label="Files filter"
+          label={__("Files filter")}
           checked={this.state.enabled}
           style={{width: 150, display: 'flex', minWidth: 130}}
           onCheck={() => this.setState({enabled: !this.state.enabled})}
@@ -53,17 +53,17 @@ export default class InputFilesFilter extends Component {
               onChange={files => this.setState({ files })} 
             />
             <SelectField
-              floatingLabelText="Size type"
+              floatingLabelText={__('Size type')}
               value={this.state.filesMax}
               onChange={(event, index, value) => this.setState({filesMax: value})}
               className='filter-control-border'
             >
-              <MenuItem value={10} primaryText="10 Files or less" />
-              <MenuItem value={100} primaryText="100 Files or less" />
-              <MenuItem value={1000} primaryText="1000 Files or less" />
-              <MenuItem value={10000} primaryText="10000 Files or less" />
-              <MenuItem value={100000} primaryText="100000 Files or less" />
-              <MenuItem value={1000000} primaryText="1000000 Files or less" />
+              <MenuItem value={10} primaryText={"10 " + __("Files or less")} />
+              <MenuItem value={100} primaryText={"100 " + __("Files or less")} />
+              <MenuItem value={1000} primaryText={"1000 " + __("Files or less")} />
+              <MenuItem value={10000} primaryText={"10000 " + __("Files or less")} />
+              <MenuItem value={100000} primaryText={"100000 " + __("Files or less")} />
+              <MenuItem value={1000000} primaryText={"1000000 " + __("Files or less")} />
             </SelectField>
           </div>
         </div>

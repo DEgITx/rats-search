@@ -283,9 +283,9 @@ export default class Torrent extends Component {
                   torrent.seeders || torrent.leechers || torrent.completed
                   ?
                   <div className='break-word fs0-85' style={{paddingTop: '0.35em'}}>
-                    <span style={{color: (torrent.seeders > 0 ? '#00C853' : 'grey')}}>{torrent.seeders} seeders</span>
-                    <span style={{color: (torrent.leechers > 0 ? '#AA00FF' : 'grey'), marginLeft: '12px'}}>{torrent.leechers} leechers</span>
-                    <span style={{color: (torrent.completed > 0 ? '#FF6D00' : 'grey'), marginLeft: '12px'}}>{torrent.completed} completed</span>
+                    <span style={{color: (torrent.seeders > 0 ? '#00C853' : 'grey')}}>{torrent.seeders} {__('seeders')}</span>
+                    <span style={{color: (torrent.leechers > 0 ? '#AA00FF' : 'grey'), marginLeft: '12px'}}>{torrent.leechers} {__('leechers')}</span>
+                    <span style={{color: (torrent.completed > 0 ? '#FF6D00' : 'grey'), marginLeft: '12px'}}>{torrent.completed} {__('completed')}</span>
                   </div>
                   :
                   null

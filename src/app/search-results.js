@@ -15,7 +15,7 @@ export default class SearchResults extends Component {
 	      	|| (this.props.filesSearchResults && this.props.filesSearchResults.length > 0)
 	      	?
 	      	<div>
-	      		<Subheader className='row center w100p' style={{paddingLeft: 0}} inset={true}><span>Search results for</span> <span style={{marginLeft: '0.4em'}}><b>{this.props.searchText}</b></span></Subheader>
+	      		<Subheader className='row center w100p' style={{paddingLeft: 0}} inset={true}><span>{__('Search results for')}</span> <span style={{marginLeft: '0.4em'}}><b>{this.props.searchText}</b></span></Subheader>
 	      		<div className='w100p row center' style={{marginTop: '-16px'}}>{this.props.resultSelector}</div>
 	      	</div>
 	      	:
@@ -36,7 +36,7 @@ export default class SearchResults extends Component {
 	      	this.props.moreTorrentsEnabled && !this.props.moreTorrentsIndicator
 	      	?
 	      	<div>
-	      		<ListItem innerDivStyle={{textAlign: 'center', padding: '1em'}} primaryText={<span>More Torrents</span>} onClick={() => {
+	      		<ListItem innerDivStyle={{textAlign: 'center', padding: '1em'}} primaryText={<span>{__('More Torrents')}</span>} onClick={() => {
 	      			if(this.props.onMoreTorrents)
 	      				this.props.onMoreTorrents();
 	      		}} />
@@ -69,7 +69,7 @@ export default class SearchResults extends Component {
 	      	this.props.moreFilesEnabled && !this.props.moreFilesIndicator
 	      	?
 	      	<div>
-	      		<ListItem innerDivStyle={{textAlign: 'center', padding: '1em'}}  primaryText='More Files' onClick={() => {
+	      		<ListItem innerDivStyle={{textAlign: 'center', padding: '1em'}}  primaryText={__('More Files')} onClick={() => {
 	      			if(this.props.onMoreFiles)
 	      				this.props.onMoreFiles();
 	      		}} />
@@ -125,7 +125,7 @@ export default class SearchResults extends Component {
 							c-5.292-6.087-7.944-13.459-7.944-22.108C63.521,74.195,66.173,66.825,71.465,60.749z"/>
 					</g>
 				</svg>
-	      		<div className='fs0-85 pad0-75' style={{color: 'grey'}}>no torrents for <b>{this.props.searchText}</b> were found</div>
+	      		<div className='fs0-85 pad0-75' style={{color: 'grey'}}>{__('no torrents for')} <b>{this.props.searchText}</b> {__('were found')}</div>
 	      	</div>
 	      	:
 	      	null
