@@ -72,12 +72,12 @@ const TorrentFiles = (props) => {
       filesList.length > 0
       ?
       <div className='w100p'>
-  			<Subheader inset={true}>Content of the torrent:</Subheader>
+  			<Subheader inset={true}>{__('Content of the torrent')}:</Subheader>
   			{treeToTorrentFiles(tree)}
       </div>
       :
       <div className='column center'>
-        <span className='pad0-75'>Processing files...</span>
+        <span className='pad0-75'>{__('Processing files')}...</span>
         <LinearProgress mode="indeterminate" />
       </div>
     }
@@ -89,23 +89,23 @@ const TorrentInformation = (props) => {
 	let torrent = props.torrent;
 	return (
 		<List className='w100p'>
-	      <Subheader inset={true}>Information about torrent</Subheader>
+	      <Subheader inset={true}>{__('Information about torrent')}</Subheader>
 	      <ListItem
 	        //leftAvatar={<Avatar icon={<ActionAssignment />} backgroundColor={blue500} />}
 	        rightIcon={<ActionInfo />}
-	        primaryText="Torrent Name"
+	        primaryText={__('Torrent Name')}
 	        secondaryText={<span className='break-word' style={{whiteSpace: 'normal'}}>{torrent.name}</span>}
 	      />
 	      <ListItem
 	       // leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
 	        rightIcon={<ActionInfo />}
-	        primaryText="Torrent Size"
+	        primaryText={__('Torrent Size')}
 	        secondaryText={formatBytes(torrent.size)}
 	      />
 	      <ListItem
 	       // leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
 	        rightIcon={<ActionInfo />}
-	        primaryText="Torrent contains files"
+	        primaryText={__('Torrent contains files')}
 	        secondaryText={torrent.files}
 	        onClick={() => {
 	        	if(!props.parent)
@@ -119,19 +119,19 @@ const TorrentInformation = (props) => {
 	      <ListItem
 	       // leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
 	        rightIcon={<ActionInfo />}
-	        primaryText="Indexed/Added torrent date"
+	        primaryText={__('Indexed/Added torrent date')}
 	        secondaryText={moment(torrent.added * 1000).format('MMMM Do YYYY, hh:mm')}
 	      />
 	       <ListItem
 	       // leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
 	        rightIcon={<ActionInfo />}
-	        primaryText="Content type"
+	        primaryText={__('Content type')}
 	        secondaryText={torrent.contentType || 'unknown'}
 	      />
 	      <ListItem
 	       // leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
 	        rightIcon={<ActionInfo />}
-	        primaryText="Category"
+	        primaryText={__('Category')}
 	        secondaryText={torrent.contentCategory || 'unknown'}
 	      />
 	    </List>
@@ -337,8 +337,8 @@ export default class TorrentPage extends Page {
 		        value={this.state.value}
 		        onChange={this.handleChange}
 		     >
-		    	 <Tab label="Back to main" value="main" />
-		     	<Tab label="Information" value="info" >
+		    	 <Tab label={__('Back to main')} value="main" />
+		     	<Tab label={__('Information')} value="info" >
 		     		<div className='column w100p'>
 		     			<div className='row w100p torrent-information-row'>
 		     				<div className='info-table'>
@@ -363,7 +363,7 @@ export default class TorrentPage extends Page {
                       <RaisedButton
                         href={`magnet:?xt=urn:btih:${this.torrent.hash}`}
                         target="_self"
-                        label="Download"
+                        label={__('Download')}
                         backgroundColor='#00C853'
                         labelColor='white'
                         style={{marginTop: 8}}
@@ -399,7 +399,7 @@ export default class TorrentPage extends Page {
                       this.state.downloading
                       &&
                       <div className='column center pad0-75' style={{width: '300px'}}>
-                        <div className='fs0-75' style={{color: 'rgb(0, 188, 212)'}}>downloading {this.state.downloadProgress && (this.state.downloadProgress.progress * 100).toFixed(1)}%</div>
+                        <div className='fs0-75' style={{color: 'rgb(0, 188, 212)'}}>{__('downloading')} {this.state.downloadProgress && (this.state.downloadProgress.progress * 100).toFixed(1)}%</div>
                         <LinearProgress 
                           style={{marginTop: 3}}
                           mode="determinate" 
@@ -420,9 +420,9 @@ export default class TorrentPage extends Page {
 								 	this.torrent.seeders || this.torrent.leechers || this.torrent.completed
 								 	?
 								 	<div className='fs0-85 pad0-75 center column'>
-								 		<div className='pad0-25' style={{color: '#00C853'}}>seeders: {this.torrent.seeders}</div>
-								 		<div className='pad0-25' style={{color: '#AA00FF'}}>leechers: {this.torrent.leechers}</div>
-								 		<div className='pad0-25' style={{color: '#FF6D00'}}>completed: {this.torrent.completed}</div>
+								 		<div className='pad0-25' style={{color: '#00C853'}}>{__('seeders')}: {this.torrent.seeders}</div>
+								 		<div className='pad0-25' style={{color: '#AA00FF'}}>{__('leechers')}: {this.torrent.leechers}</div>
+								 		<div className='pad0-25' style={{color: '#FF6D00'}}>{__('completed')}: {this.torrent.completed}</div>
 								 	</div>
 								 	:
 								 	null
@@ -432,7 +432,7 @@ export default class TorrentPage extends Page {
                    ?
                    <div className='row pad0-25'>
                      <RaisedButton
-                        label={`Good (${this.torrent.good})`}
+                        label={__('Good') + ` (${this.torrent.good})`}
                         labelColor="white"
                         backgroundColor="#00C853"
                         icon={
@@ -451,7 +451,7 @@ export default class TorrentPage extends Page {
                       />
                       <RaisedButton
                         style={{marginLeft: '9px'}}
-                        label={`Bad (${this.torrent.bad})`}
+                        label={__('Bad') + ` (${this.torrent.bad})`}
                         labelColor="white"
                         backgroundColor="#D50000"
                         icon={
@@ -487,7 +487,7 @@ export default class TorrentPage extends Page {
                         height: '5px',
                       }}
                     />
-                    <div className='row center pad0-75 fs0-85' style={{color: torrentRating >= 50 ? '#00E676' : '#FF3D00'}}>Torrent rating: {torrentRating}%</div>
+                    <div className='row center pad0-75 fs0-85' style={{color: torrentRating >= 50 ? '#00E676' : '#FF3D00'}}>{__('Torrent rating')}: {torrentRating}%</div>
                   </div>
                   :
                   null
@@ -496,7 +496,7 @@ export default class TorrentPage extends Page {
    						</div>
    					</div>
    				</Tab>
-   				<Tab label="Files" value="files" >
+   				<Tab label={__('Files')} value="files" >
    					<TorrentFiles torrent={this.torrent} />
    				</Tab>
    			</Tabs>

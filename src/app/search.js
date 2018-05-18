@@ -24,7 +24,7 @@ class Search extends Component {
 
     this.state = { 
       searchingIndicator: false,
-      safeSearchText: 'safe search enabled',
+      safeSearchText: __('safe search enabled'),
       safeSearchColor: 'rgb(0, 188, 212)',
       moreTorrentsIndicator: false,
       moreFilesIndicator: false,
@@ -239,11 +239,11 @@ class Search extends Component {
     this.notSafeSearch = ch;
     if(ch)
     {
-      return {safeSearchText: 'safe search disabled', safeSearchColor: '#EC407A'}
+      return {safeSearchText: __('safe search disabled'), safeSearchColor: '#EC407A'}
     }
     else
     {
-      return {safeSearchText: 'safe search enabled', safeSearchColor: 'rgb(0, 188, 212)'}
+      return {safeSearchText: __('safe search enabled'), safeSearchColor: 'rgb(0, 188, 212)'}
     }
   }
   render() {
@@ -259,8 +259,8 @@ class Search extends Component {
         <div className='row inline w100p pad0-75 search-row' style={{minWidth: '35em', backgroundColor: 'white', paddingTop: 0, paddingBottom: this.searchError ? 17 : 0, margin: 5, borderRadius: 3}}>
           <TextField
               style={{marginTop: -12}}
-              hintText="Search torrent or file"
-              floatingLabelText="What to search?"
+              hintText={__('Search torrent or file')}
+              floatingLabelText={__('What to search?')}
               fullWidth={true}
               ref='searchInput'
               defaultValue={this.searchValue}
@@ -273,7 +273,7 @@ class Search extends Component {
              onChange={e => {
                this.searchValue = e.target.value
                if(this.searchValue.length < 3 && this.searchValue.length > 0)
-                this.searchError = 'too short string for search';
+                this.searchError = __('too short string for search');
                else
                 this.searchError = undefined;
                this.forceUpdate()
@@ -307,7 +307,7 @@ class Search extends Component {
             />
           </div>
 
-          <RaisedButton style={{marginLeft: '10px'}} label="Search" primary={true} onClick={() =>{
+          <RaisedButton style={{marginLeft: '10px'}} label={__('Search')} primary={true} onClick={() =>{
             this.search()
           }} />
         </div>

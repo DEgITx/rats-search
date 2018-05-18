@@ -129,7 +129,7 @@ export default class TorrentsStatistic extends Component {
                     c0.4-0.112,0.79-0.227,1.168-0.346c0.004-0.001,0.009-0.003,0.013-0.004c2.961-0.936,5.22-2.099,6.693-3.427v8.346
                     C57.986,45.747,57.976,45.792,57.968,45.838z"/>
                   </svg>
-                  <div style={{marginLeft: '5px'}}>{ formatBytes(this.stats.size, 1) } data</div>
+                  <div style={{marginLeft: '5px'}}>{ formatBytes(this.stats.size, 1) } {__('data')}</div>
                 </div>
 
                 <div className='row inline' style={{color: '#f48641', fontSize: '1.15em', fill: '#f48641', marginLeft: '20px'}}>
@@ -149,7 +149,7 @@ export default class TorrentsStatistic extends Component {
                     <path d="M38,46h-1c-0.552,0-1,0.447-1,1s0.448,1,1,1h1c0.552,0,1-0.447,1-1S38.552,46,38,46z"/>
                   </g>
                   </svg>
-                  <div style={{marginLeft: '5px'}}>{this.stats.torrents} torrents</div>
+                  <div style={{marginLeft: '5px'}}>{this.stats.torrents} {__('torrents')}</div>
                 </div>
 
                 <div className='row inline' style={{color: '#f441e2', fontSize: '1.15em', fill: '#f441e2', marginLeft: '20px'}}>
@@ -163,7 +163,7 @@ export default class TorrentsStatistic extends Component {
                       <path d="M38.914,0H6.5v60h47V14.586L38.914,0z M39.5,3.414L50.086,14H39.5V3.414z M8.5,58V2h29v14h14v42H8.5z"/>
                     </g>
                   </svg>
-                  <div style={{marginLeft: '5px'}}>{this.stats.files} files</div>
+                  <div style={{marginLeft: '5px'}}>{this.stats.files} {__('files')}</div>
                 </div>
         </div>
 
@@ -188,7 +188,7 @@ export default class TorrentsStatistic extends Component {
                       <circle cx="23.83" cy="23.323" r="7.271"/>
                     </g>
                   </svg>
-                  <div style={{marginLeft: '5px'}}>{window.peers} peers</div>
+                  <div style={{marginLeft: '5px'}}>{window.peers} {__('peers')}</div>
                 </div>
 
                 <div className='row inline' style={{color: window.peersTorrents > 0 ? '#19c687' : 'white', fontSize: '1.15em', fill: window.peersTorrents > 0 ? '#19c687' : 'white', marginLeft: '20px'}}>
@@ -203,7 +203,7 @@ export default class TorrentsStatistic extends Component {
                         c-32.6,0-59.1-26.5-59.1-59.1c0-32.6,26.5-59.1,59.1-59.1s59.1,26.5,59.1,59.1C440.7,428,414.2,454.5,381.6,454.5z"/>
                     </g>
                   </svg>
-                  <div style={{marginLeft: '5px'}}>{window.peersTorrents} remote torrents</div>
+                  <div style={{marginLeft: '5px'}}>{window.peersTorrents} {__('remote torrents')}</div>
                 </div>
 
                 <div className='row inline' style={{color: window.p2pStatus == 2 ? '#78c619' : (window.p2pStatus == 1 ? '#c68319' : '#c6194a'), fontSize: '1.15em', fill: window.p2pStatus == 2 ? '#78c619' : (window.p2pStatus == 1 ? '#c68319' : '#c6194a'), marginLeft: '20px'}}>
@@ -227,7 +227,7 @@ export default class TorrentsStatistic extends Component {
                           S29.964,45.019,27.454,45.019z"/>
                       </g>
                       </svg>
-                      <div style={{marginLeft: '5px'}}>not available</div>
+                      <div style={{marginLeft: '5px'}}>{__('not available')}</div>
                     </div>
                 }
                 {
@@ -251,7 +251,7 @@ export default class TorrentsStatistic extends Component {
                               C402.324,327.846,355.546,305.994,305.994,305.994z"/>
                           </g>
                       </svg>
-                      <div style={{marginLeft: '5px'}}>redirect</div>
+                      <div style={{marginLeft: '5px'}}>{__('redirect')}</div>
                     </div>
                   }
                   {
@@ -275,7 +275,7 @@ export default class TorrentsStatistic extends Component {
                               C402.324,327.846,355.546,305.994,305.994,305.994z"/>
                           </g>
                       </svg>
-                      <div style={{marginLeft: '5px'}}>direct</div>
+                      <div style={{marginLeft: '5px'}}>{__('direct')}</div>
                     </div>
                   }
                 </div>
