@@ -40,7 +40,7 @@ export default class IndexPage extends Page {
           searchText={Search.instance().currentSearch}
           resultSelector={
             <SelectField
-            floatingLabelText="Sort by"
+            floatingLabelText={__("Sort by")}
             floatingLabelFixed={true}
             value={Search.instance().state.orderBy}
             onChange={(event, index, value) => {
@@ -68,13 +68,13 @@ export default class IndexPage extends Page {
               })
             }}
           >
-              <MenuItem value='none' primaryText={'None'} />
-              <MenuItem value='seeders' primaryText={orderText('Seeders', 'seeders')} />
-              <MenuItem value='name' primaryText={orderText('Name', 'name')} />
-              <MenuItem value='files' primaryText={orderText('Files', 'files')} />
-              <MenuItem value='size' primaryText={orderText('Size', 'size')} />
-              <MenuItem value='added' primaryText={orderText('Added date', 'added')} />
-              <MenuItem value='completed' primaryText={orderText('Completed', 'completed')} />
+              <MenuItem value='none' primaryText={__('None')} />
+              <MenuItem value='seeders' primaryText={orderText(__('Seeders'), 'seeders')} />
+              <MenuItem value='name' primaryText={orderText(__('Name'), 'name')} />
+              <MenuItem value='files' primaryText={orderText(__('Files'), 'files')} />
+              <MenuItem value='size' primaryText={orderText(__('Size'), 'size')} />
+              <MenuItem value='added' primaryText={orderText(__('Added date'), 'added')} />
+              <MenuItem value='completed' primaryText={orderText(__('Completed'), 'completed')} />
             </SelectField>
           }
 

@@ -39,7 +39,7 @@ export default class ConfigPage extends Page {
     return (
       <div>
         <div className='row center pad0-75'>
-          <RaisedButton label="Back to main page" primary={true} onClick={() => {
+          <RaisedButton label={__("Back to main page")} primary={true} onClick={() => {
             window.router('/')
           }} />
         </div>
@@ -48,7 +48,7 @@ export default class ConfigPage extends Page {
 
          <div className='column w100p'>
           <div className='row inline w100p'>
-            <div style={{flex: 1}}>Max files per torrent (current: {this.options.filters && this.options.filters.maxFiles})</div>
+            <div style={{flex: 1}}>{__('Max files per torrent')} ({__('current')}: {this.options.filters && this.options.filters.maxFiles})</div>
             <Slider
               min={0}
               max={50000}
@@ -61,7 +61,7 @@ export default class ConfigPage extends Page {
               }}
             />
             <TextField
-              hintText="Max files"
+              hintText={__('Max files')}
               className='pad0-75'
               style={{width: 200}}
               value={this.options.filters && this.options.filters.maxFiles}
@@ -74,13 +74,13 @@ export default class ConfigPage extends Page {
               }}
             />
           </div>
-          <div className='fs0-75' style={{color: 'grey'}}>* 0 - Disabled.
+          <div className='fs0-75' style={{color: 'grey'}}>* 0 - {__('Disabled')}.
           </div>
         </div>
 
         <div className='column w100p'>
           <div className='row inline w100p'>
-            <div style={{flex: 1}}>Torrent name regular extension filtering</div>
+            <div style={{flex: 1}}>{__('Torrent name regular extension filtering')}</div>
             <TextField
               hintText="regex"
               className='pad0-75'
@@ -96,7 +96,7 @@ export default class ConfigPage extends Page {
             />
             <SelectField
               style={{marginLeft: 15}}
-              floatingLabelText="Examples"
+              floatingLabelText={__('Examples')}
               value={this.options.filters && this.options.filters.namingRegExp}
               onChange={(event, index, value) => {
                 if(!this.options.filters)
@@ -106,14 +106,14 @@ export default class ConfigPage extends Page {
                 this.forceUpdate()
               }}
             >
-              <MenuItem value={String.raw`^[А-Яа-я0-9A-Za-z.!@?#"$%&:;() *\+,\/;\-=[\\\]\^_{|}<>\u0400-\u04FF]+$`} primaryText="Russian + English only (With symbols)" />
-              <MenuItem value={'^[0-9A-Za-z.!@?#"$%&:;() *\+,\/;\-=[\\\]\^_{|}<>]+$'} primaryText="English only (With symbols)" />
-              <MenuItem value={'^((?!badword).)*$'} primaryText="Ignore badword" />
+              <MenuItem value={String.raw`^[А-Яа-я0-9A-Za-z.!@?#"$%&:;() *\+,\/;\-=[\\\]\^_{|}<>\u0400-\u04FF]+$`} primaryText={__('Russian + English only (With symbols)')} />
+              <MenuItem value={'^[0-9A-Za-z.!@?#"$%&:;() *\+,\/;\-=[\\\]\^_{|}<>]+$'} primaryText={__('English only (With symbols)')} />
+              <MenuItem value={'^((?!badword).)*$'} primaryText={__('Ignore badword')} />
             </SelectField>
           </div>
           <Toggle
 			    style={{marginTop: '10px'}}
-		      label="Negative regular extension filtering"
+		      label={__('Negative regular extension filtering')}
 		      toggled={this.options.filters && this.options.filters.namingRegExpNegative}
 		      onToggle={(e, checked) => {
             if(!this.options.filters)
@@ -124,13 +124,13 @@ export default class ConfigPage extends Page {
 		      }}
 		    />
           <div className='fs0-75' style={{color: 'grey'}}>
-          * - clean string means disabled
+          * - {__('clean string means disabled')}
           </div>
         </div>
 
         <Toggle
 			  style={{marginTop: '10px'}}
-		      label="Adult filter"
+		      label={__('Adult filter')}
 		      toggled={this.options.filters && this.options.filters.adultFilter}
 		      onToggle={(e, checked) => {
             if(!this.options.filters)
@@ -145,14 +145,14 @@ export default class ConfigPage extends Page {
         {
           this.toRemoveProbably && this.toRemoveProbably > 0
           ?
-          <div style={{color: 'orange'}}>Torrents to clean: {this.toRemoveProbably}</div>
+          <div style={{color: 'orange'}}>{__('Torrents to clean')}: {this.toRemoveProbably}</div>
           :
           null
         }
         {
           this.toRemove && this.toRemove > 0
           ?
-          <div style={{color: 'red'}}>Torrents cleaned: {this.toRemove}</div>
+          <div style={{color: 'red'}}>{__('Torrents cleaned')}: {this.toRemove}</div>
           :
           null
         }
@@ -160,17 +160,17 @@ export default class ConfigPage extends Page {
         {
           this.settingsSavedMessage
           &&
-          <div style={{color: 'green'}}>Settings saved</div>
+          <div style={{color: 'green'}}>{__('Settings saved')}</div>
         }
 
         <div className='row center pad0-75'>
-          <RaisedButton label="Check torrents" primary={true} onClick={() => {
+          <RaisedButton label={__('Check torrents')} primary={true} onClick={() => {
             window.torrentSocket.emit('removeTorrents', true, window.customLoader((toRemove) => {
               this.toRemoveProbably = toRemove
               this.forceUpdate()
             }));
           }} />
-          <RaisedButton label="Clean torrents" secondary={true} onClick={() => {
+          <RaisedButton label={__('Clean torrents')} secondary={true} onClick={() => {
             window.torrentSocket.emit('removeTorrents', false, window.customLoader((toRemove) => {
               this.toRemove = toRemove
               this.forceUpdate()
@@ -179,7 +179,7 @@ export default class ConfigPage extends Page {
         </div>
 
         <div className='row center pad0-75'>
-          <RaisedButton label="Save Settings" primary={true} onClick={() => {
+          <RaisedButton label={__('Save Settings')} primary={true} onClick={() => {
             this.saveSettings()
           }} />
         </div>

@@ -18,19 +18,19 @@ export default class TopPage extends Page {
     this.topTorrents = {};
     this.types = ['main', 'video', 'audio', 'books', 'pictures', 'application', 'archive']
     this.descriptions = {
-      main: 'All',
-      video: 'Video',
-      audio: 'Audio/Music',
-      books: 'Books',
-      pictures: 'Pictures/Images',
-      application: 'Apps/Games',
-      archive: 'Archives'
+      main: __('All'),
+      video: __('Video'),
+      audio: __('Audio/Music'),
+      books: __('Books'),
+      pictures: __('Pictures/Images'),
+      application: __('Apps/Games'),
+      archive: __('Archives')
     }
     this.times = {
-      overall: 'Overall',
-      hours: 'Last hour',
-      week: 'Last week',
-      month: 'Last month'
+      overall: __('Overall'),
+      hours: __('Last hour'),
+      week: __('Last week'),
+      month: __('Last month')
     }
     this.state = {type: 'main', time: 'overall'}
   }
@@ -157,7 +157,7 @@ export default class TopPage extends Page {
                           torrents.length > 0
                           &&
                           <div>
-                            <ListItem innerDivStyle={{textAlign: 'center', padding: '1em'}} primaryText={<span>More Torrents</span>} onClick={() => {
+                            <ListItem innerDivStyle={{textAlign: 'center', padding: '1em'}} primaryText={<span>{__('More Torrents')}</span>} onClick={() => {
                               this.loadMoreTorrents(type)
                             }} />
                             <Divider />

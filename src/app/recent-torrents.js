@@ -139,13 +139,13 @@ export default class RecentTorrents extends Component {
     return (
       <List className='animated recent-torrents'>
         <Subheader className='recent-title' inset={true}>
-          <FlatButton style={{marginRight: '8px'}} primary={true} label='top' labelStyle={{color: "#a4c639"}} onClick={() =>{
+          <FlatButton style={{marginRight: '8px'}} primary={true} label={__('top')} labelStyle={{color: "#a4c639"}} onClick={() =>{
 	            window.router('/top');
 	        }} />
-        	<FlatButton style={{marginRight: '8px'}} label={!this.state.pause ? 'running' : 'stoped'} secondary={this.state.pause} primary={!this.state.pause} onClick={() =>{
+        	<FlatButton style={{marginRight: '8px'}} label={!this.state.pause ? __('running') : __('stoped')} secondary={this.state.pause} primary={!this.state.pause} onClick={() =>{
 	            this.pauseAndContinue()
 	        }} />
-        	Most recent torrents{this.displayQueue.length > 0 ? ` (and ${this.displayQueue.length} more)` : null}
+        	{__('Most recent torrents')}{this.displayQueue.length > 0 ? ` (${__('and')} ${this.displayQueue.length} ${__('more')})` : null}
         </Subheader>
         <Divider />
         {

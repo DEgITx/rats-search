@@ -38,7 +38,7 @@ export default class InputSize extends Component {
     return (
       <div className='filter-row row inline w100p'>
         <Checkbox
-          label="Size filter"
+          label={__('Size filter')}
           checked={this.state.enabled}
           style={{width: 150, display: 'flex', minWidth: 130}}
           onCheck={() => this.setState({enabled: !this.state.enabled})}
@@ -54,7 +54,7 @@ export default class InputSize extends Component {
               onChange={size => this.setState({ size })} 
             />
             <SelectField
-              floatingLabelText="Size type max"
+              floatingLabelText={__('Size type max')}
               value={this.state.maxSize}
               onChange={(event, index, value) => this.setState({maxSize: value})}
               className='filter-control-border'
