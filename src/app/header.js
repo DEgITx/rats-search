@@ -163,7 +163,7 @@ class Header extends React.Component {
             transition: '1s'
           }}>
           <RaisedButton
-            label="Search"
+            label={__('Search')}
             onClick={() => {
               window.router('/')
             }}
@@ -200,7 +200,7 @@ class Header extends React.Component {
              }
           />
           <RaisedButton
-            label="Downloads"
+            label={__('Downloads')}
             onClick={() => {
               window.router('/downloads')
             }}
@@ -224,7 +224,7 @@ class Header extends React.Component {
              }
           />
           <RaisedButton
-            label="Top"
+            label={__('Top')}
             onClick={() => {
               window.router('/top')
             }}
