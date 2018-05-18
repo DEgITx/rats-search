@@ -101,7 +101,7 @@
         "Clean torrents": "Очистить торренты",
         "Save Settings": "Сохранить торренты",
         "Enabled network scanning": "Включить сканер сети",
-        "Scanning port": "Сканировать порт",
+        "Scanning port": "Порт для сканирования",
         "Port": "Порт",
         "This field is required": "Это необходимое поле",
         "For current work TCP and UDP ports must be fully open and forward in case of router usage": "Для нормальной работы TCP и UDP порты должны быть полностью открыты и проброшенны, в случае использования роутера",
@@ -139,6 +139,8 @@
         "no limit": "без ограничений",
         "Reduce network packages": "Сократить количество сетевых пакетов",
         "ignore more usless network packages, lower traffic and routers usage": "игнорировать больше сетевых пакетов, меньше трафик и использование роутеров",
-        "high traffic and router usage in prospect": "большой траффик и выскокая нагрузка на роутер в перспективе"
+        "high traffic and router usage in prospect": "большой траффик и выскокая нагрузка на роутер в перспективе",
+        "Settings saved": "Настройки сохранены",
+        "direct": "прямое"
     }
 }
