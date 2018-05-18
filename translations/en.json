@@ -141,6 +141,8 @@
         "ignore more usless network packages, lower traffic and routers usage": "ignore more usless network packages, lower traffic and routers usage",
         "high traffic and router usage in prospect": "high traffic and router usage in prospect",
         "Settings saved": "Settings saved",
-        "direct": "direct"
+        "direct": "direct",
+        "and": "and",
+        "more": "more"
     }
 }
