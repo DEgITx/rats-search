@@ -1,3 +1,12 @@
+<a name="0.20.1"></a>
+## [0.20.1](https://github.com/DEgITx/rats-search/compare/v0.20.0...v0.20.1) (2018-05-20)
+
+
+### Bug Fixes
+
+* **changelog:** fix changelog display ([6705b86](https://github.com/DEgITx/rats-search/commit/6705b86))
+* **header:** fix panel stick ([be3347b](https://github.com/DEgITx/rats-search/commit/be3347b))
+
 <a name="0.20.0"></a>
 # [0.20.0](https://github.com/DEgITx/rats-search/compare/v0.19.2...v0.20.0) (2018-05-20)
 
