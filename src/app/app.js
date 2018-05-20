@@ -154,14 +154,16 @@ class App extends Component {
 		appReady = false;
 	}
 	render() {
-		if(!window.initConfig)
+		const checkNotModal = (window.currentWindow && !window.currentWindow.isModal()) || typeof WEB !== 'undefined'
+
+		if(checkNotModal && !window.initConfig)
 			return null // nothing to do yet
 
 		return (
 			<MuiThemeProvider>
 				<div>
 					{
-						((window.currentWindow && !window.currentWindow.isModal()) || typeof WEB !== 'undefined')
+						checkNotModal
 						&&
 						<Header />
 					}
