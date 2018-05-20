@@ -30,3 +30,12 @@
   opacity: 0;
   margin: 0 !important;
 }
+
+.header .search-panel {
+  transition: 1s;
+  margin-bottom: 180px;
+}
+
+.header.sticky .search-panel {
+  margin-bottom: 0px;
+}
