@@ -32,7 +32,8 @@ export default class IndexPage extends Page {
     }
 
     return (
-      <div id='index-window'>
+      <div id='index-window' className='column center'>
+      <div className='torrents-container'>
       <SearchResults 
           torrentsSearchResults={Search.instance().searchTorrents} 
           filesSearchResults={Search.instance().searchFiles}
@@ -85,6 +86,7 @@ export default class IndexPage extends Page {
           moreTorrentsIndicator={Search.instance().state.moreTorrentsIndicator}
           moreFilesIndicator={Search.instance().state.moreFilesIndicator}
         />
+        </div>
       	<div className='column center w100p pad0-75'>
         	<RecentTorrents />
         </div>

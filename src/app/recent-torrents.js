@@ -137,7 +137,7 @@ export default class RecentTorrents extends Component {
       return null;
 
     return (
-      <List className='animated recent-torrents'>
+      <List className='animated recent-torrents torrents-container'>
         <Subheader className='recent-title' inset={true}>
           <FlatButton style={{marginRight: '8px'}} primary={true} label={__('top')} labelStyle={{color: "#a4c639"}} onClick={() =>{
 	            window.router('/top');
