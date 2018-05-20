@@ -143,6 +143,16 @@
         "Settings saved": "Settings saved",
         "direct": "direct",
         "and": "and",
-        "more": "more"
+        "more": "more",
+        "stoped": "stoped",
+        "too short string for search": "too short string for search",
+        "Search results for": "Search results for",
+        "More Files": "More Files",
+        "Yarrr, Landlubbers!": "Yarrr, Landlubbers!",
+        "Welcome to": "Welcome to",
+        "This is file search engine based on the torrents from the internet": "This is file search engine based on the torrents from the internet",
+        "Here you can easily find torrent or file that you intrested for": "Here you can easily find torrent or file that you intrested for",
+        "We are not responsible for any content": "We are not responsible for any content",
+        "this is only information about content that collected automatically": "this is only information about content that collected automatically"
     }
 }

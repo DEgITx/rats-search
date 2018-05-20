@@ -53,7 +53,7 @@ class Header extends React.Component {
     <div ref={this.header} className='header'>
     <Card className='w100p header-main' style={{position: 'fixed', zIndex: 2}}>
       <CardMedia
-        overlay={<CardTitle className='header-title' title="Yarrr, Landlubbers!" style={{paddingTop: 2}} subtitle={
+        overlay={<CardTitle className='header-title' title={__('Yarrr, Landlubbers!')} style={{paddingTop: 2}} subtitle={
         <div>
           <div className='row' style={{position: 'absolute', top: -65}}>
             <svg className='clickable'
@@ -151,9 +151,9 @@ class Header extends React.Component {
             </svg>
           </div>
 
-          Welcome to ROTB! This is file search engine based on the torrents from the internet. 
-          Here you can easily find torrent or file that you intrested for. We are not responsible for any content:
-          this is only information about content that collected automatically!
+          {__('Welcome to')} ROTB! {__('This is file search engine based on the torrents from the internet')}. 
+          {__('Here you can easily find torrent or file that you intrested for')}. {__('We are not responsible for any content')}:
+          {__('this is only information about content that collected automatically')}!
         </div>} />}
       >
         <div className='row header-row' style={{

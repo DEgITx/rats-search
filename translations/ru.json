@@ -143,6 +143,16 @@
         "Settings saved": "Настройки сохранены",
         "direct": "прямое",
         "and": "и",
-        "more": "больше"
+        "more": "больше",
+        "stoped": "остановлено",
+        "too short string for search": "слишком короткая строка для поиска",
+        "Search results for": "Поисковые результаты для",
+        "More Files": "Больше Файлов",
+        "Yarrr, Landlubbers!": "Аррр, Сухопутные!",
+        "Welcome to": "Добро пожаловать в",
+        "This is file search engine based on the torrents from the internet": "Это поисковой движок базирующийся на торрентах из интернета",
+        "Here you can easily find torrent or file that you intrested for": "Здесь вы можете легко найти интересущий вас торрент или файл",
+        "We are not responsible for any content": "Мы не несем отвественность за контент",
+        "this is only information about content that collected automatically": "это лишь информация собранная автоматически"
     }
 }
