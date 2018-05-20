@@ -250,7 +250,6 @@ class Header extends React.Component {
 						<div className='fs0-85 pad0-75 column search-panel' style={{
               marginLeft: 'auto', 
               marginTop: '-10px',
-              marginBottom: 180,
               zIndex: 2
               }}>
               <Search />
