@@ -1,3 +1,39 @@
+<a name="0.20.0"></a>
+# [0.20.0](https://github.com/DEgITx/rats-search/compare/v0.19.2...v0.20.0) (2018-05-20)
+
+
+### Bug Fixes
+
+* **cicleci:** fix build on cicleci ([d9ca345](https://github.com/DEgITx/rats-search/commit/d9ca345))
+* **header:** fix advanced search ([1907f68](https://github.com/DEgITx/rats-search/commit/1907f68))
+* **header:** fix header wrap ([5257ffd](https://github.com/DEgITx/rats-search/commit/5257ffd))
+* **header:** more enchantment over header ([006bb2c](https://github.com/DEgITx/rats-search/commit/006bb2c))
+* **header:** normal error padding on search panel ([eadbcde](https://github.com/DEgITx/rats-search/commit/eadbcde))
+* **log:** clear query log on every start ([bcc8e8f](https://github.com/DEgITx/rats-search/commit/bcc8e8f))
+* **search:** fix container width ([5ae7106](https://github.com/DEgITx/rats-search/commit/5ae7106))
+* **search:** fix search more button indication on peer search ([5549c12](https://github.com/DEgITx/rats-search/commit/5549c12))
+* **top:** bold like styling on tab chose ([5552284](https://github.com/DEgITx/rats-search/commit/5552284))
+* **translations:** checked language at menu ([520a359](https://github.com/DEgITx/rats-search/commit/520a359))
+* **translations:** init app translations ([8cd1309](https://github.com/DEgITx/rats-search/commit/8cd1309))
+* **translations:** more translations ([b3e04f5](https://github.com/DEgITx/rats-search/commit/b3e04f5))
+
+
+### Features
+
+* **core:** dependency update ([e75cb48](https://github.com/DEgITx/rats-search/commit/e75cb48))
+* **core:** more deps update ([542dd2e](https://github.com/DEgITx/rats-search/commit/542dd2e))
+* **filtering:** negative name filter ([b16ca68](https://github.com/DEgITx/rats-search/commit/b16ca68))
+* **header:** statistic panel interface ([71c86e2](https://github.com/DEgITx/rats-search/commit/71c86e2))
+* **p2p:** mapping all peers dicts ([ba5fb63](https://github.com/DEgITx/rats-search/commit/ba5fb63))
+* **p2p:** peerId protocol handshake ([a216279](https://github.com/DEgITx/rats-search/commit/a216279))
+* **search:** moved search to header (now search are always on) ([5a870a0](https://github.com/DEgITx/rats-search/commit/5a870a0))
+* **top:** top over different time over all types [#26](https://github.com/DEgITx/rats-search/issues/26) ([663325a](https://github.com/DEgITx/rats-search/commit/663325a))
+* **translations:** basic translations support ([87f23e7](https://github.com/DEgITx/rats-search/commit/87f23e7))
+* **translations:** generate words on translation ([d24c793](https://github.com/DEgITx/rats-search/commit/d24c793))
+* **translations:** menu translations ([8f76005](https://github.com/DEgITx/rats-search/commit/8f76005))
+* **translations-ru:** more translations (part 2) ([7f91b9e](https://github.com/DEgITx/rats-search/commit/7f91b9e))
+* **translations-ru:** translation to russian (part 1) ([09688e6](https://github.com/DEgITx/rats-search/commit/09688e6))
+
 <a name="0.19.2"></a>
 ## [0.19.2](https://github.com/DEgITx/rats-search/compare/v0.19.1...v0.19.2) (2018-05-04)
 
