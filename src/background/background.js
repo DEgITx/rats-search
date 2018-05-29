@@ -214,7 +214,7 @@ app.on("ready", () => {
 
   if (env.name === "production" && !portative) { autoUpdater.checkForUpdates() }
 
-    spider = spiderCall((...data) => { 
+    spider = new spiderCall((...data) => { 
       if(mainWindow)
         mainWindow.webContents.send(...data) 
     }, (message, callback) => {
