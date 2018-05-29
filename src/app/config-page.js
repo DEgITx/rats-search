@@ -161,6 +161,26 @@ export default class ConfigPage extends Page {
           }} />
         </div>
 
+        <Toggle
+			  style={{marginTop: '10px'}}
+		      label={__('Hide to tray on application minimize')}
+		      toggled={this.options.trayOnMinimize}
+		      onToggle={(e, checked) => {
+		      	this.options.trayOnMinimize = checked
+		      	this.forceUpdate()
+		      }}
+		    />
+
+        <Toggle
+			  style={{marginTop: '10px'}}
+		      label={__('Hide to tray on application close')}
+		      toggled={this.options.trayOnClose}
+		      onToggle={(e, checked) => {
+		      	this.options.trayOnClose = checked
+		      	this.forceUpdate()
+		      }}
+		    />
+
         <div style={{marginTop: 10}}>{__('P2P Rats network settings')}:</div>
         <Toggle
 			  style={{marginTop: '10px'}}

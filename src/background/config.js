@@ -19,6 +19,9 @@ let config = {
 
 	upnp: true,
 
+	trayOnClose: false,
+	trayOnMinimize: true,
+
 	sitemapMaxSize: 25000,
 
 	sphinx: {

@@ -178,13 +178,24 @@ app.on("ready", () => {
 	mainWindow.on('hide', () => {
 	  tray.setHighlightMode('never')
   })
+
+  mainWindow.on('close', (event) => {
+    if (!app.isQuiting && appConfig.trayOnClose && process.platform !== 'linux') {
+      event.preventDefault()
+      mainWindow.hide()
+      return
+    }
+  })
   mainWindow.on('closed', () => {
     mainWindow = undefined
   })
 
 	mainWindow.on('minimize', (event) => {
-	    event.preventDefault();
-	    mainWindow.hide();
+      if(appConfig.trayOnMinimize)
+      {
+        event.preventDefault();
+        mainWindow.hide();
+      }
 	});
 
 	var contextMenu = Menu.buildFromTemplate([
@@ -260,6 +271,7 @@ app.on("window-all-closed", () => {
 });
 
 app.on('before-quit', () => {
+  app.isQuiting = true
   if (sphinx)
     stop()
 })

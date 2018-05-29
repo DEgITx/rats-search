@@ -155,6 +155,8 @@
         "We are not responsible for any content": "Мы не несем отвественность за контент",
         "this is only information about content that collected automatically": "это лишь информация, собранная автоматически",
         "no torrents for": "0 торрентов для",
-        "were found": "было найдено"
+        "were found": "было найдено",
+        "Hide to tray on application minimize": "Сворачивать в трей при сворачивании приложения",
+        "Hide to tray on application close": "Сворачивать в трей при закрытии приложения"
     }
 }
