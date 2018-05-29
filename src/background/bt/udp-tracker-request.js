@@ -34,7 +34,7 @@ let connectTracker = function(connection) {
     buffer.writeUInt32BE(transactionId, 12);
 
     // очистка старых соединений
-    for(transaction in requests) {
+    for(const transaction in requests) {
         if((new Date).getTime() - requests[transaction].date.getTime() > config.udpTrackersTimeout) {
             delete requests[transaction];
         }
