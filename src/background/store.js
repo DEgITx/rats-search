@@ -60,7 +60,10 @@ module.exports = class P2PStore extends EventEmitter {
                 }
     
                 if(records.length > 0)
-                    callback({records})
+                    callback({
+                        records,
+                        index: this.id
+                    })
             })
         })
     }
@@ -68,12 +71,23 @@ module.exports = class P2PStore extends EventEmitter {
     sync()
     {
         console.log('sync db on version', this.id)
-        this.p2p.emit('dbSync', {id: this.id}, (data) => {
+        const processSync = (data, nil, peer) => {
             if(!data || !data.records)
                 return
 
+            const oldIndex = this.id
             data.records.forEach(record => this._syncRecord(record))
-        })
+
+            // peer also can contain another part of store records, try to sync them all
+            if(data.index >= 0 
+                && oldIndex < this.id // last sync update of store must be successful, otherwise no point to try sync db from this peer
+                && this.id < data.index)
+            {
+                console.log('continue sync store from', this.id, 'index', 'peer', peer.peerId)
+                peer.emit('dbSync', {id: this.id}, processSync)
+            }
+        }
+        this.p2p.emit('dbSync', {id: this.id}, processSync)
         this.synchronized = true
     }
 
