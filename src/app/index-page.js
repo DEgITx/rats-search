@@ -6,6 +6,7 @@ import SearchResults from './search-results'
 import Search from './search'
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+import Feed from './feed';
 
 export default class IndexPage extends Page {
   constructor(props) {
@@ -88,6 +89,7 @@ export default class IndexPage extends Page {
         />
         </div>
       	<div className='column center w100p pad0-75'>
+          <Feed />
         	<RecentTorrents />
         </div>
       </div>
