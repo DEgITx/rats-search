@@ -66,6 +66,15 @@ const writeSphinxConfig = (path, dbPath) => {
       rt_attr_string = peerId
   }
 
+  index feed
+  {
+      type = rt
+      path = ${dbPath}/database/feed
+      
+      rt_field = feedIndex
+      rt_attr_json = data
+  }
+
   searchd
   {
     listen      = 9312
