@@ -11,6 +11,7 @@ const stun = require('stun')
 const natUpnp = require('nat-upnp');
 const http = require('https')
 const API = require('./api')
+const Feed = require('./feed')
 //var sm = require('sitemap');
 //var phantomjs = require('phantomjs-prebuilt')
 //const disk = require('diskusage');
@@ -699,6 +700,10 @@ spider.on('peer', (IPs) => {
 	IPs.forEach(ip => p2p.add(ip))
 })
 
+// feed
+const feed = new Feed({sphinx})
+// load inside api
+
 // setup api
 API({
 	sphinx,
@@ -714,7 +719,8 @@ API({
 	insertTorrentToDB,
 	removeTorrentFromDB,
 	checkTorrent,
-	p2pStore
+	p2pStore,
+	feed
 })
 
 if(config.indexer) {
@@ -743,6 +749,9 @@ this.stop = async (callback) => {
 
 	console.log('closing p2p...')
 	p2p.close()
+
+	// save feed
+	await feed.save()
 	
 	// safe future peers
 	if(dataDirectory)
