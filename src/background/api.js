@@ -3,7 +3,6 @@ const forBigTable = require('./forBigTable')
 const compareVersions = require('compare-versions');
 const getTorrent = require('./gettorrent')
 const _ = require('lodash')
-const Feed = require('./feed')
 
 module.exports = async ({
 	sphinx,
@@ -19,7 +18,8 @@ module.exports = async ({
 	insertTorrentToDB,
 	removeTorrentFromDB,
 	checkTorrent,
-	p2pStore
+	p2pStore,
+	feed
 }) => {
 	let torrentClientHashMap = {}
 
@@ -737,12 +737,8 @@ module.exports = async ({
 
 	});
 
-	const feed = new Feed({sphinx})
-	await feed.load()
-	feed.clear()
-	setInterval(() => feed.save(), 10000)
-
 	// store torrent to feed
+	await feed.load()
 	p2pStore.on('store', async ({data: record, temp}) => {
 		if(!temp || !temp.torrent)
 			return

@@ -3,10 +3,14 @@ module.exports = class Feed {
     {
         this.feed = []
         this.sphinx = sphinx
+        this.loaded = false
     }
 
     async save() {
-		console.log('saving feed')
+        if(!this.loaded)
+            return // feed not loaded on begining, ignore saving
+
+        console.log('saving feed')
 		await this.sphinx.query('delete from feed where id > 0')
 		let id = 0
 		return Promise.all(
@@ -24,10 +28,13 @@ module.exports = class Feed {
             this.feed = []
             
         this._order()
+        this.loaded = true
+        console.log('lodead feed')
     }
 
     clear()
     {
+        console.log('clearing feed')
         this.feed = []
     }
 
