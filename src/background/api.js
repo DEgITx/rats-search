@@ -139,7 +139,7 @@ module.exports = async ({
 		  // get votes
 		  const {good, bad, selfVote} = await getVotes(hash)
 		  send('votes', {
-			hash, good, bad
+			hash, good, bad, selfVote
 		  });
 		});
 	}

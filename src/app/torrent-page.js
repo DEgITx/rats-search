@@ -226,7 +226,7 @@ export default class TorrentPage extends Page {
     }
     window.torrentSocket.on('trackerTorrentUpdate', this.trackerUpdate);
 
-    this.onVotes = async ({hash, good, bad}) => {
+    this.onVotes = async ({hash, good, bad, selfVote}) => {
       if(this.props.hash != hash)
         return;
 
@@ -235,6 +235,7 @@ export default class TorrentPage extends Page {
 
       this.torrent.good = good;
       this.torrent.bad = bad;
+      this.state.voted = selfVote;
       this.forceUpdate();
     }
     window.torrentSocket.on('votes', this.onVotes);
