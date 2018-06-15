@@ -1,5 +1,6 @@
 const objectHash = require('object-hash');
 const EventEmitter = require('events');
+const forBigTable = require('./forBigTable')
 
 module.exports = class P2PStore extends EventEmitter {
     constructor(p2p, sphinx)
@@ -127,7 +128,6 @@ module.exports = class P2PStore extends EventEmitter {
 
     _pushToDb(value, callback)
     {
-        this.emit('store', value)
         const data = this.sphinx.escape(JSON.stringify(value.data))
         this.sphinx.query(
             `insert into store(id, hash, peerId, data` + (value.index || value.data._index ? ', storeIndex' : '') + `) 
@@ -142,6 +142,7 @@ module.exports = class P2PStore extends EventEmitter {
             if(callback)
                 callback()
         })
+        this.emit('store', value)
     }
 
     store(obj)
@@ -176,19 +177,10 @@ module.exports = class P2PStore extends EventEmitter {
         return true
     }
 
-    find(index)
+    async find(index)
     {
-        return new Promise((resolve) => {
-            this.sphinx.query(`select * from store where match(${this.sphinx.escape(index)}) LIMIT 50000`, (err, records) => {
-                if(err)
-                {
-                    console.log(err)
-                    resolve(false)
-                    return
-                }
-    
-                resolve(records.map( ({data, peerid}) => Object.assign(JSON.parse(data), { _peerId: peerid }) ))
-            })
-        })
+        const records = []
+        await forBigTable(this.sphinx, 'store', (record) => records.push(record), null, 1000, `and match(${this.sphinx.escape(index)})`)
+        return records.map( ({data, peerid}) => Object.assign(JSON.parse(data), { _peerId: peerid }) )
     }
 }
