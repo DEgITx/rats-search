@@ -696,20 +696,6 @@ module.exports = async ({
 		return {good, bad, selfVote}
 	}
 
-	p2pStore.on('store', (value) => {
-		if(!value.temp)
-			return
-
-		if(!value.temp.torrent)
-			return
-
-		if(value.myself)
-			return
-
-		console.log('replicate torrent from store record', value.temp.torrent.hash)
-		insertTorrentToDB(value.temp.torrent)
-	})
-
 	recive('vote', async (hash, isGood, callback) =>
 	{
 		if(hash.length != 40)
@@ -747,23 +733,23 @@ module.exports = async ({
 
 	// store torrent to feed
 	await feed.load()
-	p2pStore.on('store', async ({data: record, temp}) => {
+	p2pStore.on('store', async ({data: record, temp, myself}) => {
+		if(record.type !== 'vote')
+			return
+
 		if(!temp || !temp.torrent)
 			return
 	
 		const { torrent } = temp
-
-		if(record.type !== 'vote')
-			return
-
-		if(record.vote !== 'good')
-			return
 		
-		if(!torrent)
-			return
-
 		if(torrent.hash !== record.torrentHash)
 			return
+
+		if(!myself)
+		{
+			console.log('replicate torrent from store record', torrent.hash)
+			await insertTorrentToDB(torrent)
+		}
 
 		let {good, bad} = await getVotes(torrent.hash)
 		torrent.good = good
@@ -771,15 +757,23 @@ module.exports = async ({
 		if(torrent.good > 0 || torrent.bad > 0)
 			updateTorrentToDB(torrent)
 
+		// update feed
+		if(record.vote !== 'good')
+			return
+		
 		feed.add(torrent)
-
 		send('feedUpdate', {
 			feed: feed.feed
 		});
 	})
 
-	recive('feed', (callback) =>
+	const feedCall = (callback) =>
 	{
 		callback(feed.feed)
-	});
+	}
+	recive('feed', feedCall);
+
+	p2p.on('feed', ({}, callback) => {
+		feedCall((data) => callback(data))
+	})
 }
