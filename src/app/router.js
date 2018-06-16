@@ -1,7 +1,8 @@
 //import router from 'page';
 import PagesPie from './pages-pie.js';
 
-import IndexPage from './index-page.js'
+import FeedPage from './feed-page.js'
+import ActivityPage from './activity-page'
 import TorrentPage from './torrent-page.js'
 import DMCAPage from './dmca-page.js'
 import ConfigPage from './config-page.js'
@@ -54,7 +55,7 @@ window.router = router;
 
 router('/', () => {
 	//singleton
-	PagesPie.instance().open(IndexPage, {replace: 'all'});
+	PagesPie.instance().open(FeedPage, {replace: 'all'});
 });
 
 router('/torrent/:hash', (e) => {
@@ -89,6 +90,11 @@ router('/top', () => {
 router('/downloads', () => {
 	//singleton
 	PagesPie.instance().open(DownloadPage, {replace: 'all'});
+});
+
+router('/activity', () => {
+	//singleton
+	PagesPie.instance().open(ActivityPage, {replace: 'all'});
 });
 
 router('/changelog', () => {
