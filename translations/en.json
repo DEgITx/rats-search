@@ -157,6 +157,8 @@
         "no torrents for": "no torrents for",
         "were found": "were found",
         "Hide to tray on application minimize": "Hide to tray on application minimize",
-        "Hide to tray on application close": "Hide to tray on application close"
+        "Hide to tray on application close": "Hide to tray on application close",
+        "Feed": "Feed",
+        "Torrent rating": "Torrent rating"
     }
 }

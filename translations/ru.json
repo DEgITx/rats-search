@@ -157,6 +157,8 @@
         "no torrents for": "0 торрентов для",
         "were found": "было найдено",
         "Hide to tray on application minimize": "Сворачивать в трей при сворачивании приложения",
-        "Hide to tray on application close": "Сворачивать в трей при закрытии приложения"
+        "Hide to tray on application close": "Сворачивать в трей при закрытии приложения",
+        "Feed": "Лента",
+        "Torrent rating": "Рейтинг торрента"
     }
 }
