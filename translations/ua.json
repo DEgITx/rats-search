@@ -157,6 +157,8 @@
         "no torrents for": "0 торентів для",
         "were found": "було знайдено",
         "Hide to tray on application minimize": "Hide to tray on application minimize",
-        "Hide to tray on application close": "Hide to tray on application close"
+        "Hide to tray on application close": "Hide to tray on application close",
+        "Feed": "Feed",
+        "Torrent rating": "Torrent rating"
     }
 }
