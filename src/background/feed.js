@@ -53,6 +53,11 @@ module.exports = class Feed {
             this.feed[index] = Object.assign(this.feed[index], data) // just push up element
         else
         {
+            if(typeof data == 'object')
+            {
+                data.feedDate = Math.floor(Date.now() / 1000)
+            }
+
             if(this.feed.length >= this.max)
             {
                 //cleanup
@@ -63,15 +68,14 @@ module.exports = class Feed {
                         break
 
                 if(this.feed.length >= this.max)
-                    return // two much for feed
+                    this.feed[this.feed.length - 1] = data // replace last one
+                else
+                    this.feed.push(data) // insert
             }
-
-            if(typeof data == 'object')
+            else
             {
-                data.feedDate = Math.floor(Date.now() / 1000)
+                this.feed.push(data) // insert
             }
-
-            this.feed.push(data) // insert
         }
 
         this._order()
