@@ -52,6 +52,46 @@ const expand = (sphinx) => {
         })
     })
 
+    sphinx.updateValues = (table, values, whereObject, callback) => new Promise((resolve) => {
+        let set = ''
+        for(const val in values)
+		{
+			if(values[val] === null)
+				continue;
+            
+            if(typeof values[val] == 'object')
+                continue;
+
+            // skip text indexes (manticore bug https://github.com/manticoresoftware/manticoresearch/issues/84)
+            if(typeof values[val] == 'string')
+                continue;
+
+            set += '`' + val + '` = ' + sphinx.escape(values[val]) + ',';
+        }
+        if(set.length == 0)
+            return
+        set = set.slice(0, -1)
+
+        let where = ''
+        for(const w in whereObject)
+		{
+			if(whereObject[w] === null)
+				continue;
+
+            where += '`' + w + '` = ' + sphinx.escape(whereObject[w]) + ' and';
+        }
+        if(where.length == 0)
+            return
+        where = where.slice(0, -3)
+
+        const query = `UPDATE ${table} SET ${set} WHERE ${where}`;
+        queryCall(query, (...responce) => {
+            if(callback)
+                callback(...responce)
+            resolve(...responce)
+        })
+    })
+
     return sphinx
 }
 

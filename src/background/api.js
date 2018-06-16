@@ -17,6 +17,7 @@ module.exports = async ({
 	crypto,
 	insertTorrentToDB,
 	removeTorrentFromDB,
+	updateTorrentToDB,
 	checkTorrent,
 	p2pStore,
 	feed
@@ -141,6 +142,13 @@ module.exports = async ({
 		  send('votes', {
 			hash, good, bad, selfVote
 		  });
+		  if(torrent.good != good || torrent.bad != bad)
+		  {
+			  console.log('finded new rating on', torrent.name, 'update votes to it')
+			  torrent.good = good
+			  torrent.bad = bad
+			  updateTorrentToDB(torrent)
+		  }
 		});
 	}
 
@@ -760,6 +768,8 @@ module.exports = async ({
 		let {good, bad} = await getVotes(torrent.hash)
 		torrent.good = good
 		torrent.bad = bad
+		if(torrent.good > 0 || torrent.bad > 0)
+			updateTorrentToDB(torrent)
 
 		feed.add(torrent)
 
