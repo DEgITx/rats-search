@@ -432,9 +432,12 @@ const checkTorrent = (torrent) => {
 	return true
 }
 
-const insertTorrentToDB = (torrent, silent) => {
+const insertTorrentToDB = (torrent, silent) => new Promise((resolve) => {
 	if(!torrent)
+	{
+		resolve()
 		return
+	}
 
 	// fix cases for low cases letters
 	if(torrent.contentcategory)
@@ -450,6 +453,7 @@ const insertTorrentToDB = (torrent, silent) => {
 
 	if(!checkTorrent(torrent))
 	{
+		resolve()
 		return
 	}
 
@@ -462,11 +466,13 @@ const insertTorrentToDB = (torrent, silent) => {
 		if(!single)
 		{
 			console.log(err)
+			resolve()
 			return
 		}
 
 		if(single.length > 0)
 		{
+			resolve()
 			return
 		}
 
@@ -491,6 +497,7 @@ const insertTorrentToDB = (torrent, silent) => {
 				console.log(torrent);
 				console.error(err);
 			}
+			resolve()
 		});
 	})
 
@@ -526,7 +533,7 @@ const insertTorrentToDB = (torrent, silent) => {
 			})
 		}
 	})
-}
+})
 
 const removeTorrentFromDB = async (torrent) => {
 	const {hash} = torrent
