@@ -8,6 +8,7 @@ import TorrentPage from './torrent-page'
 
 import Spinner24 from './images/spinner_24.gif'
 import LinearProgress from 'material-ui/LinearProgress';
+let rating = require('./rating');
 
 const contentIcon = (type, category, fill = 'grey') => {
   if(category == 'xxx')
@@ -218,6 +219,10 @@ export default class Torrent extends Component {
   render()
   {
     const torrent = this.props.torrent;
+    let torrentRating = -1
+    if(torrent.good > 0 || torrent.bad > 0)
+      torrentRating = Math.round(rating(torrent.good, torrent.bad) * 100);
+
     return (
       <div>
         <ListItem 
@@ -289,6 +294,21 @@ export default class Torrent extends Component {
                   </div>
                   :
                   null
+                }
+                {
+                  (torrent.good > 0 || torrent.bad > 0)
+                  &&
+                  <div className='row w100p inline' style={{maxWidth: 600}}>
+                    <LinearProgress 
+                        mode="determinate" 
+                        value={torrentRating}
+                        color={torrentRating >= 50 ? '#00E676' : '#FF3D00'}
+                        style={{
+                          height: '5px',
+                        }}
+                      />
+                      <div className='row center pad0-5 fs0-85 text-nowrap' style={{color: torrentRating >= 50 ? '#00E676' : '#FF3D00', width: '190px'}}>{__('Torrent rating')}: {torrentRating}%</div>
+                    </div>
                 }
               </div>
             </a>

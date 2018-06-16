@@ -4,6 +4,12 @@ module.exports = class Feed {
         this.feed = []
         this.sphinx = sphinx
         this.loaded = false
+        this.max = 1000
+    }
+
+    size()
+    {
+        return this.feed.length
     }
 
     async save() {
@@ -39,12 +45,35 @@ module.exports = class Feed {
     }
 
     add(data) {
-        if(typeof data == 'object')
+        let index = -1
+        if(data.hash)
+            index = this.feed.findIndex(element => element.hash === data.hash)
+
+        if(index >= 0)
+            this.feed[index] = Object.assign(this.feed[index], data) // just push up element
+        else
         {
-            data.feedDate = Math.floor(Date.now() / 1000)
+            if(this.feed.length >= this.max)
+            {
+                //cleanup
+                for(let i = this.feed.length - 1; i <= 0; i--)
+                    if(this._compare(this.feed[i]) <= 0)
+                        this.feed.pop()
+                    else
+                        break
+
+                if(this.feed.length >= this.max)
+                    return // two much for feed
+            }
+
+            if(typeof data == 'object')
+            {
+                data.feedDate = Math.floor(Date.now() / 1000)
+            }
+
+            this.feed.push(data) // insert
         }
 
-        this.feed.push(data)
         this._order()
     }
 
@@ -54,7 +83,7 @@ module.exports = class Feed {
 
     _compare(x)
     {
-        const rating = 0
+        const rating = (x && x.good) || 0
         const comments = 0
         const time = Math.floor(Date.now() / 1000) - x.feedDate
 
