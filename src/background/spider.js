@@ -528,10 +528,19 @@ const insertTorrentToDB = (torrent, silent) => {
 	})
 }
 
-const removeTorrentFromDB = (torrent) => {
+const removeTorrentFromDB = async (torrent) => {
 	const {hash} = torrent
-	mysqlSingle.query('DELETE FROM torrents WHERE hash = ?', hash)
-	mysqlSingle.query('DELETE FROM files WHERE hash = ?', hash)
+	await mysqlSingle.query('DELETE FROM torrents WHERE hash = ?', hash)
+	await mysqlSingle.query('DELETE FROM files WHERE hash = ?', hash)
+}
+
+const updateTorrentToDB = async (torrent) => {
+	if(typeof torrent !== 'object')
+		return
+
+	delete torrent.id
+
+	await mysqlSingle.updateValues('torrents', torrent, {hash: torrent.hash})
 }
 
 const updateTorrent = (metadata, infohash, rinfo) => {
@@ -718,6 +727,7 @@ API({
 	crypto,
 	insertTorrentToDB,
 	removeTorrentFromDB,
+	updateTorrentToDB,
 	checkTorrent,
 	p2pStore,
 	feed
