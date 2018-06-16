@@ -85,12 +85,12 @@
 	}
 }
 
-@media only screen and (max-width: 840px) 
+@media only screen and (max-width: 912px) 
 { 
 	.header-row {
 		flex-wrap: wrap;
 		align-content: flex-start;
-		justify-content: flex-start;
+		justify-content: center;
 	}
 
 	.search-panel {

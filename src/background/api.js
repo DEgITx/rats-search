@@ -779,7 +779,7 @@ module.exports = async ({
 
 	// call once to get bigest feed
 	let feedLock = false
-	this.p2p.events.on('peer', () => {
+	p2p.events.on('peer', () => {
 		if(feedLock)
 			return
 		feedLock = true
