@@ -757,6 +757,10 @@ module.exports = async ({
 		if(torrent.hash !== record.torrentHash)
 			return
 
+		let {good, bad} = await getVotes(torrent.hash)
+		torrent.good = good
+		torrent.bad = bad
+
 		feed.add(torrent)
 
 		send('feedUpdate', {
