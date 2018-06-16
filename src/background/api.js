@@ -776,4 +776,28 @@ module.exports = async ({
 	p2p.on('feed', ({}, callback) => {
 		feedCall((data) => callback(data))
 	})
+
+	// call once to get bigest feed
+	let feedLock = false
+	this.p2p.events.on('peer', () => {
+		if(feedLock)
+			return
+		feedLock = true
+		setTimeout(() => {
+			p2p.emit('feed', null, (remoteFeed) => {
+				if(!remoteFeed)
+					return
+		
+				if(remoteFeed.length <= feed.size())
+					return
+		
+				console.log('replace our feed with remote feed')
+				feed.feed = remoteFeed
+				send('feedUpdate', {
+					feed: feed.feed
+				});
+			});
+		}, 1000)
+	})
+	
 }
