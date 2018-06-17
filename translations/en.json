@@ -159,6 +159,9 @@
         "Hide to tray on application minimize": "Hide to tray on application minimize",
         "Hide to tray on application close": "Hide to tray on application close",
         "Feed": "Feed",
-        "Torrent rating": "Torrent rating"
+        "Torrent rating": "Torrent rating",
+        "Activity": "Activity",
+        "downloading": "downloading",
+        "Cancel download": "Cancel download"
     }
 }
