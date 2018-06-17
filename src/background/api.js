@@ -35,17 +35,17 @@ module.exports = async ({
 			return;
 
 		sphinx.query('SELECT * FROM `torrents` ORDER BY added DESC LIMIT 0,10', function (error, rows, fields) {
-		  if(!rows) {
-		  	callback(undefined)
-		  	return;
-		  }
+			if(!rows) {
+				callback(undefined)
+				return;
+			}
 
-		  let torrents = [];
-		  rows.forEach((row) => {
-		  	torrents.push(baseRowData(row));
-		  });
+			let torrents = [];
+			rows.forEach((row) => {
+				torrents.push(baseRowData(row));
+			});
 
-		  callback(torrents)
+			callback(torrents)
 		});
 	});
 
@@ -55,25 +55,25 @@ module.exports = async ({
 			return;
 
 		sphinx.query('SELECT count(*) AS torrents, sum(size) AS sz FROM `torrents`', function (error, rows, fields) {
-		  if(!rows) {
-		  	console.error(error)
-		  	callback(undefined)
-		  	return;
-		  }
-
-		  let result = {torrents: rows[0].torrents || 0, size: rows[0].sz || 0}
-
-		  sphinx.query('SELECT count(*) AS files FROM `files`', function (error, rows, fields) {
-		  	if(!rows) {
-		  		console.error(error)
-			  	callback(undefined)
-			  	return;
+			if(!rows) {
+				console.error(error)
+				callback(undefined)
+				return;
 			}
 
-			result.files = rows[0].files || 0
+			let result = {torrents: rows[0].torrents || 0, size: rows[0].sz || 0}
 
-			callback(result)
-		  })
+			sphinx.query('SELECT count(*) AS files FROM `files`', function (error, rows, fields) {
+				if(!rows) {
+					console.error(error)
+					callback(undefined)
+					return;
+				}
+
+				result.files = rows[0].files || 0
+
+				callback(result)
+			})
 		});
 	});
 
@@ -112,43 +112,43 @@ module.exports = async ({
 		}
 
 		sphinx.query('SELECT * FROM `torrents` WHERE `hash` = ?', hash, async function (error, rows, fields) {
-		  if(!rows || rows.length == 0) {
-		  	callback(undefined)
-		  	return;
-		  }
-		  let torrent = rows[0];
-
-		  if(options.files)
-		  {
-			torrent.filesList = await sphinx.query('SELECT * FROM `files` WHERE `hash` = ? LIMIT 50000', hash);
-			callback(baseRowData(torrent))
-		  }
-		  else
-		  {
-		  	callback(baseRowData(torrent))
-		  }
-
-		  if(torrentClientHashMap[hash])
-		  {
-			const torrent = torrentClient.get(torrentClientHashMap[hash])
-			if(torrent)
-			{
-				send('downloading', torrent.infoHash)
+			if(!rows || rows.length == 0) {
+				callback(undefined)
+				return;
 			}
-		  }
+			let torrent = rows[0];
 
-		  // get votes
-		  const {good, bad, selfVote} = await getVotes(hash)
-		  send('votes', {
-			hash, good, bad, selfVote
-		  });
-		  if(torrent.good != good || torrent.bad != bad)
-		  {
-			  console.log('finded new rating on', torrent.name, 'update votes to it')
-			  torrent.good = good
-			  torrent.bad = bad
-			  updateTorrentToDB(torrent)
-		  }
+			if(options.files)
+			{
+				torrent.filesList = await sphinx.query('SELECT * FROM `files` WHERE `hash` = ? LIMIT 50000', hash);
+				callback(baseRowData(torrent))
+			}
+			else
+			{
+				callback(baseRowData(torrent))
+			}
+
+			if(torrentClientHashMap[hash])
+			{
+				const torrent = torrentClient.get(torrentClientHashMap[hash])
+				if(torrent)
+				{
+					send('downloading', torrent.infoHash)
+				}
+			}
+
+			// get votes
+			const {good, bad, selfVote} = await getVotes(hash)
+			send('votes', {
+				hash, good, bad, selfVote
+			});
+			if(torrent.good != good || torrent.bad != bad)
+			{
+				console.log('finded new rating on', torrent.name, 'update votes to it')
+				torrent.good = good
+				torrent.bad = bad
+				updateTorrentToDB(torrent)
+			}
 		});
 	}
 
@@ -167,27 +167,27 @@ module.exports = async ({
 		p2p.on('randomTorrents', (nil, callback) => {
 			if(typeof callback != 'function')
 				return;
-	
+    
 			sphinx.query('SELECT * FROM `torrents` ORDER BY rand() limit 5', (error, torrents) => {
 				if(!torrents || torrents.length == 0) {
 					callback(undefined)
 					return;
 				}
-	
+    
 				let hashes = {}
 				for(const torrent of torrents)
 				{
 					delete torrent.id
 					hashes[torrent.hash] = torrent
 				}
-	
+    
 				const inSql = Object.keys(hashes).map(hash => sphinx.escape(hash)).join(',');
 				sphinx.query(`SELECT * FROM files WHERE hash IN(${inSql}) limit 50000`, (error, files) => {
 					if(!files)
 					{
 						files = []
 					}
-	
+    
 					files.forEach((file) => {
 						if(!hashes[file.hash].filesList)
 							hashes[file.hash].filesList = []
@@ -277,13 +277,13 @@ module.exports = async ({
 		sphinx.query('SELECT * FROM `torrents` WHERE MATCH(?) ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
 			if(!rows) {
 				console.log(error)
-			  	callback(undefined)
-			  	return;
+				callback(undefined)
+				return;
 			}
 			rows.forEach((row) => {
 				searchList.push(baseRowData(row));
-		  	});
-		  	callback(searchList);
+			});
+			callback(searchList);
 		});
 	}
 
@@ -328,37 +328,37 @@ module.exports = async ({
 		let where = '';
 
 		/*
-		if(orderBy && orderBy.length > 0)
-		{
-			const orderDesc = navigation.orderDesc ? 'DESC' : 'ASC';
-			args.splice(1, 0, orderBy);
-			order = 'ORDER BY ?? ' + orderDesc;
-		}
-		*/
+        if(orderBy && orderBy.length > 0)
+        {
+            const orderDesc = navigation.orderDesc ? 'DESC' : 'ASC';
+            args.splice(1, 0, orderBy);
+            order = 'ORDER BY ?? ' + orderDesc;
+        }
+        */
 		/*
-		if(safeSearch)
-		{
-			where += " and contentCategory != 'xxx' ";
-		}
-		if(navigation.type && navigation.type.length > 0)
-		{
-			where += ' and contentType = ' + sphinx.escape(navigation.type) + ' ';
-		}
-		if(navigation.size)
-		{
-			if(navigation.size.max > 0)
-				where += ' and torrentSize < ' + sphinx.escape(navigation.size.max) + ' ';
-			if(navigation.size.min > 0)
-				where += ' and torrentSize > ' + sphinx.escape(navigation.size.min) + ' ';
-		}
-		if(navigation.files)
-		{
-			if(navigation.files.max > 0)
-				where += ' and files < ' + sphinx.escape(navigation.files.max) + ' ';
-			if(navigation.files.min > 0)
-				where += ' and files > ' + sphinx.escape(navigation.files.min) + ' ';
-		}
-		*/
+        if(safeSearch)
+        {
+            where += " and contentCategory != 'xxx' ";
+        }
+        if(navigation.type && navigation.type.length > 0)
+        {
+            where += ' and contentType = ' + sphinx.escape(navigation.type) + ' ';
+        }
+        if(navigation.size)
+        {
+            if(navigation.size.max > 0)
+                where += ' and torrentSize < ' + sphinx.escape(navigation.size.max) + ' ';
+            if(navigation.size.min > 0)
+                where += ' and torrentSize > ' + sphinx.escape(navigation.size.min) + ' ';
+        }
+        if(navigation.files)
+        {
+            if(navigation.files.max > 0)
+                where += ' and files < ' + sphinx.escape(navigation.files.max) + ' ';
+            if(navigation.files.min > 0)
+                where += ' and files > ' + sphinx.escape(navigation.files.min) + ' ';
+        }
+        */
 
 		let search = {};
 		//args.splice(orderBy && orderBy.length > 0 ? 1 : 0, 1);
@@ -366,8 +366,8 @@ module.exports = async ({
 		sphinx.query('SELECT * FROM `files` WHERE MATCH(?) ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, files, fields) {
 			if(!files) {
 				console.log(error)
-			  	callback(undefined)
-			  	return;
+				callback(undefined)
+				return;
 			}
 			if(files.length === 0)
 			{
@@ -392,7 +392,7 @@ module.exports = async ({
 				for(const torrent of torrents)
 				{
 					search[torrent.hash] = Object.assign(baseRowData(torrent), search[torrent.hash])
-					
+                    
 					// temporary ignore adult content in search (workaroud)
 					if(safeSearch && search[torrent.hash].contentCategory == 'xxx')
 						delete search[torrent.hash]
@@ -466,7 +466,7 @@ module.exports = async ({
 				where += ' and `added` > ' + (Math.floor(Date.now() / 1000) - (60 * 60 * 24 * 30))
 			}
 		}
-		
+        
 		const query = `SELECT * FROM torrents WHERE seeders > 0 and contentCategory != 'xxx' ${where} ORDER BY seeders DESC LIMIT ${index},${limit}`;
 		if(topCache[query])
 		{
@@ -478,10 +478,10 @@ module.exports = async ({
 				callback(undefined)
 				return;
 			}
-			
+            
 			rows = rows.map((row) => baseRowData(row));
 			topCache[query] = rows;
-		  	callback(rows);
+			callback(rows);
 		});
 	}
 
@@ -571,7 +571,7 @@ module.exports = async ({
 		{
 			spider.announceHashes = []
 		}
-		
+        
 		if(typeof callback === 'function')
 			callback(true)
 	});
@@ -739,9 +739,9 @@ module.exports = async ({
 
 		if(!temp || !temp.torrent)
 			return
-	
+    
 		const { torrent } = temp
-		
+        
 		if(torrent.hash !== record.torrentHash)
 			return
 
@@ -760,7 +760,7 @@ module.exports = async ({
 		// update feed
 		if(record.vote !== 'good')
 			return
-		
+        
 		feed.add(torrent)
 		send('feedUpdate', {
 			feed: feed.feed
@@ -787,10 +787,10 @@ module.exports = async ({
 			p2p.emit('feed', null, (remoteFeed) => {
 				if(!remoteFeed)
 					return
-		
+        
 				if(remoteFeed.length <= feed.size())
 					return
-		
+        
 				console.log('replace our feed with remote feed')
 				feed.feed = remoteFeed
 				send('feedUpdate', {
@@ -799,5 +799,5 @@ module.exports = async ({
 			});
 		}, 1000)
 	})
-	
+    
 }

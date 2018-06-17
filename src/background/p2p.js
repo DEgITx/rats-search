@@ -127,7 +127,7 @@ class p2p {
 
 			// all ok don't need to start any ssh tunnels
 			if(isAvailable)
-			{	
+			{   
 				console.log('tcp p2p port is reachable - all ok')
 				return;
 			}
@@ -152,7 +152,7 @@ class p2p {
 					this.externalPeers = []
 					return
 				}
-				
+                
 				console.log('ssh tunnel success, redirect peers to ssh')
 
 				this.p2pStatus = 1
@@ -224,7 +224,7 @@ class p2p {
 					delete callbacks[message.id];
 				}
 			});
-			
+            
 			const emit = (type, data, callback) => {
 				const id = Math.random().toString(36).substring(5)
 				if(callback)
@@ -301,7 +301,7 @@ class p2p {
 				console.log('close peer connection', address)
 			}
 		})
-		
+        
 		socket.on('error', (err) => {})
 
 		socket.connect(address.port, address.address);

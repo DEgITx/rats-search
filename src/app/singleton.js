@@ -1,6 +1,6 @@
 export default (Superclass) => {
 	let instance;
-	
+    
 	return class Singleton extends Superclass {
 		constructor(props) {
 			super(props)
@@ -14,12 +14,12 @@ export default (Superclass) => {
 			if (instance) {
 				return instance;
 			} else {
-				return new Singleton();				
+				return new Singleton();             
 			}
 		}
 		static do(key, ...params) {
 			if ( typeof this.instance()[key] === 'function') {
-				return this.instance()[key](...params);			
+				return this.instance()[key](...params);         
 			} else {
 				return this.instance()[key];
 			}

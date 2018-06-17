@@ -11,7 +11,7 @@ let config = {
 	udpTrackersTimeout: 3 * 60 * 1000,
 	peerId: undefined, 
 	language: 'en',
-	
+    
 	p2p: true,
 	p2pConnections: 10,
 	p2pBootstrap: true,
@@ -25,9 +25,9 @@ let config = {
 	sitemapMaxSize: 25000,
 
 	sphinx: {
-	  host     : '127.0.0.1',
-	  port     : 9306,
-	  connectionLimit: 30
+		host     : '127.0.0.1',
+		port     : 9306,
+		connectionLimit: 30
 	},
 
 	spider: {
@@ -79,8 +79,8 @@ const configProxy = new Proxy(config, {
 
 
 		target[prop] = value
-	    
-	    if(!fs.existsSync(configPath))
+        
+		if(!fs.existsSync(configPath))
 			fs.writeFileSync(configPath, '{}')
 
 		const data = fs.readFileSync(configPath)

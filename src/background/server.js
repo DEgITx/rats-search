@@ -22,16 +22,16 @@ const socketMessages = {}
 
 io.on('connection', (socket) =>
 {
-  for(const message in socketMessages)
-  {
-    socket.on(message, socketMessages[message])
-  }
+	for(const message in socketMessages)
+	{
+		socket.on(message, socketMessages[message])
+	}
 })
 
 sphinx = startSphinx(() => {
-  dbPatcher(() => {
-    spider = spiderCall((...data) => io.sockets.emit(...data), (message, callback) => {
-      socketMessages[message] = callback
-    }, path.resolve(packageJson.serverDataDirectory), packageJson.version, 'production')
-  }, null, sphinx)
+	dbPatcher(() => {
+		spider = spiderCall((...data) => io.sockets.emit(...data), (message, callback) => {
+			socketMessages[message] = callback
+		}, path.resolve(packageJson.serverDataDirectory), packageJson.version, 'production')
+	}, null, sphinx)
 }, path.resolve(packageJson.serverDataDirectory), () => {})

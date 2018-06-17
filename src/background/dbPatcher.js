@@ -13,31 +13,31 @@ const currentVersion = 4
 
 
 module.exports = async (callback, mainWindow, sphinxApp) => {
-    const sphinx = await single().waitConnection()
+	const sphinx = await single().waitConnection()
 
-    const setVersion = async (version) => {
-        await sphinx.query(`delete from version where id = 1`)
-        await sphinx.query(`insert into version(id, version) values(1, ${version})`)
-        if(sphinxApp)
-            fs.writeFileSync(`${sphinxApp.directoryPath}/version.vrs`, version)
-    }
+	const setVersion = async (version) => {
+		await sphinx.query(`delete from version where id = 1`)
+		await sphinx.query(`insert into version(id, version) values(1, ${version})`)
+		if(sphinxApp)
+			fs.writeFileSync(`${sphinxApp.directoryPath}/version.vrs`, version)
+	}
     
-    let patchWindow;
-    const openPatchWindow = () => {
-        if(patchWindow)
-            return
+	let patchWindow;
+	const openPatchWindow = () => {
+		if(patchWindow)
+			return
 
-        if(!BrowserWindow)
-        	return
+		if(!BrowserWindow)
+			return
 
-        if(mainWindow)
-            mainWindow.hide()
+		if(mainWindow)
+			mainWindow.hide()
 
-        patchWindow = new BrowserWindow({width: 800, height: 400, closable: false})
+		patchWindow = new BrowserWindow({width: 800, height: 400, closable: false})
 
-        patchWindow.setMenu(null)
+		patchWindow.setMenu(null)
 
-        patchWindow.loadURL("data:text/html;charset=utf-8," + encodeURI(`
+		patchWindow.loadURL("data:text/html;charset=utf-8," + encodeURI(`
             <html>
                 <head><title>Database patching...</title></head>
                 <style>
@@ -97,146 +97,146 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
                 </body>
             </html>
         `))
-    }
+	}
 
-    const patch = async (version) => {
-        console.log('db version', version)
-        switch(version)
-        {
-            case 1:
-            {
-                console.log('patch db to version 2')
-                openPatchWindow()
-                let i = 1
+	const patch = async (version) => {
+		console.log('db version', version)
+		switch(version)
+		{
+		case 1:
+		{
+			console.log('patch db to version 2')
+			openPatchWindow()
+			let i = 1
 
-                const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
-                const files = (await sphinx.query("SELECT COUNT(*) AS c FROM files"))[0].c
+			const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
+			const files = (await sphinx.query("SELECT COUNT(*) AS c FROM files"))[0].c
 
-                await forBigTable(sphinx, 'torrents', async (torrent) => {
-                    console.log('update index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
-                    if(patchWindow)
-                        patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
+			await forBigTable(sphinx, 'torrents', async (torrent) => {
+				console.log('update index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
+				if(patchWindow)
+					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
 
-                    torrent.nameIndex = torrent.name
-                    await sphinx.query(`DELETE FROM torrents WHERE id = ${torrent.id}`)
-                    await sphinx.insertValues('torrents', torrent)
-                })
-                i = 1
-                await forBigTable(sphinx, 'files', async (file) => {
-                    console.log('update index', file.id, file.path, '[', i, 'of', files, ']')
-                    if(patchWindow)
-                        patchWindow.webContents.send('reindex', {field: file.path, index: i++, all: files})
+				torrent.nameIndex = torrent.name
+				await sphinx.query(`DELETE FROM torrents WHERE id = ${torrent.id}`)
+				await sphinx.insertValues('torrents', torrent)
+			})
+			i = 1
+			await forBigTable(sphinx, 'files', async (file) => {
+				console.log('update index', file.id, file.path, '[', i, 'of', files, ']')
+				if(patchWindow)
+					patchWindow.webContents.send('reindex', {field: file.path, index: i++, all: files})
 
-                    file.pathIndex = file.path
-                    await sphinx.query(`DELETE FROM files WHERE id = ${file.id}`)
-                    await sphinx.insertValues('files', file)
-                })
+				file.pathIndex = file.path
+				await sphinx.query(`DELETE FROM files WHERE id = ${file.id}`)
+				await sphinx.insertValues('files', file)
+			})
 
-                await setVersion(2)
-            }
-            case 2:
-            {
-                openPatchWindow()
+			await setVersion(2)
+		}
+		case 2:
+		{
+			openPatchWindow()
 
-                console.log('optimizing torrents')
-                if(patchWindow)
-                    patchWindow.webContents.send('optimize', {field: 'torrents'})
-                sphinx.query(`OPTIMIZE INDEX torrents`)
-                await sphinxApp.waitOptimized('torrents')
+			console.log('optimizing torrents')
+			if(patchWindow)
+				patchWindow.webContents.send('optimize', {field: 'torrents'})
+			sphinx.query(`OPTIMIZE INDEX torrents`)
+			await sphinxApp.waitOptimized('torrents')
 
-                console.log('optimizing files')
-                if(patchWindow)
-                    patchWindow.webContents.send('optimize', {field: 'files'})
-                sphinx.query(`OPTIMIZE INDEX files`)
-                await sphinxApp.waitOptimized('files')
+			console.log('optimizing files')
+			if(patchWindow)
+				patchWindow.webContents.send('optimize', {field: 'files'})
+			sphinx.query(`OPTIMIZE INDEX files`)
+			await sphinxApp.waitOptimized('files')
 
-                await setVersion(3)
-            }
-            case 3:
-            {
-                openPatchWindow()
+			await setVersion(3)
+		}
+		case 3:
+		{
+			openPatchWindow()
 
-                // block xxx
-                let bad = 0
+			// block xxx
+			let bad = 0
 
-                let i = 1
-                const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
-                await forBigTable(sphinx, 'torrents', async (torrent) => {
-                    console.log('update index', torrent.id, torrent.name, '[', i, 'of', torrents, '] - delete:', bad)
-                    if(patchWindow)
-                        patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
+			let i = 1
+			const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
+			await forBigTable(sphinx, 'torrents', async (torrent) => {
+				console.log('update index', torrent.id, torrent.name, '[', i, 'of', torrents, '] - delete:', bad)
+				if(patchWindow)
+					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
 
-                    if(torrent.contentcategory == 'xxx')
-                    {
-                        delete torrent.contentcategory
-                        delete torrent.contenttype
-                        torrent = await getTorrent(sphinx, null, torrent) // get files
-                        torrentTypeDetect(torrent, torrent.filesList)
-                        if(torrent.contentType == 'bad')
-                        {
-                            console.log('remove bad torrent', torrent.name)
-                            bad++
-                            await sphinx.query(`DELETE FROM torrents WHERE hash = '${torrent.hash}'`)
-                            await sphinx.query(`DELETE FROM files WHERE hash = '${torrent.hash}'`)
-                        }
-                    }
-                })
+				if(torrent.contentcategory == 'xxx')
+				{
+					delete torrent.contentcategory
+					delete torrent.contenttype
+					torrent = await getTorrent(sphinx, null, torrent) // get files
+					torrentTypeDetect(torrent, torrent.filesList)
+					if(torrent.contentType == 'bad')
+					{
+						console.log('remove bad torrent', torrent.name)
+						bad++
+						await sphinx.query(`DELETE FROM torrents WHERE hash = '${torrent.hash}'`)
+						await sphinx.query(`DELETE FROM files WHERE hash = '${torrent.hash}'`)
+					}
+				}
+			})
 
-                console.log('removed', bad, 'torrents')
+			console.log('removed', bad, 'torrents')
 
-                await setVersion(4)
-            }
-        }
-        console.log('db patch done')
-        sphinx.destroy()
-        if(patchWindow)
-        {
-            patchWindow.destroy()
-            if(mainWindow)
-                mainWindow.show()
-        }
-        callback()
-    }
+			await setVersion(4)
+		}
+		}
+		console.log('db patch done')
+		sphinx.destroy()
+		if(patchWindow)
+		{
+			patchWindow.destroy()
+			if(mainWindow)
+				mainWindow.show()
+		}
+		callback()
+	}
 
-    // init of db, we can set version to last
-    if(sphinxApp && sphinxApp.isInitDb)
-    {
-        console.log('new db, set version to last version', currentVersion)
-        await setVersion(currentVersion)
-    }
+	// init of db, we can set version to last
+	if(sphinxApp && sphinxApp.isInitDb)
+	{
+		console.log('new db, set version to last version', currentVersion)
+		await setVersion(currentVersion)
+	}
 
-    sphinx.query('select * from version', async (err, version) => {
-        if(err)
-        {
-            console.log('error on version get on db patch')
-            return
-        }
+	sphinx.query('select * from version', async (err, version) => {
+		if(err)
+		{
+			console.log('error on version get on db patch')
+			return
+		}
 
-        if(!version || !version[0] || !version[0].version)
-        {
-            if(sphinxApp && fs.existsSync(`${sphinxApp.directoryPath}/version.vrs`))
-            {
-                const ver = parseInt(fs.readFileSync(`${sphinxApp.directoryPath}/version.vrs`))
-                if(ver > 0)
-                {
-                    console.log('readed version from version.vrs', ver)
-                    patch(ver)
-                }
-                else
-                {
-                    console.log('error: bad version in version.vrs')
-                }
-            }
-            else
-            {
-                console.log('version not founded, set db version to 1')
-                await setVersion(1)
-                patch(1)
-            }
-        }
-        else
-        {
-            patch(version[0].version)
-        }
-    })
+		if(!version || !version[0] || !version[0].version)
+		{
+			if(sphinxApp && fs.existsSync(`${sphinxApp.directoryPath}/version.vrs`))
+			{
+				const ver = parseInt(fs.readFileSync(`${sphinxApp.directoryPath}/version.vrs`))
+				if(ver > 0)
+				{
+					console.log('readed version from version.vrs', ver)
+					patch(ver)
+				}
+				else
+				{
+					console.log('error: bad version in version.vrs')
+				}
+			}
+			else
+			{
+				console.log('version not founded, set db version to 1')
+				await setVersion(1)
+				patch(1)
+			}
+		}
+		else
+		{
+			patch(version[0].version)
+		}
+	})
 }

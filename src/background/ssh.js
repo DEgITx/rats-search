@@ -13,7 +13,7 @@ const startSSH = (port, host, user, password, callback) => {
 	if(tryies-- <= 0)
 	{
 		if(callback)
-			callback(false)	
+			callback(false) 
 
 		return
 	}

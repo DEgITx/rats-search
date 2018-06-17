@@ -1,7 +1,7 @@
 const path = require("path");
 let env
 try{
-  env = require("env");
+	env = require("env");
 } catch(e){}
 const appPath = require('./electronAppPath')
 const fs = require('fs')
@@ -10,7 +10,7 @@ const { spawn, exec } = require('child_process')
 const appConfig = require('./config')
 
 const writeSphinxConfig = (path, dbPath) => {
-  let config = `
+	let config = `
   index torrents
   {
     type = rt
@@ -92,115 +92,115 @@ const writeSphinxConfig = (path, dbPath) => {
   }
   `;
 
-  // clear dir in test env
-  if(env && env.name === 'test')
-  {
-    if (fs.existsSync(`${dbPath}/database`)) {
-      fs.readdirSync(`${dbPath}/database`).forEach(function(file, index){
-        const curPath = `${dbPath}/database` + "/" + file;
-        if (!fs.lstatSync(curPath).isDirectory()) {
-          fs.unlinkSync(curPath);
-        }
-      });
+	// clear dir in test env
+	if(env && env.name === 'test')
+	{
+		if (fs.existsSync(`${dbPath}/database`)) {
+			fs.readdirSync(`${dbPath}/database`).forEach(function(file, index){
+				const curPath = `${dbPath}/database` + "/" + file;
+				if (!fs.lstatSync(curPath).isDirectory()) {
+					fs.unlinkSync(curPath);
+				}
+			});
 
-      fs.readdirSync(path).forEach(function(file, index){
-        if(!file.startsWith('binlog'))
-          return;
-        const curPath = path + "/" + file;
-        if (!fs.lstatSync(curPath).isDirectory()) {
-          fs.unlinkSync(curPath);
-        }
-      });
-    }
-  }
+			fs.readdirSync(path).forEach(function(file, index){
+				if(!file.startsWith('binlog'))
+					return;
+				const curPath = path + "/" + file;
+				if (!fs.lstatSync(curPath).isDirectory()) {
+					fs.unlinkSync(curPath);
+				}
+			});
+		}
+	}
 
-  // clean query.log because it too large and don't consist any good info
-  if(fs.existsSync(`${path}/query.log`))
-  {
-    fs.unlinkSync(`${path}/query.log`)
-  }
+	// clean query.log because it too large and don't consist any good info
+	if(fs.existsSync(`${path}/query.log`))
+	{
+		fs.unlinkSync(`${path}/query.log`)
+	}
 
-  let isInitDb = false
+	let isInitDb = false
 
-  if (!fs.existsSync(`${dbPath}/database`)){
-    fs.mkdirSync(`${dbPath}/database`);
-    isInitDb = true
-  }
+	if (!fs.existsSync(`${dbPath}/database`)){
+		fs.mkdirSync(`${dbPath}/database`);
+		isInitDb = true
+	}
 
-  if(/^win/.test(process.platform))
-    config = iconv.encode(config, 'win1251')
+	if(/^win/.test(process.platform))
+		config = iconv.encode(config, 'win1251')
 
-  fs.writeFileSync(`${path}/sphinx.conf`, config)
-  console.log(`writed sphinx config to ${path}`)
-  console.log('db path:', dbPath)
+	fs.writeFileSync(`${path}/sphinx.conf`, config)
+	console.log(`writed sphinx config to ${path}`)
+	console.log('db path:', dbPath)
 
-  return {isInitDb}
+	return {isInitDb}
 }
 
 module.exports = (callback, dataDirectory, onClose) => {
-  const sphinxPath = path.resolve(appPath('searchd'))
-  console.log('Sphinx Path:', sphinxPath)
+	const sphinxPath = path.resolve(appPath('searchd'))
+	console.log('Sphinx Path:', sphinxPath)
 
-  const sphinxConfigDirectory = dataDirectory
-  appConfig['dbPath'] = appConfig.dbPath && appConfig.dbPath.length > 0 ? appConfig.dbPath : sphinxConfigDirectory;
-  // on portable dir can move database directory
-  if(!fs.existsSync(appConfig.dbPath) && fs.existsSync(sphinxConfigDirectory))
-  {
-    appConfig['dbPath'] = sphinxConfigDirectory
-  }
+	const sphinxConfigDirectory = dataDirectory
+	appConfig['dbPath'] = appConfig.dbPath && appConfig.dbPath.length > 0 ? appConfig.dbPath : sphinxConfigDirectory;
+	// on portable dir can move database directory
+	if(!fs.existsSync(appConfig.dbPath) && fs.existsSync(sphinxConfigDirectory))
+	{
+		appConfig['dbPath'] = sphinxConfigDirectory
+	}
 
-  const { isInitDb } = writeSphinxConfig(sphinxConfigDirectory, appConfig.dbPath)
+	const { isInitDb } = writeSphinxConfig(sphinxConfigDirectory, appConfig.dbPath)
 
-  const config = `${sphinxConfigDirectory}/sphinx.conf`
-  const options = ['--config', config]
-  if(!(/^win/.test(process.platform)))
-  {
-  	options.push('--nodetach')
-  }
-  const sphinx = spawn(sphinxPath, options)
-  // remeber initizalizing of db
-  sphinx.isInitDb = isInitDb
-  sphinx.directoryPath = appConfig.dbPath
-  sphinx.directoryPathDb = appConfig.dbPath + '/database'
+	const config = `${sphinxConfigDirectory}/sphinx.conf`
+	const options = ['--config', config]
+	if(!(/^win/.test(process.platform)))
+	{
+		options.push('--nodetach')
+	}
+	const sphinx = spawn(sphinxPath, options)
+	// remeber initizalizing of db
+	sphinx.isInitDb = isInitDb
+	sphinx.directoryPath = appConfig.dbPath
+	sphinx.directoryPathDb = appConfig.dbPath + '/database'
 
-  const optimizeResolvers = {}
+	const optimizeResolvers = {}
 
-  sphinx.stdout.on('data', (data) => {
-    console.log(`sphinx: ${data}`)
-    if (data.includes('accepting connections')) {
-      console.log('catched sphinx start')
-      if(callback)
-        callback()
-    }
+	sphinx.stdout.on('data', (data) => {
+		console.log(`sphinx: ${data}`)
+		if (data.includes('accepting connections')) {
+			console.log('catched sphinx start')
+			if(callback)
+				callback()
+		}
     
-    const checkOptimized = String(data).match(/index ([\w]+): optimized/)
-    if(checkOptimized)
-    {
-      if(optimizeResolvers[checkOptimized[1]])
-      {
-        console.log('resolve optimizer', checkOptimized[1])
-        optimizeResolvers[checkOptimized[1]]()
-      }
-    }
-  })
+		const checkOptimized = String(data).match(/index ([\w]+): optimized/)
+		if(checkOptimized)
+		{
+			if(optimizeResolvers[checkOptimized[1]])
+			{
+				console.log('resolve optimizer', checkOptimized[1])
+				optimizeResolvers[checkOptimized[1]]()
+			}
+		}
+	})
 
-  sphinx.on('close', (code, signal) => {
-    console.log(`sphinx closed with code ${code} and signal ${signal}`)
-    if(onClose)
-    	onClose()
-  })
+	sphinx.on('close', (code, signal) => {
+		console.log(`sphinx closed with code ${code} and signal ${signal}`)
+		if(onClose)
+			onClose()
+	})
 
-  sphinx.stop = () => {
-    console.log('sphinx closing...')
-  	exec(`"${sphinxPath}" --config "${config}" --stopwait`)
-  }
+	sphinx.stop = () => {
+		console.log('sphinx closing...')
+		exec(`"${sphinxPath}" --config "${config}" --stopwait`)
+	}
 
-  sphinx.waitOptimized = (table) => new Promise((resolve) => {
-    optimizeResolvers[table] = () => {
-      delete optimizeResolvers[table];
-      resolve()
-    }
-  })
+	sphinx.waitOptimized = (table) => new Promise((resolve) => {
+		optimizeResolvers[table] = () => {
+			delete optimizeResolvers[table];
+			resolve()
+		}
+	})
 
-  return sphinx
+	return sphinx
 }
