@@ -6,13 +6,13 @@ export default class BTComponent extends Component {
 		// Свайп действия
 		if(
 			this.props.onSwipeLeft ||
-			this.props.onSwipeRight ||
-			this.props.onSwipeTop ||
-			this.props.onSwipeBottom ||
-			this.onSwipeLeft ||
-			this.onSwipeRight ||
-			this.onSwipeTop ||
-			this.onSwipeBottom
+            this.props.onSwipeRight ||
+            this.props.onSwipeTop ||
+            this.props.onSwipeBottom ||
+            this.onSwipeLeft ||
+            this.onSwipeRight ||
+            this.onSwipeTop ||
+            this.onSwipeBottom
 		)
 		{
 			this.swipeFunctions = listenSwipe(this, {

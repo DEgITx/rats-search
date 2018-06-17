@@ -12,6 +12,6 @@ import './css/izi/animations.css';
 import './index.css';
 
 ReactDOM.render(
-  <App />,
-  document.getElementById('mount-point')
+	<App />,
+	document.getElementById('mount-point')
 );

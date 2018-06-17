@@ -31,7 +31,7 @@ const router = (page, callback) => {
 				params[pg.args[i]] = p[i]
 			}
 			console.log(params)
-			
+            
 			pg.callback({
 				params
 			})

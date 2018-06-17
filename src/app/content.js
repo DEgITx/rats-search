@@ -236,7 +236,7 @@ const ContentCategoryProp = 'contentCategory';
 
 const {
 	XXX_BLOCK_WORDS,
-    XXX_VERY_BAD_WORDS
+	XXX_VERY_BAD_WORDS
 } = require('./bad-words');
 
 // блокируем порнографию
@@ -270,7 +270,7 @@ const detectSubCategory = (torrent, files, typesPriority, contentType) => {
 				fileCheck = fileCheck.join('.');
 
 				blockBadName(torrent, fileCheck);
-				
+                
 				return torrent[ContentTypeProp] == 'bad';
 			})
 		}
@@ -304,7 +304,7 @@ const torrentTypeDetect = (torrent, files) => {
 		}
 	}
 	let priority = Object.keys(typesPriority).sort(function(a, b){
-		 return typesPriority[b] - typesPriority[a]
+		return typesPriority[b] - typesPriority[a]
 	});
 	if(priority.length > 0)
 		torrent[ContentTypeProp] = priority[0];

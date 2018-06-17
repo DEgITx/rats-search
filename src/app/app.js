@@ -20,52 +20,52 @@ if(typeof WEB !== 'undefined')
 }
 else
 {
- const { ipcRenderer, remote } = require('electron');
- window.currentWindow = remote.getCurrentWindow()
+	const { ipcRenderer, remote } = require('electron');
+	window.currentWindow = remote.getCurrentWindow()
 
- window.torrentSocket = {}
- window.torrentSocket.callbacks = {}
- window.torrentSocket.listeners = {}
- window.torrentSocket.on = (name, func) => {
-	const newListener = (event, ...data) => {
-        func(...data)
-    }
-	window.torrentSocket.listeners[func] = newListener
- 	ipcRenderer.on(name, newListener);
- }
- window.torrentSocket.off = (name, func) => {
- 	if(!func)
- 		ipcRenderer.removeAllListeners(name);
-	 else
-	 {
-		const realListener = window.torrentSocket.listeners[func]
-		if(realListener)
-		{
-			ipcRenderer.removeListener(name, realListener);
-			delete window.torrentSocket.listeners[func]
+	window.torrentSocket = {}
+	window.torrentSocket.callbacks = {}
+	window.torrentSocket.listeners = {}
+	window.torrentSocket.on = (name, func) => {
+		const newListener = (event, ...data) => {
+			func(...data)
 		}
-	 }
- }
- window.torrentSocket.emit = (name, ...data) => {
- 	if(typeof data[data.length - 1] === 'function')
- 	{
- 		const id = Math.random().toString(36).substring(5)
-		window.torrentSocket.callbacks[id] = data[data.length - 1];
-		data[data.length - 1] = {callback: id}
- 	}
- 	ipcRenderer.send(name, data)
- }
- ipcRenderer.on('callback', (event, id, data) => {
- 	const callback = window.torrentSocket.callbacks[id]
- 	if(callback)
- 		callback(data)
- 	delete window.torrentSocket.callbacks[id]
- });
+		window.torrentSocket.listeners[func] = newListener
+		ipcRenderer.on(name, newListener);
+	}
+	window.torrentSocket.off = (name, func) => {
+		if(!func)
+			ipcRenderer.removeAllListeners(name);
+		else
+		{
+			const realListener = window.torrentSocket.listeners[func]
+			if(realListener)
+			{
+				ipcRenderer.removeListener(name, realListener);
+				delete window.torrentSocket.listeners[func]
+			}
+		}
+	}
+	window.torrentSocket.emit = (name, ...data) => {
+		if(typeof data[data.length - 1] === 'function')
+		{
+			const id = Math.random().toString(36).substring(5)
+			window.torrentSocket.callbacks[id] = data[data.length - 1];
+			data[data.length - 1] = {callback: id}
+		}
+		ipcRenderer.send(name, data)
+	}
+	ipcRenderer.on('callback', (event, id, data) => {
+		const callback = window.torrentSocket.callbacks[id]
+		if(callback)
+			callback(data)
+		delete window.torrentSocket.callbacks[id]
+	});
 
- ipcRenderer.on('url', (event, url) => {
-	 console.log('url', url)
-	 router(url)	
- });
+	ipcRenderer.on('url', (event, url) => {
+		console.log('url', url)
+		router(url)    
+	});
 
 }
 
@@ -164,8 +164,8 @@ class App extends Component {
 				<div>
 					{
 						checkNotModal
-						&&
-						<Header />
+                        &&
+                        <Header />
 					}
 					<PagesPie />
 					<Footer />
