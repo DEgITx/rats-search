@@ -152,14 +152,6 @@ app.on("ready", () => {
 		dbPatcher(() => {
 			changeLanguage(appConfig.language, () => setApplicationMenu())
 
-			mainWindow.loadURL(
-				url.format({
-					pathname: path.join(__dirname, "app.html"),
-					protocol: "file:",
-					slashes: true
-				})
-			);
-
 			if (env.name === "development") {
 				mainWindow.openDevTools();
 			}
@@ -240,6 +232,17 @@ app.on("ready", () => {
 					callback.apply(null, arg)
 				})
 			}, app.getPath("userData"), app.getVersion(), env.name)
+
+			// load page only after init app
+			spider.initialized.then(() => {
+				mainWindow.loadURL(
+					url.format({
+						pathname: path.join(__dirname, "app.html"),
+						protocol: "file:",
+						slashes: true
+					})
+				);
+			})
 		}, mainWindow, sphinx)
 	}, app.getPath("userData"), () => app.quit())
 });
