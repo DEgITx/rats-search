@@ -240,7 +240,7 @@ class Header extends React.Component {
 								}}
 								backgroundColor='#2a5cba'
 								labelColor='white'
-								style={{height: 60, width: 150, borderRadius: 5, margin: 5, zIndex: 1}}
+								style={{height: 60, width: 160, borderRadius: 5, margin: 5, zIndex: 1}}
 								buttonStyle={{borderRadius: 5}}
 								icon={<svg fill='white' style={{height: 30}} viewBox="0 0 352.352 352.352">
 									<g>
@@ -270,6 +270,7 @@ class Header extends React.Component {
 							<div className='fs0-85 pad0-75 column search-panel' style={{
 								marginLeft: 'auto', 
 								marginTop: '-10px',
+								paddingLeft: 15,
 								zIndex: 2
 							}}>
 								<Search />

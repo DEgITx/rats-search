@@ -298,7 +298,7 @@ export default class Torrent extends Component {
   							{
   								(torrent.good > 0 || torrent.bad > 0)
                   &&
-                  <div className='row w100p inline' style={{maxWidth: 600}}>
+                  <div className='row w100p inline' style={{maxWidth: 470}}>
                   	<LinearProgress 
                   		mode="determinate" 
                   		value={torrentRating}
