@@ -159,6 +159,9 @@
         "Hide to tray on application minimize": "Сворачивать в трей при сворачивании приложения",
         "Hide to tray on application close": "Сворачивать в трей при закрытии приложения",
         "Feed": "Лента",
-        "Torrent rating": "Рейтинг торрента"
+        "Torrent rating": "Рейтинг торрента",
+        "Activity": "Активность",
+        "downloading": "скачивается",
+        "Cancel download": "Отвенить закачку"
     }
 }
