@@ -163,6 +163,7 @@
         "Activity": "Activity",
         "downloading": "downloading",
         "Cancel download": "Cancel download",
-        "Back to previus": "Back to previus"
+        "Back to previus": "Back to previus",
+        "Processing files": "Processing files"
     }
 }

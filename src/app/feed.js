@@ -17,6 +17,15 @@ export default class RecentTorrents extends Component {
 				this.forceUpdate();
 			}
 		}))
+		this.feedFunc = ({feed}) => {
+			this.torrents = feed
+			this.forceUpdate()
+		};
+		window.torrentSocket.on('feedUpdate', this.feedFunc);
+	}
+	componentWillUnmount() {
+		if(this.feedFunc)
+			window.torrentSocket.off('feedUpdate', this.feedFunc);
 	}
 	render() {
 		return (
