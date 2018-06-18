@@ -218,9 +218,9 @@ export default class Torrent extends Component {
   }
   render()
   {
-	const torrent = this.props.torrent;
-	if(!torrent)
-		return null // can try draw null torrent (for example on downloading not started)  
+  	const torrent = this.props.torrent;
+  	if(!torrent)
+  		return null // can try draw null torrent (for example on downloading not started)  
 
   	let torrentRating = -1
   	if(torrent.good > 0 || torrent.bad > 0)

@@ -311,11 +311,11 @@ export default class TorrentPage extends Page {
   	if(this.state.searchingIndicator) {
   		return (
   			<div className='pad1 w100p column center'>
-			  	<div className='row center pad0-75'>
-					<RaisedButton label={__('Back to main page')} primary={true} onClick={() => {
-						window.router('/')
-					}} />
-				</div>
+  				<div className='row center pad0-75'>
+  					<RaisedButton label={__('Back to main page')} primary={true} onClick={() => {
+  						window.router('/')
+  					}} />
+  				</div>
   				<RefreshIndicator
   					size={50}
   					left={0}
