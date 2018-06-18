@@ -626,6 +626,7 @@ module.exports = async ({
 		torrentClient.remove(id, (err) => {
 			if(err)
 			{
+				console.log('download removing error', err)
 				if(callback)
 					callback(false)
 				return
