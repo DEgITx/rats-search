@@ -170,7 +170,7 @@ export default class TorrentPage extends Page {
 
   handleChange = (value) => {
   	if(value == 'main') {
-  		window.router('/');
+  		window.routerOpenPrev();
   		return;
   	}
 
@@ -338,7 +338,7 @@ export default class TorrentPage extends Page {
   						value={this.state.value}
   						onChange={this.handleChange}
   					>
-  						<Tab label={__('Back to main')} value="main" />
+  						<Tab label={__('Back to previus')} value="main" />
   						<Tab label={__('Information')} value="info" >
   							<div className='column w100p'>
   								<div className='row w100p torrent-information-row'>
