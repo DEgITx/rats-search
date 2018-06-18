@@ -162,6 +162,7 @@
         "Torrent rating": "Рейтинг торрента",
         "Activity": "Активность",
         "downloading": "скачивается",
-        "Cancel download": "Отвенить закачку"
+        "Cancel download": "Отвенить закачку",
+        "Back to previus": "Вернуться на предыдущую"
     }
 }
