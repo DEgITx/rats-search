@@ -259,24 +259,24 @@ class Search extends Component {
 				<div className='row inline w100p pad0-75 search-row' style={{minWidth: '35em', backgroundColor: 'white', paddingTop: 0, paddingBottom: this.searchError ? 17 : 0, margin: 5, borderRadius: 3}}>
 					{
 						((this.searchTorrents && this.searchTorrents.length > 0) || (this.searchFiles && this.searchFiles.length > 0))
-						&&
-						<div style={{width: 25, height: 25, margin: 2, marginRight: 8}}>
-							<Checkbox
-								checked={false}
-								uncheckedIcon={<svg viewBox="0 0 459 459">
-							<g>
-								<path d="M178.5,382.5h102v-51h-102V382.5z M0,76.5v51h459v-51H0z M76.5,255h306v-51h-306V255z"/>
-							</g>
-						</svg>
-						}
-								iconStyle={{fill: '#27ce74'}}
-								onCheck={() => {
-									if(window.routerCurrent() !== '/search')
-										window.router('/search')
-								}}
-								style={{paddingTop: '0.6em', paddingLeft: '0.2em'}}
-							/>
-						</div>
+                        &&
+                        <div style={{width: 25, height: 25, margin: 2, marginRight: 8}}>
+                        	<Checkbox
+                        		checked={false}
+                        		uncheckedIcon={<svg viewBox="0 0 459 459">
+                        			<g>
+                        				<path d="M178.5,382.5h102v-51h-102V382.5z M0,76.5v51h459v-51H0z M76.5,255h306v-51h-306V255z"/>
+                        			</g>
+                        		</svg>
+                        		}
+                        		iconStyle={{fill: '#27ce74'}}
+                        		onCheck={() => {
+                        			if(window.routerCurrent() !== '/search')
+                        				window.router('/search')
+                        		}}
+                        		style={{paddingTop: '0.6em', paddingLeft: '0.2em'}}
+                        	/>
+                        </div>
 					}
 					<TextField
 						style={{marginTop: -12}}

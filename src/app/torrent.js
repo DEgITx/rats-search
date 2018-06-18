@@ -238,7 +238,7 @@ export default class Torrent extends Component {
               return true;
             }
             */
-					window.routerFix()
+  					window.routerFix()
   					PagesPie.instance().open(TorrentPage, {replace: 'all', hash: torrent.hash, peer: torrent.peer})
   				}} 
   				primaryText={
