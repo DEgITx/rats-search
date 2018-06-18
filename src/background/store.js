@@ -7,6 +7,10 @@ module.exports = class P2PStore extends EventEmitter {
 	{
 		super()
 		this.id = 0
+		Object.defineProperty(p2p.info, 'store', { 
+			enumerable: true,
+			get: () => this.id
+		});
 		this.synchronized = false
 
 		console.log('connect p2p store...')
@@ -22,12 +26,14 @@ module.exports = class P2PStore extends EventEmitter {
                 
 			console.log('store db index', this.id)
 
-			let lock = false
-			this.p2p.events.on('peer', () => {
-				if(lock)
-					return
-				lock = true
-				setTimeout(() => this.sync(), 1000)
+			this.p2p.events.on('peer', (peer) => {
+				if(peer.info && peer.info.store)
+				{
+					if(peer.info.store > this.id)
+						this.sync(peer) // sync db
+					else if(peer.info.store === this.id)
+						this.synchronized = true
+				}
 			})
 		})
 
@@ -69,9 +75,9 @@ module.exports = class P2PStore extends EventEmitter {
 		})
 	}
 
-	sync()
+	sync(peer)
 	{
-		console.log('sync db on version', this.id)
+		console.log('sync db on version', this.id, peer ? `from peer ${peer.peerId}` : '')
 		const processSync = (data, nil, peer) => {
 			if(!data || !data.records)
 				return
@@ -88,7 +94,11 @@ module.exports = class P2PStore extends EventEmitter {
 				peer.emit('dbSync', {id: this.id}, processSync)
 			}
 		}
-		this.p2p.emit('dbSync', {id: this.id}, processSync)
+		if(peer)
+			peer.emit('dbSync', {id: this.id}, processSync)
+		else
+			this.p2p.emit('dbSync', {id: this.id}, processSync)
+
 		this.synchronized = true
 	}
 
