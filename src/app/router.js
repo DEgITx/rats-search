@@ -2,6 +2,7 @@
 import PagesPie from './pages-pie.js';
 
 import FeedPage from './feed-page.js'
+import SearchPage from './search-page.js'
 import ActivityPage from './activity-page'
 import TorrentPage from './torrent-page.js'
 import DMCAPage from './dmca-page.js'
@@ -11,10 +12,18 @@ import DownloadPage from './download-page.js'
 import ChangelogPage from './changelog-page.js'
 import FiltersPage from './filters-page.js'
 
+const history = []
+let currentPage
+
 let routers = {}
 const router = (page, callback) => {
 	if(!callback)
 	{
+		currentPage = page ? page : '/'
+		if(history.length >= 10)
+			history.shift()
+		history.push(currentPage)
+
 		if(!page)
 			routers['/'].callback()
 		else
@@ -52,11 +61,33 @@ const router = (page, callback) => {
 
 
 window.router = router;
+window.routerOpenPrev = () => {
+	console.log(history)
+	if(history.length < 2)
+		return
+	history.pop() // last page
+	router(history.pop())
+}
+
+window.routerFix = () => {
+	if(history.length >= 10)
+		history.shift()
+	history.push(currentPage)
+	currentPage = ''
+}
+
+window.routerCurrent = () => currentPage
 
 router('/', () => {
 	//singleton
 	PagesPie.instance().open(FeedPage, {replace: 'all'});
 });
+
+router('/search', () => {
+	//singleton
+	PagesPie.instance().open(SearchPage, {replace: 'all'});
+});
+
 
 router('/torrent/:hash', (e) => {
 	//singleton
