@@ -1,3 +1,43 @@
+# [0.21.0](https://github.com/DEgITx/rats-search/compare/v0.20.1...v0.21.0) (2018-06-18)
+
+
+### Bug Fixes
+
+* **feed:** always insert new feed item ([385e701](https://github.com/DEgITx/rats-search/commit/385e701))
+* **feed:** fix feed build ([7111988](https://github.com/DEgITx/rats-search/commit/7111988))
+* **feed:** fix feed live update ([8fa9ed3](https://github.com/DEgITx/rats-search/commit/8fa9ed3))
+* **feed:** fix p2p load error ([27ec3cc](https://github.com/DEgITx/rats-search/commit/27ec3cc))
+* **feed:** type in adding feed entity ([ecac7f4](https://github.com/DEgITx/rats-search/commit/ecac7f4))
+* **gui:** always back to main from torrent page, even torrent is loading ([9365219](https://github.com/DEgITx/rats-search/commit/9365219))
+* **gui:** fix potencial false window load ([6e0fec2](https://github.com/DEgITx/rats-search/commit/6e0fec2))
+* **gui:** little fixes ([7325fc2](https://github.com/DEgITx/rats-search/commit/7325fc2))
+* **spider:** fix compiling error on start ([672d14d](https://github.com/DEgITx/rats-search/commit/672d14d))
+* **store:** fix limitation on records sync ([81c471b](https://github.com/DEgITx/rats-search/commit/81c471b))
+* **store:** fix potential out of records on find request ([3579d24](https://github.com/DEgITx/rats-search/commit/3579d24))
+* **trackers:** fix tracker response error ([f74b129](https://github.com/DEgITx/rats-search/commit/f74b129))
+* **translations-ru:** fix some messages (thanks to Viktor Lukash) ([deb6c79](https://github.com/DEgITx/rats-search/commit/deb6c79))
+* **vote:** ignore voting if already vote ([a9ebef7](https://github.com/DEgITx/rats-search/commit/a9ebef7))
+
+
+### Features
+
+* **activity:** activity page / feed separate ([e296289](https://github.com/DEgITx/rats-search/commit/e296289))
+* **feed:** feed widget support ([3aefdc8](https://github.com/DEgITx/rats-search/commit/3aefdc8))
+* **feed:** replicate remote feed from peers ([d2cc42f](https://github.com/DEgITx/rats-search/commit/d2cc42f))
+* **gui:** display rating in torrent line (gui part) ([605672b](https://github.com/DEgITx/rats-search/commit/605672b))
+* **p2p:** p2p feed ([e368910](https://github.com/DEgITx/rats-search/commit/e368910))
+* **search:** new search navigation ([96f347b](https://github.com/DEgITx/rats-search/commit/96f347b))
+* **server:** update dependecy server module babel installation [#33](https://github.com/DEgITx/rats-search/issues/33) ([4f60539](https://github.com/DEgITx/rats-search/commit/4f60539))
+* **store:** live sync store records on connection to every peer ([9c7379e](https://github.com/DEgITx/rats-search/commit/9c7379e))
+* **translations-ua:** Ukraine translation (thanks to Viktor Lukash) ([476fc7e](https://github.com/DEgITx/rats-search/commit/476fc7e))
+* **tray:** tray hide on closing [#32](https://github.com/DEgITx/rats-search/issues/32) ([d7d3939](https://github.com/DEgITx/rats-search/commit/d7d3939))
+* **vote:** rating update on torrent request ([8c28728](https://github.com/DEgITx/rats-search/commit/8c28728))
+
+
+### Performance Improvements
+
+* **db:** little faster cycles over small requests ([3f76d11](https://github.com/DEgITx/rats-search/commit/3f76d11))
+
 <a name="0.20.1"></a>
 ## [0.20.1](https://github.com/DEgITx/rats-search/compare/v0.20.0...v0.20.1) (2018-05-20)
 
