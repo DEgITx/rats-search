@@ -1,3 +1,10 @@
+## [0.21.1](https://github.com/DEgITx/rats-search/compare/v0.21.0...v0.21.1) (2018-06-19)
+
+
+### Bug Fixes
+
+* **download:** crash on download page click in some cases [#34](https://github.com/DEgITx/rats-search/issues/34) ([3f4812e](https://github.com/DEgITx/rats-search/commit/3f4812e))
+
 # [0.21.0](https://github.com/DEgITx/rats-search/compare/v0.20.1...v0.21.0) (2018-06-18)
 
 
