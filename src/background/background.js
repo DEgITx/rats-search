@@ -96,6 +96,9 @@ console.log('Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
 if(portative)
 	console.log('portative compability')
 
+// handle promise rejections
+process.on('unhandledRejection', r => console.log('Rejection:', r));
+
 const shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
 	// Someone tried to run a second instance, we should focus our window.
 	console.log('openned second application, just focus this one')
