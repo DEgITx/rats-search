@@ -312,7 +312,7 @@ setInterval(() => {
 
 		const updateTorrentTrackers = (hash) => {
 			let maxSeeders = 0, maxLeechers = 0, maxCompleted = 0;
-			mysqlSingle.query('UPDATE torrents SET trackersChecked = ? WHERE hash = ?', [Math.floor(Date.now() / 1000), hash], function(err, result) {
+			mysqlSingle.query('UPDATE torrents SET trackersChecked = ? WHERE hash = ?', [Math.floor(Date.now() / 1000), hash], (err, result) => {
 				if(!result) {
 					console.error(err);
 					return
@@ -320,6 +320,9 @@ setInterval(() => {
 
 				udpTrackers.forEach((tracker) => {
 					getPeersStatisticUDP(tracker.host, tracker.port, hash, ({seeders, completed, leechers}) => {
+						if(this.closing) // ignore trackers response if app is closing
+							return
+
 						if(seeders == 0 && completed == 0 && leechers == 0)
 							return;
 
@@ -769,12 +772,10 @@ setInterval(() => {
 		}
 
 		this.stop = async (callback) => {
+			this.closing = true
 			console.log('spider closing...')
 			if(upnp)
 				upnp.ratsUnmap()
-
-			console.log('closing p2p...')
-			await p2p.close()
 
 			// save feed
 			await feed.save()
@@ -839,6 +840,14 @@ setInterval(() => {
 					await saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa')
 				}
 			}
+
+			console.log('closing p2p...')
+			// don't listen spider peer appears
+			spider.removeAllListeners('peer')
+			await p2p.close()
+
+			// don't listen complete torrent responses
+			client.removeAllListeners('complete')
 
 			torrentClient.destroy(() => {
 				sphinx.end(() => spider.close(() => {

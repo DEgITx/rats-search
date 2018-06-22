@@ -181,6 +181,7 @@ class p2p {
 		for (const client in this.clients) {
 			this.clients[client]._socket.destroy();
 		}
+		this.peers = []
 		return promise
 	}
 
