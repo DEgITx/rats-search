@@ -164,6 +164,11 @@
         "downloading": "скачивается",
         "Cancel download": "Отвенить закачку",
         "Back to previus": "Вернуться на предыдущую",
-        "Processing files": "Обработка файлов"
+        "Processing files": "Обработка файлов",
+        "main settings": "главные настройки",
+        "filters settings": "настройки фильтров",
+        "enable/disable safe search (adult filter)": "включить/выключить безопасный поиск (фильтр для взрослых)",
+        "advanced search": "расширенный поиск",
+        "display search results for current search request": "отобразить поисковые результаты для текущего поиского запроса"
     }
 }
