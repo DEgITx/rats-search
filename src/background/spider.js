@@ -462,6 +462,13 @@ setInterval(() => {
 			const { filesList } = torrent
 			delete torrent.filesList;
 
+			if(!filesList || filesList.length == 0)
+			{
+				console.log('skip torrent', torrent.name, '- no filesList')
+				resolve()
+				return
+			}
+
 			torrent.id = torrentsId++;
 
 			mysqlSingle.query("SELECT id FROM torrents WHERE hash = ?", torrent.hash, (err, single) => {
