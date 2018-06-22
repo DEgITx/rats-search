@@ -164,6 +164,11 @@
         "downloading": "downloading",
         "Cancel download": "Cancel download",
         "Back to previus": "Back to previus",
-        "Processing files": "Processing files"
+        "Processing files": "Processing files",
+        "main settings": "main settings",
+        "filters settings": "filters settings",
+        "enable/disable safe search (adult filter)": "enable/disable safe search (adult filter)",
+        "advanced search": "advanced search",
+        "display search results for current search request": "display search results for current search request"
     }
 }

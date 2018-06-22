@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import AdvancedSearch from './search-advanced-controls'
 import TorrentsStatistic from './torrent-statistic'
+import Tooltip from './tooltip'
 
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -261,21 +262,23 @@ class Search extends Component {
 						((this.searchTorrents && this.searchTorrents.length > 0) || (this.searchFiles && this.searchFiles.length > 0))
                         &&
                         <div style={{width: 25, height: 25, margin: 2, marginRight: 8}}>
-                        	<Checkbox
-                        		checked={false}
-                        		uncheckedIcon={<svg viewBox="0 0 459 459">
-                        			<g>
-                        				<path d="M178.5,382.5h102v-51h-102V382.5z M0,76.5v51h459v-51H0z M76.5,255h306v-51h-306V255z"/>
-                        			</g>
-                        		</svg>
-                        		}
-                        		iconStyle={{fill: '#27ce74'}}
-                        		onCheck={() => {
-                        			if(window.routerCurrent() !== '/search')
-                        				window.router('/search')
-                        		}}
-                        		style={{paddingTop: '0.6em', paddingLeft: '0.2em'}}
-                        	/>
+                        	<Tooltip hint={__('display search results for current search request')}>
+                        		<Checkbox
+                        			checked={false}
+                        			uncheckedIcon={<svg viewBox="0 0 459 459">
+                        				<g>
+                        					<path d="M178.5,382.5h102v-51h-102V382.5z M0,76.5v51h459v-51H0z M76.5,255h306v-51h-306V255z"/>
+                        				</g>
+                        			</svg>
+                        			}
+                        			iconStyle={{fill: '#27ce74'}}
+                        			onCheck={() => {
+                        				if(window.routerCurrent() !== '/search')
+                        					window.router('/search')
+                        			}}
+                        			style={{paddingTop: '0.6em', paddingLeft: '0.2em'}}
+                        		/>
+                        	</Tooltip>
                         </div>
 					}
 					<TextField
@@ -302,30 +305,34 @@ class Search extends Component {
 					/>
 
 					<div style={{width: 25, height: 25, margin: 2}}>
-						<Checkbox
-							ref='safeSearch'
-							checked={this.notSafeSearch ? true : false}
-							checkedIcon={<Visibility />}
-							uncheckedIcon={<VisibilityOff />}
-							iconStyle={{fill: this.state.safeSearchColor}}
-							onCheck={(ev, ch) => {
-								this.setState(this.setSafeSearch(ch));
-							}}
-							style={{paddingBottom: '0.8em'}}
-						/>
+						<Tooltip hint={__('enable/disable safe search (adult filter)')}>
+							<Checkbox
+								ref='safeSearch'
+								checked={this.notSafeSearch ? true : false}
+								checkedIcon={<Visibility />}
+								uncheckedIcon={<VisibilityOff />}
+								iconStyle={{fill: this.state.safeSearchColor}}
+								onCheck={(ev, ch) => {
+									this.setState(this.setSafeSearch(ch));
+								}}
+								style={{paddingBottom: '0.8em'}}
+							/>
+						</Tooltip>
 					</div>
 					<div style={{width: 25, height: 25, margin: 2}}>
-						<Checkbox
-							ref='advancedSearch'
-							checked={this.state.advancedSearch}
-							checkedIcon={<RemoveIcon />}
-							uncheckedIcon={<AddIcon />}
-							iconStyle={{fill: 'black'}}
-							onCheck={(ev, ch) => {
-								this.setState({advancedSearch: ch});
-							}}
-							style={{paddingBottom: '0.8em'}}
-						/>
+						<Tooltip hint={__('advanced search')}>
+							<Checkbox
+								ref='advancedSearch'
+								checked={this.state.advancedSearch}
+								checkedIcon={<RemoveIcon />}
+								uncheckedIcon={<AddIcon />}
+								iconStyle={{fill: 'black'}}
+								onCheck={(ev, ch) => {
+									this.setState({advancedSearch: ch});
+								}}
+								style={{paddingBottom: '0.8em'}}
+							/>
+						</Tooltip>
 					</div>
 
 					<RaisedButton style={{marginLeft: '10px'}} label={__('Search')} primary={true} onClick={() =>{
