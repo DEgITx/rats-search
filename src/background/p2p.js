@@ -12,6 +12,7 @@ class p2p {
 	{
 		this.events = new EventEmitter
 		this.peers = []
+		this.clients = []
 		this.ignoreAddresses = ['127.0.0.1']
 		this.messageHandlers = {}
 		this.externalPeers = []
@@ -34,6 +35,10 @@ class p2p {
 				console.log('server connected', con, 'max', this.tcpServer.maxConnections)
 			})
 			socket = new JsonSocket(socket);
+			this.clients.push(socket)
+			socket.on('close', () => {
+				this.clients.splice(this.clients.indexOf(socket), 1);
+			});
 			socket.on('error', (err) => {})
 			socket.on('message', (message) => {    
 				if(message.type && this.messageHandlers[message.type])
@@ -171,6 +176,12 @@ class p2p {
 			console.log('closing ssh...')
 			this.ssh.kill()
 		}
+		// close server
+		const promise = new Promise(resolve => this.tcpServer.close(resolve))
+		for (const client in this.clients) {
+			this.clients[client]._socket.destroy();
+		}
+		return promise
 	}
 
 	on(type, callback) {

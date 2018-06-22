@@ -767,7 +767,7 @@ setInterval(() => {
 				upnp.ratsUnmap()
 
 			console.log('closing p2p...')
-			p2p.close()
+			await p2p.close()
 
 			// save feed
 			await feed.save()
