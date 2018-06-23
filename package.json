@@ -152,7 +152,7 @@
     "chai": "^4.1.2",
     "css-loader": "^0.28.11",
     "electron": "2.0.3",
-    "electron-builder": "^20.15.1",
+    "electron-builder": "20.14.7",
     "eslint": "^4.19.1",
     "eslint-plugin-react": "^7.9.1",
     "express": "^4.16.3",
