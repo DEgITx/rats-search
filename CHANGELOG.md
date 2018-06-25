@@ -1,3 +1,19 @@
+# [0.22.0](https://github.com/DEgITx/rats-search/compare/v0.21.1...v0.22.0) (2018-06-24)
+
+
+### Bug Fixes
+
+* **closing:** more proper closing without errors ([b3fa8bf](https://github.com/DEgITx/rats-search/commit/b3fa8bf))
+* **linux:** fix AppImage build [#35](https://github.com/DEgITx/rats-search/issues/35) ([fd3d2cd](https://github.com/DEgITx/rats-search/commit/fd3d2cd))
+* **p2p:** p2p proper closing ([d839859](https://github.com/DEgITx/rats-search/commit/d839859))
+* **replication:** fix partitial torrent adding ([260afc5](https://github.com/DEgITx/rats-search/commit/260afc5))
+
+
+### Features
+
+* **debug:** debug rejections ([c9e0fb2](https://github.com/DEgITx/rats-search/commit/c9e0fb2))
+* **gui:** tips over some buttons ([a1bdaa5](https://github.com/DEgITx/rats-search/commit/a1bdaa5))
+
 ## [0.21.1](https://github.com/DEgITx/rats-search/compare/v0.21.0...v0.21.1) (2018-06-19)
 
 
