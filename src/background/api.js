@@ -606,7 +606,7 @@ module.exports = async ({
 				send('downloadProgress', torrent.infoHash, {
 					received: bytes,
 					downloaded: torrent.downloaded,
-					speed: torrent.downloadSpeed,
+					downloadSpeed: torrent.downloadSpeed,
 					progress: torrent.progress,
 					timeRemaining: torrent.timeRemaining
 				})
@@ -648,7 +648,7 @@ module.exports = async ({
 			received: torrent.received,
 			downloaded: torrent.downloaded,
 			progress: torrent.progress,
-			speed: torrent.downloadSpeed
+			downloadSpeed: torrent.downloadSpeed
 		})))
 	})
 
