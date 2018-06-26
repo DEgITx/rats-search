@@ -589,7 +589,7 @@ module.exports = async ({
 		torrentClientHashMap[torrent.infoHash] = magnet
 		torrent.torrentObject = torrentObject
 
-		torrent.on('torrent', () => {
+		torrent.on('ready', () => {
 			console.log('start downloading', torrent.infoHash)
 			send('downloading', torrent.infoHash)
 		})
