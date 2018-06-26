@@ -45,8 +45,9 @@ export default class TopPage extends Page {
   				}} />
   				<List style={{paddingBottom: '70px', minWidth: '60%'}} className='animated recent-torrents'>
   					{
-  						this.downloads.map((download, index) => {
-  							return <TorrentLine key={index} torrent={download.torrentObject} download={download} />
+  						this.downloads.map((torrentDownload, index) => {
+  							const {torrentObject: torrent, ...download} = torrentDownload
+  							return <TorrentLine key={index} torrent={torrent} download={download} />
   						})
   					}
   				</List>

@@ -171,6 +171,7 @@ export default class Torrent extends Component {
   		this.state.downloadProgress = {
   			progress, downloaded, downloadSpeed
   		}
+  		this.state.downloading = true
   	}
   }
   componentDidMount()
@@ -303,21 +304,21 @@ export default class Torrent extends Component {
                   	/>
                   	<div className='row center pad0-5 fs0-85 text-nowrap' style={{color: torrentRating >= 50 ? '#00E676' : '#FF3D00', width: '190px'}}>{__('Torrent rating')}: {torrentRating}%</div>
                   </div>
-							  }
-							  {
-  									this.state.downloading
-									&&
-									<div className='row w100p inline text-nowrap' style={{maxWidth: 580}}>
-										<div style={{marginRight: 5, color: 'rgb(0, 188, 212)'}}>{__('downloading')}: </div>
-										<LinearProgress 
-											style={{height: '5px', width: '44%', marginTop: 2}}
-											mode="determinate" 
-											value={this.state.downloadProgress && (this.state.downloadProgress.progress ? this.state.downloadProgress.progress : 0) * 100}
-										/>
-										<div className='pad0-75' style={{marginLeft: 20}} style={{color: 'rgb(0, 188, 212)'}}>{this.state.downloadProgress && (this.state.downloadProgress.progress * 100).toFixed(1)}%</div>
-										<div style={{marginLeft: 5, color: 'rgb(0, 188, 212)'}}>{this.state.downloadProgress && formatBytes(this.state.downloadProgress.downloadSpeed || 0, 0)}/s</div>
-									</div>
-  								}
+  							}
+  							{
+  								this.state.downloading
+                                    &&
+                                    <div className='row w100p inline text-nowrap' style={{maxWidth: 580}}>
+                                    	<div style={{marginRight: 5, color: 'rgb(0, 188, 212)'}}>{__('downloading')}: </div>
+                                    	<LinearProgress 
+                                    		style={{height: '5px', width: '44%', marginTop: 2}}
+                                    		mode="determinate" 
+                                    		value={this.state.downloadProgress && (this.state.downloadProgress.progress ? this.state.downloadProgress.progress : 0) * 100}
+                                    	/>
+                                    	<div className='pad0-75' style={{marginLeft: 20}} style={{color: 'rgb(0, 188, 212)'}}>{this.state.downloadProgress && (this.state.downloadProgress.progress * 100).toFixed(1)}%</div>
+                                    	<div style={{marginLeft: 5, color: 'rgb(0, 188, 212)'}}>{this.state.downloadProgress && formatBytes(this.state.downloadProgress.downloadSpeed || 0, 0)}/s</div>
+                                    </div>
+  							}
   						</div>
   					</a>
   				}

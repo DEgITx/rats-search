@@ -585,31 +585,33 @@ module.exports = async ({
 			return
 		}
 
-		torrentClient.add(magnet, {path: config.client.downloadPath}, (torrent) =>{
-			torrentClientHashMap[torrent.infoHash] = magnet
-			torrent.torrentObject = torrentObject
+		const torrent = torrentClient.add(magnet, {path: config.client.downloadPath})
+		torrentClientHashMap[torrent.infoHash] = magnet
+		torrent.torrentObject = torrentObject
+
+		torrent.on('torrent', () => {
 			console.log('start downloading', torrent.infoHash)
 			send('downloading', torrent.infoHash)
+		})
 
-			torrent.on('done', () => { 
-				console.log('download done', torrent.infoHash)
-				delete torrentClientHashMap[torrent.infoHash]
-				send('downloadDone', torrent.infoHash)
-			})
+		torrent.on('done', () => { 
+			console.log('download done', torrent.infoHash)
+			delete torrentClientHashMap[torrent.infoHash]
+			send('downloadDone', torrent.infoHash)
+		})
 
-			let now = Date.now()
-			torrent.on('download', (bytes) => {
-				if(Date.now() - now < 100)
-					return
-				now = Date.now()
+		let now = Date.now()
+		torrent.on('download', (bytes) => {
+			if(Date.now() - now < 100)
+				return
+			now = Date.now()
 
-				send('downloadProgress', torrent.infoHash, {
-					received: bytes,
-					downloaded: torrent.downloaded,
-					downloadSpeed: torrent.downloadSpeed,
-					progress: torrent.progress,
-					timeRemaining: torrent.timeRemaining
-				})
+			send('downloadProgress', torrent.infoHash, {
+				received: bytes,
+				downloaded: torrent.downloaded,
+				downloadSpeed: torrent.downloadSpeed,
+				progress: torrent.progress,
+				timeRemaining: torrent.timeRemaining
 			})
 		})
 	});
