@@ -75,3 +75,152 @@
 .tooltip:hover .tooltiptext {
   visibility: visible;
 }
+
+.overlay-loader {
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	position: relative;
+	top: 0;
+	left: -15px;
+	right: 0;
+	bottom: 0;
+}
+.overlay-loader .loader {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+	width: 62px;
+	height: 62px;
+	animation-name: rotateAnim;
+		-o-animation-name: rotateAnim;
+		-ms-animation-name: rotateAnim;
+		-webkit-animation-name: rotateAnim;
+		-moz-animation-name: rotateAnim;
+	animation-duration: 0.98s;
+		-o-animation-duration: 0.98s;
+		-ms-animation-duration: 0.98s;
+		-webkit-animation-duration: 0.98s;
+		-moz-animation-duration: 0.98s;
+	animation-iteration-count: infinite;
+		-o-animation-iteration-count: infinite;
+		-ms-animation-iteration-count: infinite;
+		-webkit-animation-iteration-count: infinite;
+		-moz-animation-iteration-count: infinite;
+	animation-timing-function: linear;
+		-o-animation-timing-function: linear;
+		-ms-animation-timing-function: linear;
+		-webkit-animation-timing-function: linear;
+		-moz-animation-timing-function: linear;
+}
+.overlay-loader .loader div {
+	width: 5px;
+	height: 5px;
+	border-radius: 50%;
+	border: 1px solid rgb(0,0,0);
+	position: absolute;
+	top: 1px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+}
+.overlay-loader .loader div:nth-child(odd) {
+	border-top: none;
+	border-left: none;
+}
+.overlay-loader .loader div:nth-child(even) {
+	border-bottom: none;
+	border-right: none;
+}
+.overlay-loader .loader div:nth-child(2) {
+	border-width: 1px;
+	left: 0px;
+	top: -2px;
+	width: 7px;
+	height: 7px;
+}
+.overlay-loader .loader div:nth-child(3) {
+	border-width: 1px;
+	left: -1px;
+	top: 2px;
+	width: 11px;
+	height: 11px;
+}
+.overlay-loader .loader div:nth-child(4) {
+	border-width: 2px;
+	left: -1px;
+	top: -2px;
+	width: 15px;
+	height: 15px;
+}
+.overlay-loader .loader div:nth-child(5) {
+	border-width: 2px;
+	left: -1px;
+	top: 2px;
+	width: 20px;
+	height: 20px;
+}
+.overlay-loader .loader div:nth-child(6) {
+	border-width: 2px;
+	left: 0px;
+	top: -2px;
+	width: 25px;
+	height: 25px;
+}
+.overlay-loader .loader div:nth-child(7) {
+	border-width: 2px;
+	left: 0px;
+	top: 4px;
+	width: 31px;
+	height: 31px;
+}
+
+
+@keyframes rotateAnim {
+	from {
+		transform: rotate(360deg);
+	}
+	to {
+		transform: rotate(0deg);
+	}
+}
+
+@-o-keyframes rotateAnim {
+	from {
+		-o-transform: rotate(360deg);
+	}
+	to {
+		-o-transform: rotate(0deg);
+	}
+}
+
+@-ms-keyframes rotateAnim {
+	from {
+		-ms-transform: rotate(360deg);
+	}
+	to {
+		-ms-transform: rotate(0deg);
+	}
+}
+
+@-webkit-keyframes rotateAnim {
+	from {
+		-webkit-transform: rotate(360deg);
+	}
+	to {
+		-webkit-transform: rotate(0deg);
+	}
+}
+
+@-moz-keyframes rotateAnim {
+	from {
+		-moz-transform: rotate(360deg);
+	}
+	to {
+		-moz-transform: rotate(0deg);
+	}
+}

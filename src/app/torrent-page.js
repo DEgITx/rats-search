@@ -4,11 +4,9 @@ import formatBytes from './format-bytes'
 
 import {List, ListItem} from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
-import Divider from 'material-ui/Divider';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import ActionInfo from 'material-ui/svg-icons/action/info';
 import RaisedButton from 'material-ui/RaisedButton';
-import FontIcon from 'material-ui/FontIcon';
 
 import FileFolder from 'material-ui/svg-icons/file/folder';
 import NoImage from './images/no-image-icon.png'

@@ -6,7 +6,6 @@ import Divider from 'material-ui/Divider';
 import PagesPie from './pages-pie.js';
 import TorrentPage from './torrent-page'
 
-import Spinner24 from './images/spinner_24.gif'
 import LinearProgress from 'material-ui/LinearProgress';
 let rating = require('./rating');
 
@@ -229,6 +228,7 @@ export default class Torrent extends Component {
   	return (
   		<div>
   			<ListItem 
+  				innerDivStyle={{paddingRight: 84}}
   				onClick={(e) => {
   					const link = '/torrent/' + torrent.hash;
   					if(e.button === 1)
@@ -356,7 +356,17 @@ export default class Torrent extends Component {
   								:
   								this.state.askDownloading && !this.state.downloading
   									?
-  									<img src={Spinner24} />
+  									<div className="overlay-loader">
+  										<div className="loader">
+  											<div></div>
+  											<div></div>
+  											<div></div>
+  											<div></div>
+  											<div></div>
+  											<div></div>
+  											<div></div>
+  										</div>
+  									</div>
   									:
   									this.state.askDownloading && this.state.downloading
               &&

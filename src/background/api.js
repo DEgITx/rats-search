@@ -607,7 +607,8 @@ module.exports = async ({
 					received: bytes,
 					downloaded: torrent.downloaded,
 					speed: torrent.downloadSpeed,
-					progress: torrent.progress
+					progress: torrent.progress,
+					timeRemaining: torrent.timeRemaining
 				})
 			})
 		})
