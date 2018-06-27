@@ -30,9 +30,12 @@ module.exports = async ({
 	}, 24 * 60 * 60 * 1000);
 
 
-	const mergeTorrentsWithDownloads = (torrents) => {
+	const mergeTorrentsWithDownloads = (torrents, copy) => {
 		if(!torrents)
 			return torrents
+
+		if(copy)
+			torrents = _.cloneDeep(torrents)
 
 		const mergeTorrent = (torrent) => {
 			const id = torrentClientHashMap[torrent.hash]
@@ -65,10 +68,10 @@ module.exports = async ({
 		return torrents
 	}
 
-	const mergeTorrentsWithDownloadsFn = (Fn) => (...args) => { 
+	const mergeTorrentsWithDownloadsFn = (Fn, copy) => (...args) => { 
 		const callback = args[args.length - 1]
 		const rest = args.slice(0, -1)
-		Fn(...rest, (data) => callback(mergeTorrentsWithDownloads(data))) 
+		Fn(...rest, (data) => callback(mergeTorrentsWithDownloads(data, copy))) 
 	}
 
 	recive('recentTorrents', function(callback)
@@ -867,7 +870,7 @@ module.exports = async ({
 	{
 		callback(feed.feed)
 	}
-	recive('feed', mergeTorrentsWithDownloadsFn(feedCall));
+	recive('feed', mergeTorrentsWithDownloadsFn(feedCall, true)); // don't overwrite feed value
 
 	p2p.on('feed', ({}, callback) => {
 		feedCall((data) => callback(data))
