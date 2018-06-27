@@ -576,12 +576,14 @@ module.exports = async ({
 			callback(true)
 	});
 
-	torrentClient._add = (torrentObject, savePath) =>
+	torrentClient._add = (torrentObject, savePath, callback) =>
 	{
 		const magnet = `magnet:?xt=urn:btih:${torrentObject.hash}`
 		console.log('download', magnet)
 		if(torrentClient.get(magnet)) {
 			console.log('aready added')
+			if(callback)
+				callback(false)
 			return
 		}
 
@@ -596,7 +598,6 @@ module.exports = async ({
 
 		torrent.on('done', () => { 
 			console.log('download done', torrent.infoHash)
-			delete torrentClientHashMap[torrent.infoHash]
 			send('downloadDone', torrent.infoHash)
 		})
 
@@ -614,6 +615,9 @@ module.exports = async ({
 				timeRemaining: torrent.timeRemaining
 			})
 		})
+
+		if(callback)
+			callback(true)
 	}
 
 	recive('download', torrentClient._add);
@@ -623,6 +627,7 @@ module.exports = async ({
 		const id = torrentClientHashMap[hash]
 		if(!id)
 		{
+			console.log('cant find torrent for removing', hash)
 			if(callback)
 				callback(false)
 			return

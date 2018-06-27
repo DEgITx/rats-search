@@ -159,7 +159,8 @@ export {contentIcon}
 export default class Torrent extends Component {
   state = {
   	downloading: false,
-  	askDownloading: false,
+  	downloaded: false,
+  	startingDownloading: false,
   	downloadProgress: {}
   }
   constructor(props)
@@ -180,7 +181,10 @@ export default class Torrent extends Component {
   		if(this.props.torrent.hash != hash)
   			return;
 
-  		this.setState({downloading: true})
+  		this.setState({
+  			downloading: true,
+  			startingDownloading: false
+  		})
   	}
   	window.torrentSocket.on('downloading', this.downloading);
 
@@ -190,7 +194,8 @@ export default class Torrent extends Component {
 
   		this.setState({
   			downloading: false,
-  			askDownloading: !canceled
+  			downloaded: !canceled,
+  			startingDownloading: false
   		})
   	}
   	window.torrentSocket.on('downloadDone', this.downloadDone);
@@ -201,7 +206,7 @@ export default class Torrent extends Component {
 
   		this.setState({
   			downloading: true,
-  			askDownloading: true,
+  			startingDownloading: false,
   			downloadProgress: progress
   		})
   	}
@@ -316,7 +321,11 @@ export default class Torrent extends Component {
                                     		value={this.state.downloadProgress && (this.state.downloadProgress.progress ? this.state.downloadProgress.progress : 0) * 100}
                                     	/>
                                     	<div className='pad0-75' style={{marginLeft: 20}} style={{color: 'rgb(0, 188, 212)'}}>{this.state.downloadProgress && (this.state.downloadProgress.progress * 100).toFixed(1)}%</div>
-                                    	<div style={{marginLeft: 5, color: 'rgb(0, 188, 212)'}}>{this.state.downloadProgress && formatBytes(this.state.downloadProgress.downloadSpeed || 0, 0)}/s</div>
+                                    	{
+                                    		this.state.downloadProgress.progress !== 1
+                                            &&
+                                            <div style={{marginLeft: 5, color: 'rgb(0, 188, 212)'}}>{this.state.downloadProgress && formatBytes(this.state.downloadProgress.downloadSpeed || 0, 0)}/s</div>
+                                    	}
                                     </div>
   							}
   						</div>
@@ -326,7 +335,7 @@ export default class Torrent extends Component {
   				rightIcon={
   					<div className='row inline' style={{width: 63}}>
   						{
-  							!this.state.askDownloading && !this.state.downloading
+  							!this.state.startingDownloading && !this.state.downloading && !this.state.downloaded
   								?
   								<a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
   									<svg style={{
@@ -336,8 +345,10 @@ export default class Torrent extends Component {
   									}} onClick={(e) => {
   										e.preventDefault();
   										e.stopPropagation();
-  										this.setState({askDownloading: true})
-  										window.torrentSocket.emit('download', torrent)
+  										window.torrentSocket.emit('download', torrent, null, (added) => {
+  											if(added)
+  												this.setState({startingDownloading: true})
+  										})
   									}} viewBox="0 0 56 56">
   										<g>
   											<path d="M35.586,41.586L31,46.172V28c0-1.104-0.896-2-2-2s-2,0.896-2,2v18.172l-4.586-4.586c-0.781-0.781-2.047-0.781-2.828,0
@@ -360,7 +371,7 @@ export default class Torrent extends Component {
   									</svg>
   								</a>
   								:
-  								this.state.askDownloading && !this.state.downloading
+  								this.state.startingDownloading && !this.state.downloading
   									?
   									<div className="overlay-loader">
   										<div className="loader">
@@ -374,19 +385,33 @@ export default class Torrent extends Component {
   										</div>
   									</div>
   									:
-  									this.state.askDownloading && this.state.downloading
-              &&
-              <a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
-              	<svg style={{
-              		height: '24px',
-              		fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : (torrent.peer ? '#9083e2' : 'grey')
-              	}} onClick={(e) => {
-              		e.preventDefault();
-              		e.stopPropagation();
+  									this.state.downloaded
+  										?
+  										<a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
+  											<svg style={{
+  												height: '24px',
+  												fill: '#00C853'
+  											}} onClick={(e) => {
+  												e.preventDefault();
+  												e.stopPropagation();
 
-              		window.torrentSocket.emit('downloadCancel', torrent.hash)
-              	}} viewBox="0 0 18 18"><path d="M9 1C4.58 1 1 4.58 1 9s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm4 10.87L11.87 13 9 10.13 6.13 13 5 11.87 7.87 9 5 6.13 6.13 5 9 7.87 11.87 5 13 6.13 10.13 9 13 11.87z"/></svg>
-              </a>
+  												window.torrentSocket.emit('downloadCancel', torrent.hash)
+  											}} viewBox="0 0 18 18"><path d="M9 1C4.58 1 1 4.58 1 9s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm4 10.87L11.87 13 9 10.13 6.13 13 5 11.87 7.87 9 5 6.13 6.13 5 9 7.87 11.87 5 13 6.13 10.13 9 13 11.87z"/></svg>
+  										</a>
+  										:
+  										this.state.downloading
+                                            &&
+                                            <a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
+                                            	<svg style={{
+                                            		height: '24px',
+                                            		fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : (torrent.peer ? '#9083e2' : 'grey')
+                                            	}} onClick={(e) => {
+                                            		e.preventDefault();
+                                            		e.stopPropagation();
+
+                                            		window.torrentSocket.emit('downloadCancel', torrent.hash)
+                                            	}} viewBox="0 0 18 18"><path d="M9 1C4.58 1 1 4.58 1 9s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm4 10.87L11.87 13 9 10.13 6.13 13 5 11.87 7.87 9 5 6.13 6.13 5 9 7.87 11.87 5 13 6.13 10.13 9 13 11.87z"/></svg>
+                                            </a>
   						}
   						<a style={{float: 'right'}} href={`magnet:?xt=urn:btih:${torrent.hash}`}>
   							<svg style={{
