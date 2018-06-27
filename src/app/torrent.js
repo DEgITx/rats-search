@@ -161,20 +161,26 @@ export default class Torrent extends Component {
   	downloading: false,
   	downloaded: false,
   	startingDownloading: false,
-  	downloadProgress: {}
+  	downloadProgress: {},
+  	downloadRemoveOnDone: false
   }
   constructor(props)
   {
   	super(props)
-  	if(props.download)
+
+  	const download = props.download || props.torrent.download
+  	if(download)
   	{
-  		const { progress, downloaded, downloadSpeed } = props.download
+  		const { progress, downloaded, downloadSpeed, removeOnDone } = download
   		this.state.downloadProgress = {
   			progress, downloaded, downloadSpeed
   		}
-  		this.state.downloading = true
+  		this.state.downloading = progress < 1
+  		this.state.downloaded = progress === 1
+  		this.state.downloadRemoveOnDone = removeOnDone
   	}
   }
+
   componentDidMount()
   {
   	this.downloading = (hash) => {
@@ -211,6 +217,16 @@ export default class Torrent extends Component {
   		})
   	}
   	window.torrentSocket.on('downloadProgress', this.downloadProgress);
+      
+  	this.downloadUpdate = (hash, options) => {
+  		if(this.props.torrent.hash != hash)
+  			return;
+
+  		this.setState({
+  			downloadRemoveOnDone: options.removeOnDone
+  		})
+  	}
+  	window.torrentSocket.on('downloadUpdate', this.downloadUpdate);
   }
   componentWillUnmount()
   {
@@ -220,6 +236,8 @@ export default class Torrent extends Component {
   		window.torrentSocket.off('downloadDone', this.downloadDone);
   	if(this.downloadProgress)
   		window.torrentSocket.off('downloadProgress', this.downloadProgress);
+  	if(this.downloadUpdate)
+  		window.torrentSocket.off('downloadUpdate', this.downloadUpdate);
   }
   render()
   {
@@ -230,6 +248,8 @@ export default class Torrent extends Component {
   	let torrentRating = -1
   	if(torrent.good > 0 || torrent.bad > 0)
   		torrentRating = Math.round(rating(torrent.good, torrent.bad) * 100);
+
+  	const canDeleteDownloadAfterFinish = (this.state.downloading || this.state.startingDownloading) && !this.state.downloaded
 
   	return (
   		<div>
@@ -333,7 +353,47 @@ export default class Torrent extends Component {
   				}
   				leftIcon={contentIcon(torrent.contentType, torrent.contentCategory, torrent.contentCategory != 'xxx' ? (torrent.peer ? '#6f5ee0' : 'grey') : (torrent.peer ? '#9083e2' : '#d3d3d3'))}
   				rightIcon={
-  					<div className='row inline' style={{width: 63}}>
+  					<div className='row inline' style={{width: 63 + (canDeleteDownloadAfterFinish ? 40 : 0)}}>
+  						{
+  							// mark delete after finish
+  							canDeleteDownloadAfterFinish
+                              &&
+                                <a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
+                                	<svg style={{
+                                		height: '24px',
+                                		marginRight: 16,
+                                		fill: this.state.downloadRemoveOnDone ? 'red' : 'black'
+                                	}} onClick={(e) => {
+                                		e.preventDefault();
+                                		e.stopPropagation();
+                                		window.torrentSocket.emit('downloadUpdate', torrent.hash, {removeOnDone: 'switch'})
+                                	}} viewBox="0 0 512 512">
+                                		<g>
+                                			<path d="M456.313,85.333h-55.527C386.809,36.16,341.594,0,288,0s-98.809,36.16-112.785,85.333h-69.441l-3.482-11.938
+                                                c-5.271-18.094-22.115-30.729-40.958-30.729H32c-5.896,0-10.667,4.771-10.667,10.667C21.333,59.229,26.104,64,32,64h29.333
+                                                c9.427,0,17.844,6.313,20.479,15.365L148.208,307l-34.021,42.521c-4.854,6.073-7.521,13.688-7.521,21.458
+                                                c0,18.948,15.406,34.354,34.354,34.354h296.313c5.896,0,10.667-4.771,10.667-10.667S443.229,384,437.333,384H141.021
+                                                c-7.177,0-13.021-5.844-13.021-13.021c0-2.948,1.01-5.844,2.854-8.135L165.133,320h209.221c16.448,0,31.604-9.615,38.615-24.5
+                                                l74.438-158.177c2.135-4.552,3.26-9.604,3.26-14.615v-3.021C490.667,100.74,475.26,85.333,456.313,85.333z M288,21.333
+                                                c52.938,0,96,43.063,96,96s-43.063,96-96,96s-96-43.063-96-96S235.063,21.333,288,21.333z M469.333,122.708
+                                                c0,1.906-0.427,3.823-1.24,5.542l-74.427,158.167c-3.51,7.438-11.083,12.25-19.313,12.25H168l-56.004-192h59.211
+                                                c-0.319,3.518-0.54,7.066-0.54,10.667c0,64.698,52.635,117.333,117.333,117.333s117.333-52.635,117.333-117.333
+                                                c0-3.6-0.221-7.148-0.54-10.667h51.52c7.177,0,13.021,5.844,13.021,13.021V122.708z"/>
+                                			<path d="M149.333,426.667c-23.531,0-42.667,19.135-42.667,42.667S125.802,512,149.333,512S192,492.865,192,469.333
+                                                S172.865,426.667,149.333,426.667z M149.333,490.667c-11.76,0-21.333-9.573-21.333-21.333c0-11.76,9.573-21.333,21.333-21.333
+                                                c11.76,0,21.333,9.573,21.333,21.333C170.667,481.094,161.094,490.667,149.333,490.667z"/>
+                                			<path d="M405.333,426.667c-23.531,0-42.667,19.135-42.667,42.667S381.802,512,405.333,512S448,492.865,448,469.333
+                                                S428.865,426.667,405.333,426.667z M405.333,490.667c-11.76,0-21.333-9.573-21.333-21.333c0-11.76,9.573-21.333,21.333-21.333
+                                                c11.76,0,21.333,9.573,21.333,21.333C426.667,481.094,417.094,490.667,405.333,490.667z"/>
+                                			<path d="M248.458,156.875c2.083,2.083,4.813,3.125,7.542,3.125s5.458-1.042,7.542-3.125L288,132.417l24.458,24.458
+                                                c2.083,2.083,4.813,3.125,7.542,3.125s5.458-1.042,7.542-3.125c4.167-4.167,4.167-10.917,0-15.083l-24.458-24.458l24.458-24.458
+                                                c4.167-4.167,4.167-10.917,0-15.083c-4.167-4.167-10.917-4.167-15.083,0L288,102.25l-24.458-24.458
+                                                c-4.167-4.167-10.917-4.167-15.083,0c-4.167,4.167-4.167,10.917,0,15.083l24.458,24.458l-24.458,24.458
+                                                C244.292,145.958,244.292,152.708,248.458,156.875z"/>
+                                		</g>
+                                	</svg>
+                                </a>
+  						}
   						{
   							!this.state.startingDownloading && !this.state.downloading && !this.state.downloaded
   								?
@@ -373,7 +433,11 @@ export default class Torrent extends Component {
   								:
   								this.state.startingDownloading && !this.state.downloading
   									?
-  									<div className="overlay-loader">
+  									<div className="overlay-loader" onClick={(e) => {
+  										e.preventDefault();
+  										e.stopPropagation();
+  										window.torrentSocket.emit('downloadCancel', torrent.hash)
+  									}}>
   										<div className="loader">
   											<div></div>
   											<div></div>
