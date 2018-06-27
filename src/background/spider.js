@@ -456,6 +456,10 @@ setInterval(() => {
 				delete torrent.contenttype;
 			}
 
+			// clean download info if added
+			if(torrent.download)
+				delete torrent.download
+
 			if(!checkTorrent(torrent))
 			{
 				resolve()
