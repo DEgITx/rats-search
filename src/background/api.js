@@ -591,22 +591,7 @@ module.exports = async ({
 		torrentClientHashMap[torrent.infoHash] = magnet
 		torrent.torrentObject = torrentObject
 
-		torrent.on('ready', () => {
-			console.log('start downloading', torrent.infoHash, 'to', torrent.path)
-			send('downloading', torrent.infoHash)
-		})
-
-		torrent.on('done', () => { 
-			console.log('download done', torrent.infoHash)
-			send('downloadDone', torrent.infoHash)
-		})
-
-		let now = Date.now()
-		torrent.on('download', (bytes) => {
-			if(Date.now() - now < 100)
-				return
-			now = Date.now()
-
+		const progress = (bytes) => {
 			send('downloadProgress', torrent.infoHash, {
 				received: bytes,
 				downloaded: torrent.downloaded,
@@ -614,6 +599,27 @@ module.exports = async ({
 				progress: torrent.progress,
 				timeRemaining: torrent.timeRemaining
 			})
+		}
+
+		torrent.on('ready', () => {
+			console.log('start downloading', torrent.infoHash, 'to', torrent.path)
+			send('downloading', torrent.infoHash)
+		})
+
+		torrent.on('done', () => { 
+			console.log('download done', torrent.infoHash)
+			progress(0) // update progress
+			send('downloadDone', torrent.infoHash)
+		})
+
+		let now = Date.now()
+		progress(0) // immediately display progress
+		torrent.on('download', (bytes) => {
+			if(Date.now() - now < 100)
+				return
+			now = Date.now()
+
+			progress(bytes)
 		})
 
 		if(callback)

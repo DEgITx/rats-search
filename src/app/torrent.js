@@ -311,7 +311,7 @@ export default class Torrent extends Component {
                   </div>
   							}
   							{
-  								this.state.downloading
+  								(this.state.downloading || this.state.downloaded)
                                     &&
                                     <div className='row w100p inline text-nowrap' style={{maxWidth: 580}}>
                                     	<div style={{marginRight: 5, color: 'rgb(0, 188, 212)'}}>{__('downloading')}: </div>
