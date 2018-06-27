@@ -169,6 +169,11 @@
         "filters settings": "настройки фильтров",
         "enable/disable safe search (adult filter)": "включить/выключить безопасный поиск (фильтр для взрослых)",
         "advanced search": "расширенный поиск",
-        "display search results for current search request": "отобразить поисковые результаты для текущего поиского запроса"
+        "display search results for current search request": "отобразить поисковые результаты для текущего поиского запроса",
+        "Download using built-in client": "Скачать используя встроенный клиент",
+        "Open torrent in external torrent client": "Открыть торрент во внешнем торрент-клиенте",
+        "Dont start to seed torrent after download finish": "Не начинать сидировать торрент после окончания загрузки",
+        "Delete download (files saved)": "Удалить закачку (сохранив файлы)",
+        "Serching metadata in progress... Click will delete this torrent.": "Поиск методанных в процессе... Клик удалит этот торрент."
     }
 }

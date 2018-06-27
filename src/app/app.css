@@ -61,6 +61,10 @@
   font-size: 0.9em;
 }
 
+.tooltip .tooltiptext.right {
+	margin-left: -100px;
+}
+
 .tooltip .tooltiptext::after {
   content: "";
   position: absolute;
@@ -70,6 +74,10 @@
   border-width: 5px;
   border-style: solid;
   border-color: transparent transparent black transparent;
+}
+
+.tooltip .tooltiptext.right::after {
+  left: 80%;
 }
 
 .tooltip:hover .tooltiptext {
@@ -82,7 +90,7 @@
 	height: 24px;
 	position: relative;
 	top: 0;
-	left: -15px;
+	left: -26px;
 	right: 0;
 	bottom: 0;
 }
