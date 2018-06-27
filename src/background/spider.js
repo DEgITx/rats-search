@@ -771,11 +771,19 @@ setInterval(() => {
 			quotaDebug('disk quota enabled');
 		}
 
+		// load torrents sessions
+		console.log('restore downloading sessions')
+		torrentClient.loadSession(dataDirectory + '/downloads.json')
+
 		this.stop = async (callback) => {
 			this.closing = true
 			console.log('spider closing...')
 			if(upnp)
 				upnp.ratsUnmap()
+
+			// save torrents sessions
+			console.log('save torrents downloads sessions')
+			torrentClient.saveSession(dataDirectory + '/downloads.json')
 
 			// save feed
 			await feed.save()
