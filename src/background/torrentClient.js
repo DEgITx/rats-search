@@ -7,7 +7,9 @@ torrentClient.saveSession = (sessionFile) => {
 		torrents: torrentClient.torrents.map(torrent => ({
 			infoHash: torrent.infoHash,
 			path: torrent.path,
-			torrent: torrent.torrentObject
+			torrent: torrent.torrentObject,
+
+			removeOnDone: torrent.removeOnDone,
 		}))
 	}, null, 4), 'utf8');
 }
@@ -31,14 +33,20 @@ torrentClient.loadSession = (sessionFile) => {
 		return
 	}
 	const {torrents} = obj
-	torrents.forEach(({torrent, infoHash, path}) => {
+	torrents.forEach(({torrent, infoHash, path, removeOnDone}) => {
 		if(!torrent || !infoHash || !path)
 		{
 			console.log('no info for starting download this torrent')
 			return
 		}
 		console.log('restore download session:', torrent.name)
-		torrentClient._add(torrent, path)
+		const download = torrentClient._add(torrent, path)
+		if(download)
+		{
+			console.log('restore options')
+			// restore options
+			download.removeOnDone = removeOnDone
+		}
 	})
 }
 module.exports = torrentClient

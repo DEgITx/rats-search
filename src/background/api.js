@@ -29,6 +29,48 @@ module.exports = async ({
 		topCache = {};
 	}, 24 * 60 * 60 * 1000);
 
+
+	const mergeTorrentsWithDownloads = (torrents) => {
+		if(!torrents)
+			return torrents
+
+		const mergeTorrent = (torrent) => {
+			const id = torrentClientHashMap[torrent.hash]
+			if(id)
+			{
+				const download = torrentClient.get(id)
+				torrent.download = {
+					received: download.received,
+					downloaded: download.downloaded,
+					progress: download.progress,
+					downloadSpeed: download.downloadSpeed,
+                    
+					removeOnDone: download.removeOnDone
+				}
+			}
+		}
+
+		if(Array.isArray(torrents))
+		{
+			for(const torrent of torrents)
+			{
+				mergeTorrent(torrent)
+			}
+		}
+		else
+		{
+			mergeTorrent(torrents)
+		}
+
+		return torrents
+	}
+
+	const mergeTorrentsWithDownloadsFn = (Fn) => (...args) => { 
+		const callback = args[args.length - 1]
+		const rest = args.slice(0, -1)
+		Fn(...rest, (data) => callback(mergeTorrentsWithDownloads(data))) 
+	}
+
 	recive('recentTorrents', function(callback)
 	{
 		if(typeof callback != 'function')
@@ -128,15 +170,6 @@ module.exports = async ({
 				callback(baseRowData(torrent))
 			}
 
-			if(torrentClientHashMap[hash])
-			{
-				const torrent = torrentClient.get(torrentClientHashMap[hash])
-				if(torrent)
-				{
-					send('downloading', torrent.infoHash)
-				}
-			}
-
 			// get votes
 			const {good, bad, selfVote} = await getVotes(hash)
 			send('votes', {
@@ -152,7 +185,7 @@ module.exports = async ({
 		});
 	}
 
-	recive('torrent', onTorrent);
+	recive('torrent', mergeTorrentsWithDownloadsFn(onTorrent));
 	p2p.on('torrent', ({hash, options} = {}, callback) => {
 		if(!hash)
 			return;
@@ -287,7 +320,7 @@ module.exports = async ({
 		});
 	}
 
-	recive('searchTorrent', (text, navigation, callback) => {
+	recive('searchTorrent', mergeTorrentsWithDownloadsFn((text, navigation, callback) => {
 		searchTorrentCall(text, navigation, callback)
 		p2p.emit('searchTorrent', {text, navigation}, (remote, socketObject) => {
 			console.log('remote search results', remote && remote.length)
@@ -297,9 +330,9 @@ module.exports = async ({
 				const peer = { address: socket.remoteAddress, port: socket.remotePort }
 				remote = remote.map(torrent => Object.assign(torrent, {peer}))
 			}
-			send('remoteSearchTorrent', remote)
+			send('remoteSearchTorrent', mergeTorrentsWithDownloads(remote))
 		})
-	});
+	}));
 
 	p2p.on('searchTorrent', ({text, navigation} = {}, callback) => {
 		if(!text)
@@ -410,7 +443,7 @@ module.exports = async ({
 		});
 	}
 
-	recive('searchFiles', (text, navigation, callback) => {
+	recive('searchFiles', mergeTorrentsWithDownloadsFn((text, navigation, callback) => {
 		searchFilesCall(text, navigation, callback)
 		p2p.emit('searchFiles', {text, navigation}, (remote, socketObject) => {
 			console.log('remote search files results', remote && remote.length)
@@ -420,9 +453,9 @@ module.exports = async ({
 				const peer = { address: socket.remoteAddress, port: socket.remotePort }
 				remote = remote.map(torrent => Object.assign(torrent, {peer}))
 			}
-			send('remoteSearchFiles', remote)
+			send('remoteSearchFiles', mergeTorrentsWithDownloads(remote))
 		})
-	});
+	}));
 
 	p2p.on('searchFiles', ({text, navigation} = {}, callback) => {
 		if(!text)
@@ -485,7 +518,7 @@ module.exports = async ({
 		});
 	}
 
-	recive('topTorrents', (type, navigation, callback) =>
+	recive('topTorrents', mergeTorrentsWithDownloadsFn((type, navigation, callback) =>
 	{
 		topTorrentsCall(type, navigation, callback)
 		p2p.emit('topTorrents', {type, navigation}, (remote, socketObject) => {
@@ -498,7 +531,7 @@ module.exports = async ({
 			}
 			send('remoteTopTorrents', {torrents: remote, type, time: navigation && navigation.time})
 		})
-	});
+	}));
 
 	p2p.on('topTorrents', ({type, navigation} = {}, callback) => {
 		topTorrentsCall(type, navigation, (data) => callback(data))
@@ -604,16 +637,33 @@ module.exports = async ({
 		torrent.on('ready', () => {
 			console.log('start downloading', torrent.infoHash, 'to', torrent.path)
 			send('downloading', torrent.infoHash)
+			progress(0) // immediately display progress
 		})
 
 		torrent.on('done', () => { 
 			console.log('download done', torrent.infoHash)
 			progress(0) // update progress
-			send('downloadDone', torrent.infoHash)
+			// remove torrent if marked
+			if(torrent.removeOnDone)
+			{
+				torrentClient.remove(magnet, (err) => {
+					if(err)
+					{
+						console.log('download removing error', err)
+						return
+					}
+        
+					delete torrentClientHashMap[torrent.infoHash]
+					send('downloadDone', torrent.infoHash)
+				})
+			}
+			else
+			{
+				send('downloadDone', torrent.infoHash)
+			}
 		})
 
 		let now = Date.now()
-		progress(0) // immediately display progress
 		torrent.on('download', (bytes) => {
 			if(Date.now() - now < 100)
 				return
@@ -624,9 +674,36 @@ module.exports = async ({
 
 		if(callback)
 			callback(true)
+
+		return torrent
 	}
 
 	recive('download', torrentClient._add);
+
+	recive('downloadUpdate', (hash, options) =>
+	{
+		const id = torrentClientHashMap[hash]
+		if(!id)
+		{
+			console.log('cant find torrent for removing', hash)
+			return
+		}
+        
+		const torrent = torrentClient.get(id)
+		if(!torrent) {
+			console.log('no torrent for update founded')
+			return
+		}
+
+		if(options.removeOnDone)
+		{
+			torrent.removeOnDone = options.removeOnDone == 'switch' ? !torrent.removeOnDone : options.removeOnDone
+		}
+
+		send('downloadUpdate', torrent.infoHash, {
+			removeOnDone: torrent.removeOnDone
+		})
+	})
 
 	recive('downloadCancel', (hash, callback) =>
 	{
@@ -663,7 +740,9 @@ module.exports = async ({
 			received: torrent.received,
 			downloaded: torrent.downloaded,
 			progress: torrent.progress,
-			downloadSpeed: torrent.downloadSpeed
+			downloadSpeed: torrent.downloadSpeed,
+            
+			removeOnDone: torrent.removeOnDone
 		})))
 	})
 
@@ -788,7 +867,7 @@ module.exports = async ({
 	{
 		callback(feed.feed)
 	}
-	recive('feed', feedCall);
+	recive('feed', mergeTorrentsWithDownloadsFn(feedCall));
 
 	p2p.on('feed', ({}, callback) => {
 		feedCall((data) => callback(data))
