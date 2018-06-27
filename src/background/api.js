@@ -136,6 +136,7 @@ module.exports = async ({
 			const peer = p2p.find(options.peer)
 			if(!peer)
 			{
+				console.log('dont found requested peer in peers')
 				callback(undefined)
 				return;
 			}
@@ -532,7 +533,7 @@ module.exports = async ({
 				const peer = { address: socket.remoteAddress, port: socket.remotePort }
 				remote = remote.map(torrent => Object.assign(torrent, {peer}))
 			}
-			send('remoteTopTorrents', {torrents: remote, type, time: navigation && navigation.time})
+			send('remoteTopTorrents', {torrents: mergeTorrentsWithDownloads(remote), type, time: navigation && navigation.time})
 		})
 	}));
 
