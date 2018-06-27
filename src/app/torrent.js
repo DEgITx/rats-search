@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import formatBytes from './format-bytes'
 import {ListItem} from 'material-ui/List';
 import Divider from 'material-ui/Divider';
+import ToolTip from './tooltip';
 
 import PagesPie from './pages-pie.js';
 import TorrentPage from './torrent-page'
@@ -358,18 +359,19 @@ export default class Torrent extends Component {
   							// mark delete after finish
   							canDeleteDownloadAfterFinish
                               &&
-                                <a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
-                                	<svg style={{
-                                		height: '24px',
-                                		marginRight: 16,
-                                		fill: this.state.downloadRemoveOnDone ? 'red' : 'black'
-                                	}} onClick={(e) => {
-                                		e.preventDefault();
-                                		e.stopPropagation();
-                                		window.torrentSocket.emit('downloadUpdate', torrent.hash, {removeOnDone: 'switch'})
-                                	}} viewBox="0 0 512 512">
-                                		<g>
-                                			<path d="M456.313,85.333h-55.527C386.809,36.16,341.594,0,288,0s-98.809,36.16-112.785,85.333h-69.441l-3.482-11.938
+                              <ToolTip hint={__('Dont start to seed torrent after download finish')} right={true}>
+                              	<a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
+                              		<svg style={{
+                              			height: '24px',
+                              			marginRight: 16,
+                              			fill: this.state.downloadRemoveOnDone ? 'red' : 'black'
+                              		}} onClick={(e) => {
+                              			e.preventDefault();
+                              			e.stopPropagation();
+                              			window.torrentSocket.emit('downloadUpdate', torrent.hash, {removeOnDone: 'switch'})
+                              		}} viewBox="0 0 512 512">
+                              			<g>
+                              				<path d="M456.313,85.333h-55.527C386.809,36.16,341.594,0,288,0s-98.809,36.16-112.785,85.333h-69.441l-3.482-11.938
                                                 c-5.271-18.094-22.115-30.729-40.958-30.729H32c-5.896,0-10.667,4.771-10.667,10.667C21.333,59.229,26.104,64,32,64h29.333
                                                 c9.427,0,17.844,6.313,20.479,15.365L148.208,307l-34.021,42.521c-4.854,6.073-7.521,13.688-7.521,21.458
                                                 c0,18.948,15.406,34.354,34.354,34.354h296.313c5.896,0,10.667-4.771,10.667-10.667S443.229,384,437.333,384H141.021
@@ -379,60 +381,64 @@ export default class Torrent extends Component {
                                                 c0,1.906-0.427,3.823-1.24,5.542l-74.427,158.167c-3.51,7.438-11.083,12.25-19.313,12.25H168l-56.004-192h59.211
                                                 c-0.319,3.518-0.54,7.066-0.54,10.667c0,64.698,52.635,117.333,117.333,117.333s117.333-52.635,117.333-117.333
                                                 c0-3.6-0.221-7.148-0.54-10.667h51.52c7.177,0,13.021,5.844,13.021,13.021V122.708z"/>
-                                			<path d="M149.333,426.667c-23.531,0-42.667,19.135-42.667,42.667S125.802,512,149.333,512S192,492.865,192,469.333
+                              				<path d="M149.333,426.667c-23.531,0-42.667,19.135-42.667,42.667S125.802,512,149.333,512S192,492.865,192,469.333
                                                 S172.865,426.667,149.333,426.667z M149.333,490.667c-11.76,0-21.333-9.573-21.333-21.333c0-11.76,9.573-21.333,21.333-21.333
                                                 c11.76,0,21.333,9.573,21.333,21.333C170.667,481.094,161.094,490.667,149.333,490.667z"/>
-                                			<path d="M405.333,426.667c-23.531,0-42.667,19.135-42.667,42.667S381.802,512,405.333,512S448,492.865,448,469.333
+                              				<path d="M405.333,426.667c-23.531,0-42.667,19.135-42.667,42.667S381.802,512,405.333,512S448,492.865,448,469.333
                                                 S428.865,426.667,405.333,426.667z M405.333,490.667c-11.76,0-21.333-9.573-21.333-21.333c0-11.76,9.573-21.333,21.333-21.333
                                                 c11.76,0,21.333,9.573,21.333,21.333C426.667,481.094,417.094,490.667,405.333,490.667z"/>
-                                			<path d="M248.458,156.875c2.083,2.083,4.813,3.125,7.542,3.125s5.458-1.042,7.542-3.125L288,132.417l24.458,24.458
+                              				<path d="M248.458,156.875c2.083,2.083,4.813,3.125,7.542,3.125s5.458-1.042,7.542-3.125L288,132.417l24.458,24.458
                                                 c2.083,2.083,4.813,3.125,7.542,3.125s5.458-1.042,7.542-3.125c4.167-4.167,4.167-10.917,0-15.083l-24.458-24.458l24.458-24.458
                                                 c4.167-4.167,4.167-10.917,0-15.083c-4.167-4.167-10.917-4.167-15.083,0L288,102.25l-24.458-24.458
                                                 c-4.167-4.167-10.917-4.167-15.083,0c-4.167,4.167-4.167,10.917,0,15.083l24.458,24.458l-24.458,24.458
                                                 C244.292,145.958,244.292,152.708,248.458,156.875z"/>
-                                		</g>
-                                	</svg>
-                                </a>
+                              			</g>
+                              		</svg>
+                              	</a>
+                              </ToolTip>
   						}
   						{
   							!this.state.startingDownloading && !this.state.downloading && !this.state.downloaded
   								?
-  								<a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
-  									<svg style={{
-  										height: '24px',
-  										marginRight: 12,
-  										fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : (torrent.peer ? '#9083e2' : 'grey')
-  									}} onClick={(e) => {
-  										e.preventDefault();
-  										e.stopPropagation();
-  										window.torrentSocket.emit('download', torrent, null, (added) => {
-  											if(added)
-  												this.setState({startingDownloading: true})
-  										})
-  									}} viewBox="0 0 56 56">
-  										<g>
-  											<path d="M35.586,41.586L31,46.172V28c0-1.104-0.896-2-2-2s-2,0.896-2,2v18.172l-4.586-4.586c-0.781-0.781-2.047-0.781-2.828,0
-                                s-0.781,2.047,0,2.828l7.999,7.999c0.093,0.094,0.196,0.177,0.307,0.251c0.047,0.032,0.099,0.053,0.148,0.081
-                                c0.065,0.036,0.127,0.075,0.196,0.103c0.065,0.027,0.133,0.042,0.2,0.062c0.058,0.017,0.113,0.04,0.173,0.051
-                                C28.738,52.986,28.869,53,29,53s0.262-0.014,0.392-0.04c0.06-0.012,0.115-0.034,0.173-0.051c0.067-0.02,0.135-0.035,0.2-0.062
-                                c0.069-0.028,0.131-0.067,0.196-0.103c0.05-0.027,0.101-0.049,0.148-0.081c0.11-0.074,0.213-0.157,0.307-0.251l7.999-7.999
-                                c0.781-0.781,0.781-2.047,0-2.828S36.367,40.805,35.586,41.586z"/>
-  											<path d="M47.835,18.986c-0.137-0.019-2.457-0.335-4.684,0.002C43.1,18.996,43.049,19,42.999,19c-0.486,0-0.912-0.354-0.987-0.85
-                                c-0.083-0.546,0.292-1.056,0.838-1.139c1.531-0.233,3.062-0.196,4.083-0.124C46.262,9.135,39.83,3,32.085,3
-                                C27.388,3,22.667,5.379,19.8,9.129C21.754,10.781,23,13.246,23,16c0,0.553-0.447,1-1,1s-1-0.447-1-1
-                                c0-2.462-1.281-4.627-3.209-5.876c-0.227-0.147-0.462-0.277-0.702-0.396c-0.069-0.034-0.139-0.069-0.21-0.101
-                                c-0.272-0.124-0.55-0.234-0.835-0.321c-0.035-0.01-0.071-0.017-0.106-0.027c-0.259-0.075-0.522-0.132-0.789-0.177
-                                c-0.078-0.013-0.155-0.025-0.233-0.036C14.614,9.027,14.309,9,14,9c-3.859,0-7,3.141-7,7c0,0.082,0.006,0.163,0.012,0.244
-                                l0.012,0.21l-0.009,0.16C7.008,16.744,7,16.873,7,17v0.63l-0.567,0.271C2.705,19.688,0,24,0,28.154C0,34.135,4.865,39,10.845,39H25
-                                V28c0-2.209,1.791-4,4-4s4,1.791,4,4v11h2.353c0.059,0,0.116-0.005,0.174-0.009l0.198-0.011l0.271,0.011
-                                C36.053,38.995,36.11,39,36.169,39h9.803C51.501,39,56,34.501,56,28.972C56,24.161,52.49,19.872,47.835,18.986z"/>
-  										</g>
-                 
-  									</svg>
-  								</a>
+  								<ToolTip hint={__('Download using built-in client')} right={true}>
+  									<a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
+  										<svg style={{
+  											height: '24px',
+  											marginRight: 12,
+  											fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : (torrent.peer ? '#9083e2' : 'grey')
+  										}} onClick={(e) => {
+  											e.preventDefault();
+  											e.stopPropagation();
+  											window.torrentSocket.emit('download', torrent, null, (added) => {
+  												if(added)
+  													this.setState({startingDownloading: true})
+  											})
+  										}} viewBox="0 0 56 56">
+  											<g>
+  												<path d="M35.586,41.586L31,46.172V28c0-1.104-0.896-2-2-2s-2,0.896-2,2v18.172l-4.586-4.586c-0.781-0.781-2.047-0.781-2.828,0
+                                    s-0.781,2.047,0,2.828l7.999,7.999c0.093,0.094,0.196,0.177,0.307,0.251c0.047,0.032,0.099,0.053,0.148,0.081
+                                    c0.065,0.036,0.127,0.075,0.196,0.103c0.065,0.027,0.133,0.042,0.2,0.062c0.058,0.017,0.113,0.04,0.173,0.051
+                                    C28.738,52.986,28.869,53,29,53s0.262-0.014,0.392-0.04c0.06-0.012,0.115-0.034,0.173-0.051c0.067-0.02,0.135-0.035,0.2-0.062
+                                    c0.069-0.028,0.131-0.067,0.196-0.103c0.05-0.027,0.101-0.049,0.148-0.081c0.11-0.074,0.213-0.157,0.307-0.251l7.999-7.999
+                                    c0.781-0.781,0.781-2.047,0-2.828S36.367,40.805,35.586,41.586z"/>
+  												<path d="M47.835,18.986c-0.137-0.019-2.457-0.335-4.684,0.002C43.1,18.996,43.049,19,42.999,19c-0.486,0-0.912-0.354-0.987-0.85
+                                    c-0.083-0.546,0.292-1.056,0.838-1.139c1.531-0.233,3.062-0.196,4.083-0.124C46.262,9.135,39.83,3,32.085,3
+                                    C27.388,3,22.667,5.379,19.8,9.129C21.754,10.781,23,13.246,23,16c0,0.553-0.447,1-1,1s-1-0.447-1-1
+                                    c0-2.462-1.281-4.627-3.209-5.876c-0.227-0.147-0.462-0.277-0.702-0.396c-0.069-0.034-0.139-0.069-0.21-0.101
+                                    c-0.272-0.124-0.55-0.234-0.835-0.321c-0.035-0.01-0.071-0.017-0.106-0.027c-0.259-0.075-0.522-0.132-0.789-0.177
+                                    c-0.078-0.013-0.155-0.025-0.233-0.036C14.614,9.027,14.309,9,14,9c-3.859,0-7,3.141-7,7c0,0.082,0.006,0.163,0.012,0.244
+                                    l0.012,0.21l-0.009,0.16C7.008,16.744,7,16.873,7,17v0.63l-0.567,0.271C2.705,19.688,0,24,0,28.154C0,34.135,4.865,39,10.845,39H25
+                                    V28c0-2.209,1.791-4,4-4s4,1.791,4,4v11h2.353c0.059,0,0.116-0.005,0.174-0.009l0.198-0.011l0.271,0.011
+                                    C36.053,38.995,36.11,39,36.169,39h9.803C51.501,39,56,34.501,56,28.972C56,24.161,52.49,19.872,47.835,18.986z"/>
+  											</g>
+                    
+  										</svg>
+  									</a>
+  								</ToolTip>
   								:
   								this.state.startingDownloading && !this.state.downloading
-  									?
+									  ?
+									  <ToolTip hint={__('Serching metadata in progress... Click will delete this torrent.')} right={true}>
   									<div className="overlay-loader" onClick={(e) => {
   										e.preventDefault();
   										e.stopPropagation();
@@ -448,45 +454,53 @@ export default class Torrent extends Component {
   											<div></div>
   										</div>
   									</div>
+									  </ToolTip>
   									:
   									this.state.downloaded
   										?
-  										<a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
-  											<svg style={{
-  												height: '24px',
-  												fill: '#00C853'
-  											}} onClick={(e) => {
-  												e.preventDefault();
-  												e.stopPropagation();
+  										<ToolTip hint={__('Delete download (files saved)')} right={true}>
+  											<a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
+  												<svg style={{
+  													height: '24px',
+  													fill: '#00C853',
+  													marginRight: 12
+  												}} onClick={(e) => {
+  													e.preventDefault();
+  													e.stopPropagation();
 
-  												window.torrentSocket.emit('downloadCancel', torrent.hash)
-  											}} viewBox="0 0 18 18"><path d="M9 1C4.58 1 1 4.58 1 9s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm4 10.87L11.87 13 9 10.13 6.13 13 5 11.87 7.87 9 5 6.13 6.13 5 9 7.87 11.87 5 13 6.13 10.13 9 13 11.87z"/></svg>
-  										</a>
+  													window.torrentSocket.emit('downloadCancel', torrent.hash)
+  												}} viewBox="0 0 18 18"><path d="M9 1C4.58 1 1 4.58 1 9s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm4 10.87L11.87 13 9 10.13 6.13 13 5 11.87 7.87 9 5 6.13 6.13 5 9 7.87 11.87 5 13 6.13 10.13 9 13 11.87z"/></svg>
+  											</a>
+  										</ToolTip>
   										:
   										this.state.downloading
                                             &&
-                                            <a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
-                                            	<svg style={{
-                                            		height: '24px',
-                                            		fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : (torrent.peer ? '#9083e2' : 'grey')
-                                            	}} onClick={(e) => {
-                                            		e.preventDefault();
-                                            		e.stopPropagation();
+                                            <ToolTip hint={__('Delete download (files saved)')} right={true}>
+                                            	<a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
+                                            		<svg style={{
+                                            			height: '24px',
+                                            			marginRight: 12,
+                                            			fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : (torrent.peer ? '#9083e2' : 'grey')
+                                            		}} onClick={(e) => {
+                                            			e.preventDefault();
+                                            			e.stopPropagation();
 
-                                            		window.torrentSocket.emit('downloadCancel', torrent.hash)
-                                            	}} viewBox="0 0 18 18"><path d="M9 1C4.58 1 1 4.58 1 9s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm4 10.87L11.87 13 9 10.13 6.13 13 5 11.87 7.87 9 5 6.13 6.13 5 9 7.87 11.87 5 13 6.13 10.13 9 13 11.87z"/></svg>
-                                            </a>
+                                            			window.torrentSocket.emit('downloadCancel', torrent.hash)
+                                            		}} viewBox="0 0 18 18"><path d="M9 1C4.58 1 1 4.58 1 9s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm4 10.87L11.87 13 9 10.13 6.13 13 5 11.87 7.87 9 5 6.13 6.13 5 9 7.87 11.87 5 13 6.13 10.13 9 13 11.87z"/></svg>
+                                            	</a>
+                                            </ToolTip>
   						}
-  						<a style={{float: 'right'}} href={`magnet:?xt=urn:btih:${torrent.hash}`}>
-  							<svg style={{
-  								height: '24px',
-  								fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : (torrent.peer ? '#9083e2' : 'grey')
-  							}} onClick={(e) => {
-  								e.preventDefault();
-  								e.stopPropagation();
-  								var win = window.open(`magnet:?xt=urn:btih:${torrent.hash}`, '_self');
-  							}} viewBox="0 0 24 24">
-  								<path d="M15.82 10.736l-5.451 6.717c-.561.691-1.214 1.042-1.94 1.042-1.144 
+  						<ToolTip hint={__('Open torrent in external torrent client')} right={true}>
+  							<a style={{float: 'right'}} href={`magnet:?xt=urn:btih:${torrent.hash}`}>
+  								<svg style={{
+  									height: '24px',
+  									fill: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : (torrent.peer ? '#9083e2' : 'grey')
+  								}} onClick={(e) => {
+  									e.preventDefault();
+  									e.stopPropagation();
+  									var win = window.open(`magnet:?xt=urn:btih:${torrent.hash}`, '_self');
+  								}} viewBox="0 0 24 24">
+  									<path d="M15.82 10.736l-5.451 6.717c-.561.691-1.214 1.042-1.94 1.042-1.144 
                   0-2.327-.899-2.753-2.091-.214-.6-.386-1.76.865-2.784 3.417-2.794 6.716-5.446 
                   6.716-5.446l-3.363-4.174s-4.532 3.657-6.771 5.487c-2.581 2.108-3.123 4.468-3.123 
                   6.075 0 4.416 4.014 8.438 8.42 8.438 1.604 0 3.963-.543 6.084-3.128 1.835-2.237 
@@ -498,7 +512,8 @@ export default class Torrent extends Component {
                   4.151zm6.152-7.934l4.318-2.88-1.575-.638 1.889-2.414-4.421 2.788 1.716.695-1.927 
                   2.449zm-7.292-7.186l4.916-1.667-1.356-1.022 2.448-2.006-4.991 1.712 
                   1.478 1.114-2.495 1.869z"/></svg>
-  						</a>
+  							</a>
+  						</ToolTip>
   					</div>
   				}
   			/>

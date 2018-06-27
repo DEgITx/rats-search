@@ -169,6 +169,11 @@
         "filters settings": "filters settings",
         "enable/disable safe search (adult filter)": "enable/disable safe search (adult filter)",
         "advanced search": "advanced search",
-        "display search results for current search request": "display search results for current search request"
+        "display search results for current search request": "display search results for current search request",
+        "Download using built-in client": "Download using built-in client",
+        "Open torrent in external torrent client": "Open torrent in external torrent client",
+        "Dont start to seed torrent after download finish": "Dont start to seed torrent after download finish",
+        "Delete download (files saved)": "Delete download (files saved)",
+        "Serching metadata in progress... Click will delete this torrent.": "Serching metadata in progress... Click will delete this torrent."
     }
 }

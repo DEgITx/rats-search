@@ -1,10 +1,13 @@
 import React from 'react';
 
 export default (props) => {
+	let className = 'tooltiptext'
+	if(props.right)
+		className += ' right'
 	return (
 		<div className='tooltip'>
 			{props.children}
-			<span class="tooltiptext">{props.hint}</span>
+			<span className={className}>{props.hint}</span>
 		</div>
 	)
 }
