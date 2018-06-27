@@ -576,7 +576,7 @@ module.exports = async ({
 			callback(true)
 	});
 
-	recive('download', (torrentObject) =>
+	torrentClient._add = (torrentObject, savePath) =>
 	{
 		const magnet = `magnet:?xt=urn:btih:${torrentObject.hash}`
 		console.log('download', magnet)
@@ -585,12 +585,12 @@ module.exports = async ({
 			return
 		}
 
-		const torrent = torrentClient.add(magnet, {path: config.client.downloadPath})
+		const torrent = torrentClient.add(magnet, {path: savePath || config.client.downloadPath})
 		torrentClientHashMap[torrent.infoHash] = magnet
 		torrent.torrentObject = torrentObject
 
 		torrent.on('ready', () => {
-			console.log('start downloading', torrent.infoHash)
+			console.log('start downloading', torrent.infoHash, 'to', torrent.path)
 			send('downloading', torrent.infoHash)
 		})
 
@@ -614,7 +614,9 @@ module.exports = async ({
 				timeRemaining: torrent.timeRemaining
 			})
 		})
-	});
+	}
+
+	recive('download', torrentClient._add);
 
 	recive('downloadCancel', (hash, callback) =>
 	{
