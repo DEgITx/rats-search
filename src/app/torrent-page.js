@@ -144,8 +144,9 @@ export default class TorrentPage extends Page {
 			searchingIndicator: false,
 			voting: false,
 			voted: false,
-			askDownloading: false,
 			downloading: false,
+			downloaded: false,
+			startingDownloading: false,
 			downloadProgress: {}
 		};
 		this.setTitle('Information about torrent');
@@ -242,7 +243,10 @@ export default class TorrentPage extends Page {
   		if(this.props.hash != hash)
   			return;
 
-  		this.setState({downloading: true})
+  		this.setState({
+  			downloading: true,
+  			startingDownloading: false
+  		})
   	}
   	window.torrentSocket.on('downloading', this.downloading);
     
@@ -252,7 +256,8 @@ export default class TorrentPage extends Page {
 
   		this.setState({
   			downloading: false,
-  			askDownloading: !canceled
+  			startingDownloading: false,
+  			downloaded: !canceled
   		})
   	}
   	window.torrentSocket.on('downloadDone', this.downloadDone);
@@ -261,7 +266,11 @@ export default class TorrentPage extends Page {
   		if(this.props.hash != hash)
   			return;
 
-  		this.setState({downloadProgress: progress})
+  		this.setState({
+  			downloading: true,
+  			startingDownloading: false,
+  			downloadProgress: progress
+  		})
   	}
   	window.torrentSocket.on('downloadProgress', this.downloadProgress);
 
@@ -362,7 +371,7 @@ export default class TorrentPage extends Page {
   											icon={<svg fill='white' viewBox="0 0 24 24"><path d="M17.374 20.235c2.444-2.981 6.626-8.157 6.626-8.157l-3.846-3.092s-2.857 3.523-6.571 8.097c-4.312 5.312-11.881-2.41-6.671-6.671 4.561-3.729 8.097-6.57 8.097-6.57l-3.092-3.842s-5.173 4.181-8.157 6.621c-2.662 2.175-3.76 4.749-3.76 7.24 0 5.254 4.867 10.139 10.121 10.139 2.487 0 5.064-1.095 7.253-3.765zm4.724-7.953l-1.699 2.111-1.74-1.397 1.701-2.114 1.738 1.4zm-10.386-10.385l1.4 1.738-2.113 1.701-1.397-1.74 2.11-1.699z"/></svg>}
   										/>
   										{
-  											!this.state.askDownloading && !this.state.downloading
+  											!this.state.downloaded && !this.state.downloading && !this.state.startingDownloading
                       &&
                       <RaisedButton
                       	href={`magnet:?xt=urn:btih:${this.torrent.hash}`}
@@ -373,8 +382,10 @@ export default class TorrentPage extends Page {
                       	style={{marginTop: 8}}
                       	onClick={(e) => {
                       		e.preventDefault();
-                      		this.setState({askDownloading: true})
-                      		window.torrentSocket.emit('download', this.torrent)
+                      		window.torrentSocket.emit('download', this.torrent, null, (added) => {
+                      			if(added)
+                      				this.setState({startingDownloading: true})
+                      		})
                       	}}
                       	icon={
                       		<svg viewBox="0 0 56 56" fill='white'>
