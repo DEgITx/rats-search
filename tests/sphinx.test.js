@@ -1,18 +1,9 @@
 import { expect } from "chai";
-import testUtils from "./utils";
 
 const mysql = require('mysql')
 const config = require('../src/background/config')
 
 describe("sphinx", () => {
-  before(testUtils.beforeEach);
-  after(testUtils.afterEach);
-
-  it("runned", async function() {
-    const { app } = this
-    await app.client.waitForExist('#index-window')
-  });
-
   let sphinx;
 
   it("init", function() {
