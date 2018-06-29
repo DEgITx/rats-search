@@ -102,8 +102,8 @@
   },
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
-    "pretest": "webpack --config=build/webpack.app.config.js --env=test --display=none && webpack --config=build/webpack.e2e.config.js --env=test --display=none",
-    "test": "mocha temp/e2e.js --require @babel/core/lib --require source-map-support/register",
+    "pretest": "webpack --config=build/webpack.app.config.js --env=test --display=none && webpack --config=build/webpack.tests.config.js --env=test --display=none",
+    "test": "mocha temp/tests.js --require @babel/core/lib --require source-map-support/register",
     "start": "node build/start.js",
     "prebuild": "webpack --config=build/webpack.app.config.js --env=production",
     "build": "electron-builder",

@@ -5,16 +5,19 @@ const base = require("./webpack.base.config");
 // Test files are scattered through the whole project. Here we're searching
 // for them and generating entry file for webpack.
 
-const e2eDir = jetpack.cwd("tests");
+const testsDir = jetpack.cwd("tests");
 const tempDir = jetpack.cwd("temp");
-const entryFilePath = tempDir.path("e2e_entry.js");
+const entryFilePath = tempDir.path("testsInit.js");
 
-const entryFileContent = e2eDir
+const testsImports = testsDir
   .find({ matching: "*.test.js" })
   .reduce((fileContent, path) => {
     const normalizedPath = path.replace(/\\/g, "/");
-    return `${fileContent}import "../tests/${normalizedPath}";\n`;
+    return `${fileContent}require("../tests/${normalizedPath}");\n`;
   }, "");
+
+let entryFileContent = testsDir.read('init.js')
+entryFileContent = entryFileContent.replace('//TESTS', testsImports)
 
 jetpack.write(entryFilePath, entryFileContent);
 
@@ -22,7 +25,7 @@ module.exports = env => {
   return merge(base(env), {
     entry: entryFilePath,
     output: {
-      filename: "e2e.js",
+      filename: "tests.js",
       path: tempDir.path()
     }
   });

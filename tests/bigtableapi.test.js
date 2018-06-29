@@ -2,20 +2,10 @@ const expect = (is) => {
 	if(!is)
 		throw new Error('expected not done');
 }
-import testUtils from "./utils";
-
 const {pool} = require('../src/background/mysql')
 const forBigTable = require('../src/background/forBigTable')
 
 describe("big table for check", () => {
-  before(testUtils.beforeEach);
-  after(testUtils.afterEach);
-
-  it("runned", async function() {
-    const { app } = this
-    await app.client.waitForExist('#index-window')
-  });
-
   let sphinx;
 
   it("init", function() {
