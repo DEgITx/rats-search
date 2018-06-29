@@ -437,24 +437,24 @@ export default class Torrent extends Component {
   								</ToolTip>
   								:
   								this.state.startingDownloading && !this.state.downloading
-									  ?
-									  <ToolTip hint={__('Serching metadata in progress... Click will delete this torrent.')} right={true}>
-  									<div className="overlay-loader" onClick={(e) => {
-  										e.preventDefault();
-  										e.stopPropagation();
-  										window.torrentSocket.emit('downloadCancel', torrent.hash)
-  									}}>
-  										<div className="loader">
-  											<div></div>
-  											<div></div>
-  											<div></div>
-  											<div></div>
-  											<div></div>
-  											<div></div>
-  											<div></div>
+  									?
+  									<ToolTip hint={__('Serching metadata in progress... Click will delete this torrent.')} right={true}>
+  										<div className="overlay-loader" onClick={(e) => {
+  											e.preventDefault();
+  											e.stopPropagation();
+  											window.torrentSocket.emit('downloadCancel', torrent.hash)
+  										}}>
+  											<div className="loader">
+  												<div></div>
+  												<div></div>
+  												<div></div>
+  												<div></div>
+  												<div></div>
+  												<div></div>
+  												<div></div>
+  											</div>
   										</div>
-  									</div>
-									  </ToolTip>
+  									</ToolTip>
   									:
   									this.state.downloaded
   										?
