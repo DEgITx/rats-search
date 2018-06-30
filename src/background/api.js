@@ -48,7 +48,8 @@ module.exports = async ({
 					progress: download.progress,
 					downloadSpeed: download.downloadSpeed,
                     
-					removeOnDone: download.removeOnDone
+					removeOnDone: download.removeOnDone,
+					paused: torrent.paused || torrent._paused
 				}
 			}
 		}
@@ -642,6 +643,11 @@ module.exports = async ({
 			console.log('start downloading', torrent.infoHash, 'to', torrent.path)
 			send('downloading', torrent.infoHash)
 			progress(0) // immediately display progress
+			if(torrent._paused)
+			{
+				delete torrent._paused
+				torrent._pause()
+			}
 		})
 
 		torrent.on('done', () => { 
@@ -676,6 +682,43 @@ module.exports = async ({
 			progress(bytes)
 		})
 
+		//custom api pause
+		torrent._pause = () => {
+			console.log('pause torrent downloading', torrent.infoHash)
+			torrent.pause()
+			torrent.wires = [];
+			setTimeout(() => {
+				if(torrent.paused)
+					torrent.wires = [];
+			}, 100) // make sure no more wires appears
+		}
+
+		torrent._restoreWires = () => {
+			for(const p in torrent._peers){
+				const wire = torrent._peers[p].wire
+				if(wire)
+					torrent.wires.push(wire);
+			}
+		}
+
+		torrent._resume = () => {
+			console.log('resume torrent downloading', torrent.infoHash)
+			torrent._restoreWires()
+			torrent.resume()
+		}
+
+		// fix wires after pause
+		const _destroy = torrent._destroy
+		torrent._destroy = (...args) => {
+			// fix pause wires closing
+			if(torrent.paused)
+			{
+				torrent._restoreWires()
+			}
+			return _destroy.call(torrent, ...args)
+		}
+
+
 		if(callback)
 			callback(true)
 
@@ -704,8 +747,18 @@ module.exports = async ({
 			torrent.removeOnDone = options.removeOnDone == 'switch' ? !torrent.removeOnDone : options.removeOnDone
 		}
 
+		if(typeof options.pause !== 'undefined')
+		{
+			const pause = options.pause == 'switch' ? !torrent.paused : options.pause
+			if(pause)
+				torrent._pause()
+			else
+				torrent._resume()
+		}
+
 		send('downloadUpdate', torrent.infoHash, {
-			removeOnDone: torrent.removeOnDone
+			removeOnDone: torrent.removeOnDone,
+			paused: torrent.paused || torrent._paused
 		})
 	})
 
@@ -746,7 +799,8 @@ module.exports = async ({
 			progress: torrent.progress,
 			downloadSpeed: torrent.downloadSpeed,
             
-			removeOnDone: torrent.removeOnDone
+			removeOnDone: torrent.removeOnDone,
+			paused: torrent.paused || torrent._paused
 		})))
 	})
 
