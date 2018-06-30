@@ -2,6 +2,7 @@ import { expect } from "chai";
 
 const mysql = require('mysql')
 const config = require('../src/background/config')
+const {pool} = require('../src/background/mysql')
 
 describe("sphinx", () => {
 	let sphinx;
@@ -56,6 +57,18 @@ describe("sphinx", () => {
 				throw new Error('not 50 in field')
 
 			done()
+		})
+	})
+
+	it("query limit",  function(done) {
+		const sphinx = pool()
+		let promises = []
+		sphinx.query(`delete from feed where id >= 0`, () => {
+			for(let i = 0; i < 500; i++)
+				promises.push(sphinx.query(`insert into feed(id, data) values(${i}, 'a')`))
+			Promise.all(promises).then(() => {
+				sphinx.query(`delete from feed where id >= 0`, () => done())	
+			})
 		})
 	})
 });
