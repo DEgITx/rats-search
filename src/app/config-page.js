@@ -222,10 +222,26 @@ export default class ConfigPage extends Page {
 					<div className='column w100p'>
 						<Toggle
 							style={{marginTop: '10px'}}
+							label={__('P2P torrents replication server')}
+							toggled={this.options.p2pReplicationServer}
+							onToggle={(e, checked) => {
+								this.options.p2pReplicationServer = checked
+								if(!checked)
+									this.options.p2pReplication = false
+								this.forceUpdate()
+							}}
+						/>
+						<div className='fs0-75' style={{color: 'grey'}}>* {__('Enable torrents replication server for other rats clients (required for replication)')}.</div>
+					</div>
+					<div className='column w100p'>
+						<Toggle
+							style={{marginTop: '10px'}}
 							label={__('P2P torrents replication')}
 							toggled={this.options.p2pReplication}
 							onToggle={(e, checked) => {
 								this.options.p2pReplication = checked
+								if(checked)
+									this.options.p2pReplicationServer = true
 								this.forceUpdate()
 							}}
 						/>

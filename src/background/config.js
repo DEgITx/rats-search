@@ -16,6 +16,7 @@ let config = {
 	p2pConnections: 10,
 	p2pBootstrap: true,
 	p2pReplication: true,
+	p2pReplicationServer: true,
 
 	upnp: true,
 
@@ -76,7 +77,11 @@ const configProxy = new Proxy(config, {
 			value = 10
 		if(prop == 'p2pConnections' && value > 300)
 			value = 300
-
+		if(prop == 'p2pReplication' && value)
+			target['p2pReplicationServer'] = true
+		if(prop == 'p2pReplicationServer' && !value)
+			target['p2pReplication'] = false
+            
 
 		target[prop] = value
         
