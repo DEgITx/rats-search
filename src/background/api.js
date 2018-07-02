@@ -198,9 +198,9 @@ module.exports = async ({
 		onTorrent(hash, options, (data) => callback(data))
 	})
 
-	if(config.p2pReplication)
+	if(config.p2pReplicationServer)
 	{
-		console.log('p2p replication enabled')
+		console.log('p2p replication server enabled')
 
 		p2p.on('randomTorrents', (nil, callback) => {
 			if(typeof callback != 'function')
@@ -236,30 +236,34 @@ module.exports = async ({
 			})
 		});
 
-		const getReplicationTorrents = (nextTimeout = 5000) => {
-			let gotTorrents = 0
-			p2p.emit('randomTorrents', null, (torrents, nil, address) => {
-				if(!torrents || torrents.length == 0)
-					return
+		if(config.p2pReplication)
+		{
+			const getReplicationTorrents = (nextTimeout = 5000) => {
+				let gotTorrents = 0
+				p2p.emit('randomTorrents', null, (torrents, nil, address) => {
+					if(!torrents || torrents.length == 0)
+						return
 
-				if(compareVersions(address.version, '0.19.0') < 0)
-				{
-					console.log('replication now works only with 0.19.0 version, ignore this torrent')
-					return
-				}
+					if(compareVersions(address.version, '0.19.0') < 0)
+					{
+						console.log('replication now works only with 0.19.0 version, ignore this torrent')
+						return
+					}
 
-				gotTorrents += torrents.length
+					gotTorrents += torrents.length
 
-				torrents.forEach((torrent) => {
-					console.log('replicate remote torrent', torrent && torrent.name)
-					insertTorrentToDB(torrent)
+					torrents.forEach((torrent) => {
+						console.log('replicate remote torrent', torrent && torrent.name)
+						insertTorrentToDB(torrent)
+					})
 				})
-			})
 
-			setTimeout(() => getReplicationTorrents(gotTorrents > 8 ? gotTorrents * 600 : 10000), nextTimeout)
+				setTimeout(() => getReplicationTorrents(gotTorrents > 8 ? gotTorrents * 600 : 10000), nextTimeout)
+			}
+			// start
+			console.log('replication client is enabled')
+			getReplicationTorrents()
 		}
-		// start
-		getReplicationTorrents()
 	}
 
 	const searchTorrentCall = function(text, navigation, callback)

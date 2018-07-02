@@ -175,6 +175,8 @@
         "Dont start to seed torrent after download finish": "Не начинать сидировать торрент после окончания загрузки",
         "Delete download (files saved)": "Удалить закачку (сохранив файлы)",
         "Serching metadata in progress... Click will delete this torrent.": "Поиск методанных в процессе... Клик удалит этот торрент.",
-        "Pause torrent downloading": "Пауза скачки торрента"
+        "Pause torrent downloading": "Пауза скачки торрента",
+        "P2P torrents replication server": "Сервер репликация торрентов через p2p",
+        "Enable torrents replication server for other rats clients (required for replication)": "Включить сервер репликацияя для остальных клиентов крыс (необходим для репликации)"
     }
 }
