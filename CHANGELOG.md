@@ -1,3 +1,30 @@
+# [0.23.0](https://github.com/DEgITx/rats-search/compare/v0.22.0...v0.23.0) (2018-07-02)
+
+
+### Bug Fixes
+
+* **db:** fix broken connections in some cases [#37](https://github.com/DEgITx/rats-search/issues/37) ([57e7b18](https://github.com/DEgITx/rats-search/commit/57e7b18))
+* **db:** fix connection limitation ([4a0b04d](https://github.com/DEgITx/rats-search/commit/4a0b04d))
+* **downloading:** always show downloading on list even if download not started ([76cb896](https://github.com/DEgITx/rats-search/commit/76cb896))
+* **downloading:** fix recheck progress indication on start and finish ([048c0f6](https://github.com/DEgITx/rats-search/commit/048c0f6))
+* **downloading:** fix state on some torrent cases ([125ce95](https://github.com/DEgITx/rats-search/commit/125ce95))
+* **feed:** keep downloading values seperate ([8d04df4](https://github.com/DEgITx/rats-search/commit/8d04df4))
+* **gui:** padding on some long torrent names ([e1f83a6](https://github.com/DEgITx/rats-search/commit/e1f83a6))
+* **header:** replaced button places in top header ([f262af6](https://github.com/DEgITx/rats-search/commit/f262af6))
+* **replication:** fix replication on some cases of downloading ([ac046d0](https://github.com/DEgITx/rats-search/commit/ac046d0))
+* **tests:** fix intersect test case ([88644ec](https://github.com/DEgITx/rats-search/commit/88644ec))
+* **tests:** simplify tests ([c3d62f5](https://github.com/DEgITx/rats-search/commit/c3d62f5))
+
+
+### Features
+
+* **config:** p2p replication client and server separate for performance optimization ([a5e0afc](https://github.com/DEgITx/rats-search/commit/a5e0afc))
+* **downloading:** download speed ([f9ac98f](https://github.com/DEgITx/rats-search/commit/f9ac98f))
+* **downloading:** removing after download ability ([886c4d1](https://github.com/DEgITx/rats-search/commit/886c4d1))
+* **downloading:** save download session support ([652f9a0](https://github.com/DEgITx/rats-search/commit/652f9a0))
+* **downloading:** tooltips on torrent element ([e73ca1c](https://github.com/DEgITx/rats-search/commit/e73ca1c))
+* **downloading:** torrent pause feature ([6d8c04e](https://github.com/DEgITx/rats-search/commit/6d8c04e))
+
 # [0.22.0](https://github.com/DEgITx/rats-search/compare/v0.21.1...v0.22.0) (2018-06-24)
 
 
