@@ -3,13 +3,17 @@ node_modules
 Thumbs.db
 *.log
 rats.json
+binlog.*
+*.pid
+version.vrs
+sphinx.conf
 
 /dist
 /temp
 /web
+/database
 
 # ignore everything in 'app' folder what had been generated from 'src' folder
 /app/app.js
 /app/background.js
 /app/**/*.map
-
