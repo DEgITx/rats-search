@@ -196,7 +196,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 			let i = 1
 			const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
 
-			const torrentsArray = []
+			let torrentsArray = []
 
 			await forBigTable(sphinx, 'torrents', async (torrent) => {
 				console.log('remember index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
@@ -247,12 +247,14 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 				await sphinx.insertValues('torrents', torrent)
 			})
 
+			torrentsArray = null
+
 			console.log('optimizing torrents')
 			if(patchWindow)
 				patchWindow.webContents.send('optimize', {field: 'torrents'})
 			sphinx.query(`OPTIMIZE INDEX torrents`)
 			await sphinxApp.waitOptimized('torrents')
-	
+    
 			await setVersion(5)
 		}
 		}
