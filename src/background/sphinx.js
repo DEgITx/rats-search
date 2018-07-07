@@ -14,7 +14,10 @@ const writeSphinxConfig = (path, dbPath) => {
   index torrents
   {
     type = rt
-    path = ${dbPath}/database/torrents
+	path = ${dbPath}/database/torrents
+	
+	min_prefix_len = 3
+	expand_keywords = 1
     
     rt_attr_string = hash
     rt_attr_string = name
@@ -70,7 +73,7 @@ const writeSphinxConfig = (path, dbPath) => {
   {
       type = rt
       path = ${dbPath}/database/feed
-      
+
       rt_field = feedIndex
       rt_attr_json = data
   }
@@ -138,6 +141,8 @@ const writeSphinxConfig = (path, dbPath) => {
 }
 
 module.exports = (callback, dataDirectory, onClose) => {
+	const start = (callback) => {
+
 	const sphinxPath = path.resolve(appPath('searchd'))
 	console.log('Sphinx Path:', sphinxPath)
 
@@ -159,6 +164,7 @@ module.exports = (callback, dataDirectory, onClose) => {
 	}
 	const sphinx = spawn(sphinxPath, options)
 	// remeber initizalizing of db
+	sphinx.start = start
 	sphinx.isInitDb = isInitDb
 	sphinx.directoryPath = appConfig.dbPath
 	sphinx.directoryPathDb = appConfig.dbPath + '/database'
@@ -186,12 +192,18 @@ module.exports = (callback, dataDirectory, onClose) => {
 
 	sphinx.on('close', (code, signal) => {
 		console.log(`sphinx closed with code ${code} and signal ${signal}`)
-		if(onClose)
+		if(onClose && !sphinx.replaceOnClose) // sometime we don't want to call default callback
 			onClose()
+		if(sphinx.onClose)
+			sphinx.onClose()
 	})
 
-	sphinx.stop = () => {
+	sphinx.stop = (onFinish, replaceFinish) => {
 		console.log('sphinx closing...')
+		if(onFinish)
+			sphinx.onClose = onFinish
+		if(replaceFinish)
+			sphinx.replaceOnClose = true // sometime we don't want to call default callback
 		exec(`"${sphinxPath}" --config "${config}" --stopwait`)
 	}
 
@@ -203,4 +215,8 @@ module.exports = (callback, dataDirectory, onClose) => {
 	})
 
 	return sphinx
+
+	}
+
+	return start(callback)
 }
