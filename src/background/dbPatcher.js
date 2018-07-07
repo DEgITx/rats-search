@@ -198,13 +198,32 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 
 			let torrentsArray = []
 
+			let patch = 1
 			await forBigTable(sphinx, 'torrents', async (torrent) => {
 				console.log('remember index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
 				if(patchWindow)
 					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
 
 				torrentsArray.push(torrent)
+				// keep memory safe
+				if(torrentsArray.length >= 20000)
+				{
+					fs.writeFileSync(`${sphinxApp.directoryPath}/torrents.patch.${patch++}`, JSON.stringify(torrentsArray, null, 4), 'utf8');
+					console.log('write torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${patch-1}`)
+					torrentsArray = []
+				}
 			})
+			// keep last elemets
+			if(torrentsArray.length > 0)
+			{
+				fs.writeFileSync(`${sphinxApp.directoryPath}/torrents.patch.${patch}`, JSON.stringify(torrentsArray, null, 4), 'utf8');
+				console.log('write torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${patch}`)
+				torrentsArray = []
+			}
+			else
+			{
+				patch-- //no last patch
+			}
 
 			// stop sphinx
 			await new Promise((resolve) => {
@@ -237,14 +256,29 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 
 			console.log('sphinx restarted, patch db now')
 
-			await asyncForEach(torrentsArray, async (torrent) => {
-				console.log('update index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
-				if(patchWindow)
-					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
+			for(let k = 1; k <= patch; k++)
+			{
+				torrentsArray = JSON.parse(fs.readFileSync(`${sphinxApp.directoryPath}/torrents.patch.${k}`, 'utf8'))
+				console.log('read torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${k}`)
+				await asyncForEach(torrentsArray, async (torrent) => {
+					console.log('update index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
+					if(patchWindow)
+						patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
 
-				torrent.nameIndex = torrent.name
-				await sphinx.query(`DELETE FROM torrents WHERE id = ${torrent.id}`)
-				await sphinx.insertValues('torrents', torrent)
+					torrent.nameIndex = torrent.name
+					await sphinx.query(`DELETE FROM torrents WHERE id = ${torrent.id}`)
+					await sphinx.insertValues('torrents', torrent)
+				})
+			}
+
+			await new Promise((resolve) => {
+				glob(`${sphinxApp.directoryPath}/torrents.patch.*`, function (er, files) {
+					files.forEach(file => {
+						console.log('clear dump file', file)
+						fs.unlinkSync(path.resolve(file))
+					})
+					resolve()
+				})
 			})
 
 			torrentsArray = null
