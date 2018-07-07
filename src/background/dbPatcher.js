@@ -4,16 +4,19 @@ const { BrowserWindow }  = require("electron");
 const url  = require('url')
 const path  = require('path')
 const fs  = require('fs')
+const glob = require("glob")
+const asyncForEach = require('./asyncForEach')
 
 const {torrentTypeDetect} = require('../app/content');
 const getTorrent = require('./gettorrent')
+const startSphinx = require('./sphinx')
 
 
-const currentVersion = 4
+const currentVersion = 5
 
 
 module.exports = async (callback, mainWindow, sphinxApp) => {
-	const sphinx = await single().waitConnection()
+	let sphinx = await single().waitConnection()
 
 	const setVersion = async (version) => {
 		await sphinx.query(`delete from version where id = 1`)
@@ -185,6 +188,72 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 			console.log('removed', bad, 'torrents')
 
 			await setVersion(4)
+		}
+		case 4:
+		{
+			openPatchWindow()
+
+			let i = 1
+			const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
+
+			const torrentsArray = []
+
+			await forBigTable(sphinx, 'torrents', async (torrent) => {
+				console.log('remember index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
+				if(patchWindow)
+					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
+
+				torrentsArray.push(torrent)
+			})
+
+			// stop sphinx
+			await new Promise((resolve) => {
+				// reopen sphinx
+				sphinx.destroy() // destory connection
+				sphinxApp.stop(resolve, true)
+			})
+
+			console.log('sphinx stoped for patching')
+
+			await new Promise((resolve) => {
+				glob(`${sphinxApp.directoryPathDb}/torrents.*`, function (er, files) {
+					files.forEach(file => {
+						console.log('clear torrents file', file)
+						fs.unlinkSync(path.resolve(file))
+					})
+					resolve()
+				})
+			})
+
+			console.log('cleaned torrents db structure, rectreating again')
+			i = 1
+			await new Promise((resolve) => {
+				// reopen sphinx
+				sphinxApp = sphinxApp.start(async () => {
+					sphinx = await single().waitConnection()
+					resolve()
+				}) // same args
+			})
+
+			console.log('sphinx restarted, patch db now')
+
+			await asyncForEach(torrentsArray, async (torrent) => {
+				console.log('update index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
+				if(patchWindow)
+					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
+
+				torrent.nameIndex = torrent.name
+				await sphinx.query(`DELETE FROM torrents WHERE id = ${torrent.id}`)
+				await sphinx.insertValues('torrents', torrent)
+			})
+
+			console.log('optimizing torrents')
+			if(patchWindow)
+				patchWindow.webContents.send('optimize', {field: 'torrents'})
+			sphinx.query(`OPTIMIZE INDEX torrents`)
+			await sphinxApp.waitOptimized('torrents')
+	
+			await setVersion(5)
 		}
 		}
 		console.log('db patch done')

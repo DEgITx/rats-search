@@ -119,6 +119,7 @@
     "electron-log": "^2.2.14",
     "electron-updater": "^2.21.10",
     "fs-jetpack": "^1.2.0",
+    "glob": "^7.1.2",
     "iconv-lite": "^0.4.19",
     "ipaddr.js": "^1.5.4",
     "json-socket": "^0.3.0",
