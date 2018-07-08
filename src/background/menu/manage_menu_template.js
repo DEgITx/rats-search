@@ -14,7 +14,7 @@ export const manageMenuTemplateFunc = () => ({
 			},
 		},
 		{
-			label: __("Search"),
+			label: __("Feed"),
 			accelerator: "CmdOrCtrl+n",
 			click: () => {
 				BrowserWindow.getFocusedWindow().webContents.send('url', '/')
@@ -25,6 +25,13 @@ export const manageMenuTemplateFunc = () => ({
 			accelerator: "CmdOrCtrl+t",
 			click: () => {
 				BrowserWindow.getFocusedWindow().webContents.send('url', '/top')
+			},
+		},
+		{
+			label: __("Activity"),
+			accelerator: "CmdOrCtrl+m",
+			click: () => {
+				BrowserWindow.getFocusedWindow().webContents.send('url', '/activity')
 			},
 		}
 	]
