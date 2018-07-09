@@ -13,17 +13,21 @@ BitTorrent search program for desktop and web. Collect and navigate over base of
 
 ## Features
 * Works over p2p torrent network, doesn't require any trackers
+* Supports own p2p protocol for additional data transfer
 * Search over torrent collection
 * Torrent and files search
-* Search filters
+* Search filters (size ranges, files, seeders etc...)
+* Collection filters (regex filters, adult filters)
 * Trackers peers scan supported
 * Integrated torrent client
 * Pretty safe to use and don't send any information about collected torrents data (statistic)
 * Collect only statistic information and don't save any torrents internal data
 * Supports torrents rating (voting)
-* P2P Search. Search in other Rats clients.
+* P2P Search protocol. Search in other Rats clients.
 * Web version (web interface) for servers
-* Torrents top list
+* Top list (mostly common and popular torrents)
+* Feed list (Rats clients activity feed)
+* Translations: English, Russian, Ukrainian
 
 ## Architecture
 ![Basic Architecture](docs/img/ratsarch.png)
@@ -64,10 +68,14 @@ Now you can get access to web interface on 8095 port: http://localhost:8095
 
 [**Support Rats Search development on Patreon**](https://www.patreon.com/bePatron?c=1722368)
 
+[**Support Rats Search via PayPal**](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=vasiliy.kosyanchuk@gmail.com&lc=US&item_name=
+Rats+Search+Development+Support&no_note=0&cn=&currency_code=USD&bn=PP-DonationsBF:btn_donateCC_LG.gif:NonHosted)
+
+**Support Rats Search via Yandex.Money**: 410012059502693
+
 ## Screenshots
 
 ![Main Window](docs/img/screen_1.png)
-![Torrent Details](docs/img/screen_2.png)
 
 ## License
 [MIT](https://github.com/DEgiTx/rats-search/blob/master/LICENSE)
