@@ -68,8 +68,7 @@ Now you can get access to web interface on 8095 port: http://localhost:8095
 
 [**Support Rats Search development on Patreon**](https://www.patreon.com/bePatron?c=1722368)
 
-[**Support Rats Search via PayPal**](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=vasiliy.kosyanchuk@gmail.com&lc=US&item_name=
-Rats+Search+Development+Support&no_note=0&cn=&currency_code=USD&bn=PP-DonationsBF:btn_donateCC_LG.gif:NonHosted)
+[**Support Rats Search via PayPal**](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=vasiliy.kosyanchuk@gmail.com&lc=US&item_name=Rats+Search+Development+Support&no_note=0&cn=&currency_code=USD&bn=PP-DonationsBF:btn_donateCC_LG.gif:NonHosted)
 
 **Support Rats Search via Yandex.Money**: 410012059502693
 
