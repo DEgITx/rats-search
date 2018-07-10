@@ -6,6 +6,7 @@ const JsonSocket = require('json-socket')
 const os = require('os');
 const isPortReachable = require('./isPortReachable')
 const EventEmitter = require('events');
+const _ = require('lodash')
 
 class p2p {
 	constructor(send = () => {})
@@ -30,6 +31,17 @@ class p2p {
 		this.send = send
 		this.tcpServer = net.createServer();
 		this.tcpServer.maxConnections = config.p2pConnections * 2;
+
+		// define some help info
+		Object.defineProperty(this.info, 'maxPeersConnections', { 
+			enumerable: true,
+			get: () => this.tcpServer.maxConnections
+		});
+		Object.defineProperty(this.info, 'peersConnections', { 
+			enumerable: true,
+			get: () => this.clients.length
+		});
+
 		this.tcpServer.on('connection', (socket) => {
 			this.tcpServer.getConnections((err,con) => {
 				console.log('server connected', con, 'max', this.tcpServer.maxConnections)
@@ -75,7 +87,7 @@ class p2p {
 				version: this.version,
 				peerId: this.peerId,
 				info: this.info,
-				peers: shuffle(this.peersList()).slice(0, 4).map(peer => ({address: peer.address, port: peer.port}))
+				peers: this.addresses(this.recommendedPeersList())
 			})
 
 			// try to connect back
@@ -222,6 +234,22 @@ class p2p {
 		this.connect(address)
 	}
 
+	recommendedPeersList()
+	{
+		const fullList = this.peersList()
+		if(fullList.length === 0)
+			return [] // no list
+
+		let peers = shuffle(fullList).slice(0, 4) // get 4 random peers from full peers list
+		// add 2 bigest peers
+		peers = peers.concat( _.orderBy(fullList, peer => peer.info && peer.info.torrents, 'desc').slice(0, 2) )
+		// add 2 small load peers
+		peers = peers.concat( _.orderBy(fullList, 
+			peer => peer.info && peer.info.maxPeersConnections && peer.info.peersConnections && (peer.info.maxPeersConnections - peer.info.peersConnections), 'desc').slice(0, 2) )
+
+		return _.uniq(peers)
+	}
+
 	connect(address)
 	{
 		this.peers.push(address)
@@ -256,7 +284,7 @@ class p2p {
 				version: this.version,
 				peerId: this.peerId,
 				info: this.info,
-				peers: shuffle(this.peersList()).slice(0, 4).map(peer => ({address: peer.address, port: peer.port})).concat(this.externalPeers) // also add external peers
+				peers: this.addresses(this.recommendedPeersList()).concat(this.externalPeers) // also add external peers
 			}, (data) => {
 				if(!data || data.protocol != 'rats')
 					return
