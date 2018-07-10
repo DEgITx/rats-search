@@ -35,6 +35,8 @@ BitTorrent search program for desktop and web. Collect and navigate over base of
 ## Contributing
 We are welcome any contributing: bug fixes, improvements, code refactoring and other stuffs.
 
+[Translation guide](docs/TRANSLATION.md)
+
 ## Usage Manuals
 * [English](docs/USAGE.md)
 * [Russian](docs/USAGE.RU.md)
