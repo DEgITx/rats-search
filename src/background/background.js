@@ -47,6 +47,7 @@ const appConfig = require('./config')
 const spiderCall = require('./spider')
 const dbPatcher = require('./dbPatcher')
 const startSphinx = require('./sphinx')
+const checkInternet = require('./checkInternet')
 const { changeLanguage } = require('../app/translation')
 
 let mainWindow = undefined
@@ -218,7 +219,16 @@ app.on("ready", () => {
 				}
 			})
 
-			if (env.name === "production" && !portative) { autoUpdater.checkForUpdates() }
+			if (env.name === "production" && !portative) { 
+				checkInternet(enabled => {
+					if(!enabled)
+					{
+						console.log('no internet connection were founded, updater not started')
+						return
+					}
+					autoUpdater.checkForUpdates() 
+				})
+			}
 
 			spider = new spiderCall((...data) => { 
 				if(mainWindow)
