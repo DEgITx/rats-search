@@ -8,6 +8,8 @@ const fs = require('fs')
 const iconv = require('iconv-lite')
 const { spawn, exec } = require('child_process')
 const appConfig = require('./config')
+const findFiles = require('./findFiles')
+const _ = require('lodash')
 
 const writeSphinxConfig = (path, dbPath) => {
 	let config = `
@@ -173,10 +175,20 @@ module.exports = (callback, dataDirectory, onClose) => {
 
 		sphinx.stdout.on('data', (data) => {
 			console.log(`sphinx: ${data}`)
+
+			// don't listen if we are in fixing mode
+			if(sphinx.fixing)
+				return
+
 			if (data.includes('accepting connections')) {
 				console.log('catched sphinx start')
 				if(callback)
 					callback()
+			}
+
+			if(data.includes('invalid meta file'))
+			{
+				sphinx.fixDatabase()
 			}
     
 			const checkOptimized = String(data).match(/index ([\w]+): optimized/)
@@ -213,6 +225,47 @@ module.exports = (callback, dataDirectory, onClose) => {
 				resolve()
 			}
 		})
+
+		sphinx.fixDatabase = async () => {
+			if(sphinx.fixing)
+				return
+			sphinx.fixing = true
+
+			// close db
+			await new Promise((resolve) => {
+				sphinx.stop(resolve, true)
+				console.log('revent start')
+			})
+
+			const checkNullFile = (file) => new Promise((resolve) => {
+				let f = fs.createReadStream(file)
+				f.on('data', (chunk) => {  
+					for(const byte of chunk)
+						if(byte != 0)
+						{
+							resolve(true)
+							f.destroy()
+							return
+						}
+				}).on('end', () => {
+					resolve(false)
+				});
+			})
+
+			// check meta files
+			const probablyCoruptedFiles = await findFiles(`${sphinx.directoryPath}/**/*.+(meta|ram)`)
+			let brokenFiles = await Promise.all(probablyCoruptedFiles.map(file => checkNullFile(file)))
+			brokenFiles = probablyCoruptedFiles.filter((file, index) => !brokenFiles[index])
+			
+			brokenFiles.forEach(file => {
+				console.log('FIXDB: clean file because of broken', file)
+				fs.unlinkSync(file)
+			})
+
+			sphinx.fixing = false
+
+			_.merge(sphinx, sphinx.start(callback));
+		}
 
 		return sphinx
 
