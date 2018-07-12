@@ -228,6 +228,7 @@ app.get('*', function(req, res)
 			});
 		})
 
+		let p2pBootstrapLoop = null
 		if(config.p2pBootstrap)
 		{
 			const loadBootstrapPeers = async (url) => {
@@ -262,8 +263,25 @@ app.get('*', function(req, res)
 				}
 			}
 
-			loadBootstrapPeers('https://api.myjson.com/bins/1e5rmh')
-			loadBootstrapPeers('https://jsonblob.com/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa')
+			const loadBootstrap = () => {
+				checkInternet((connected) => {
+					if(!connected)
+						return
+
+					loadBootstrapPeers('https://api.myjson.com/bins/1e5rmh')
+					loadBootstrapPeers('https://jsonblob.com/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa')	
+				})
+			}
+
+			// first bootstrap load
+			loadBootstrap()
+			p2pBootstrapLoop = setInterval(() => {
+				if(p2p.size === 0)
+				{
+					console.log('load peers from bootstap again because no peers at this moment')
+					loadBootstrap()
+				}
+			}, 90000) // try to load new peers if there is no one found
 		}
 
 		let undoneQueries = 0;
@@ -791,7 +809,14 @@ setInterval(() => {
 
 			// save feed
 			await feed.save()
-    
+	
+			// stop bootstrap interval
+			if(config.p2pBootstrap && p2pBootstrapLoop)
+			{
+				clearInterval(p2pBootstrapLoop)
+				console.log('bootstrap loop stoped')
+			}
+
 			// safe future peers
 			if(dataDirectory)
 			{
