@@ -1,3 +1,21 @@
+# [0.24.0](https://github.com/DEgITx/rats-search/compare/v0.23.0...v0.24.0) (2018-07-13)
+
+
+### Bug Fixes
+
+* **db:** fix startup on broken db after hardware shutdown [#43](https://github.com/DEgITx/rats-search/issues/43) ([2c00d8c](https://github.com/DEgITx/rats-search/commit/2c00d8c))
+* **ignore:** ignore more server files ([77035f1](https://github.com/DEgITx/rats-search/commit/77035f1))
+* **menu:** new page struct update in menu list ([3fad6c2](https://github.com/DEgITx/rats-search/commit/3fad6c2))
+* **patch:** fix memory issue ([a339d01](https://github.com/DEgITx/rats-search/commit/a339d01))
+* **updater:** fix errors messages on updater if no internet connection [#45](https://github.com/DEgITx/rats-search/issues/45) ([6ec6609](https://github.com/DEgITx/rats-search/commit/6ec6609))
+
+
+### Features
+
+* **bootstrap:** always load bootstrap peers when no peers situation (not only on startup) ([3a5c934](https://github.com/DEgITx/rats-search/commit/3a5c934))
+* **p2p:** new optimized peer exchange algorithm ([65e61c5](https://github.com/DEgITx/rats-search/commit/65e61c5))
+* **search:** part words search feature ([8836607](https://github.com/DEgITx/rats-search/commit/8836607))
+
 # [0.23.0](https://github.com/DEgITx/rats-search/compare/v0.22.0...v0.23.0) (2018-07-02)
 
 
