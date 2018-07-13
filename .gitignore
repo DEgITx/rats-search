@@ -17,3 +17,4 @@ sphinx.conf
 /app/app.js
 /app/background.js
 /app/**/*.map
+
