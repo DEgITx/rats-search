@@ -2,6 +2,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
+  overflow-y: scroll;
 }
 
 @media only screen and (max-width: 500px) 
