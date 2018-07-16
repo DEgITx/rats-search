@@ -232,3 +232,22 @@
 		-moz-transform: rotate(0deg);
 	}
 }
+
+body::-webkit-scrollbar {
+	width: 8px;
+}
+
+body {
+	overflow-x: hidden;
+	width: calc(100% + 8px) !important;
+}
+
+.header-main {
+	width: calc(100% + 8px) !important;
+}
+
+body::-webkit-scrollbar-thumb {
+	background-color: darkgrey;
+	outline: 1px solid slategrey;
+	border-radius: 8px;
+}
