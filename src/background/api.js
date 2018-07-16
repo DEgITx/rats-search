@@ -931,7 +931,7 @@ module.exports = async ({
 	}
 	recive('feed', mergeTorrentsWithDownloadsFn(feedCall, true)); // don't overwrite feed value
 
-	p2p.on('feed', ({}, callback) => {
+	p2p.on('feed', (nil, callback) => {
 		feedCall((data) => callback(data))
 	})
 
