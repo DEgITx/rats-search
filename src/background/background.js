@@ -93,6 +93,7 @@ console.log('CPU:', os.cpus()[0].model)
 console.log('CPU Logic cores:', os.cpus().length)
 console.log('Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB')
 console.log('Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
+console.log('NodeJS:', process.version)
 
 if(portative)
 	console.log('portative compability')
