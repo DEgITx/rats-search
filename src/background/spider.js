@@ -872,9 +872,10 @@ setInterval(() => {
 						}))
 					})
 
-
-					await saveBootstrapPeers('api.myjson.com', '/bins/1e5rmh')
-					await saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa')
+					await Promise.all([
+						saveBootstrapPeers('api.myjson.com', '/bins/1e5rmh'),
+						saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa')
+					])
 				}
 			}
 
