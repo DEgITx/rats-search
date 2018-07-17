@@ -74,6 +74,11 @@ Now you can get access to web interface on 8095 port: http://localhost:8095
 
 **Support Rats Search via Yandex.Money**: 410012059502693
 
+## Contacts / Support
+
+- Twitter: [@RatsSearch](https://twitter.com/RatsSearch)
+- [Discord (Support)](https://discord.gg/t9GQtxA)
+
 ## Screenshots
 
 ![Main Window](docs/img/screen_1.png)
