@@ -25,6 +25,13 @@ console.log('Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB')
 console.log('Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
 console.log('NodeJS:', process.version)
 
+const majorVersion = /v?([0-9]+)\.?([0-9]+)?\.?([0-9]+)?\.?([0-9]+)?/.exec(process.version)[1]
+if(majorVersion < 8)
+{
+	console.log('Minumum Node.JS version >= 8.0.0, please update and try again')
+	process.exit(1);
+}
+
 app.use(express.static('web'));
 
 const socketMessages = {}
