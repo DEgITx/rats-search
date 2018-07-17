@@ -10,11 +10,20 @@ const server = http.Server(app);
 const io = require('socket.io')(server);
 const fs = require('fs');
 const path = require('path')
+const os = require('os')
 
 const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 
 server.listen(appConfig.httpPort);
 console.log('Listening web server on', appConfig.httpPort, 'port')
+console.log('Platform:', os.platform())
+console.log('Arch:', os.arch())
+console.log('OS Release:', os.release())
+console.log('CPU:', os.cpus()[0].model)
+console.log('CPU Logic cores:', os.cpus().length)
+console.log('Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB')
+console.log('Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
+console.log('NodeJS:', process.version)
 
 app.use(express.static('web'));
 
