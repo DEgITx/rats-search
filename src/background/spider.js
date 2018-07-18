@@ -433,6 +433,12 @@ app.get('*', function(req, res)
 				return false
 			}
 
+			if(config.filters.contentType && Array.isArray(config.filters.contentType) && !config.filters.contentType.includes(torrent.contentType))
+			{
+				console.log('ignore torrent', torrent.name, 'because type', torrent.contentType, 'not in:', config.filters.contentType)
+				return false
+			}
+
 			return true
 		}
 

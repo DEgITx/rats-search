@@ -8,14 +8,31 @@ import Slider from 'material-ui/Slider'
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import InputSize from './input-size';
-
-import fs from 'fs'
+import Checkbox from 'material-ui/Checkbox';
 
 export default class ConfigPage extends Page {
 	constructor(props) {
 		super(props)
 		this.setTitle('Rats filters');
 		this.options = {}
+		this.basicTypes = ['video',
+		'audio',
+		'pictures',
+		'books',
+		'application',
+		'archive',
+		'disc']
+		this.contentType = this.basicTypes.slice(0)
+		this.descriptions = {
+			main: __('All'),
+			video: __('Video'),
+			audio: __('Audio/Music'),
+			books: __('Books'),
+			pictures: __('Pictures/Images'),
+			application: __('Apps/Games'),
+			archive: __('Archives'),
+			disc: __('Discs/ISO')
+		}
 	}
 	componentDidMount() {
 		this.loadSettings()
@@ -23,11 +40,19 @@ export default class ConfigPage extends Page {
 	loadSettings() {
 		window.torrentSocket.emit('config', window.customLoader((options) => {
 			this.options = options;
-			console.log(this.options)
+
+			if(this.options.filters && this.options.filters.contentType && this.options.filters.contentType.length > 0)
+				this.contentType = this.options.filters.contentType
+
 			this.forceUpdate();
 		}));
 	}
 	saveSettings() {
+		if(this.options.filters && this.basicTypes.length === this.contentType.length)
+			this.options.filters.contentType = null // обнуляем в случае если заданы все фильтры
+		else
+			this.options.filters.contentType = this.contentType
+
 		window.torrentSocket.emit('setConfig', this.options)
 		this.settingsSavedMessage = true
 		this.forceUpdate()
@@ -163,6 +188,31 @@ export default class ConfigPage extends Page {
                     		}} />
                     </div>
 					}
+
+					<div className='column w100p'>
+					<div style={{flex: 1, padding: '8px 0px'}}>{__('disable some categories')}:</div>
+					{
+						this.basicTypes.map(type => (<Checkbox
+							label={this.descriptions[type]}
+							checked={this.contentType && this.contentType.indexOf(type) >= 0}
+							onCheck={e => {
+								if(e.target.checked)
+								{
+									this.contentType.push(type)
+								}
+								else
+								{
+									const index = this.contentType.indexOf(type)
+									this.contentType.splice(index, 1)
+								}
+								if(this.contentType.length == 0)
+									this.contentType = this.basicTypes.slice(0)
+
+								this.forceUpdate()
+							}}
+						  />))
+					}
+					</div>
 
 					{
 						this.toRemoveProbably && this.toRemoveProbably > 0
