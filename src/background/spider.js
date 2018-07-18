@@ -303,31 +303,6 @@ app.get('*', function(req, res)
 			}
 		};
 
-		// обновление статистики
-		/*
-setInterval(() => {
-    let stats = {};
-    sphinx.query('SELECT COUNT(*) as tornum FROM `torrents`', function (error, rows, fields) {
-      stats.torrents = rows[0].tornum;
-      sphinx.query('SELECT COUNT(*) as filesnum, SUM(`size`) as filesizes FROM `files`', function (error, rows, fields) {
-        stats.files = rows[0].filesnum;
-        stats.size = rows[0].filesizes;
-        send('newStatistic', stats);
-        sphinx.query('DELETE FROM `statistic`', function (err, result) {
-            if(!result) {
-              console.error(err);
-            }
-            sphinx.query('INSERT INTO `statistic` SET ?', stats, function(err, result) {
-              if(!result) {
-                console.error(err);
-              }
-            });
-        })
-      });
-    });
-}, 10 * 60 * 1000)
-*/
-
 		const updateTorrentTrackers = (hash) => {
 			let maxSeeders = 0, maxLeechers = 0, maxCompleted = 0;
 			mysqlSingle.query('UPDATE torrents SET trackersChecked = ? WHERE hash = ?', [Math.floor(Date.now() / 1000), hash], (err, result) => {
@@ -535,7 +510,6 @@ setInterval(() => {
 				});
 			})
 
-			let filesToAdd = filesList.length;
 			mysqlSingle.query('SELECT count(*) as files_count FROM files WHERE hash = ?', [torrent.hash], function(err, rows) {
 				if(!rows)
 					return
@@ -552,17 +526,15 @@ setInterval(() => {
 						filesList.forEach((file) => {
 							file.id = filesId++;
 							file.pathIndex = file.path;
-							mysqlSingle.insertValues('files', file, function(err, result) {
-								if(!result) {
-									console.log(file);
-									console.error(err);
-									return
-								}
-								if(--filesToAdd === 0) {
-									if(!silent)
-										send('filesReady', torrent.hash);
-								}
-							});
+						});
+
+						mysqlSingle.insertValues('files', filesList, function(err, result) {
+							if(!result) {
+								console.error(err);
+								return
+							}
+							if(!silent)
+								send('filesReady', torrent.hash);
 						});
 					})
 				}
