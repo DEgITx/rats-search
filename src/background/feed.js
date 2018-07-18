@@ -89,7 +89,7 @@ module.exports = class Feed {
 	{
 		const rating = (x && x.good) || 0
 		const comments = 0
-		const time = Math.floor(Date.now() / 1000) - x.feedDate
+		let time = Math.floor(Date.now() / 1000) - x.feedDate
 
 		const maxTime = 600000
 		if(time > maxTime)
