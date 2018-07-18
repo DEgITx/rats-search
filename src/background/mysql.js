@@ -34,17 +34,35 @@ const expand = (sphinx) => {
 	sphinx.insertValues = (table, values, callback) => new Promise((resolve) => {
 		let names = '';
 		let data = '';
-		for(const val in values)
-		{
-			if(values[val] === null)
-				continue;
-            
-			names += '`' + val + '`,';
-			data += sphinx.escape(values[val]) + ',';
+		const parseValues = (values) => {
+			let valuesData = ''
+			names = ''
+			for(const val in values)
+			{
+				if(values[val] === null)
+					continue;
+				
+				names += '`' + val + '`,';
+				valuesData += sphinx.escape(values[val]) + ',';
+			}
+			names = names.slice(0, -1)
+			valuesData = valuesData.slice(0, -1)
+			return valuesData
 		}
-		names = names.slice(0, -1)
-		data = data.slice(0, -1)
-		let query = `INSERT INTO ${table}(${names}) VALUES(${data})`;
+		if(Array.isArray(values))
+		{
+			for(const value of values)
+			{
+				data += `(${parseValues(value)}),`
+			}
+			data = data.slice(0, -1)
+		}
+		else
+		{
+			data = `(${parseValues(values)})`
+		}
+		
+		let query = `INSERT INTO ${table}(${names}) VALUES ${data}`;
 		queryCall(query, (...responce) => {
 			if(callback)
 				callback(...responce)
