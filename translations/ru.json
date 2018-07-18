@@ -177,6 +177,7 @@
         "Serching metadata in progress... Click will delete this torrent.": "Поиск метаданных в процессе... Нажатие удалит этот торрент.",
         "Pause torrent downloading": "Пауза скачки торрента",
         "P2P torrents replication server": "Сервер репликация торрентов через p2p",
-        "Enable torrents replication server for other rats clients (required for replication)": "Включить сервер репликации для остальных крысиных клиентов (необходим для репликации)"
+        "Enable torrents replication server for other rats clients (required for replication)": "Включить сервер репликации для остальных крысиных клиентов (необходим для репликации)",
+        "* - enabled means ignoring all adult content": "* - означает игнорирование всего контента для взрослых"
     }
 }

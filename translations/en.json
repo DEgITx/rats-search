@@ -177,6 +177,7 @@
         "Serching metadata in progress... Click will delete this torrent.": "Serching metadata in progress... Click will delete this torrent.",
         "Pause torrent downloading": "Pause torrent downloading",
         "P2P torrents replication server": "P2P torrents replication server",
-        "Enable torrents replication server for other rats clients (required for replication)": "Enable torrents replication server for other rats clients (required for replication)"
+        "Enable torrents replication server for other rats clients (required for replication)": "Enable torrents replication server for other rats clients (required for replication)",
+        "* - enabled means ignoring all adult content": "* - enabled means ignoring all adult content"
     }
 }
