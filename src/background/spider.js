@@ -427,6 +427,12 @@ app.get('*', function(req, res)
 				return false
 			}
 
+			if(config.filters.sizeEnabled && (torrent.size < config.filters.size.min || torrent.size > config.filters.size.max))
+			{
+				console.log('ignore torrent', torrent.name, 'because size bounds of', torrent.size, ':', config.filters.size)
+				return false
+			}
+
 			return true
 		}
 

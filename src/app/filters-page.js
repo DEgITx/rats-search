@@ -7,6 +7,7 @@ import TextField from 'material-ui/TextField'
 import Slider from 'material-ui/Slider'
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+import InputSize from './input-size';
 
 import fs from 'fs'
 
@@ -128,6 +129,7 @@ export default class ConfigPage extends Page {
 						</div>
 					</div>
 
+					<div className='column w100p'>
 					<Toggle
 						style={{marginTop: '10px'}}
 						label={__('Adult filter')}
@@ -140,7 +142,27 @@ export default class ConfigPage extends Page {
 							this.forceUpdate()
 						}}
 					/>
+						<div className='fs0-75' style={{color: 'grey'}}>
+          					* - {__('* - enabled means ignoring all adult content')}
+						</div>
+						</div>
 
+					{
+						this.options.filters // bug with props
+						&&
+					<div className='w100p'>
+						<InputSize 
+							value={this.options.filters && this.options.filters.size} 
+							enabled={this.options.filters && this.options.filters.sizeEnabled} 
+							maxSize={this.options.filters && this.options.filters.maxSize} 
+							onChange={({size, maxSize, enabled}) => {
+								this.options.filters.size = size
+								this.options.filters.maxSize = maxSize
+								this.options.filters.sizeEnabled = enabled
+								this.forceUpdate()
+						}} />
+					</div>
+					}
 
 					{
 						this.toRemoveProbably && this.toRemoveProbably > 0

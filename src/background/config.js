@@ -47,6 +47,12 @@ let config = {
 		namingRegExp: '',
 		namingRegExpNegative: false,
 		adultFilter: false,
+
+		size: {max: 0, min: 0},
+		maxSize: 1024 * 1024 * 1024 * 1024,
+		sizeEnabled: false,
+
+		contentType: null 
 	},
 
 	cleanup: true,
