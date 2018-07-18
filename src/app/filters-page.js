@@ -16,12 +16,12 @@ export default class ConfigPage extends Page {
 		this.setTitle('Rats filters');
 		this.options = {}
 		this.basicTypes = ['video',
-		'audio',
-		'pictures',
-		'books',
-		'application',
-		'archive',
-		'disc']
+			'audio',
+			'pictures',
+			'books',
+			'application',
+			'archive',
+			'disc']
 		this.contentType = this.basicTypes.slice(0)
 		this.descriptions = {
 			main: __('All'),
@@ -190,28 +190,28 @@ export default class ConfigPage extends Page {
 					}
 
 					<div className='column w100p'>
-					<div style={{flex: 1, padding: '8px 0px'}}>{__('disable some categories')}:</div>
-					{
-						this.basicTypes.map(type => (<Checkbox
-							label={this.descriptions[type]}
-							checked={this.contentType && this.contentType.indexOf(type) >= 0}
-							onCheck={e => {
-								if(e.target.checked)
-								{
-									this.contentType.push(type)
-								}
-								else
-								{
-									const index = this.contentType.indexOf(type)
-									this.contentType.splice(index, 1)
-								}
-								if(this.contentType.length == 0)
-									this.contentType = this.basicTypes.slice(0)
+						<div style={{flex: 1, padding: '8px 0px'}}>{__('disable some categories')}:</div>
+						{
+							this.basicTypes.map(type => (<Checkbox
+								label={this.descriptions[type]}
+								checked={this.contentType && this.contentType.indexOf(type) >= 0}
+								onCheck={e => {
+									if(e.target.checked)
+									{
+										this.contentType.push(type)
+									}
+									else
+									{
+										const index = this.contentType.indexOf(type)
+										this.contentType.splice(index, 1)
+									}
+									if(this.contentType.length == 0)
+										this.contentType = this.basicTypes.slice(0)
 
-								this.forceUpdate()
-							}}
-						  />))
-					}
+									this.forceUpdate()
+								}}
+							/>))
+						}
 					</div>
 
 					{

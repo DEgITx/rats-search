@@ -891,6 +891,10 @@ module.exports = async ({
 
 	// store torrent to feed
 	await feed.load()
+	Object.defineProperty(p2p.info, 'feed', { 
+		enumerable: true,
+		get: () => feed.size()
+	});
 	p2pStore.on('store', async ({data: record, temp, myself}) => {
 		if(record.type !== 'vote')
 			return
