@@ -41,7 +41,7 @@ const expand = (sphinx) => {
 			{
 				if(values[val] === null)
 					continue;
-				
+                
 				names += '`' + val + '`,';
 				valuesData += sphinx.escape(values[val]) + ',';
 			}
@@ -61,7 +61,7 @@ const expand = (sphinx) => {
 		{
 			data = `(${parseValues(values)})`
 		}
-		
+        
 		let query = `INSERT INTO ${table}(${names}) VALUES ${data}`;
 		queryCall(query, (...responce) => {
 			if(callback)

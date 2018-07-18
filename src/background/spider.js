@@ -269,7 +269,7 @@ app.get('*', function(req, res)
 						return
 
 					loadBootstrapPeers('https://api.myjson.com/bins/1e5rmh')
-					loadBootstrapPeers('https://jsonblob.com/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa')	
+					loadBootstrapPeers('https://jsonblob.com/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa')    
 				})
 			}
 
@@ -787,7 +787,7 @@ app.get('*', function(req, res)
 
 			// save feed
 			await feed.save()
-	
+    
 			// stop bootstrap interval
 			if(config.p2pBootstrap && p2pBootstrapLoop)
 			{

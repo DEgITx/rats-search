@@ -130,38 +130,38 @@ export default class ConfigPage extends Page {
 					</div>
 
 					<div className='column w100p'>
-					<Toggle
-						style={{marginTop: '10px'}}
-						label={__('Adult filter')}
-						toggled={this.options.filters && this.options.filters.adultFilter}
-						onToggle={(e, checked) => {
-							if(!this.options.filters)
-								return
+						<Toggle
+							style={{marginTop: '10px'}}
+							label={__('Adult filter')}
+							toggled={this.options.filters && this.options.filters.adultFilter}
+							onToggle={(e, checked) => {
+								if(!this.options.filters)
+									return
 
-							this.options.filters.adultFilter = checked
-							this.forceUpdate()
-						}}
-					/>
+								this.options.filters.adultFilter = checked
+								this.forceUpdate()
+							}}
+						/>
 						<div className='fs0-75' style={{color: 'grey'}}>
-          					* - {__('* - enabled means ignoring all adult content')}
+                            * - {__('* - enabled means ignoring all adult content')}
 						</div>
-						</div>
+					</div>
 
 					{
 						this.options.filters // bug with props
-						&&
-					<div className='w100p'>
-						<InputSize 
-							value={this.options.filters && this.options.filters.size} 
-							enabled={this.options.filters && this.options.filters.sizeEnabled} 
-							maxSize={this.options.filters && this.options.filters.maxSize} 
-							onChange={({size, maxSize, enabled}) => {
-								this.options.filters.size = size
-								this.options.filters.maxSize = maxSize
-								this.options.filters.sizeEnabled = enabled
-								this.forceUpdate()
-						}} />
-					</div>
+                        &&
+                    <div className='w100p'>
+                    	<InputSize 
+                    		value={this.options.filters && this.options.filters.size} 
+                    		enabled={this.options.filters && this.options.filters.sizeEnabled} 
+                    		maxSize={this.options.filters && this.options.filters.maxSize} 
+                    		onChange={({size, maxSize, enabled}) => {
+                    			this.options.filters.size = size
+                    			this.options.filters.maxSize = maxSize
+                    			this.options.filters.sizeEnabled = enabled
+                    			this.forceUpdate()
+                    		}} />
+                    </div>
 					}
 
 					{
