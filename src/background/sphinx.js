@@ -256,7 +256,7 @@ module.exports = (callback, dataDirectory, onClose) => {
 			const probablyCoruptedFiles = await findFiles(`${sphinx.directoryPath}/**/*.+(meta|ram)`)
 			let brokenFiles = await Promise.all(probablyCoruptedFiles.map(file => checkNullFile(file)))
 			brokenFiles = probablyCoruptedFiles.filter((file, index) => !brokenFiles[index])
-			
+            
 			brokenFiles.forEach(file => {
 				console.log('FIXDB: clean file because of broken', file)
 				fs.unlinkSync(file)
