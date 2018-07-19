@@ -1,3 +1,29 @@
+# [0.25.0](https://github.com/DEgITx/rats-search/compare/v0.24.0...v0.25.0) (2018-07-19)
+
+
+### Bug Fixes
+
+* **bootstrap:** parallel bootstrap saving ([908163e](https://github.com/DEgITx/rats-search/commit/908163e))
+* **feed:** feed error ordering resolved ([a442964](https://github.com/DEgITx/rats-search/commit/a442964))
+* **feed:** fix feed synchronization ([d602003](https://github.com/DEgITx/rats-search/commit/d602003))
+* **network:** fix network availability detection [#45](https://github.com/DEgITx/rats-search/issues/45) ([5be36fa](https://github.com/DEgITx/rats-search/commit/5be36fa))
+* **scroll:** fix jolting on menu clicks ([d429b8a](https://github.com/DEgITx/rats-search/commit/d429b8a))
+* **web:** set default nodejs version 8 for web version ([743b27b](https://github.com/DEgITx/rats-search/commit/743b27b))
+
+
+### Features
+
+* **filters:** add size filter ([1e941f5](https://github.com/DEgITx/rats-search/commit/1e941f5))
+* **filters:** content type filters [#49](https://github.com/DEgITx/rats-search/issues/49) ([785dc7c](https://github.com/DEgITx/rats-search/commit/785dc7c))
+* **p2p:** information about feed ([37ff661](https://github.com/DEgITx/rats-search/commit/37ff661))
+* **portative:** display message about update in portative version [#41](https://github.com/DEgITx/rats-search/issues/41) ([a89c390](https://github.com/DEgITx/rats-search/commit/a89c390))
+* **scroll:** smaller scrollbar for more comport view ([25a2aae](https://github.com/DEgITx/rats-search/commit/25a2aae))
+
+
+### Performance Improvements
+
+* **torrents:** optimization files saving ([a84f8c7](https://github.com/DEgITx/rats-search/commit/a84f8c7))
+
 # [0.24.0](https://github.com/DEgITx/rats-search/compare/v0.23.0...v0.24.0) (2018-07-13)
 
 
