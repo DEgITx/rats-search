@@ -6,7 +6,7 @@
 import path from "path";
 import url from "url";
 import os from 'os';
-import { app, Menu, ipcMain, Tray, dialog } from "electron";
+import { app, Menu, ipcMain, Tray, dialog, shell } from "electron";
 import createWindow from "./helpers/window";
 import { autoUpdater } from 'electron-updater'
 
@@ -220,14 +220,40 @@ app.on("ready", () => {
 				}
 			})
 
-			if (env.name === "production" && !portative) { 
+			if (env.name === "production") { 
 				checkInternet(enabled => {
 					if(!enabled)
 					{
 						console.log('no internet connection were founded, updater not started')
 						return
 					}
-					autoUpdater.checkForUpdates() 
+
+					if(portative)
+					{
+						autoUpdater.getUpdateInfo().then(info => {
+							if(info.version == app.getVersion())
+							{
+								console.log('update not founded for version', app.getVersion())
+								return
+							}
+
+							dialog.showMessageBox({
+								type: 'info',
+								title: 'Found Updates',
+								message: 'Found updates to version ' + info.version + '. Open page to download manually?',
+								buttons: ['Open', 'Dont update']
+							}, (buttonIndex) => {
+								if (buttonIndex === 0) {
+									shell.openExternal('https://github.com/DEgITx/rats-search/releases')
+								}
+							})
+						})
+					}
+					else
+					{
+						// full version, just download update
+						autoUpdater.checkForUpdates() 
+					}
 				})
 			}
 
