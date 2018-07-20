@@ -16,13 +16,16 @@ const history = []
 let currentPage
 
 let routers = {}
-const router = (page, callback) => {
+const router = (page, callback, dontClearRemember) => {
 	if(!callback)
 	{
 		currentPage = page ? page : '/'
 		if(history.length >= 10)
 			history.shift()
 		history.push(currentPage)
+
+		if(window.rememberYOffset && !dontClearRemember)
+			delete window.rememberYOffset
 
 		if(!page)
 			routers['/'].callback()
@@ -66,7 +69,7 @@ window.routerOpenPrev = () => {
 	if(history.length < 2)
 		return
 	history.pop() // last page
-	router(history.pop())
+	router(history.pop(), null, true)
 }
 
 window.routerFix = () => {

@@ -9,6 +9,7 @@ import TorrentPage from './torrent-page'
 
 import LinearProgress from 'material-ui/LinearProgress';
 let rating = require('./rating');
+import scrollBack from './remember-scroll'
 
 const contentIcon = (type, category, fill = 'grey') => {
 	if(category == 'xxx')
@@ -186,6 +187,8 @@ export default class Torrent extends Component {
 
   componentDidMount()
   {
+	scrollBack()
+
   	this.downloading = (hash) => {
   		if(this.props.torrent.hash != hash)
   			return;
@@ -272,6 +275,7 @@ export default class Torrent extends Component {
               return true;
             }
             */
+					window.rememberYOffset = window.pageYOffset
   					window.routerFix()
   					PagesPie.instance().open(TorrentPage, {replace: 'all', hash: torrent.hash, peer: torrent.peer})
   				}} 

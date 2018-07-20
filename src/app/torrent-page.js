@@ -319,8 +319,8 @@ export default class TorrentPage extends Page {
   		return (
   			<div className='pad1 w100p column center'>
   				<div className='row center pad0-75'>
-  					<RaisedButton label={__('Back to main page')} primary={true} onClick={() => {
-  						window.router('/')
+  					<RaisedButton label={__('Back to previus')} primary={true} onClick={() => {
+  						window.routerOpenPrev();
   					}} />
   				</div>
   				<RefreshIndicator
