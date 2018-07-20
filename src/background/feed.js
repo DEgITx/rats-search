@@ -1,3 +1,5 @@
+const config = require('./config');
+
 module.exports = class Feed {
 	constructor({sphinx})
 	{
@@ -5,6 +7,7 @@ module.exports = class Feed {
 		this.sphinx = sphinx
 		this.loaded = false
 		this.max = 1000
+		this.feedDate = 0
 	}
 
 	size()
@@ -17,6 +20,7 @@ module.exports = class Feed {
 			return // feed not loaded on begining, ignore saving
 
 		console.log('saving feed')
+		config.feedDate = this.feedDate
 		await this.sphinx.query('delete from feed where id > 0')
 		let id = 0
 		return Promise.all(
@@ -34,6 +38,7 @@ module.exports = class Feed {
 			this.feed = []
             
 		this._order()
+		this.feedDate = config.feedDate
 		this.loaded = true
 		console.log('lodead feed')
 	}
@@ -79,6 +84,7 @@ module.exports = class Feed {
 		}
 
 		this._order()
+		this.feedDate = Math.floor(Date.now() / 1000)
 	}
 
 	_order() {

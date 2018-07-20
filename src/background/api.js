@@ -895,6 +895,10 @@ module.exports = async ({
 		enumerable: true,
 		get: () => feed.size()
 	});
+	Object.defineProperty(p2p.info, 'feedDate', { 
+		enumerable: true,
+		get: () => feed.feedDate
+	});
 	p2pStore.on('store', async ({data: record, temp, myself}) => {
 		if(record.type !== 'vote')
 			return
@@ -936,30 +940,38 @@ module.exports = async ({
 	recive('feed', mergeTorrentsWithDownloadsFn(feedCall, true)); // don't overwrite feed value
 
 	p2p.on('feed', (nil, callback) => {
-		feedCall((data) => callback(data))
+		callback({
+			feed: feed.feed,
+			feedDate: feed.feedDate
+		})
 	})
 
 	// call once to get bigest feed
-	let feedLock = false
-	p2p.events.on('peer', () => {
-		if(feedLock)
-			return
-		feedLock = true
-		setTimeout(() => {
-			p2p.emit('feed', null, (remoteFeed) => {
-				if(!remoteFeed)
-					return
-        
-				if(remoteFeed.length <= feed.size())
-					return
-        
-				console.log('replace our feed with remote feed')
-				feed.feed = remoteFeed
-				send('feedUpdate', {
-					feed: feed.feed
+	p2p.events.on('peer', (peer) => {
+		if(peer.info && peer.info.feed)
+		{
+			if(peer.info.feed > feed.size() // list bigger than our
+			|| (peer.info.feed == feed.size() && peer.info.feedDate > feed.feedDate)) // or same but more new
+			{
+				peer.emit('feed', null, (remoteFeed) => {
+					if(!remoteFeed)
+						return
+			
+					if(Array.isArray(remoteFeed) || !remoteFeed.feed)
+						return // old version call
+			
+					if(remoteFeed.feed.length > feed.size() || (remoteFeed.feed.length == feed.size() && remoteFeed.feedDate > feed.feedDate))
+					{
+						console.log('replace our feed with remote feed')
+						feed.feed = remoteFeed.feed
+						feed.feedDate = remoteFeed.feedDate || 0
+						send('feedUpdate', {
+							feed: feed.feed
+						});
+					}
 				});
-			});
-		}, 1000)
+			}
+		}
 	})
     
 }

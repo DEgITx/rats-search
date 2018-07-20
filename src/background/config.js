@@ -64,7 +64,9 @@ let config = {
 
 	client: {
 		downloadPath: os.homedir() + '/Downloads'
-	}
+	},
+
+	feedDate: 0,
 }
 
 const fs = require('fs');
