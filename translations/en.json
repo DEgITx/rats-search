@@ -180,6 +180,7 @@
         "Enable torrents replication server for other rats clients (required for replication)": "Enable torrents replication server for other rats clients (required for replication)",
         "* - enabled means ignoring all adult content": "* - enabled means ignoring all adult content",
         "disable some categories": "disable some categories",
-        "Discs/ISO": "Discs/ISO"
+        "Discs/ISO": "Discs/ISO",
+        "Torrents to clean": "Torrents to clean"
     }
 }

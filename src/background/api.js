@@ -19,6 +19,7 @@ module.exports = async ({
 	removeTorrentFromDB,
 	updateTorrentToDB,
 	checkTorrent,
+	setupTorrentRecord,
 	p2pStore,
 	feed
 }) => {
@@ -828,6 +829,7 @@ module.exports = async ({
 		}
 
 		forBigTable(sphinx, 'torrents', (torrent) => {
+			setupTorrentRecord(torrent)
 			if(!checkTorrent(torrent))
 				toRemove.push(torrent)
 		}, done)
