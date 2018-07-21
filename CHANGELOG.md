@@ -1,3 +1,15 @@
+# [0.26.0](https://github.com/DEgITx/rats-search/compare/v0.25.0...v0.26.0) (2018-07-20)
+
+
+### Bug Fixes
+
+* **feed:** exchage feeds with same size but more new ([0223ad9](https://github.com/DEgITx/rats-search/commit/0223ad9))
+
+
+### Features
+
+* **gui:** remember scroll on back [#13](https://github.com/DEgITx/rats-search/issues/13) ([71ce6b9](https://github.com/DEgITx/rats-search/commit/71ce6b9))
+
 # [0.25.0](https://github.com/DEgITx/rats-search/compare/v0.24.0...v0.25.0) (2018-07-19)
 
 
