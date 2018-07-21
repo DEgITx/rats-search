@@ -442,13 +442,7 @@ app.get('*', function(req, res)
 			return true
 		}
 
-		const insertTorrentToDB = (torrent, silent) => new Promise((resolve) => {
-			if(!torrent)
-			{
-				resolve()
-				return
-			}
-
+		const setupTorrentRecord = (torrent) => {
 			// fix cases for low cases letters
 			if(torrent.contentcategory)
 			{
@@ -464,6 +458,17 @@ app.get('*', function(req, res)
 			// clean download info if added
 			if(torrent.download)
 				delete torrent.download
+		}
+
+		const insertTorrentToDB = (torrent, silent) => new Promise((resolve) => {
+			if(!torrent)
+			{
+				resolve()
+				return
+			}
+
+			// setup torrent record if it from db
+			setupTorrentRecord(torrent)
 
 			if(!checkTorrent(torrent))
 			{
@@ -754,6 +759,7 @@ app.get('*', function(req, res)
 			removeTorrentFromDB,
 			updateTorrentToDB,
 			checkTorrent,
+			setupTorrentRecord,
 			p2pStore,
 			feed
 		})

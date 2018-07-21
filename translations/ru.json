@@ -180,6 +180,7 @@
         "Enable torrents replication server for other rats clients (required for replication)": "Включить сервер репликации для остальных крысиных клиентов (необходим для репликации)",
         "* - enabled means ignoring all adult content": "* - означает игнорирование всего контента для взрослых",
         "disable some categories": "отключить некоторые категории",
-        "Discs/ISO": "Диски/Образы"
+        "Discs/ISO": "Диски/Образы",
+        "Torrents to clean": "Торрентов для очистки"
     }
 }
