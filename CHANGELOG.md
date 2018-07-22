@@ -1,3 +1,10 @@
+## [0.26.2](https://github.com/DEgITx/rats-search/compare/v0.26.1...v0.26.2) (2018-07-22)
+
+
+### Bug Fixes
+
+* **feed:** fix store unsync case ([c3b99c4](https://github.com/DEgITx/rats-search/commit/c3b99c4))
+
 ## [0.26.1](https://github.com/DEgITx/rats-search/compare/v0.26.0...v0.26.1) (2018-07-22)
 
 
