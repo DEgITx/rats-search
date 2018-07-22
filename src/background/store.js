@@ -149,10 +149,10 @@ module.exports = class P2PStore extends EventEmitter {
 					return
 				}
 
+				this.emit('store', value)
 				if(callback)
 					callback()
 			})
-		this.emit('store', value)
 	}
 
 	store(obj)
