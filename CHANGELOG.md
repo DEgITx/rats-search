@@ -1,3 +1,13 @@
+## [0.26.1](https://github.com/DEgITx/rats-search/compare/v0.26.0...v0.26.1) (2018-07-22)
+
+
+### Bug Fixes
+
+* **feed:** fix fileList coruption of feed replication ([27fa805](https://github.com/DEgITx/rats-search/commit/27fa805))
+* **feed:** keep feed alive on down votes ([0e33c93](https://github.com/DEgITx/rats-search/commit/0e33c93))
+* **feed:** replicate all feed record on new feed ([3e4460f](https://github.com/DEgITx/rats-search/commit/3e4460f))
+* **filters:** fix filter cleanup on categories [#51](https://github.com/DEgITx/rats-search/issues/51) ([7ec95cb](https://github.com/DEgITx/rats-search/commit/7ec95cb))
+
 # [0.26.0](https://github.com/DEgITx/rats-search/compare/v0.25.0...v0.26.0) (2018-07-20)
 
 
