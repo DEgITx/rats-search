@@ -925,8 +925,8 @@ module.exports = async ({
 		if(torrent.good > 0 || torrent.bad > 0)
 			updateTorrentToDB(torrent)
 
-		// update feed
-		if(record.vote !== 'good')
+		// update feed only on some good info
+		if(torrent.good < 1)
 			return
         
 		feed.add(torrent)

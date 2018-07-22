@@ -93,7 +93,8 @@ module.exports = class Feed {
 
 	_compare(x)
 	{
-		const rating = (x && x.good) || 0
+		const good = (x && x.good) || 0
+		const bad = (x && x.bad) || 0
 		const comments = 0
 		let time = Math.floor(Date.now() / 1000) - x.feedDate
 
@@ -101,6 +102,6 @@ module.exports = class Feed {
 		if(time > maxTime)
 			time = maxTime
 		const relativeTime = (maxTime - time) / maxTime
-		return relativeTime * relativeTime + rating * 1.5 * relativeTime + comments * 4 * relativeTime
+		return relativeTime * relativeTime + good * 1.5 * relativeTime + comments * 4 * relativeTime - bad * 0.6 * relativeTime
 	}
 }
