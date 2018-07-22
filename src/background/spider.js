@@ -284,25 +284,6 @@ app.get('*', function(req, res)
 			}, 90000) // try to load new peers if there is no one found
 		}
 
-		let undoneQueries = 0;
-		let pushDatabaseBalance = () => {
-			undoneQueries++;
-			if(undoneQueries >= 5000)
-			{
-				balanceDebug('start balance mysql, queries:', undoneQueries);
-				spider.ignore = true;
-			}
-		};
-		let popDatabaseBalance = () => {
-			undoneQueries--;
-			balanceDebug('balanced, queries left:', undoneQueries);
-			if(undoneQueries == 0)
-			{
-				balanceDebug('balance done');
-				spider.ignore = false;
-			}
-		};
-
 		const updateTorrentTrackers = (hash) => {
 			let maxSeeders = 0, maxLeechers = 0, maxCompleted = 0;
 			mysqlSingle.query('UPDATE torrents SET trackersChecked = ? WHERE hash = ?', [Math.floor(Date.now() / 1000), hash], (err, result) => {
@@ -458,6 +439,10 @@ app.get('*', function(req, res)
 			// clean download info if added
 			if(torrent.download)
 				delete torrent.download
+
+			// feed date clean
+			if(typeof torrent.feedDate !== 'undefined')
+				delete torrent.feedDate
 		}
 
 		const insertTorrentToDB = (torrent, silent) => new Promise((resolve) => {
@@ -466,6 +451,9 @@ app.get('*', function(req, res)
 				resolve()
 				return
 			}
+
+			// duplicate object because we will do object modification
+			torrent = Object.assign({}, torrent)
 
 			// setup torrent record if it from db
 			setupTorrentRecord(torrent)
@@ -568,7 +556,14 @@ app.get('*', function(req, res)
 			if(typeof torrent !== 'object')
 				return
 
+			// duplicate object because we will do object modification
+			torrent = Object.assign({}, torrent)
+
+			// setup torrent record if it from db
+			setupTorrentRecord(torrent)
+
 			delete torrent.id
+			delete torrent.filesList
 
 			await mysqlSingle.updateValues('torrents', torrent, {hash: torrent.hash})
 		}
