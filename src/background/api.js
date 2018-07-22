@@ -877,7 +877,7 @@ module.exports = async ({
 				vote: action,
 				_index: `vote:${hash}`,
 				_temp: {
-					torrent: await getTorrent(sphinx, hash)
+					torrent: setupTorrentRecord(await getTorrent(sphinx, hash))
 				}
 			}), 0)
 			good += isGood ? 1 : 0
@@ -967,6 +967,8 @@ module.exports = async ({
 						console.log('replace our feed with remote feed')
 						feed.feed = remoteFeed.feed
 						feed.feedDate = remoteFeed.feedDate || 0
+						// it can be new torrents replicate all
+						feed.feed.forEach(torrent => insertTorrentToDB(torrent, true))
 						send('feedUpdate', {
 							feed: feed.feed
 						});

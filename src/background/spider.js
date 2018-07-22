@@ -443,6 +443,8 @@ app.get('*', function(req, res)
 			// feed date clean
 			if(typeof torrent.feedDate !== 'undefined')
 				delete torrent.feedDate
+
+			return torrent
 		}
 
 		const insertTorrentToDB = (torrent, silent) => new Promise((resolve) => {
