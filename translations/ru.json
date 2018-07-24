@@ -181,6 +181,9 @@
         "* - enabled means ignoring all adult content": "* - означает игнорирование всего контента для взрослых",
         "disable some categories": "отключить некоторые категории",
         "Discs/ISO": "Диски/Образы",
-        "Torrents to clean": "Торрентов для очистки"
+        "Torrents to clean": "Торрентов для очистки",
+        "calculation": "подсчитывается",
+        "removing": "удаляется",
+        "Torrents cleaned": "Torrents cleaned"
     }
 }
