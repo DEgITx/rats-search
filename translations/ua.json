@@ -181,6 +181,9 @@
         "* - enabled means ignoring all adult content": "* - enabled means ignoring all adult content",
         "disable some categories": "disable some categories",
         "Discs/ISO": "Discs/ISO",
-        "Torrents to clean": "Torrents to clean"
+        "Torrents to clean": "Torrents to clean",
+        "calculation": "calculation",
+        "removing": "removing",
+        "Torrents cleaned": "Torrents cleaned"
     }
 }

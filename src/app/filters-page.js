@@ -33,9 +33,29 @@ export default class ConfigPage extends Page {
 			archive: __('Archives'),
 			disc: __('Discs/ISO')
 		}
+		this.removed = 0
+		this.removedMax = 0
 	}
 	componentDidMount() {
 		this.loadSettings()
+
+		let time = Date.now() - 1000
+		this.cleanTorrent = (removed, max, status) => {
+			if(Date.now() - time < 400)
+				return
+			time = Date.now()
+
+			this.removed = removed
+			this.removedMax = max
+			this.realRemove = (status !== 'check')
+			this.forceUpdate()
+		};
+		window.torrentSocket.on('cleanTorrent', this.cleanTorrent);
+	}
+	componentWillUnmount()
+	{
+		if(this.cleanTorrent)
+			window.torrentSocket.off('cleanTorrent', this.cleanTorrent);
 	}
 	loadSettings() {
 		window.torrentSocket.emit('config', window.customLoader((options) => {
@@ -228,6 +248,13 @@ export default class ConfigPage extends Page {
 							:
 							null
 					}
+					{
+							this.removed > 0 && !this.toRemove && !this.toRemoveProbably
+							?
+							<div style={{color: 'purple'}}>{this.realRemove ? __('removing') : __('calculation')}...: {this.removed}{this.removedMax > 0 ? '/' + this.removedMax : ''}</div>
+							:
+							null
+					}
 
 					{
 						this.settingsSavedMessage
@@ -237,12 +264,16 @@ export default class ConfigPage extends Page {
 
 					<div className='row center pad0-75'>
 						<RaisedButton label={__('Check torrents')} primary={true} onClick={() => {
+							this.toRemoveProbably = null
+							this.toRemove = null
 							window.torrentSocket.emit('removeTorrents', true, window.customLoader((toRemove) => {
 								this.toRemoveProbably = toRemove
 								this.forceUpdate()
 							}));
 						}} />
 						<RaisedButton label={__('Clean torrents')} secondary={true} onClick={() => {
+							this.toRemoveProbably = null
+							this.toRemove = null
 							window.torrentSocket.emit('removeTorrents', false, window.customLoader((toRemove) => {
 								this.toRemove = toRemove
 								this.forceUpdate()

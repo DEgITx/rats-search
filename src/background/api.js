@@ -3,6 +3,7 @@ const forBigTable = require('./forBigTable')
 const compareVersions = require('compare-versions');
 const getTorrent = require('./gettorrent')
 const _ = require('lodash')
+const asyncForEach = require('./asyncForEach')
 
 module.exports = async ({
 	sphinx,
@@ -809,29 +810,44 @@ module.exports = async ({
 		})))
 	})
 
+	let removeProtect = false
 	recive('removeTorrents', (checkOnly = true, callback) =>
 	{
+		if(removeProtect)
+			return
+		removeProtect = true
+
 		console.log('checktorrents call')
 
 		const toRemove = []
 
-		const done = () => {
+		const done = async () => {
 			console.log('torrents to remove founded', toRemove.length)
 			if(checkOnly)
 			{
 				callback(toRemove.length)
+				removeProtect = false
 				return
 			}
 
-			toRemove.forEach(torrent => removeTorrentFromDB(torrent))
+			await asyncForEach(toRemove, async (torrent, index) => {
+				await removeTorrentFromDB(torrent)
+				send('cleanTorrent', index + 1, toRemove.length, 'clean');
+			})
 			callback(toRemove.length)
+			removeProtect = false
 			console.log('removed torrents by filter:', toRemove.length)
 		}
 
+		let i = 1
 		forBigTable(sphinx, 'torrents', (torrent) => {
 			setupTorrentRecord(torrent)
 			if(!checkTorrent(torrent))
-				toRemove.push(torrent)
+			{
+				toRemove.push({hash: torrent.hash})
+				// send info about cleaning takes
+				send('cleanTorrent', i++, 0, 'check');
+			}
 		}, done)
 	})
 
