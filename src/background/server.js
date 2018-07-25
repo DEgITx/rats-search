@@ -46,8 +46,29 @@ io.on('connection', (socket) =>
 
 sphinx = startSphinx(() => {
 	dbPatcher(() => {
-		spider = spiderCall((...data) => io.sockets.emit(...data), (message, callback) => {
+		spider = new spiderCall((...data) => io.sockets.emit(...data), (message, callback) => {
 			socketMessages[message] = callback
 		}, path.resolve(packageJson.serverDataDirectory), packageJson.version, 'production')
 	}, null, sphinx)
 }, path.resolve(packageJson.serverDataDirectory), () => {})
+
+
+var rl = require("readline").createInterface({
+	input: process.stdin,
+	output: process.stdout
+});
+
+rl.on("SIGINT", function () {
+	process.emit("SIGINT");
+});
+
+process.on("SIGINT", () => {
+	if(spider)
+	{
+		spider.stop(() => sphinx.stop(() => process.exit()))
+	}
+	else
+	{
+		sphinx.stop(() => process.exit())
+	}
+});
