@@ -268,6 +268,22 @@ module.exports = async ({
 		}
 	}
 
+	const isSH1Hash = (hash) =>
+	{
+		if(hash.length !== 40)
+			return false
+		return /[0-9a-f]+/i.test(hash)
+	}
+
+	const magnetParse = (magnet) => {
+		const match = /magnet:\?xt=urn:btih:([0-9a-f]+)/i.exec(magnet)
+		if(!match)
+			return
+		if(match[1].length === 40)
+			return match[1].toLowerCase()
+		return
+	}
+
 	const searchTorrentCall = function(text, navigation, callback)
 	{
 		if(typeof callback != 'function')
@@ -277,6 +293,9 @@ module.exports = async ({
 			callback(undefined);
 			return;
 		}
+
+		// check magnet
+		text = magnetParse(text) || text
 
 		const safeSearch = !!navigation.safeSearch;
 
@@ -316,9 +335,7 @@ module.exports = async ({
 		}
 
 		let searchList = [];
-		//args.splice(orderBy && orderBy.length > 0 ? 1 : 0, 1);
-		//sphinx.query('SELECT * FROM `torrents` WHERE `name` like \'%' + text + '%\' ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
-		sphinx.query('SELECT * FROM `torrents` WHERE MATCH(?) ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
+		sphinx.query('SELECT * FROM `torrents` WHERE ' + (isSH1Hash(text) ? 'hash = ?' : 'MATCH(?)') + ' ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
 			if(!rows) {
 				console.log(error)
 				callback(undefined)
