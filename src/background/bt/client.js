@@ -47,6 +47,13 @@ class Client extends Emiter
 		debug('start download', infohash.toString('hex'), 'connections', this.activeConnections);
 		this.activeConnections++;
 
+		// move host -> address
+		if(rinfo.host)
+		{
+			rinfo = Object.assign({}, rinfo)
+			rinfo.address = rinfo.host
+			delete rinfo.host
+		}
 		var successful = false;
 		var socket = new net.Socket();
 
