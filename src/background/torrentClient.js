@@ -54,4 +54,33 @@ torrentClient.loadSession = (sessionFile) => {
 		}
 	})
 }
+
+const metaHashes = {}
+
+torrentClient.dht.on('peer', (peer, infoHash) => {
+	const hash = infoHash.toString('hex')
+	if(!(hash in metaHashes))
+		return
+
+	if(torrentClient._downloader)
+	{
+		torrentClient._downloader(peer, infoHash, (...data) => {
+			if(metaHashes[hash])
+				metaHashes[hash](...data)
+			
+			delete metaHashes[hash]
+		})
+	}
+	else
+	{
+		delete metaHashes[hash]
+	}
+})
+
+torrentClient.getMetadata = (hash, callback) => {
+	hash = hash.toLowerCase()
+	torrentClient.dht.lookup(hash)
+	metaHashes[hash] = callback
+}
+
 module.exports = torrentClient

@@ -284,7 +284,7 @@ module.exports = async ({
 		return
 	}
 
-	const searchTorrentCall = function(text, navigation, callback)
+	const searchTorrentCall = function(text, navigation, callback, isP2P)
 	{
 		if(typeof callback != 'function')
 			return;
@@ -335,16 +335,28 @@ module.exports = async ({
 		}
 
 		let searchList = [];
-		sphinx.query('SELECT * FROM `torrents` WHERE ' + (isSH1Hash(text) ? 'hash = ?' : 'MATCH(?)') + ' ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
+		const isSHA1 = isSH1Hash(text)
+		sphinx.query('SELECT * FROM `torrents` WHERE ' + (isSHA1 ? 'hash = ?' : 'MATCH(?)') + ' ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
 			if(!rows) {
 				console.log(error)
 				callback(undefined)
 				return;
 			}
-			rows.forEach((row) => {
-				searchList.push(baseRowData(row));
-			});
-			callback(searchList);
+			if(rows.length === 0 && isSHA1 && !isP2P) // trying to get via dht
+			{
+				console.log('get torrent via infohash with dht')
+				torrentClient.getMetadata(text, (torrent) => {
+					searchList.push(baseRowData(torrent));
+					callback(searchList);
+				})
+			}
+			else
+			{
+				rows.forEach((row) => {
+					searchList.push(baseRowData(row));
+				});
+				callback(searchList);
+			}
 		});
 	}
 
@@ -366,7 +378,7 @@ module.exports = async ({
 		if(!text)
 			return;
 
-		searchTorrentCall(text, navigation, (data) => callback(data))
+		searchTorrentCall(text, navigation, (data) => callback(data), true) // 4 args means remote
 	})
 
 	const searchFilesCall = function(text, navigation, callback)

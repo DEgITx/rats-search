@@ -5,6 +5,7 @@ const fs = require('fs');
 const {single, pool} = require('./mysql')
 const getPeersStatisticUDP = require('./bt/udp-tracker-request')
 const crypto = require('crypto')
+const EventEmitter = require('events');
 const P2PServer = require('./p2p')
 const P2PStore = require('./store')
 const stun = require('stun')
@@ -42,6 +43,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		let torrentsId = 1;
 		let filesId = 1;
 
+		const events = new EventEmitter
 		let sphinx = pool();
 
 		// initialize p2p
@@ -514,6 +516,7 @@ app.get('*', function(req, res)
 						console.error(err);
 					}
 					resolve()
+					events.emit('insert', torrent)
 				});
 			})
 
@@ -648,6 +651,25 @@ app.get('*', function(req, res)
 				updateTorrent(metadata, infohash, rinfo);
 			}
 		});
+
+		
+		let downloadersCallbacks = {}
+		events.on('insert', (torrent) => {
+			const { hash } = torrent
+			const callback = downloadersCallbacks[hash]
+			if(!callback)
+				return
+
+			delete downloadersCallbacks[hash]
+			callback(torrent)
+		})
+
+		torrentClient._downloader = (peer, infoHash, callback) => {
+			const hash = infoHash.toString('hex')
+			downloadersCallbacks[hash] = callback
+			setTimeout(() => delete downloadersCallbacks[hash], 8000)
+			client._download(peer, infoHash)
+		}
 
 		checkInternet((connected) => {
 			if(!connected)
