@@ -283,7 +283,7 @@ class Search extends Component {
 					}
 					<TextField
 						style={{marginTop: -12}}
-						hintText={__('Search torrent or file')}
+						hintText={__('Search torrent or file') + ' ' + __('or with hash')}
 						floatingLabelText={__('What to search?')}
 						fullWidth={true}
 						ref='searchInput'
