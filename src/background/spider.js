@@ -2,6 +2,7 @@ const config = require('./config');
 const client = new (require('./bt/client'))
 const spider = new (require('./bt/spider'))(client)
 const fs = require('fs');
+const parseTorrent = require('parse-torrent')
 const {single, pool} = require('./mysql')
 const getPeersStatisticUDP = require('./bt/udp-tracker-request')
 const crypto = require('crypto')
@@ -573,8 +574,10 @@ app.get('*', function(req, res)
 			await mysqlSingle.updateValues('torrents', torrent, {hash: torrent.hash})
 		}
 
-		const updateTorrent = (metadata, infohash, rinfo) => {
+		const insertMetadata = (metadata, infohash, rinfo) => {
 			console.log('finded torrent', metadata.info.name, ' and add to database');
+
+			const bufferToString = (buffer) => Buffer.isBuffer(buffer) ? buffer.toString() : buffer
 
 			const hash = infohash.toString('hex');
 			let size = metadata.info.length ? metadata.info.length : 0;
@@ -595,19 +598,19 @@ app.get('*', function(req, res)
 				for(let i = 0; i < metadata.info.files.length; i++)
 				{
 					let file = metadata.info.files[i];
-					let filePath = file.path.join('/');
+					let filePath = bufferToString(file.path).join('/');
 					filesAdd(filePath, file.length);
 					size += file.length;
 				}
 			}
 			else
 			{
-				filesAdd(metadata.info.name, size)
+				filesAdd(bufferToString(metadata.info.name), size)
 			}
 
 			const torrentQ = {
 				hash: hash,
-				name: metadata.info.name,
+				name: bufferToString(metadata.info.name),
 				size: size,
 				files: filesCount,
 				piecelength: metadata.info['piece length'],
@@ -636,7 +639,7 @@ app.get('*', function(req, res)
 						if(free >= config.spaceDiskLimit)
 						{
 							hideFakeTorrents(); // also enable fake torrents;
-							updateTorrent(metadata, infohash, rinfo);
+							insertMetadata(metadata, infohash, rinfo);
 						}
 						else
 						{
@@ -648,7 +651,7 @@ app.get('*', function(req, res)
 			}
 			else
 			{
-				updateTorrent(metadata, infohash, rinfo);
+				insertMetadata(metadata, infohash, rinfo);
 			}
 		});
 
@@ -670,6 +673,12 @@ app.get('*', function(req, res)
 			setTimeout(() => delete downloadersCallbacks[hash], 8000)
 			client._download(peer, infoHash)
 		}
+
+		recive('dropTorrents', (pathTorrents) => {
+			console.log('drop torrents and replicate from original')
+			const torrents = pathTorrents.map(path => parseTorrent(fs.readFileSync(path)))
+			torrents.forEach(torrent => insertMetadata(torrent, torrent.infoHashBuffer, {address: '127.0.0.1', port: 666}))
+		})
 
 		checkInternet((connected) => {
 			if(!connected)
