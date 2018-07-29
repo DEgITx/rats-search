@@ -147,6 +147,24 @@ class App extends Component {
 			changeLanguage(lang, () => this.forceUpdate())
 		})
 
+		const processTorrents = (files) => {
+			if(!files || files.length == 0)
+				return
+
+			torrentSocket.emit('dropTorrents', Array.from(files).filter(file => file.type == 'application/x-bittorrent').map(file => file.path))
+		}
+
+		document.addEventListener('dragover', (event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+        }, false);
+        document.addEventListener('drop', (event) => {
+            event.stopPropagation();
+			event.preventDefault();
+            processTorrents(event.dataTransfer.files); // FileList object.
+        }, false);
+
 		window.router()
 		appReady = true;
 	}
