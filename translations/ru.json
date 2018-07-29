@@ -184,6 +184,7 @@
         "Torrents to clean": "Торрентов для очистки",
         "calculation": "подсчитывается",
         "removing": "удаляется",
-        "Torrents cleaned": "Torrents cleaned"
+        "Torrents cleaned": "Торренты очещены",
+        "or with hash": "или по хэшу"
     }
 }
