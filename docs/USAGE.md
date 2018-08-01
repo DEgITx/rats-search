@@ -4,10 +4,16 @@ After installing the program and running, you should have access to the main pro
 
 [![After start](img/main_no_torrents.png)](https://github.com/DEgITx/rats-search)
 
-After the start, initially you do not have a search database. You can use ready-made search when copy datatabase into the settings folder.
+The program opens on the feed tab by default. In the tab there are most relevant torrents that are collected, with which some actions have been performed recently (recent likes, comments, etc.). If the tab is empty, you just need to wait for it to sync with any of the available peers (see below).
+
+After the start, initially you do not have a search database. You can use ready-made search when copy datatabase into the settings folder, or wait until you have accumulated your database to a sufficient size, which will automatically happen if the settings are correct. Or simply use [distributed search](#distributed-search).
 
 Collection of new torrents from the network should start automatically, in a minute or two after the program is launched (in case of correctly opened ports).
-This can be tracked in the "you have information about X torrent" field, as well as in the list of torrent feeds under it. The speed of the collection of torrents will increase with time.
+This can be monitored in the field with torrents under the search, as well as in the list of torrents in the activity tab.
+
+[![A lot of torrents](img/peer.png)](https://github.com/DEgITx/rats-search)
+
+The speed of the collection of torrents will increase with time. For details on configuring the scanner, refer to the [torrent scanner configuration](#torrent-scanner-settings).
 
 [![First](img/first_torrent.png)](https://github.com/DEgITx/rats-search)
 
@@ -21,7 +27,7 @@ For correct operation, it is necessary that ports 4445 and 4446 (or others speci
 
 ### Using search
 
-Over time, your database of torrents will naturally grow up, and you can search for the torrent you are interested in using the search above.
+Over time, your database of torrents will naturally grow up, and you can search for the torrent you are interested in using the search.
 
 [![A lot of torrents](img/base_big.png)](https://github.com/DEgITx/rats-search)
 
@@ -56,3 +62,11 @@ Recommended values:
   * Scanner walk speed: 30
   * Nodes usage: 10
   * Reduce netowork packages: 450
+
+### Configuring global torrent filters
+
+In some cases, you may not be interested in torrents of a certain type, size or language, and you want the scanner to ignore them, and your database does not save them. To do this, use settings area for the settings of torrent filter
+
+[![Filters](img/filters.png)](https://github.com/DEgITx/rats-search)
+
+To do this, select the appropriate settings and save them. After that, depending on the need, you can check and clean the database in accordance with the new settings.
