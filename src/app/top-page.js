@@ -108,7 +108,7 @@ export default class TopPage extends Page {
 								this.loadMoreTorrents(type, this.state.time)
 							}
 						}}
-						tabItemContainerStyle={{flexWrap: 'wrap', alignItems: 'stretch'}}
+						tabItemContainerStyle={{flexWrap: 'wrap', alignItems: 'stretch', whiteSpace: 'normal'}}
 						inkBarStyle={{display: 'none'}}
 					>
 						{
@@ -129,7 +129,7 @@ export default class TopPage extends Page {
 													this.loadMoreTorrents(type, time)
 												}
 											}}
-											tabItemContainerStyle={{flexWrap: 'wrap', alignItems: 'stretch'}}
+											tabItemContainerStyle={{flexWrap: 'wrap', alignItems: 'stretch', whiteSpace: 'normal'}}
 											inkBarStyle={{display: 'none'}}
 										>
 											{
