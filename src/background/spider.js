@@ -598,19 +598,19 @@ app.get('*', function(req, res)
 				for(let i = 0; i < metadata.info.files.length; i++)
 				{
 					let file = metadata.info.files[i];
-					let filePath = bufferToString(file.path).join('/');
+					let filePath = bufferToString(file['path.utf-8'] || file.path).join('/');
 					filesAdd(filePath, file.length);
 					size += file.length;
 				}
 			}
 			else
 			{
-				filesAdd(bufferToString(metadata.info.name), size)
+				filesAdd(bufferToString(metadata.info['name.utf-8'] || metadata.info.name), size)
 			}
 
 			const torrentQ = {
 				hash: hash,
-				name: bufferToString(metadata.info.name),
+				name: bufferToString(metadata.info['name.utf-8'] || metadata.info.name),
 				size: size,
 				files: filesCount,
 				piecelength: metadata.info['piece length'],
