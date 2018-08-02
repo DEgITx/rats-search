@@ -63,6 +63,7 @@ rl.on("SIGINT", function () {
 });
 
 process.on("SIGINT", () => {
+	rl.close()
 	if(spider)
 	{
 		spider.stop(() => sphinx.stop(() => process.exit()))

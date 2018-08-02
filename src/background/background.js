@@ -314,6 +314,9 @@ app.on("window-all-closed", () => {
 });
 
 app.on('before-quit', () => {
+	if(rl)
+		rl.close()
+
 	app.isQuiting = true
 	if (sphinx)
 		stop()
