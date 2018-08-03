@@ -266,7 +266,8 @@ app.on("ready", () => {
 					{
 						const id = arg[arg.length - 1].callback
 						arg[arg.length - 1] = (responce) => {
-							mainWindow.webContents.send('callback', id, responce)
+							if(mainWindow)
+								mainWindow.webContents.send('callback', id, responce)
 						}
 					}
 					callback.apply(null, arg)
