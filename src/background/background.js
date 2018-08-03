@@ -300,17 +300,18 @@ const stop = () => {
 	{
 		spider.stop(() => sphinx.stop())
 	}
-	else
+	else if(sphinx)
 	{
 		sphinx.stop()
+	}
+	else
+	{
+		app.quit()
 	}
 }
 
 app.on("window-all-closed", () => {
-	if (sphinx)
-		stop()
-	else 
-		app.quit()
+	stop()
 });
 
 app.on('before-quit', () => {
@@ -318,8 +319,7 @@ app.on('before-quit', () => {
 		rl.close()
 
 	app.isQuiting = true
-	if (sphinx)
-		stop()
+	stop()
 })
 
 var rl = require("readline").createInterface({
@@ -332,8 +332,5 @@ rl.on("SIGINT", function () {
 });
 
 process.on("SIGINT", () => {
-	if (sphinx)
-		stop()
-	else 
-		app.quit()
+	stop()
 });
