@@ -201,10 +201,7 @@ app.on("ready", () => {
 				} },
 				{ label: 'Quit', click:  function(){
 					app.isQuiting = true;
-					if (sphinx)
-						stop()
-					else 
-						app.quit()
+					stop()
 				} }
 			]);
 
@@ -293,6 +290,10 @@ const stop = () => {
 	if(stopProtect)
 		return
 	stopProtect = true
+
+	// hide on case of long exit, to prevent user clicks
+	if(mainWindow)
+		mainWindow.hide()
 
 	if(tray)
 		tray.destroy()
