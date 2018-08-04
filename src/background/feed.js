@@ -23,7 +23,7 @@ module.exports = class Feed {
 		config.feedDate = this.feedDate
 		await this.sphinx.query('delete from feed where id > 0')
 		let id = 0
-		return Promise.all(
+		await Promise.all(
 			this.feed.map(
 				async record => await this.sphinx.query('insert into feed(id, data) values(?, ?)', [++id, JSON.stringify(record)])
 			)

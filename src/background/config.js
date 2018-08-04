@@ -28,7 +28,7 @@ let config = {
 	sphinx: {
 		host     : '127.0.0.1',
 		port     : 9306,
-		connectionLimit: 12
+		connectionLimit: 10
 	},
 
 	spider: {

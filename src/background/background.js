@@ -295,8 +295,14 @@ const stop = () => {
 	if(mainWindow)
 		mainWindow.hide()
 
-	if(tray)
-		tray.destroy()
+	// bug with mac os tray closing 
+	// https://github.com/electron/electron/issues/9982
+	// https://github.com/electron/electron/issues/13556
+	if(process.platform !== 'darwin')
+	{
+		if(tray)
+			tray.destroy()
+	}
 
 	if(spider)
 	{
