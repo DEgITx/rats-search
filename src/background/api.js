@@ -7,6 +7,7 @@ const asyncForEach = require('./asyncForEach')
 
 module.exports = async ({
 	sphinx,
+	sphinxSingle,
 	send,
 	recive,
 	p2p,
@@ -207,8 +208,12 @@ module.exports = async ({
 		p2p.on('randomTorrents', (nil, callback) => {
 			if(typeof callback != 'function')
 				return;
-    
-			sphinx.query('SELECT * FROM `torrents` ORDER BY rand() limit 5', (error, torrents) => {
+	
+			// ignore sql requests on closing
+			if(sphinxSingle.state === 'disconnected')
+				return
+
+			sphinxSingle.query('SELECT * FROM `torrents` ORDER BY rand() limit 5', (error, torrents) => {
 				if(!torrents || torrents.length == 0) {
 					callback(undefined)
 					return;
@@ -222,7 +227,7 @@ module.exports = async ({
 				}
     
 				const inSql = Object.keys(hashes).map(hash => sphinx.escape(hash)).join(',');
-				sphinx.query(`SELECT * FROM files WHERE hash IN(${inSql}) limit 50000`, (error, files) => {
+				sphinxSingle.query(`SELECT * FROM files WHERE hash IN(${inSql}) limit 50000`, (error, files) => {
 					if(!files)
 					{
 						files = []
