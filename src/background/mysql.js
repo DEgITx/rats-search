@@ -122,57 +122,65 @@ const pool = () => {
 	return expand(sphinx)
 }
 
-let mysqlSingle = {
-	_mysql: null
-};
-const proxySingle = new Proxy(mysqlSingle, {
-	get(target, prop) {
-		if(!target[prop])
-		{
-			let ret = target._mysql[prop]
-			if(typeof ret === 'function')
-				ret = ret.bind(target._mysql)
-			return ret
-		}
-		return target[prop]
-	}
-})
 const single = (callback) => {
-	mysqlSingle._mysql = mysql.createConnection({
-		host     : config.sphinx.host,
-		port     : config.sphinx.port
-	});
+	let mysqlSingle = {
+		_mysql: null
+	};
 
-	let promiseResolve;
-	const connectionPromise = new Promise((resolve) => {
-		promiseResolve = resolve
+	const proxySingle = new Proxy(mysqlSingle, {
+		get(target, prop) {
+			if(!target[prop])
+			{
+				let ret = target._mysql[prop]
+				if(typeof ret === 'function')
+					ret = ret.bind(target._mysql)
+				return ret
+			}
+			return target[prop]
+		}
 	})
-	mysqlSingle.waitConnection = () => connectionPromise;
-  
-	mysqlSingle._mysql.connect((mysqlError) => {
-		if (mysqlError) {
-			console.error('error connecting: ' + mysqlError.stack);
-			return;
-		}
-  
-		if(callback)
-			callback(proxySingle)
 
-		promiseResolve(proxySingle)
-	});
-  
-	mysqlSingle._mysql.on('error', (err) => {
-		console.log('db error', err);
-		if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
-			mysqlSingle._mysql = undefined
-			single();                         // lost due to either server restart, or a
-		} else {                                      // connnection idle timeout (the wait_timeout
-			throw err;                                  // server variable configures this)
-		}
-	});
+	const start = () =>
+	{
+		mysqlSingle._mysql = mysql.createConnection({
+			host     : config.sphinx.host,
+			port     : config.sphinx.port
+		});
 
-	mysqlSingle._mysql = expand(mysqlSingle._mysql)
-	return proxySingle
+		let promiseResolve;
+		const connectionPromise = new Promise((resolve) => {
+			promiseResolve = resolve
+		})
+		mysqlSingle.waitConnection = () => connectionPromise;
+	
+		mysqlSingle._mysql.connect((mysqlError) => {
+			if (mysqlError) {
+				console.error('error connecting: ' + mysqlError.stack);
+				return;
+			}
+
+			if(callback)
+				callback(proxySingle)
+
+			promiseResolve(proxySingle)
+		});
+	
+		mysqlSingle._mysql.on('error', (err) => {
+			console.log('db error', err);
+			if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
+				console.log('restart single sql connection')
+				mysqlSingle._mysql = undefined
+				start();                         // lost due to either server restart, or a
+			} else {                                      // connnection idle timeout (the wait_timeout
+				throw err;                                  // server variable configures this)
+			}
+		});
+
+		mysqlSingle._mysql = expand(mysqlSingle._mysql)
+		return proxySingle
+	}
+
+	return start()
 }
 
 module.exports = {pool, single}
