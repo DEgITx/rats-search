@@ -31,6 +31,7 @@ const checkInternet = require('./checkInternet')
 const {torrentTypeDetect} = require('../app/content');
 
 const torrentClient = require('./torrentClient')
+const forBigTable = require('./forBigTable')
 
 // Start server
 //server.listen(config.httpPort);
@@ -103,6 +104,25 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				good: row.good,
 				bad: row.bad,
 			}
+		}
+
+		// load hashes for fast check torrents
+		let torrentsHashes = new Set();
+		if(dataDirectory && fs.existsSync(dataDirectory + '/torrents.hashes'))
+		{
+			fs.readFile(dataDirectory + '/torrents.hashes', 'utf8', (err, hashes) => {
+				if (err) throw err;
+				torrentsHashes = new Set(JSON.parse(hashes))
+				console.log('load cache hashes from torrents.hashes', torrentsHashes.size)
+			})
+		}
+		else
+		{
+			forBigTable(sphinxSingleAlternative, 'torrents', (torrent) => {
+				torrentsHashes.add(torrent.hash)
+			}, () => {
+				console.log('loaded hashes from db', torrentsHashes.size)
+			})
 		}
 
 		// load initial peers
@@ -420,7 +440,10 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				})
 			}
 
-			const singleCheck = (!!(await sphinxSingle.query("SELECT id FROM torrents WHERE hash = ?", torrent.hash))[0])
+			if(torrentsHashes.has(torrent.hash))
+				console.log('this torrent in db')
+			
+			const singleCheck = torrentsHashes.has(torrent.hash) || (!!(await sphinxSingle.query("SELECT id FROM torrents WHERE hash = ?", torrent.hash))[0])
 
 			// torrent already probably in db
 			if(singleCheck)
@@ -442,6 +465,8 @@ module.exports = function (send, recive, dataDirectory, version, env)
 
 			sphinxSingle.insertValues('torrents', torrent, function(err, result) {
 				if(result) {
+					// cache this torrent hash
+					torrentsHashes.add(torrent.hash)
 					if(!silent)
 						send('newTorrent', {
 							hash: torrent.hash,
@@ -468,6 +493,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			const {hash} = torrent
 			await sphinxSingle.query('DELETE FROM torrents WHERE hash = ?', hash)
 			await sphinxSingle.query('DELETE FROM files WHERE hash = ?', hash)
+			torrentsHashes.delete(hash)
 		}
 
 		const updateTorrentToDB = async (torrent) => {
@@ -740,6 +766,13 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			// save torrents sessions
 			console.log('save torrents downloads sessions')
 			torrentClient.saveSession(dataDirectory + '/downloads.json')
+
+			// save hashes
+			if(dataDirectory)
+			{
+				console.log('saving fast hashes...')
+				fs.writeFileSync(dataDirectory + '/torrents.hashes', JSON.stringify([...torrentsHashes]), 'utf8');
+			}
 
 			// save feed
 			await feed.save()
