@@ -15,7 +15,7 @@ const requests = {};
 let message = function (buf, host, port) {
 	server.send(buf, 0, buf.length, port, host, function(err, bytes) {
 		if (err) {
-			console.log(err.message);
+			logT('udp-tracker', err.message);
 		}
 	});
 };
@@ -69,7 +69,7 @@ let scrapeTorrent = function (connectionIdHigh, connectionIdLow, transactionId) 
 		message(buffer, connection.host, connection.port);
 	} catch(error)
 	{
-		console.log('ERROR on scrape', error)
+		logT('udp-tracker', 'ERROR on scrape', error)
 	}
 };
 
@@ -112,7 +112,7 @@ server.on("message", function (msg, rinfo) {
 		delete requests[transactionId];
 	} else if (action === ACTION_ERROR) {
 		delete requests[transactionId];
-		console.log("error in scrape response");
+		logT('udp-tracker', "error in scrape response");
 	}
 });
 
@@ -125,7 +125,7 @@ let getPeersStatistic = (host, port, hash, callback) => {
 
 server.on("listening", function () {
 	var address = server.address();
-	console.log("listening udp tracker respose on " + address.address + ":" + address.port);
+	logT('udp-tracker', "listening udp tracker respose on " + address.address + ":" + address.port);
 });
 
 server.bind(config.udpTrackersPort);
