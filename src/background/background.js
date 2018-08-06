@@ -78,25 +78,44 @@ if (!fs.existsSync(app.getPath("userData"))){
 const logFile = fs.createWriteStream(app.getPath("userData") + '/rats.log', {flags : 'w'});
 const logStdout = process.stdout;
 
+const colors = require('ansi-256-colors');
+const stringHashCode = (str) => {
+	let hash = 0, i, chr;
+	if (str.length === 0) 
+		return hash;
+	for (i = 0; i < str.length; i++) {
+	  chr   = str.charCodeAt(i);
+	  hash  = ((hash << 5) - hash) + chr;
+	  hash |= 0; // Convert to 32bit integer
+	}
+	return hash;
+};
+
 console.log = (...d) => {
 	const date = (new Date).toLocaleTimeString()
 	logFile.write(`[${date}] ` + util.format(...d) + '\n');
 	logStdout.write(util.format(...d) + '\n');
 };
 
+global.logT = (type, ...d) => {
+	const date = (new Date).toLocaleTimeString()
+	logFile.write(`[${date}] [${type}] ` + util.format(...d) + '\n');
+	logStdout.write(colors.fg.codes[Math.abs(stringHashCode(type)) % 256] + `[${type}]` + colors.reset + ' ' + util.format(...d) + '\n');
+}
+
 // print os info
-console.log('Rats', app.getVersion())
-console.log('Platform:', os.platform())
-console.log('Arch:', os.arch())
-console.log('OS Release:', os.release())
-console.log('CPU:', os.cpus()[0].model)
-console.log('CPU Logic cores:', os.cpus().length)
-console.log('Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB')
-console.log('Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
-console.log('NodeJS:', process.version)
+logT('system', 'Rats', app.getVersion())
+logT('system', 'Platform:', os.platform())
+logT('system', 'Arch:', os.arch())
+logT('system', 'OS Release:', os.release())
+logT('system', 'CPU:', os.cpus()[0].model)
+logT('system', 'CPU Logic cores:', os.cpus().length)
+logT('system', 'Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB')
+logT('system', 'Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
+logT('system', 'NodeJS:', process.version)
 
 if(portative)
-	console.log('portative compability')
+	logT('system', 'portative compability')
 
 // handle promise rejections
 process.on('unhandledRejection', r => console.log('Rejection:', r));
