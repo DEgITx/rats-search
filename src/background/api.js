@@ -4,6 +4,7 @@ const compareVersions = require('compare-versions');
 const getTorrent = require('./gettorrent')
 const _ = require('lodash')
 const asyncForEach = require('./asyncForEach')
+const cpuUsage = require('./bt/cpu-usage-global')
 
 module.exports = async ({
 	sphinx,
@@ -213,7 +214,10 @@ module.exports = async ({
 			if(sphinxSingle.state === 'disconnected')
 				return
 
-			sphinxSingle.query('SELECT * FROM `torrents` ORDER BY rand() limit 5', (error, torrents) => {
+			const cpu = cpuUsage()
+			const limit = Math.max(1, 5 - (cpu / 20) | 0)
+
+			sphinxSingle.query(`SELECT * FROM torrents ORDER BY rand() limit ${limit}`, (error, torrents) => {
 				if(!torrents || torrents.length == 0) {
 					callback(undefined)
 					return;
