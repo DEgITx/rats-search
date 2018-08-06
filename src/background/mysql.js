@@ -115,7 +115,8 @@ const expand = (sphinx) => {
 
 const pool = () => {
 	let sphinx = mysql.createPool({
-		connectionLimit: config.sphinx.connectionLimit,
+		// bug under mac with some problems on big connection size, limit this to very low value on mac os x
+		connectionLimit: process.platform === 'darwin' ? 3 : config.sphinx.connectionLimit,
 		host     : config.sphinx.host,
 		port     : config.sphinx.port
 	});
