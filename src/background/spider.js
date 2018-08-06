@@ -353,7 +353,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			return torrent
 		}
 
-		const insertTorrentToDB = (torrent, silent) => new Promise((resolve) => {
+		const insertTorrentToDB = (torrent, silent) => new Promise(async (resolve) => {
 			if(!torrent)
 			{
 				resolve()
@@ -420,55 +420,48 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				})
 			}
 
-			sphinxSingle.query("SELECT id FROM torrents WHERE hash = ?", torrent.hash, (err, single) => {
-				if(!single)
-				{
-					console.log(err)
-					resolve()
-					return
-				}
+			const singleCheck = (!!(await sphinxSingle.query("SELECT id FROM torrents WHERE hash = ?", torrent.hash))[0])
 
-				// torrent already probably in db
-				if(single.length > 0)
+			// torrent already probably in db
+			if(singleCheck)
+			{
+				if(config.recheckFilesOnAdding)
 				{
-					if(config.recheckFilesOnAdding)
-					{
-						// recheck files and if they not ok add their to database
-						recheckFiles(addFilesToDatabase)
-					}
-					resolve()
-					return
+					// recheck files and if they not ok add their to database
+					recheckFiles(addFilesToDatabase)
+				}
+				resolve()
+				return
+			}
+			else
+			{
+				addFilesToDatabase()
+			}
+
+			torrent.nameIndex = torrent.name
+
+			sphinxSingle.insertValues('torrents', torrent, function(err, result) {
+				if(result) {
+					if(!silent)
+						send('newTorrent', {
+							hash: torrent.hash,
+							name: torrent.name,
+							size: torrent.size,
+							files: torrent.files,
+							piecelength: torrent.piecelength,
+							contentType: torrent.contentType,
+							contentCategory: torrent.contentCategory,
+						});
+					updateTorrentTrackers(torrent.hash);
 				}
 				else
 				{
-					addFilesToDatabase()
+					console.log(torrent);
+					console.error(err);
 				}
-
-				torrent.nameIndex = torrent.name
-
-				sphinxSingle.insertValues('torrents', torrent, function(err, result) {
-					if(result) {
-						if(!silent)
-							send('newTorrent', {
-								hash: torrent.hash,
-								name: torrent.name,
-								size: torrent.size,
-								files: torrent.files,
-								piecelength: torrent.piecelength,
-								contentType: torrent.contentType,
-								contentCategory: torrent.contentCategory,
-							});
-						updateTorrentTrackers(torrent.hash);
-					}
-					else
-					{
-						console.log(torrent);
-						console.error(err);
-					}
-					resolve()
-					events.emit('insert', torrent)
-				});
-			})
+				resolve()
+				events.emit('insert', torrent)
+			});
 		})
 
 		const removeTorrentFromDB = async (torrent) => {
