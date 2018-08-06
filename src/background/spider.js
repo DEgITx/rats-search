@@ -113,7 +113,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			if(peers && peers.length > 0)
 			{
 				peers.forEach(peer => p2p.add(peer))
-				console.log('loaded', peers.length, 'peers')
+				logT('p2p', 'loaded', peers.length, 'peers')
 			}
 		}
 
@@ -129,7 +129,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					resolve(data.length > 0 && JSON.parse(data))
 				});
 			}).on("error", (err) => {
-				console.log(`${url} error: ` + err.message)
+				logT('http', `${url} error: ` + err.message)
 				resolve(false)
 			});
 		})
@@ -145,7 +145,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					if(peers && peers.length > 0)
 					{
 						peers.forEach(peer => p2p.add(peer))
-						console.log('loaded', peers.length, 'peers from bootstrap')
+						logT('p2p', 'loaded', peers.length, 'peers from bootstrap')
 					}
 				}
 				if(json.bootstrapMap)
@@ -165,7 +165,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 							}
 						}
 					}
-					console.log('loaded peers map from bootstrap')
+					logT('p2p', 'loaded peers map from bootstrap')
 				}
 			}
 
@@ -184,7 +184,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			p2pBootstrapLoop = setInterval(() => {
 				if(p2p.size === 0)
 				{
-					console.log('load peers from bootstap again because no peers at this moment')
+					logT('p2p', 'load peers from bootstap again because no peers at this moment')
 					loadBootstrap()
 				}
 			}, 90000) // try to load new peers if there is no one found
@@ -282,7 +282,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		const checkTorrent = (torrent) => {
 			if(config.filters.maxFiles > 0 && torrent.files > config.filters.maxFiles)
 			{
-				console.log('ignore', torrent.name, 'because files', torrent.files, '>', config.filters.maxFiles)
+				logT('check', 'ignore', torrent.name, 'because files', torrent.files, '>', config.filters.maxFiles)
 				return false
 			}
 
@@ -292,37 +292,37 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				const rx = new RegExp(nameRX)
 				if(!config.filters.namingRegExpNegative && !rx.test(torrent.name))
 				{
-					console.log('ignore', torrent.name, 'by naming rx')
+					logT('check', 'ignore', torrent.name, 'by naming rx')
 					return false
 				}
 				else if(config.filters.namingRegExpNegative && rx.test(torrent.name))
 				{
-					console.log('ignore', torrent.name, 'by naming rx negative')
+					logT('check', 'ignore', torrent.name, 'by naming rx negative')
 					return false
 				}
 			}
 
 			if(torrent.contentType === 'bad')
 			{
-				console.log('ignore torrent', torrent.name, 'because this is a bad thing')
+				logT('check', 'ignore torrent', torrent.name, 'because this is a bad thing')
 				return false
 			}
 
 			if(config.filters.adultFilter && torrent.contentCategory === 'xxx')
 			{
-				console.log('ignore torrent', torrent.name, 'because adult filter')
+				logT('check', 'ignore torrent', torrent.name, 'because adult filter')
 				return false
 			}
 
 			if(config.filters.sizeEnabled && (torrent.size < config.filters.size.min || torrent.size > config.filters.size.max))
 			{
-				console.log('ignore torrent', torrent.name, 'because size bounds of', torrent.size, ':', config.filters.size)
+				logT('check', 'ignore torrent', torrent.name, 'because size bounds of', torrent.size, ':', config.filters.size)
 				return false
 			}
 
 			if(config.filters.contentType && Array.isArray(config.filters.contentType) && !config.filters.contentType.includes(torrent.contentType))
 			{
-				console.log('ignore torrent', torrent.name, 'because type', torrent.contentType, 'not in:', config.filters.contentType)
+				logT('check', 'ignore torrent', torrent.name, 'because type', torrent.contentType, 'not in:', config.filters.contentType)
 				return false
 			}
 
@@ -377,7 +377,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 
 			if(!filesList || filesList.length == 0)
 			{
-				console.log('skip torrent', torrent.name, '- no filesList')
+				logT('add', 'skip torrent', torrent.name, '- no filesList')
 				resolve()
 				return
 			}
@@ -423,7 +423,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			sphinxSingle.query("SELECT id FROM torrents WHERE hash = ?", torrent.hash, (err, single) => {
 				if(!single)
 				{
-					console.log(err)
+					logT('add', err)
 					resolve()
 					return
 				}
@@ -462,7 +462,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					}
 					else
 					{
-						console.log(torrent);
+						logT('add', torrent);
 						console.error(err);
 					}
 					resolve()
@@ -494,7 +494,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		}
 
 		const insertMetadata = (metadata, infohash, rinfo) => {
-			console.log('finded torrent', metadata.info.name, ' and add to database');
+			logT('spider', 'finded torrent', metadata.info.name, ' and add to database');
 
 			const bufferToString = (buffer) => Buffer.isBuffer(buffer) ? buffer.toString() : buffer
 
@@ -551,7 +551,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			{
 				disk.check(rootPath, function(err, info) {
 					if (err) {
-						console.log(err);
+						logT('quota', err);
 					} else {
 						const {available, free, total} = info;
 
@@ -594,7 +594,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		}
 
 		recive('dropTorrents', (pathTorrents) => {
-			console.log('drop torrents and replicate from original')
+			logT('drop', 'drop torrents and replicate from original')
 			const torrents = pathTorrents.map(path => parseTorrent(fs.readFileSync(path)))
 			torrents.forEach(torrent => insertMetadata(torrent, torrent.infoHashBuffer, {address: '127.0.0.1', port: 666}))
 		})
@@ -610,7 +610,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				const {address, port} = stunMsg.getAttribute(STUN_ATTR_XOR_MAPPED_ADDRESS).value
 				stunServer.close()
     
-				console.log('p2p stun ignore my address', address)
+				logT('stun', 'p2p stun ignore my address', address)
 				p2p.ignore(address)
 
 				// check port avalibility
@@ -632,7 +632,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					ttl: 0
 				}, function(err) {
 					if(err)
-						console.log('upnp server dont respond')
+						logT('upnp', 'upnp server dont respond')
 				});
 				upnp.portMapping({
 					public: config.spiderPort,
@@ -642,7 +642,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					ttl: 0
 				}, function(err) {
 					if(err)
-						console.log('upnp server dont respond')
+						logT('upnp', 'upnp server dont respond')
 				});
 				upnp.portMapping({
 					public: config.udpTrackersPort,
@@ -652,7 +652,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					ttl: 0
 				}, function(err) {
 					if(err)
-						console.log('upnp server dont respond')
+						logT('upnp', 'upnp server dont respond')
 				});
 			}
 
@@ -677,7 +677,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				if(err)
 					return
 
-				console.log('p2p upnp ignore my address', ip)
+				logT('upnp', 'p2p upnp ignore my address', ip)
 				p2p.ignore(ip)
 			});
 		}
@@ -732,20 +732,20 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		}
 
 		// load torrents sessions
-		console.log('restore downloading sessions')
+		logT('downloader', 'restore downloading sessions')
 		torrentClient.loadSession(dataDirectory + '/downloads.json')
 
 		this.stop = async (callback) => {
 			this.closing = true
-			console.log('spider closing...')
+			logT('close', 'spider closing...')
 			if(upnp)
 				upnp.ratsUnmap()
 
-			console.log('closing alternative db interface')
+			logT('close', 'closing alternative db interface')
 			await new Promise(resolve => sphinxSingleAlternative.end(resolve))
 
 			// save torrents sessions
-			console.log('save torrents downloads sessions')
+			logT('close', 'save torrents downloads sessions')
 			torrentClient.saveSession(dataDirectory + '/downloads.json')
 
 			// save feed
@@ -755,7 +755,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			if(config.p2pBootstrap && p2pBootstrapLoop)
 			{
 				clearInterval(p2pBootstrapLoop)
-				console.log('bootstrap loop stoped')
+				logT('close', 'bootstrap loop stoped')
 			}
 
 			// safe future peers
@@ -766,7 +766,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				if(addresses.length > 0)
 				{
 					fs.writeFileSync(dataDirectory + '/peers.p2p', peersEncripted, 'utf8');
-					console.log('local peers saved')
+					logT('close', 'local peers saved')
 				}
 
 				if(config.p2pBootstrap)
@@ -804,7 +804,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 								'Content-Type' : "application/json",
 							}
 						};
-						console.log('bootstrap peers saved to', host)
+						logT('close', 'bootstrap peers saved to', host)
 						const req = http.request(options, resolve);
 						req.on('error', resolve)
 						req.end(JSON.stringify({
@@ -820,7 +820,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				}
 			}
 
-			console.log('closing p2p...')
+			logT('close', 'closing p2p...')
 			// don't listen spider peer appears
 			spider.removeAllListeners('peer')
 			await p2p.close()
@@ -828,11 +828,11 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			// don't listen complete torrent responses
 			client.removeAllListeners('complete')
 
-			console.log('closing torrent client')
+			logT('close', 'closing torrent client')
 			torrentClient.destroy(() => {
 				sphinx.end(() => spider.close(() => {
 					sphinxSingle.destroy()
-					console.log('spider closed')
+					logT('close', 'spider closed')
 					callback()
 				}))
 			})

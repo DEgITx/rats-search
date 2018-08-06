@@ -167,9 +167,9 @@ const single = (callback) => {
 		});
 	
 		mysqlSingle._mysql.on('error', (err) => {
-			console.log('db error', err);
+			logT('sql', 'db error', err);
 			if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
-				console.log('restart single sql connection')
+				logT('sql', 'restart single sql connection')
 				mysqlSingle._mysql = undefined
 				start();                         // lost due to either server restart, or a
 			} else {                                      // connnection idle timeout (the wait_timeout
