@@ -156,7 +156,7 @@ const single = (callback) => {
 	
 		mysqlSingle._mysql.connect((mysqlError) => {
 			if (mysqlError) {
-				console.error('error connecting: ' + mysqlError.stack);
+				logT('sql', 'error connecting: ' + mysqlError.stack);
 				return;
 			}
 

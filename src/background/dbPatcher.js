@@ -103,12 +103,12 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 	}
 
 	const patch = async (version) => {
-		console.log('db version', version)
+		logT('patcher', 'db version', version)
 		switch(version)
 		{
 		case 1:
 		{
-			console.log('patch db to version 2')
+			logT('patcher', 'patch db to version 2')
 			openPatchWindow()
 			let i = 1
 
@@ -116,7 +116,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 			const files = (await sphinx.query("SELECT COUNT(*) AS c FROM files"))[0].c
 
 			await forBigTable(sphinx, 'torrents', async (torrent) => {
-				console.log('update index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
+				logT('patcher', 'update index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
 				if(patchWindow)
 					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
 
@@ -126,7 +126,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 			})
 			i = 1
 			await forBigTable(sphinx, 'files', async (file) => {
-				console.log('update index', file.id, file.path, '[', i, 'of', files, ']')
+				logT('patcher', 'update index', file.id, file.path, '[', i, 'of', files, ']')
 				if(patchWindow)
 					patchWindow.webContents.send('reindex', {field: file.path, index: i++, all: files})
 
@@ -141,13 +141,13 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 		{
 			openPatchWindow()
 
-			console.log('optimizing torrents')
+			logT('patcher', 'optimizing torrents')
 			if(patchWindow)
 				patchWindow.webContents.send('optimize', {field: 'torrents'})
 			sphinx.query(`OPTIMIZE INDEX torrents`)
 			await sphinxApp.waitOptimized('torrents')
 
-			console.log('optimizing files')
+			logT('patcher', 'optimizing files')
 			if(patchWindow)
 				patchWindow.webContents.send('optimize', {field: 'files'})
 			sphinx.query(`OPTIMIZE INDEX files`)
@@ -165,7 +165,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 			let i = 1
 			const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
 			await forBigTable(sphinx, 'torrents', async (torrent) => {
-				console.log('update index', torrent.id, torrent.name, '[', i, 'of', torrents, '] - delete:', bad)
+				logT('patcher', 'update index', torrent.id, torrent.name, '[', i, 'of', torrents, '] - delete:', bad)
 				if(patchWindow)
 					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
 
@@ -177,7 +177,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 					torrentTypeDetect(torrent, torrent.filesList)
 					if(torrent.contentType == 'bad')
 					{
-						console.log('remove bad torrent', torrent.name)
+						logT('patcher', 'remove bad torrent', torrent.name)
 						bad++
 						await sphinx.query(`DELETE FROM torrents WHERE hash = '${torrent.hash}'`)
 						await sphinx.query(`DELETE FROM files WHERE hash = '${torrent.hash}'`)
@@ -185,7 +185,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 				}
 			})
 
-			console.log('removed', bad, 'torrents')
+			logT('patcher', 'removed', bad, 'torrents')
 
 			await setVersion(4)
 		}
@@ -200,7 +200,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 
 			let patch = 1
 			await forBigTable(sphinx, 'torrents', async (torrent) => {
-				console.log('remember index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
+				logT('patcher', 'remember index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
 				if(patchWindow)
 					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
 
@@ -209,7 +209,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 				if(torrentsArray.length >= 20000)
 				{
 					fs.writeFileSync(`${sphinxApp.directoryPath}/torrents.patch.${patch++}`, JSON.stringify(torrentsArray, null, 4), 'utf8');
-					console.log('write torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${patch-1}`)
+					logT('patcher', 'write torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${patch-1}`)
 					torrentsArray = []
 				}
 			})
@@ -217,7 +217,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 			if(torrentsArray.length > 0)
 			{
 				fs.writeFileSync(`${sphinxApp.directoryPath}/torrents.patch.${patch}`, JSON.stringify(torrentsArray, null, 4), 'utf8');
-				console.log('write torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${patch}`)
+				logT('patcher', 'write torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${patch}`)
 				torrentsArray = []
 			}
 			else
@@ -232,19 +232,19 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 				sphinxApp.stop(resolve, true)
 			})
 
-			console.log('sphinx stoped for patching')
+			logT('patcher', 'sphinx stoped for patching')
 
 			await new Promise((resolve) => {
 				glob(`${sphinxApp.directoryPathDb}/torrents.*`, function (er, files) {
 					files.forEach(file => {
-						console.log('clear torrents file', file)
+						logT('patcher', 'clear torrents file', file)
 						fs.unlinkSync(path.resolve(file))
 					})
 					resolve()
 				})
 			})
 
-			console.log('cleaned torrents db structure, rectreating again')
+			logT('patcher', 'cleaned torrents db structure, rectreating again')
 			i = 1
 			await new Promise((resolve) => {
 				// reopen sphinx
@@ -254,14 +254,14 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 				}) // same args
 			})
 
-			console.log('sphinx restarted, patch db now')
+			logT('patcher', 'sphinx restarted, patch db now')
 
 			for(let k = 1; k <= patch; k++)
 			{
 				torrentsArray = JSON.parse(fs.readFileSync(`${sphinxApp.directoryPath}/torrents.patch.${k}`, 'utf8'))
-				console.log('read torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${k}`)
+				logT('patcher', 'read torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${k}`)
 				await asyncForEach(torrentsArray, async (torrent) => {
-					console.log('update index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
+					logT('patcher', 'update index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
 					if(patchWindow)
 						patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
 
@@ -274,7 +274,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 			await new Promise((resolve) => {
 				glob(`${sphinxApp.directoryPath}/torrents.patch.*`, function (er, files) {
 					files.forEach(file => {
-						console.log('clear dump file', file)
+						logT('patcher', 'clear dump file', file)
 						fs.unlinkSync(path.resolve(file))
 					})
 					resolve()
@@ -283,7 +283,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 
 			torrentsArray = null
 
-			console.log('optimizing torrents')
+			logT('patcher', 'optimizing torrents')
 			if(patchWindow)
 				patchWindow.webContents.send('optimize', {field: 'torrents'})
 			sphinx.query(`OPTIMIZE INDEX torrents`)
@@ -292,7 +292,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 			await setVersion(5)
 		}
 		}
-		console.log('db patch done')
+		logT('patcher', 'db patch done')
 		sphinx.destroy()
 		if(patchWindow)
 		{
@@ -306,14 +306,14 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 	// init of db, we can set version to last
 	if(sphinxApp && sphinxApp.isInitDb)
 	{
-		console.log('new db, set version to last version', currentVersion)
+		logT('patcher', 'new db, set version to last version', currentVersion)
 		await setVersion(currentVersion)
 	}
 
 	sphinx.query('select * from version', async (err, version) => {
 		if(err)
 		{
-			console.log('error on version get on db patch')
+			logT('patcher', 'error on version get on db patch')
 			return
 		}
 
@@ -324,17 +324,17 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 				const ver = parseInt(fs.readFileSync(`${sphinxApp.directoryPath}/version.vrs`))
 				if(ver > 0)
 				{
-					console.log('readed version from version.vrs', ver)
+					logT('patcher', 'readed version from version.vrs', ver)
 					patch(ver)
 				}
 				else
 				{
-					console.log('error: bad version in version.vrs')
+					logT('patcher', 'error: bad version in version.vrs')
 				}
 			}
 			else
 			{
-				console.log('version not founded, set db version to 1')
+				logT('patcher', 'version not founded, set db version to 1')
 				await setVersion(1)
 				patch(1)
 			}
