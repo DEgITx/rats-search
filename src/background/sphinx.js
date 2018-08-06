@@ -136,8 +136,8 @@ const writeSphinxConfig = (path, dbPath) => {
 		config = iconv.encode(config, 'win1251')
 
 	fs.writeFileSync(`${path}/sphinx.conf`, config)
-	console.log(`writed sphinx config to ${path}`)
-	console.log('db path:', dbPath)
+	logT('sphinx', `writed sphinx config to ${path}`)
+	logT('sphinx', 'db path:', dbPath)
 
 	return {isInitDb}
 }
@@ -146,7 +146,7 @@ module.exports = (callback, dataDirectory, onClose) => {
 	const start = (callback) => {
 
 		const sphinxPath = path.resolve(appPath('searchd'))
-		console.log('Sphinx Path:', sphinxPath)
+		logT('sphinx', 'Sphinx Path:', sphinxPath)
 
 		const sphinxConfigDirectory = dataDirectory
 		appConfig['dbPath'] = appConfig.dbPath && appConfig.dbPath.length > 0 ? appConfig.dbPath : sphinxConfigDirectory;
@@ -174,14 +174,14 @@ module.exports = (callback, dataDirectory, onClose) => {
 		const optimizeResolvers = {}
 
 		sphinx.stdout.on('data', (data) => {
-			console.log(`sphinx: ${data}`)
+			logT('sphinx', `sphinx: ${data}`)
 
 			// don't listen if we are in fixing mode
 			if(sphinx.fixing)
 				return
 
 			if (data.includes('accepting connections')) {
-				console.log('catched sphinx start')
+				logT('sphinx', 'catched sphinx start')
 				if(callback)
 					callback()
 			}
@@ -196,14 +196,14 @@ module.exports = (callback, dataDirectory, onClose) => {
 			{
 				if(optimizeResolvers[checkOptimized[1]])
 				{
-					console.log('resolve optimizer', checkOptimized[1])
+					logT('sphinx', 'resolve optimizer', checkOptimized[1])
 					optimizeResolvers[checkOptimized[1]]()
 				}
 			}
 		})
 
 		sphinx.on('close', (code, signal) => {
-			console.log(`sphinx closed with code ${code} and signal ${signal}`)
+			logT('sphinx', `sphinx closed with code ${code} and signal ${signal}`)
 			if(onClose && !sphinx.replaceOnClose) // sometime we don't want to call default callback
 				onClose()
 			if(sphinx.onClose)
@@ -211,7 +211,7 @@ module.exports = (callback, dataDirectory, onClose) => {
 		})
 
 		sphinx.stop = (onFinish, replaceFinish) => {
-			console.log('sphinx closing...')
+			logT('sphinx', 'sphinx closing...')
 			if(onFinish)
 				sphinx.onClose = onFinish
 			if(replaceFinish)
@@ -234,7 +234,7 @@ module.exports = (callback, dataDirectory, onClose) => {
 			// close db
 			await new Promise((resolve) => {
 				sphinx.stop(resolve, true)
-				console.log('revent start')
+				logT('sphinx', 'revent start')
 			})
 
 			const checkNullFile = (file) => new Promise((resolve) => {
@@ -258,7 +258,7 @@ module.exports = (callback, dataDirectory, onClose) => {
 			brokenFiles = probablyCoruptedFiles.filter((file, index) => !brokenFiles[index])
             
 			brokenFiles.forEach(file => {
-				console.log('FIXDB: clean file because of broken', file)
+				logT('sphinx', 'FIXDB: clean file because of broken', file)
 				fs.unlinkSync(file)
 			})
 

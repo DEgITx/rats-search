@@ -13,7 +13,7 @@ module.exports = class P2PStore extends EventEmitter {
 		});
 		this.synchronized = false
 
-		console.log('connect p2p store...')
+		logT('store', 'connect p2p store...')
 		this.p2p = p2p
 		this.sphinx = sphinx
 
@@ -24,7 +24,7 @@ module.exports = class P2PStore extends EventEmitter {
 			if(rows[0] && rows[0].mx >= 1)
 				this.id = rows[0].mx;
                 
-			console.log('store db index', this.id)
+			logT('store', 'store db index', this.id)
 
 			this.p2p.events.on('peer', (peer) => {
 				if(peer.info && peer.info.store)
@@ -40,7 +40,7 @@ module.exports = class P2PStore extends EventEmitter {
 		this.p2p.on('dbStore', (record) => { 
 			if(!record || record.id - 1 !== this.id)
 			{
-				console.log('out of range peerdb store', record.id)
+				logT('store', 'out of range peerdb store', record.id)
 				return
 			}
 
@@ -51,7 +51,7 @@ module.exports = class P2PStore extends EventEmitter {
 		})
 
 		this.p2p.on('dbSync', ({id} = {}, callback) => {
-			console.log('ask to sync db from', id, 'version')
+			logT('store', 'ask to sync db from', id, 'version')
 			if(typeof id === 'undefined' || id >= this.id)
 			{
 				callback(false)
@@ -62,7 +62,7 @@ module.exports = class P2PStore extends EventEmitter {
 			this.sphinx.query(`select * from store where id > ${id}`, (err, records) => {
 				if(err)
 				{
-					console.log(err)
+					logT('store', err)
 					return
 				}
     
@@ -77,7 +77,7 @@ module.exports = class P2PStore extends EventEmitter {
 
 	sync(peer)
 	{
-		console.log('sync db on version', this.id, peer ? `from peer ${peer.peerId}` : '')
+		logT('store', 'sync db on version', this.id, peer ? `from peer ${peer.peerId}` : '')
 		const processSync = (data, nil, peer) => {
 			if(!data || !data.records)
 				return
@@ -90,7 +90,7 @@ module.exports = class P2PStore extends EventEmitter {
                 && oldIndex < this.id // last sync update of store must be successful, otherwise no point to try sync db from this peer
                 && this.id < data.index)
 			{
-				console.log('continue sync store from', this.id, 'index', 'peer', peer.peerId)
+				logT('store', 'continue sync store from', this.id, 'index', 'peer', peer.peerId)
 				peer.emit('dbSync', {id: this.id}, processSync)
 			}
 		}
@@ -119,7 +119,7 @@ module.exports = class P2PStore extends EventEmitter {
 		// check hash
 		if(objectHash(record.data) !== record.hash)
 		{
-			console.log('wrong hash for sync peerdb')
+			logT('store', 'wrong hash for sync peerdb')
 			return
 		}
 
@@ -127,7 +127,7 @@ module.exports = class P2PStore extends EventEmitter {
 		record.myself = false
 
 		// push to db
-		console.log('sync peerdb record', record.id)
+		logT('store', 'sync peerdb record', record.id)
 		this._pushToDb(record)
 		this.id = record.id
 
@@ -145,7 +145,7 @@ module.exports = class P2PStore extends EventEmitter {
 			(err) => {
 				if(err)
 				{
-					console.log(err)
+					logT('store', err)
 					return
 				}
 
@@ -159,7 +159,7 @@ module.exports = class P2PStore extends EventEmitter {
 	{
 		if(!this.synchronized)
 		{
-			console.log('cant store item on unsync db')
+			logT('store', 'cant store item on unsync db')
 			return false
 		}
 
@@ -177,7 +177,7 @@ module.exports = class P2PStore extends EventEmitter {
 			temp
 		}
 
-		console.log('store object', value.id)
+		logT('store', 'store object', value.id)
 
 		this._pushToDb(value, () => {
 			// store record

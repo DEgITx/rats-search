@@ -3,7 +3,7 @@ module.exports = (sphinx, table, callback, doneCallback, max = 1000, where = '')
 		sphinx.query(`SELECT * FROM ${table} WHERE id > ${index} ${where} LIMIT ${max}`, (err, torrents) => {
 			const finish = () => {
 				if(err)
-					console.log('big table parse error', err)
+					logT('sql', 'big table parse error', err)
 				if(doneCallback)
 					doneCallback(true)
 				done(true)
