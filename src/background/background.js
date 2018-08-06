@@ -122,7 +122,7 @@ process.on('unhandledRejection', r => console.log('Rejection:', r));
 
 const shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
 	// Someone tried to run a second instance, we should focus our window.
-	console.log('openned second application, just focus this one')
+	logT('app', 'openned second application, just focus this one')
 	if (mainWindow) {
 		if (mainWindow.isMinimized()) 
 			mainWindow.restore();
@@ -131,7 +131,7 @@ const shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory
 });
 
 if (shouldQuit) {
-	console.log('closed because of second application')
+	logT('app', 'closed because of second application')
 	app.exit(0);
 }
 
@@ -141,12 +141,12 @@ log.transports.file.level = false;
 log.transports.console.level = false;
 log.transports.console = function(msg) {
 	const text = util.format.apply(util, msg.data);
-	console.log(text);
+	logT('updater', text);
 };
 autoUpdater.logger = log;
 
 autoUpdater.on('update-downloaded', () => {
-	console.log('update-downloaded lats quitAndInstall');
+	logT('updater', 'update-downloaded lats quitAndInstall');
 	if (env.name === "production") { 
 		dialog.showMessageBox({
 			type: 'info',
@@ -240,7 +240,7 @@ app.on("ready", () => {
 				checkInternet(enabled => {
 					if(!enabled)
 					{
-						console.log('no internet connection were founded, updater not started')
+						logT('updater', 'no internet connection were founded, updater not started')
 						return
 					}
 
@@ -249,7 +249,7 @@ app.on("ready", () => {
 						autoUpdater.getUpdateInfo().then(info => {
 							if(info.version == app.getVersion())
 							{
-								console.log('update not founded for version', app.getVersion())
+								logT('updater', 'update not founded for version', app.getVersion())
 								return
 							}
 
