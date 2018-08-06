@@ -59,6 +59,7 @@ let config = {
 	cleanupDiscLimit: 7 * 1024 * 1024 * 1024,
 	spaceQuota: false,
 	spaceDiskLimit: 7 * 1024 * 1024 * 1024,
+	recheckFilesOnAdding: true,
 
 	dbPath: '',
 

@@ -185,6 +185,8 @@
         "calculation": "calculation",
         "removing": "removing",
         "Torrents cleaned": "Torrents cleaned",
-        "or with hash": "or with hash"
+        "or with hash": "or with hash",
+        "Check torrent files intergrity": "Check torrent files intergrity",
+        "Enable database torrents files intergrity check on adding each torrent. Disable this will free some cpu usage on adding operation.": "Enable database torrents files intergrity check on adding each torrent. Disable this will free some cpu usage on adding operation."
     }
 }

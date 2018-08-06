@@ -384,6 +384,42 @@ module.exports = function (send, recive, dataDirectory, version, env)
 
 			torrent.id = torrentsId++;
 
+			const recheckFiles = (callback) => {
+				sphinxSingle.query('SELECT count(*) as files_count FROM files WHERE hash = ?', [torrent.hash], function(err, rows) {
+					if(!rows)
+						return
+	
+					const db_files = rows[0]['files_count'];
+					if(db_files !== torrent.files)
+					{
+						callback()
+					}
+				})
+			}
+
+			const addFilesToDatabase = () => {
+				sphinxSingle.query('DELETE FROM files WHERE hash = ?', torrent.hash, function (err, result) {
+					if(err)
+					{
+						return;
+					}
+
+					filesList.forEach((file) => {
+						file.id = filesId++;
+						file.pathIndex = file.path;
+					});
+
+					sphinxSingle.insertValues('files', filesList, function(err, result) {
+						if(!result) {
+							console.error(err);
+							return
+						}
+						if(!silent)
+							send('filesReady', torrent.hash);
+					});
+				})
+			}
+
 			sphinxSingle.query("SELECT id FROM torrents WHERE hash = ?", torrent.hash, (err, single) => {
 				if(!single)
 				{
@@ -392,10 +428,20 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					return
 				}
 
+				// torrent already probably in db
 				if(single.length > 0)
 				{
+					if(config.recheckFilesOnAdding)
+					{
+						// recheck files and if they not ok add their to database
+						recheckFiles(addFilesToDatabase)
+					}
 					resolve()
 					return
+				}
+				else
+				{
+					addFilesToDatabase()
 				}
 
 				torrent.nameIndex = torrent.name
@@ -422,36 +468,6 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					resolve()
 					events.emit('insert', torrent)
 				});
-			})
-
-			sphinxSingle.query('SELECT count(*) as files_count FROM files WHERE hash = ?', [torrent.hash], function(err, rows) {
-				if(!rows)
-					return
-
-				const db_files = rows[0]['files_count'];
-				if(db_files !== torrent.files)
-				{
-					sphinxSingle.query('DELETE FROM files WHERE hash = ?', torrent.hash, function (err, result) {
-						if(err)
-						{
-							return;
-						}
-
-						filesList.forEach((file) => {
-							file.id = filesId++;
-							file.pathIndex = file.path;
-						});
-
-						sphinxSingle.insertValues('files', filesList, function(err, result) {
-							if(!result) {
-								console.error(err);
-								return
-							}
-							if(!silent)
-								send('filesReady', torrent.hash);
-						});
-					})
-				}
 			})
 		})
 
