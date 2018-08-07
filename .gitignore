@@ -7,6 +7,8 @@ binlog.*
 *.pid
 version.vrs
 sphinx.conf
+*.p2p
+downloads.json
 
 /dist
 /temp
