@@ -106,7 +106,7 @@ module.exports = async ({
 
 		sphinx.query('SELECT count(*) AS torrents, sum(size) AS sz FROM `torrents`', function (error, rows, fields) {
 			if(!rows) {
-				console.error(error)
+				logTE('statistic', error)
 				callback(undefined)
 				return;
 			}
@@ -115,7 +115,7 @@ module.exports = async ({
 
 			sphinx.query('SELECT count(*) AS files FROM `files`', function (error, rows, fields) {
 				if(!rows) {
-					console.error(error)
+					logTE('statistic', error)
 					callback(undefined)
 					return;
 				}

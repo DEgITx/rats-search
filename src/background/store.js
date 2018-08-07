@@ -145,7 +145,7 @@ module.exports = class P2PStore extends EventEmitter {
 			(err) => {
 				if(err)
 				{
-					logT('store', err)
+					logTE('store', err)
 					return
 				}
 
