@@ -103,6 +103,12 @@ global.logT = (type, ...d) => {
 	logStdout.write(colors.fg.codes[Math.abs(stringHashCode(type)) % 256] + `[${type}]` + colors.reset + ' ' + util.format(...d) + '\n');
 }
 
+global.logTE = (type, ...d) => {
+	const date = (new Date).toLocaleTimeString()
+	logFile.write(`\n[${date}] [ERROR] [${type}] ` + util.format(...d) + '\n\n');
+	logStdout.write(colors.fg.codes[Math.abs(stringHashCode(type)) % 256] + `[${type}]` + colors.reset + ' ' + colors.fg.codes[9] + util.format(...d) + colors.reset + '\n');
+}
+
 // print os info
 logT('system', 'Rats', app.getVersion())
 logT('system', 'Platform:', os.platform())
@@ -118,7 +124,7 @@ if(portative)
 	logT('system', 'portative compability')
 
 // handle promise rejections
-process.on('unhandledRejection', r => console.log('Rejection:', r));
+process.on('unhandledRejection', r => logTE('system', 'Rejection:', r));
 
 const shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
 	// Someone tried to run a second instance, we should focus our window.

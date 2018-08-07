@@ -313,7 +313,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 	sphinx.query('select * from version', async (err, version) => {
 		if(err)
 		{
-			logT('patcher', 'error on version get on db patch')
+			logTE('patcher', 'error on version get on db patch')
 			return
 		}
 

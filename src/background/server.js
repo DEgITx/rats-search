@@ -32,6 +32,10 @@ global.logT = (type, ...d) => {
 	console.log(colors.fg.codes[Math.abs(stringHashCode(type)) % 256] + `[${type}]` + colors.reset + ' ' + util.format(...d));
 }
 
+global.logTE = (type, ...d) => {
+	console.log(colors.fg.codes[Math.abs(stringHashCode(type)) % 256] + `[${type}]` + colors.reset + ' ' + colors.fg.codes[9] + util.format(...d) + colors.reset + '\n');
+}
+
 
 server.listen(appConfig.httpPort);
 logT('system', 'Rats v' + packageJson.version)
@@ -48,7 +52,7 @@ logT('system', 'NodeJS:', process.version)
 const majorVersion = /v?([0-9]+)\.?([0-9]+)?\.?([0-9]+)?\.?([0-9]+)?/.exec(process.version)[1]
 if(majorVersion < 8)
 {
-	logT('system', 'Minumum Node.JS version >= 8.0.0, please update and try again')
+	logTE('system', 'Minumum Node.JS version >= 8.0.0, please update and try again')
 	process.exit(1);
 }
 

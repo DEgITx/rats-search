@@ -129,7 +129,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					resolve(data.length > 0 && JSON.parse(data))
 				});
 			}).on("error", (err) => {
-				logT('http', `${url} error: ` + err.message)
+				logTE('http', `${url} error: ` + err.message)
 				resolve(false)
 			});
 		})
@@ -225,7 +225,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 
 						sphinxSingle.query('UPDATE torrents SET seeders = ?, completed = ?, leechers = ?, trackersChecked = ? WHERE hash = ?', [seeders, completed, leechers, Math.floor(checkTime.getTime() / 1000), hash], function(err, result) {
 							if(!result) {
-								console.error(err);
+								logTE('udp-tracker', err);
 								return
 							}
 
@@ -423,7 +423,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			sphinxSingle.query("SELECT id FROM torrents WHERE hash = ?", torrent.hash, (err, single) => {
 				if(!single)
 				{
-					logT('add', err)
+					logTE('add', err)
 					resolve()
 					return
 				}
@@ -462,8 +462,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					}
 					else
 					{
-						logT('add', torrent);
-						console.error(err);
+						logTE('add', err);
 					}
 					resolve()
 					events.emit('insert', torrent)
@@ -475,6 +474,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			const {hash} = torrent
 			await sphinxSingle.query('DELETE FROM torrents WHERE hash = ?', hash)
 			await sphinxSingle.query('DELETE FROM files WHERE hash = ?', hash)
+			logT('remove', 'removed torrent', torrent.name || torrent.hash)
 		}
 
 		const updateTorrentToDB = async (torrent) => {
@@ -491,6 +491,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			delete torrent.filesList
 
 			await sphinxSingle.updateValues('torrents', torrent, {hash: torrent.hash})
+			logT('update', 'updated torrent', torrent.name)
 		}
 
 		const insertMetadata = (metadata, infohash, rinfo) => {
@@ -551,7 +552,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			{
 				disk.check(rootPath, function(err, info) {
 					if (err) {
-						logT('quota', err);
+						logTE('quota', err);
 					} else {
 						const {available, free, total} = info;
 
