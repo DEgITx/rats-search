@@ -8,8 +8,8 @@ const forBigTable = require('../src/background/forBigTable')
 describe("big table for check", () => {
 	let sphinx;
 
-	it("init", function() {
-		sphinx = pool()
+	it("init", async function() {
+		sphinx = await pool()
 		expect(sphinx)
 	})
 
@@ -35,5 +35,9 @@ describe("big table for check", () => {
 		const records = []
 		await forBigTable(sphinx, 'feed', record => records.push(record), null, 15)
 		expect(records.length === 13)
+	})
+
+	it("close", async function() {
+		await sphinx.end()
 	})
 });
