@@ -743,7 +743,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				upnp.ratsUnmap()
 
 			logT('close', 'closing alternative db interface')
-			await new Promise(resolve => sphinxSingleAlternative.end(resolve))
+			await sphinxSingleAlternative.end()
 
 			// save torrents sessions
 			logT('close', 'save torrents downloads sessions')
@@ -830,13 +830,14 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			client.removeAllListeners('complete')
 
 			logT('close', 'closing torrent client')
-			torrentClient.destroy(() => {
-				sphinx.end(() => spider.close(() => {
-					sphinxSingle.destroy()
-					logT('close', 'spider closed')
-					callback()
-				}))
-			})
+			torrentClient.destroy(() => spider.close(async () => {
+				await sphinx.end()
+				logT('close', 'pool closed')
+				await sphinxSingle.end()
+				logT('close', 'single closed')
+				logT('close', 'spider closed')
+				callback()
+			}))
 		}
     
 	})()

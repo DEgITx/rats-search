@@ -2,7 +2,15 @@ const mysql = require('mysql');
 const config = require('./config');
 
 const expand = (sphinx) => {
-	const queryCall = sphinx.query.bind(sphinx)
+	const queryOriginal = sphinx.query.bind(sphinx)
+	const queryCall = (...args) => {
+		if(sphinx.__closed)
+		{
+			logT('sql', 'prevent sql request after end of connection')
+			return
+		}
+		return queryOriginal(...args)
+	}
 
 	sphinx.query = (sql, args, callback) => new Promise((resolve, reject) => {
 		if(typeof args === 'function' || typeof args === 'undefined')
@@ -125,10 +133,13 @@ const pool = async () => {
 		});
 		sphinx = expand(sphinx)
 		const end = sphinx.end.bind(sphinx)
-		sphinx.end = async (cb) => new Promise(resolve => end(() => {
-			resolve()
-			if(cb) cb()
-		}))
+		sphinx.end = (cb) => new Promise(resolve => { 
+			sphinx.__closed = true
+			end(() => {
+				resolve()
+				if(cb) cb()
+			})
+		})
 		return sphinx
 	}
 	else
@@ -161,7 +172,7 @@ const pool = async () => {
 			},
 			async end(cb)
 			{
-				await Promise.all(connectionPool.map(conn => new Promise(resolve => conn.end(resolve))))
+				await Promise.all(connectionPool.map(conn => conn.end()))
 				if(cb)
 					cb()
 				connectionPool = null
@@ -234,6 +245,18 @@ const single = (callback) => {
 		});
 
 		mysqlSingle._mysql = expand(mysqlSingle._mysql)
+	
+		// fix prevent query after closing
+		const end = mysqlSingle._mysql.end.bind(mysqlSingle._mysql)
+		mysqlSingle._mysql.end = (cb) => new Promise(resolve => {
+			mysqlSingle._mysql.__closed = true
+			end(() => {
+				resolve()
+				if(cb)
+					cb()
+			})	
+		})
+
 		return proxySingle
 	}
 
