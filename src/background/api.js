@@ -210,10 +210,6 @@ module.exports = async ({
 			if(typeof callback != 'function')
 				return;
 	
-			// ignore sql requests on closing
-			if(sphinxSingle.state === 'disconnected')
-				return
-
 			const cpu = cpuUsage()
 			const limit = Math.max(1, 5 - (cpu / 20) | 0)
 
