@@ -45,7 +45,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		let filesId = 1;
 
 		const events = new EventEmitter
-		let sphinx = pool();
+		let sphinx = await pool();
 
 		// initialize p2p
 		const p2p = new P2PServer(send)

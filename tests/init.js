@@ -1,4 +1,5 @@
 import {startApplication, stopApplication} from "../tests/application";
+global.logT = (...args) => {console.log(...args)}
 
 describe("application", () => {
 	before(startApplication);

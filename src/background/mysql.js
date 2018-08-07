@@ -113,14 +113,70 @@ const expand = (sphinx) => {
 	return sphinx
 }
 
-const pool = () => {
-	let sphinx = mysql.createPool({
-		// bug under mac with some problems on big connection size, limit this to very low value on mac os x
-		connectionLimit: process.platform === 'darwin' ? 3 : config.sphinx.connectionLimit,
-		host     : config.sphinx.host,
-		port     : config.sphinx.port
-	});
-	return expand(sphinx)
+const pool = async () => {
+	if(/^win/.test(process.platform))
+	{
+		logT('sql', 'using main pool mechanism')
+		let sphinx = mysql.createPool({
+			// bug under mac with some problems on big connection size, limit this to very low value on mac os x
+			connectionLimit: process.platform === 'darwin' ? 3 : config.sphinx.connectionLimit,
+			host     : config.sphinx.host,
+			port     : config.sphinx.port
+		});
+		sphinx = expand(sphinx)
+		const end = sphinx.end.bind(sphinx)
+		sphinx.end = async (cb) => new Promise(resolve => end(() => {
+			resolve()
+			if(cb) cb()
+		}))
+		return sphinx
+	}
+	else
+	{
+		logT('sql', 'using alternative pool mechanism')
+		let connectionPool = []
+		let connectionsLimit = config.sphinx.connectionLimit
+		let currentConnection = 0
+		for(let i = 0; i < connectionsLimit; i++)
+		{
+			connectionPool[i] = await single().waitConnection()	
+		}
+		const buildPoolMethod = (name, ...args) => {
+			if(!connectionPool)
+				return
+			
+			const data = connectionPool[currentConnection][name](...args)
+			currentConnection = (currentConnection + 1) % connectionsLimit
+			return data
+		}
+		return new Proxy({
+			query(...args) {
+				return buildPoolMethod('query', ...args)
+			},
+			insertValues(...args) {
+				return buildPoolMethod('insertValues', ...args)
+			},
+			updateValues(...args) {
+				return buildPoolMethod('updateValues', ...args)
+			},
+			async end(cb)
+			{
+				await Promise.all(connectionPool.map(conn => new Promise(resolve => conn.end(resolve))))
+				if(cb)
+					cb()
+				connectionPool = null
+			}
+		}, {
+			get(target, prop)
+			{
+				if(!target[prop])
+				{
+					return connectionPool[0][prop]
+				}
+				return target[prop]
+			}
+		})
+	}
 }
 
 const single = (callback) => {
