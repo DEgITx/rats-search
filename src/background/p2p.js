@@ -139,6 +139,9 @@ class p2p {
 
 	checkPortAndRedirect(address, port) {
 		isPortReachable(port, {host: address}).then((isAvailable) => {
+			if(this.closing)
+				return // responce can be very late, and ssh can start after closing of program, this will break on linux
+
 			this.p2pStatus = isAvailable ? 2 : 0
 			this.send('p2pStatus', this.p2pStatus)
 
@@ -183,6 +186,7 @@ class p2p {
 
 	close()
 	{
+		this.closing = true
 		if(this.ssh)
 		{
 			logT('ssh', 'closing ssh...')
