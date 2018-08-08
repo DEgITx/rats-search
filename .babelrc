@@ -13,8 +13,6 @@
     ["@babel/stage-0", { "decoratorsLegacy": true }]
   ],
   "plugins": [
-	["transform-class-properties"],
-	["transform-react-jsx", { "pragma": "h" }],
   	["transform-object-rest-spread", { "useBuiltIns": true }]
   ]
 }
