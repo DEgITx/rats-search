@@ -1,3 +1,27 @@
+# [0.28.0](https://github.com/DEgITx/rats-search/compare/v0.27.0...v0.28.0) (2018-08-07)
+
+
+### Bug Fixes
+
+* **closing:** fix errors on closing ([e04548a](https://github.com/DEgITx/rats-search/commit/e04548a))
+* **db:** under mac and linux using alternative pool mechanism ([a3644c0](https://github.com/DEgITx/rats-search/commit/a3644c0))
+* **log:** color log (part 2) ([ea8d93e](https://github.com/DEgITx/rats-search/commit/ea8d93e))
+* **log:** color log (part 3) ([bc23379](https://github.com/DEgITx/rats-search/commit/bc23379))
+* **log:** color messages (part 1) ([27b224d](https://github.com/DEgITx/rats-search/commit/27b224d))
+* **server:** color log server fix ([17b377c](https://github.com/DEgITx/rats-search/commit/17b377c))
+
+
+### Features
+
+* **log:** color log ([62bbc46](https://github.com/DEgITx/rats-search/commit/62bbc46))
+* **log:** error display with separate color [#31](https://github.com/DEgITx/rats-search/issues/31) ([70dd4a3](https://github.com/DEgITx/rats-search/commit/70dd4a3))
+
+
+### Performance Improvements
+
+* **replication:** replicate number accordion to cpu usage ([6af3b7a](https://github.com/DEgITx/rats-search/commit/6af3b7a))
+* **torrents:** ability to disable integrity check on torrents adding torrents [#47](https://github.com/DEgITx/rats-search/issues/47) ([080fc92](https://github.com/DEgITx/rats-search/commit/080fc92))
+
 # [0.27.0](https://github.com/DEgITx/rats-search/compare/v0.26.2...v0.27.0) (2018-08-06)
 
 
