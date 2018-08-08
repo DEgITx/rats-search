@@ -158,8 +158,8 @@ module.exports = (callback, dataDirectory, onClose) => {
 		}
 
 		// check external sphinx instance for using
-		const sphinxPid=`${sphinxConfigDirectory}/searchd.pid`
-		const isSphinxExternal=fs.existsSync(sphinxPid) && isRunning(parseInt(fs.readFileSync(sphinxPid)))
+		const sphinxPid = `${sphinxConfigDirectory}/searchd.pid`
+		const isSphinxExternal = fs.existsSync(sphinxPid) && isRunning(parseInt(fs.readFileSync(sphinxPid)))
 		if(isSphinxExternal)
 			logT('sphinx', `founded running sphinx instance in ${sphinxPid}, using it`)
 
@@ -230,7 +230,7 @@ module.exports = (callback, dataDirectory, onClose) => {
 				sphinx.onClose = onFinish
 			if(replaceFinish)
 				sphinx.replaceOnClose = true // sometime we don't want to call default callback
-			
+            
 			if (!sphinx.isExternal)
 				exec(`"${sphinxPath}" --config "${config}" --stopwait`)
 			else

@@ -209,7 +209,7 @@ module.exports = async ({
 		p2p.on('randomTorrents', (nil, callback) => {
 			if(typeof callback != 'function')
 				return;
-	
+    
 			const cpu = cpuUsage()
 			const limit = Math.max(1, 5 - (cpu / 20) | 0)
 
@@ -1003,15 +1003,15 @@ module.exports = async ({
 		if(peer.info && peer.info.feed)
 		{
 			if(peer.info.feed > feed.size() // list bigger than our
-			|| (peer.info.feed == feed.size() && peer.info.feedDate > feed.feedDate)) // or same but more new
+            || (peer.info.feed == feed.size() && peer.info.feedDate > feed.feedDate)) // or same but more new
 			{
 				peer.emit('feed', null, (remoteFeed) => {
 					if(!remoteFeed)
 						return
-			
+            
 					if(Array.isArray(remoteFeed) || !remoteFeed.feed)
 						return // old version call
-			
+            
 					if(remoteFeed.feed.length > feed.size() || (remoteFeed.feed.length == feed.size() && remoteFeed.feedDate > feed.feedDate))
 					{
 						logT('feed', 'replace our feed with remote feed')

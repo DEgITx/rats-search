@@ -24,7 +24,7 @@ let connectTracker = function(connection) {
 	debug('start screape connection');
 	let buffer = new Buffer(16);
 
-	const transactionId = Math.floor((Math.random()*100000)+1);
+	const transactionId = Math.floor((Math.random() * 100000) + 1);
 
 	buffer.fill(0);
 

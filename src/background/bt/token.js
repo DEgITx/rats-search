@@ -3,7 +3,7 @@
 module.exports = class {
 	constructor() {
 		this.generate()
-		const it = setInterval(() => this.generate(), 60000*15)
+		const it = setInterval(() => this.generate(), 60000 * 15)
 		it.unref()
 	}
 
@@ -12,6 +12,6 @@ module.exports = class {
 	}
 
 	generate() {
-		this.token = new Buffer([parseInt(Math.random()*200), parseInt(Math.random()*200)])
+		this.token = new Buffer([parseInt(Math.random() * 200), parseInt(Math.random() * 200)])
 	}
 }

@@ -155,15 +155,15 @@ class App extends Component {
 		}
 
 		document.addEventListener('dragover', (event) => {
-            event.stopPropagation();
-            event.preventDefault();
-            event.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-        }, false);
-        document.addEventListener('drop', (event) => {
-            event.stopPropagation();
+			event.stopPropagation();
 			event.preventDefault();
-            processTorrents(event.dataTransfer.files); // FileList object.
-        }, false);
+			event.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+		}, false);
+		document.addEventListener('drop', (event) => {
+			event.stopPropagation();
+			event.preventDefault();
+			processTorrents(event.dataTransfer.files); // FileList object.
+		}, false);
 
 		window.router()
 		appReady = true;

@@ -209,7 +209,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 				if(torrentsArray.length >= 20000)
 				{
 					fs.writeFileSync(`${sphinxApp.directoryPath}/torrents.patch.${patch++}`, JSON.stringify(torrentsArray, null, 4), 'utf8');
-					logT('patcher', 'write torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${patch-1}`)
+					logT('patcher', 'write torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${patch - 1}`)
 					torrentsArray = []
 				}
 			})
