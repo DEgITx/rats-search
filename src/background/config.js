@@ -28,7 +28,7 @@ let config = {
 	sphinx: {
 		host     : '127.0.0.1',
 		port     : 9306,
-		connectionLimit: 12
+		connectionLimit: 10
 	},
 
 	spider: {
@@ -59,6 +59,7 @@ let config = {
 	cleanupDiscLimit: 7 * 1024 * 1024 * 1024,
 	spaceQuota: false,
 	spaceDiskLimit: 7 * 1024 * 1024 * 1024,
+	recheckFilesOnAdding: true,
 
 	dbPath: '',
 

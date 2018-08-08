@@ -14,21 +14,45 @@ const os = require('os')
 
 const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 
+const util = require('util');
+const colors = require('ansi-256-colors');
+const stringHashCode = (str) => {
+	let hash = 0, i, chr;
+	if (str.length === 0) 
+		return hash;
+	for (i = 0; i < str.length; i++) {
+	  chr   = str.charCodeAt(i);
+	  hash  = ((hash << 5) - hash) + chr;
+	  hash |= 0; // Convert to 32bit integer
+	}
+	return hash;
+};
+
+global.logT = (type, ...d) => {
+	console.log(colors.fg.codes[Math.abs(stringHashCode(type)) % 256] + `[${type}]` + colors.reset + ' ' + util.format(...d));
+}
+
+global.logTE = (type, ...d) => {
+	console.log(colors.fg.codes[Math.abs(stringHashCode(type)) % 256] + `[${type}]` + colors.reset + ' ' + colors.fg.codes[9] + util.format(...d) + colors.reset + '\n');
+}
+
+
 server.listen(appConfig.httpPort);
-console.log('Listening web server on', appConfig.httpPort, 'port')
-console.log('Platform:', os.platform())
-console.log('Arch:', os.arch())
-console.log('OS Release:', os.release())
-console.log('CPU:', os.cpus()[0].model)
-console.log('CPU Logic cores:', os.cpus().length)
-console.log('Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB')
-console.log('Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
-console.log('NodeJS:', process.version)
+logT('system', 'Rats v' + packageJson.version)
+logT('system', 'Listening web server on', appConfig.httpPort, 'port')
+logT('system', 'Platform:', os.platform())
+logT('system', 'Arch:', os.arch())
+logT('system', 'OS Release:', os.release())
+logT('system', 'CPU:', os.cpus()[0].model)
+logT('system', 'CPU Logic cores:', os.cpus().length)
+logT('system', 'Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB')
+logT('system', 'Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
+logT('system', 'NodeJS:', process.version)
 
 const majorVersion = /v?([0-9]+)\.?([0-9]+)?\.?([0-9]+)?\.?([0-9]+)?/.exec(process.version)[1]
 if(majorVersion < 8)
 {
-	console.log('Minumum Node.JS version >= 8.0.0, please update and try again')
+	logTE('system', 'Minumum Node.JS version >= 8.0.0, please update and try again')
 	process.exit(1);
 }
 
@@ -63,6 +87,7 @@ rl.on("SIGINT", function () {
 });
 
 process.on("SIGINT", () => {
+	rl.close()
 	if(spider)
 	{
 		spider.stop(() => sphinx.stop(() => process.exit()))

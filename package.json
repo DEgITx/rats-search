@@ -2,7 +2,7 @@
   "name": "rats-search",
   "productName": "Rats on The Boat",
   "description": "P2P BitTorrent search engine",
-  "version": "0.26.2",
+  "version": "0.28.0",
   "private": true,
   "author": "Alexey Kasyanchuk <degitx@gmail.com>",
   "copyright": "Copyright © 2018 Alexey Kasyanchuk",
@@ -111,6 +111,7 @@
     "buildweb": "node src/background/webpack.js"
   },
   "dependencies": {
+    "ansi-256-colors": "^1.1.0",
     "bencode": "^2.0.0",
     "bitfield": "^2.0.0",
     "cheerio": "^1.0.0-rc.2",
@@ -156,7 +157,7 @@
     "babel-plugin-transform-object-rest-spread": "^7.0.0-beta.3",
     "chai": "^4.1.2",
     "css-loader": "^0.28.11",
-    "electron": "2.0.5",
+    "electron": "2.0.6",
     "electron-builder": "20.14.7",
     "eslint": "^4.19.1",
     "eslint-plugin-react": "^7.9.1",

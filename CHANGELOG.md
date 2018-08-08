@@ -1,3 +1,57 @@
+# [0.28.0](https://github.com/DEgITx/rats-search/compare/v0.27.0...v0.28.0) (2018-08-07)
+
+
+### Bug Fixes
+
+* **closing:** fix errors on closing ([e04548a](https://github.com/DEgITx/rats-search/commit/e04548a))
+* **db:** under mac and linux using alternative pool mechanism ([a3644c0](https://github.com/DEgITx/rats-search/commit/a3644c0))
+* **log:** color log (part 2) ([ea8d93e](https://github.com/DEgITx/rats-search/commit/ea8d93e))
+* **log:** color log (part 3) ([bc23379](https://github.com/DEgITx/rats-search/commit/bc23379))
+* **log:** color messages (part 1) ([27b224d](https://github.com/DEgITx/rats-search/commit/27b224d))
+* **server:** color log server fix ([17b377c](https://github.com/DEgITx/rats-search/commit/17b377c))
+
+
+### Features
+
+* **log:** color log ([62bbc46](https://github.com/DEgITx/rats-search/commit/62bbc46))
+* **log:** error display with separate color [#31](https://github.com/DEgITx/rats-search/issues/31) ([70dd4a3](https://github.com/DEgITx/rats-search/commit/70dd4a3))
+
+
+### Performance Improvements
+
+* **replication:** replicate number accordion to cpu usage ([6af3b7a](https://github.com/DEgITx/rats-search/commit/6af3b7a))
+* **torrents:** ability to disable integrity check on torrents adding torrents [#47](https://github.com/DEgITx/rats-search/issues/47) ([080fc92](https://github.com/DEgITx/rats-search/commit/080fc92))
+
+# [0.27.0](https://github.com/DEgITx/rats-search/compare/v0.26.2...v0.27.0) (2018-08-06)
+
+
+### Bug Fixes
+
+* **background:** one closing pattern ([63158dc](https://github.com/DEgITx/rats-search/commit/63158dc))
+* **closing:** window can be closing on event ([84e9573](https://github.com/DEgITx/rats-search/commit/84e9573))
+* **gui:** top tabs text overlap ([45168a2](https://github.com/DEgITx/rats-search/commit/45168a2))
+* **linux:** fix closing on linux ([75ad00a](https://github.com/DEgITx/rats-search/commit/75ad00a))
+* **linux:** fix console control after exit ([29cd05a](https://github.com/DEgITx/rats-search/commit/29cd05a))
+* **macos:** fix crashes under Mac OS X ([015447c](https://github.com/DEgITx/rats-search/commit/015447c))
+* **macos:** stabilization with connection pool ([769521f](https://github.com/DEgITx/rats-search/commit/769521f))
+* **scanner:** fix enconding names in some cases [#55](https://github.com/DEgITx/rats-search/issues/55) ([f1043eb](https://github.com/DEgITx/rats-search/commit/f1043eb))
+* **server:** fix exit on server version [#54](https://github.com/DEgITx/rats-search/issues/54) [#52](https://github.com/DEgITx/rats-search/issues/52) ([4109ef9](https://github.com/DEgITx/rats-search/commit/4109ef9))
+* **translations:** hash translation ([f5a6f17](https://github.com/DEgITx/rats-search/commit/f5a6f17))
+
+
+### Features
+
+* **cleaning:** fix cleaning checking and removing torrents (also display cleaning status in more details) [#52](https://github.com/DEgITx/rats-search/issues/52) ([7e0c565](https://github.com/DEgITx/rats-search/commit/7e0c565))
+* **closing:** fast window closing/hiding ([019700e](https://github.com/DEgITx/rats-search/commit/019700e))
+* **search:** add remote torrents in db via dht and search requests ([1e44164](https://github.com/DEgITx/rats-search/commit/1e44164))
+* **search:** hash/magnet search support in db ([1e57789](https://github.com/DEgITx/rats-search/commit/1e57789))
+* **torrents:** add support for dropping torrent to base just with window ([6d82291](https://github.com/DEgITx/rats-search/commit/6d82291))
+
+
+### Performance Improvements
+
+* **replication:** replication thread optimization ([c5427a6](https://github.com/DEgITx/rats-search/commit/c5427a6))
+
 ## [0.26.2](https://github.com/DEgITx/rats-search/compare/v0.26.1...v0.26.2) (2018-07-22)
 
 

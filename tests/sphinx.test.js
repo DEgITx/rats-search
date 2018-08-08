@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import { expect, assert } from "chai";
 
 const mysql = require('mysql')
 const config = require('../src/background/config')
@@ -60,15 +60,29 @@ describe("sphinx", () => {
 		})
 	})
 
-	it("query limit",  function(done) {
-		const sphinx = pool()
-		let promises = []
-		sphinx.query(`delete from feed where id >= 0`, () => {
-			for(let i = 0; i < 500; i++)
-				promises.push(sphinx.query(`insert into feed(id, data) values(${i}, 'a')`))
-			Promise.all(promises).then(() => {
-				sphinx.query(`delete from feed where id >= 0`, () => done())    
+	it("query limit", function(done) {
+		const test = async () => {
+			const sphinx = await pool()
+			let promises = []
+			sphinx.query(`delete from feed where id >= 0`, () => {
+				for(let i = 0; i < 500; i++)
+					promises.push(sphinx.query(`insert into feed(id, data) values(${i}, 'a')`))
+				Promise.all(promises).then(() => {
+					sphinx.query(`delete from feed where id >= 0`, async () => { 
+						await sphinx.end()
+						done() 
+					}) 
+				})
 			})
-		})
+		}
+		test()
+	})
+
+	it("escape", function () {
+		assert.equal(sphinx.escape(`naru'to`), `'naru\\'to'`)
+	})
+
+	it("close pool", function(done) {
+		sphinx.end(done)
 	})
 });

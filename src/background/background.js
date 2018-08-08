@@ -78,32 +78,57 @@ if (!fs.existsSync(app.getPath("userData"))){
 const logFile = fs.createWriteStream(app.getPath("userData") + '/rats.log', {flags : 'w'});
 const logStdout = process.stdout;
 
+const colors = require('ansi-256-colors');
+const stringHashCode = (str) => {
+	let hash = 0, i, chr;
+	if (str.length === 0) 
+		return hash;
+	for (i = 0; i < str.length; i++) {
+	  chr   = str.charCodeAt(i);
+	  hash  = ((hash << 5) - hash) + chr;
+	  hash |= 0; // Convert to 32bit integer
+	}
+	return hash;
+};
+
 console.log = (...d) => {
 	const date = (new Date).toLocaleTimeString()
 	logFile.write(`[${date}] ` + util.format(...d) + '\n');
 	logStdout.write(util.format(...d) + '\n');
 };
 
+global.logT = (type, ...d) => {
+	const date = (new Date).toLocaleTimeString()
+	logFile.write(`[${date}] [${type}] ` + util.format(...d) + '\n');
+	logStdout.write(colors.fg.codes[Math.abs(stringHashCode(type)) % 256] + `[${type}]` + colors.reset + ' ' + util.format(...d) + '\n');
+}
+
+global.logTE = (type, ...d) => {
+	const date = (new Date).toLocaleTimeString()
+	logFile.write(`\n[${date}] [ERROR] [${type}] ` + util.format(...d) + '\n\n');
+	logStdout.write(colors.fg.codes[Math.abs(stringHashCode(type)) % 256] + `[${type}]` + colors.reset + ' ' + colors.fg.codes[9] + util.format(...d) + colors.reset + '\n');
+}
+
 // print os info
-console.log('Rats', app.getVersion())
-console.log('Platform:', os.platform())
-console.log('Arch:', os.arch())
-console.log('OS Release:', os.release())
-console.log('CPU:', os.cpus()[0].model)
-console.log('CPU Logic cores:', os.cpus().length)
-console.log('Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB')
-console.log('Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
-console.log('NodeJS:', process.version)
+logT('system', 'Rats', app.getVersion())
+logT('system', 'Platform:', os.platform())
+logT('system', 'Arch:', os.arch())
+logT('system', 'OS Release:', os.release())
+logT('system', 'CPU:', os.cpus()[0].model)
+logT('system', 'CPU Logic cores:', os.cpus().length)
+logT('system', 'Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB')
+logT('system', 'Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
+logT('system', 'NodeJS:', process.version)
 
 if(portative)
-	console.log('portative compability')
+	logT('system', 'portative compability')
 
 // handle promise rejections
-process.on('unhandledRejection', r => console.log('Rejection:', r));
+process.on('unhandledRejection', r => logTE('system', 'Rejection:', r));
 
 const shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
 	// Someone tried to run a second instance, we should focus our window.
-	console.log('openned second application, just focus this one')
+	logT('app', 'openned second application, just focus this one')
 	if (mainWindow) {
 		if (mainWindow.isMinimized()) 
 			mainWindow.restore();
@@ -112,7 +137,7 @@ const shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory
 });
 
 if (shouldQuit) {
-	console.log('closed because of second application')
+	logT('app', 'closed because of second application')
 	app.exit(0);
 }
 
@@ -122,12 +147,12 @@ log.transports.file.level = false;
 log.transports.console.level = false;
 log.transports.console = function(msg) {
 	const text = util.format.apply(util, msg.data);
-	console.log(text);
+	logT('updater', text);
 };
 autoUpdater.logger = log;
 
 autoUpdater.on('update-downloaded', () => {
-	console.log('update-downloaded lats quitAndInstall');
+	logT('updater', 'update-downloaded lats quitAndInstall');
 	if (env.name === "production") { 
 		dialog.showMessageBox({
 			type: 'info',
@@ -201,10 +226,7 @@ app.on("ready", () => {
 				} },
 				{ label: 'Quit', click:  function(){
 					app.isQuiting = true;
-					if (sphinx)
-						stop()
-					else 
-						app.quit()
+					stop()
 				} }
 			]);
 
@@ -224,7 +246,7 @@ app.on("ready", () => {
 				checkInternet(enabled => {
 					if(!enabled)
 					{
-						console.log('no internet connection were founded, updater not started')
+						logT('updater', 'no internet connection were founded, updater not started')
 						return
 					}
 
@@ -233,7 +255,7 @@ app.on("ready", () => {
 						autoUpdater.getUpdateInfo().then(info => {
 							if(info.version == app.getVersion())
 							{
-								console.log('update not founded for version', app.getVersion())
+								logT('updater', 'update not founded for version', app.getVersion())
 								return
 							}
 
@@ -266,7 +288,8 @@ app.on("ready", () => {
 					{
 						const id = arg[arg.length - 1].callback
 						arg[arg.length - 1] = (responce) => {
-							mainWindow.webContents.send('callback', id, responce)
+							if(mainWindow)
+								mainWindow.webContents.send('callback', id, responce)
 						}
 					}
 					callback.apply(null, arg)
@@ -293,28 +316,54 @@ const stop = () => {
 		return
 	stopProtect = true
 
-	if(tray)
-		tray.destroy()
+	// hide on case of long exit, to prevent user clicks
+	if(mainWindow)
+		mainWindow.hide()
+
+	// bug with mac os tray closing 
+	// https://github.com/electron/electron/issues/9982
+	// https://github.com/electron/electron/issues/13556
+	if(process.platform !== 'darwin')
+	{
+		if(tray)
+			tray.destroy()
+	}
 
 	if(spider)
 	{
 		spider.stop(() => sphinx.stop())
 	}
-	else
+	else if(sphinx)
 	{
 		sphinx.stop()
+	}
+	else
+	{
+		app.quit()
 	}
 }
 
 app.on("window-all-closed", () => {
-	if (sphinx)
-		stop()
-	else 
-		app.quit()
+	stop()
 });
 
 app.on('before-quit', () => {
+	if(rl)
+		rl.close()
+
 	app.isQuiting = true
-	if (sphinx)
-		stop()
+	stop()
 })
+
+var rl = require("readline").createInterface({
+	input: process.stdin,
+	output: process.stdout
+});
+
+rl.on("SIGINT", function () {
+	process.emit("SIGINT");
+});
+
+process.on("SIGINT", () => {
+	stop()
+});

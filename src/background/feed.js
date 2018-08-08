@@ -19,11 +19,11 @@ module.exports = class Feed {
 		if(!this.loaded)
 			return // feed not loaded on begining, ignore saving
 
-		console.log('saving feed')
+		logT('feed', 'saving feed')
 		config.feedDate = this.feedDate
 		await this.sphinx.query('delete from feed where id > 0')
 		let id = 0
-		return Promise.all(
+		await Promise.all(
 			this.feed.map(
 				async record => await this.sphinx.query('insert into feed(id, data) values(?, ?)', [++id, JSON.stringify(record)])
 			)
@@ -40,12 +40,12 @@ module.exports = class Feed {
 		this._order()
 		this.feedDate = config.feedDate
 		this.loaded = true
-		console.log('lodead feed')
+		logT('feed', 'lodead feed')
 	}
 
 	clear()
 	{
-		console.log('clearing feed')
+		logT('feed', 'clearing feed')
 		this.feed = []
 	}
 

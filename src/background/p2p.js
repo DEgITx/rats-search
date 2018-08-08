@@ -23,7 +23,7 @@ class p2p {
 		this.info = {}
 		if(!config.peerId)
 		{
-			console.log('generate peerId')
+			logT('p2p', 'generate peerId')
 			config.peerId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
 		}
 		this.peerId = config.peerId;
@@ -44,7 +44,7 @@ class p2p {
 
 		this.tcpServer.on('connection', (socket) => {
 			this.tcpServer.getConnections((err,con) => {
-				console.log('server connected', con, 'max', this.tcpServer.maxConnections)
+				logT('p2p', 'server connected', con, 'max', this.tcpServer.maxConnections)
 			})
 			socket = new JsonSocket(socket);
 			this.clients.push(socket)
@@ -108,7 +108,7 @@ class p2p {
 
 		// new peer with peer exchange
 		this.on('peer', (peer) => {
-			console.log('got peer exchange', peer)
+			logT('p2p', 'got peer exchange', peer)
 			this.add(peer)
 		})
 
@@ -124,7 +124,7 @@ class p2p {
 				if (alias >= 1) {
 					// nothing
 				} else {
-					console.log('ignore local address', iface.address);
+					logT('p2p', 'ignore local address', iface.address);
 					this.ignore(iface.address)
 				}
 				++alias;
@@ -133,29 +133,32 @@ class p2p {
 	}
 
 	listen() {
-		console.log('listen p2p on', config.spiderPort, 'port')
+		logT('p2p', 'listen p2p on', config.spiderPort, 'port')
 		this.tcpServer.listen(config.spiderPort, '0.0.0.0');
 	}
 
 	checkPortAndRedirect(address, port) {
 		isPortReachable(port, {host: address}).then((isAvailable) => {
+			if(this.closing)
+				return // responce can be very late, and ssh can start after closing of program, this will break on linux
+
 			this.p2pStatus = isAvailable ? 2 : 0
 			this.send('p2pStatus', this.p2pStatus)
 
 			// all ok don't need to start any ssh tunnels
 			if(isAvailable)
 			{   
-				console.log('tcp p2p port is reachable - all ok')
+				logT('ssh', 'tcp p2p port is reachable - all ok')
 				return;
 			}
 			else
 			{
-				console.log('tcp p2p port is unreachable - try ssh tunnel')
+				logT('ssh', 'tcp p2p port is unreachable - try ssh tunnel')
 			}
 
 			if(!this.encryptor)
 			{
-				console.error('something wrong with encryptor')
+				logT('ssh', 'something wrong with encryptor')
 				return
 			}
 
@@ -170,7 +173,7 @@ class p2p {
 					return
 				}
                 
-				console.log('ssh tunnel success, redirect peers to ssh')
+				logT('ssh', 'ssh tunnel success, redirect peers to ssh')
 
 				this.p2pStatus = 1
 				this.send('p2pStatus', this.p2pStatus)
@@ -183,9 +186,10 @@ class p2p {
 
 	close()
 	{
+		this.closing = true
 		if(this.ssh)
 		{
-			console.log('closing ssh...')
+			logT('ssh', 'closing ssh...')
 			this.ssh.kill()
 		}
 		// close server
@@ -312,7 +316,7 @@ class p2p {
 					torrents: data.info ? data.info.torrents || 0 : 0
 				})
 				this.events.emit('peer', address)
-				console.log('new peer', address) 
+				logT('p2p', 'new peer', address) 
 
 				// add some other peers
 				if(data.peers && data.peers.length > 0)
@@ -338,7 +342,7 @@ class p2p {
 				}
 				this.peers.splice(index, 1);
 
-				console.log('close peer connection', address)
+				logT('p2p', 'close peer connection', address)
 			}
 		})
         
