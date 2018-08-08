@@ -10,6 +10,7 @@ const { spawn, exec } = require('child_process')
 const appConfig = require('./config')
 const findFiles = require('./findFiles')
 const _ = require('lodash')
+const isRunning = require('is-running')
 
 const writeSphinxConfig = (path, dbPath) => {
 	let config = `
@@ -156,9 +157,11 @@ module.exports = (callback, dataDirectory, onClose) => {
 			appConfig['dbPath'] = sphinxConfigDirectory
 		}
 
+		// check external sphinx instance for using
 		const sphinxPid=`${sphinxConfigDirectory}/searchd.pid`
-		const isSphinxExternal=fs.existsSync(sphinxPid)
-		logT('sphinx', "Pid: "+sphinxPid + (isSphinxExternal?" exists.":" no file."));
+		const isSphinxExternal=fs.existsSync(sphinxPid) && isRunning(parseInt(fs.readFileSync(sphinxPid)))
+		if(isSphinxExternal)
+			logT('sphinx', `founded running sphinx instance in ${sphinxPid}, using it`)
 
 		const { isInitDb } = isSphinxExternal ? {isInitDb: false} : writeSphinxConfig(sphinxConfigDirectory, appConfig.dbPath)
 
@@ -170,7 +173,7 @@ module.exports = (callback, dataDirectory, onClose) => {
 		}
 
 		const sphinx = !isSphinxExternal ? spawn(sphinxPath, options) :
-			{isExternal: true, on: (d,f) => {}, stdout: {on : (d,f)=>{} }};
+			{isExternal: true, on: (d,f) => {}, stdout: {on : (d,f)=>{} }}; // running stub
 
 		// remeber initizalizing of db
 		sphinx.start = start
@@ -179,8 +182,6 @@ module.exports = (callback, dataDirectory, onClose) => {
 		sphinx.directoryPathDb = appConfig.dbPath + '/database'
 
 		const optimizeResolvers = {}
-
-		if (isSphinxExternal && callback) setTimeout(()=>{logT('sphinx', 'external sphinx signalled');callback()},500);
 
 		sphinx.stdout.on('data', (data) => {
 			logT('sphinx', `sphinx: ${data}`)
@@ -211,12 +212,16 @@ module.exports = (callback, dataDirectory, onClose) => {
 			}
 		})
 
-		sphinx.on('close', (code, signal) => {
-			logT('sphinx', `sphinx closed with code ${code} and signal ${signal}`)
+		const close = () => {
 			if(onClose && !sphinx.replaceOnClose) // sometime we don't want to call default callback
 				onClose()
 			if(sphinx.onClose)
 				sphinx.onClose()
+		}
+
+		sphinx.on('close', (code, signal) => {
+			logT('sphinx', `sphinx closed with code ${code} and signal ${signal}`)
+			close()
 		})
 
 		sphinx.stop = (onFinish, replaceFinish) => {
@@ -225,8 +230,14 @@ module.exports = (callback, dataDirectory, onClose) => {
 				sphinx.onClose = onFinish
 			if(replaceFinish)
 				sphinx.replaceOnClose = true // sometime we don't want to call default callback
+			
 			if (!sphinx.isExternal)
 				exec(`"${sphinxPath}" --config "${config}" --stopwait`)
+			else
+			{
+				logT('sphinx', `ignoring sphinx closing because external sphinx instance`)
+				close()
+			}
 		}
 
 		sphinx.waitOptimized = (table) => new Promise((resolve) => {
@@ -280,8 +291,9 @@ module.exports = (callback, dataDirectory, onClose) => {
 			_.merge(sphinx, sphinx.start(callback));
 		}
 
-		return sphinx
+		if (isSphinxExternal && callback) setTimeout(()=>{logT('sphinx', 'external sphinx signalled');callback()}, 0);
 
+		return sphinx
 	}
 
 	return start(callback)
