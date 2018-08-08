@@ -45,7 +45,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		let filesId = 1;
 
 		const events = new EventEmitter
-		let sphinx = pool();
+		let sphinx = await pool();
 
 		// initialize p2p
 		const p2p = new P2PServer(send)
@@ -73,114 +73,17 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			}
 		]
 
-		let mysqlSingle = single((mysqlSingle) => {
-			mysqlSingle.query("SELECT MAX(`id`) as mx from torrents", (err, rows) => {
-				if(err)
-					return
-
-				if(rows[0] && rows[0].mx >= 1)
-					torrentsId = rows[0].mx + 1;
-			})
-
-			mysqlSingle.query("SELECT COUNT(*) as cnt from torrents", (err, rows) => {
-				if(err)
-					return
-
-				p2p.info.torrents = rows[0].cnt
-			})
-
-			mysqlSingle.query("SELECT MAX(`id`) as mx from files", (err, rows) => {
-				if(err)
-					return
-
-				if(rows[0] &&rows[0].mx >= 1)
-					filesId = rows[0].mx + 1;
-			})
-
-			mysqlSingle.query("SELECT COUNT(*) as cnt from files", (err, rows) => {
-				if(err)
-					return
-
-				p2p.info.files = rows[0].cnt
-			})
-		});
-
-		/*
-app.use(express.static('build', {index: false}));
-
-app.get('/sitemap.xml', function(req, res) {
-  sphinx.query('SELECT count(*) as cnt FROM `torrents` WHERE contentCategory != \'xxx\' OR contentCategory IS NULL', function (error, rows, fields) {
-      if(!rows) {
-        return;
-      }
-      let urls = []
-      for(let i = 0; i < Math.ceil(rows[0].cnt / config.sitemapMaxSize); i++)
-        urls.push(`http://${config.domain}/sitemap${i+1}.xml`);
-
-      res.header('Content-Type', 'application/xml');
-      res.send( sm.buildSitemapIndex({
-          urls
-      }));
-  });
-});
-
-app.get('/sitemap:id.xml', function(req, res) {
-  if(req.params.id < 1)
-    return;
-
-  let page = (req.params.id - 1) * config.sitemapMaxSize
-
-  sphinx.query('SELECT hash FROM `torrents` WHERE contentCategory != \'xxx\' OR contentCategory IS NULL LIMIT ?, ?', [page, config.sitemapMaxSize], function (error, rows, fields) {
-      if(!rows) {
-        return;
-      }
-      let sitemap = sm.createSitemap ({
-          hostname: 'http://' + config.domain,
-          cacheTime: 600000
-      });
-      sitemap.add({url: '/'});
-      for(let i = 0; i < rows.length; i++)
-        sitemap.add({url: '/torrent/' + rows[i].hash});
-
-      sitemap.toXML( function (err, xml) {
-          if (err) {
-            return res.status(500).end();
-          }
-          res.header('Content-Type', 'application/xml');
-          res.send( xml );
-      });
-  });
-});
-
-
-app.get('*', function(req, res)
-{
-    if(typeof req.query['_escaped_fragment_'] != 'undefined')
-    {
-        let program = phantomjs.exec('phantom.js', 'http://' + config.domain + req.path)
-        let body = '';
-        let timeout = setTimeout(() => {
-            program.kill();
-        }, 45000)
-        program.stderr.pipe(process.stderr)
-        program.stdout.on('data', (chunk) => {
-            body += chunk;
-        });
-        program.on('exit', code => {
-          clearTimeout(timeout);
-          res.header('Content-Type', 'text/html');
-          res.send( body );
-        })
-
-        return;
-    }
-
-    res.sendfile(__dirname + '/build/index.html');
-});
-*/
+		const sphinxSingle = await single().waitConnection()
+		torrentsId = (await sphinxSingle.query("SELECT MAX(`id`) as mx from torrents"))[0]
+		torrentsId = ((torrentsId && torrentsId.mx) || 0) + 1
+		filesId = (await sphinxSingle.query("SELECT MAX(`id`) as mx from files"))[0]
+		filesId = ((filesId && filesId.mx) || 0) + 1
+		p2p.info.torrents = (await sphinxSingle.query("SELECT COUNT(*) as cnt from torrents"))[0].cnt
+		p2p.info.files = (await sphinxSingle.query("SELECT COUNT(*) as cnt from files"))[0].cnt
+		const sphinxSingleAlternative = await single().waitConnection()
+		
 
 		// start
-
 		function baseRowData(row)
 		{
 			return {
@@ -210,7 +113,7 @@ app.get('*', function(req, res)
 			if(peers && peers.length > 0)
 			{
 				peers.forEach(peer => p2p.add(peer))
-				console.log('loaded', peers.length, 'peers')
+				logT('p2p', 'loaded', peers.length, 'peers')
 			}
 		}
 
@@ -226,7 +129,7 @@ app.get('*', function(req, res)
 					resolve(data.length > 0 && JSON.parse(data))
 				});
 			}).on("error", (err) => {
-				console.log(`${url} error: ` + err.message)
+				logTE('http', `${url} error: ` + err.message)
 				resolve(false)
 			});
 		})
@@ -242,7 +145,7 @@ app.get('*', function(req, res)
 					if(peers && peers.length > 0)
 					{
 						peers.forEach(peer => p2p.add(peer))
-						console.log('loaded', peers.length, 'peers from bootstrap')
+						logT('p2p', 'loaded', peers.length, 'peers from bootstrap')
 					}
 				}
 				if(json.bootstrapMap)
@@ -262,7 +165,7 @@ app.get('*', function(req, res)
 							}
 						}
 					}
-					console.log('loaded peers map from bootstrap')
+					logT('p2p', 'loaded peers map from bootstrap')
 				}
 			}
 
@@ -281,7 +184,7 @@ app.get('*', function(req, res)
 			p2pBootstrapLoop = setInterval(() => {
 				if(p2p.size === 0)
 				{
-					console.log('load peers from bootstap again because no peers at this moment')
+					logT('p2p', 'load peers from bootstap again because no peers at this moment')
 					loadBootstrap()
 				}
 			}, 90000) // try to load new peers if there is no one found
@@ -289,7 +192,7 @@ app.get('*', function(req, res)
 
 		const updateTorrentTrackers = (hash) => {
 			let maxSeeders = 0, maxLeechers = 0, maxCompleted = 0;
-			mysqlSingle.query('UPDATE torrents SET trackersChecked = ? WHERE hash = ?', [Math.floor(Date.now() / 1000), hash], (err, result) => {
+			sphinxSingle.query('UPDATE torrents SET trackersChecked = ? WHERE hash = ?', [Math.floor(Date.now() / 1000), hash], (err, result) => {
 				if(!result) {
 					console.error(err);
 					return
@@ -320,9 +223,9 @@ app.get('*', function(req, res)
 						maxCompleted = completed;
 						let checkTime = new Date();
 
-						mysqlSingle.query('UPDATE torrents SET seeders = ?, completed = ?, leechers = ?, trackersChecked = ? WHERE hash = ?', [seeders, completed, leechers, Math.floor(checkTime.getTime() / 1000), hash], function(err, result) {
+						sphinxSingle.query('UPDATE torrents SET seeders = ?, completed = ?, leechers = ?, trackersChecked = ? WHERE hash = ?', [seeders, completed, leechers, Math.floor(checkTime.getTime() / 1000), hash], function(err, result) {
 							if(!result) {
-								console.error(err);
+								logTE('udp-tracker', err);
 								return
 							}
 
@@ -352,7 +255,7 @@ app.get('*', function(req, res)
             
             if(free < config.cleanupDiscLimit)
             {
-                mysqlSingle.query(`SELECT * FROM torrents WHERE added < DATE_SUB(NOW(), INTERVAL 6 hour) ORDER BY seeders ASC, files DESC, leechers ASC, completed ASC LIMIT ${cleanTorrents}`, function(err, torrents) {
+                sphinxSingle.query(`SELECT * FROM torrents WHERE added < DATE_SUB(NOW(), INTERVAL 6 hour) ORDER BY seeders ASC, files DESC, leechers ASC, completed ASC LIMIT ${cleanTorrents}`, function(err, torrents) {
                     if(!torrents)
                         return;
 
@@ -364,8 +267,8 @@ app.get('*', function(req, res)
 
                         cleanupDebug('cleanup torrent', torrent.name, '[seeders', torrent.seeders, ', files', torrent.files, ']', 'free', (free / (1024 * 1024)) + "mb");
                         
-                        mysqlSingle.query('DELETE FROM files WHERE hash = ?', torrent.hash);
-                        mysqlSingle.query('DELETE FROM torrents WHERE hash = ?', torrent.hash);
+                        sphinxSingle.query('DELETE FROM files WHERE hash = ?', torrent.hash);
+                        sphinxSingle.query('DELETE FROM torrents WHERE hash = ?', torrent.hash);
                     })
                 });
             }
@@ -379,7 +282,7 @@ app.get('*', function(req, res)
 		const checkTorrent = (torrent) => {
 			if(config.filters.maxFiles > 0 && torrent.files > config.filters.maxFiles)
 			{
-				console.log('ignore', torrent.name, 'because files', torrent.files, '>', config.filters.maxFiles)
+				logT('check', 'ignore', torrent.name, 'because files', torrent.files, '>', config.filters.maxFiles)
 				return false
 			}
 
@@ -389,37 +292,37 @@ app.get('*', function(req, res)
 				const rx = new RegExp(nameRX)
 				if(!config.filters.namingRegExpNegative && !rx.test(torrent.name))
 				{
-					console.log('ignore', torrent.name, 'by naming rx')
+					logT('check', 'ignore', torrent.name, 'by naming rx')
 					return false
 				}
 				else if(config.filters.namingRegExpNegative && rx.test(torrent.name))
 				{
-					console.log('ignore', torrent.name, 'by naming rx negative')
+					logT('check', 'ignore', torrent.name, 'by naming rx negative')
 					return false
 				}
 			}
 
 			if(torrent.contentType === 'bad')
 			{
-				console.log('ignore torrent', torrent.name, 'because this is a bad thing')
+				logT('check', 'ignore torrent', torrent.name, 'because this is a bad thing')
 				return false
 			}
 
 			if(config.filters.adultFilter && torrent.contentCategory === 'xxx')
 			{
-				console.log('ignore torrent', torrent.name, 'because adult filter')
+				logT('check', 'ignore torrent', torrent.name, 'because adult filter')
 				return false
 			}
 
 			if(config.filters.sizeEnabled && (torrent.size < config.filters.size.min || torrent.size > config.filters.size.max))
 			{
-				console.log('ignore torrent', torrent.name, 'because size bounds of', torrent.size, ':', config.filters.size)
+				logT('check', 'ignore torrent', torrent.name, 'because size bounds of', torrent.size, ':', config.filters.size)
 				return false
 			}
 
 			if(config.filters.contentType && Array.isArray(config.filters.contentType) && !config.filters.contentType.includes(torrent.contentType))
 			{
-				console.log('ignore torrent', torrent.name, 'because type', torrent.contentType, 'not in:', config.filters.contentType)
+				logT('check', 'ignore torrent', torrent.name, 'because type', torrent.contentType, 'not in:', config.filters.contentType)
 				return false
 			}
 
@@ -474,30 +377,76 @@ app.get('*', function(req, res)
 
 			if(!filesList || filesList.length == 0)
 			{
-				console.log('skip torrent', torrent.name, '- no filesList')
+				logT('add', 'skip torrent', torrent.name, '- no filesList')
 				resolve()
 				return
 			}
 
 			torrent.id = torrentsId++;
 
-			mysqlSingle.query("SELECT id FROM torrents WHERE hash = ?", torrent.hash, (err, single) => {
+			const recheckFiles = (callback) => {
+				sphinxSingle.query('SELECT count(*) as files_count FROM files WHERE hash = ?', [torrent.hash], function(err, rows) {
+					if(!rows)
+						return
+	
+					const db_files = rows[0]['files_count'];
+					if(db_files !== torrent.files)
+					{
+						callback()
+					}
+				})
+			}
+
+			const addFilesToDatabase = () => {
+				sphinxSingle.query('DELETE FROM files WHERE hash = ?', torrent.hash, function (err, result) {
+					if(err)
+					{
+						return;
+					}
+
+					filesList.forEach((file) => {
+						file.id = filesId++;
+						file.pathIndex = file.path;
+					});
+
+					sphinxSingle.insertValues('files', filesList, function(err, result) {
+						if(!result) {
+							console.error(err);
+							return
+						}
+						if(!silent)
+							send('filesReady', torrent.hash);
+					});
+				})
+			}
+
+			sphinxSingle.query("SELECT id FROM torrents WHERE hash = ?", torrent.hash, (err, single) => {
 				if(!single)
 				{
-					console.log(err)
+					logTE('add', err)
 					resolve()
 					return
 				}
 
+				// torrent already probably in db
 				if(single.length > 0)
 				{
+					if(config.recheckFilesOnAdding)
+					{
+						// recheck files and if they not ok add their to database
+						recheckFiles(addFilesToDatabase)
+					}
 					resolve()
 					return
+				}
+				else
+				{
+					addFilesToDatabase()
 				}
 
 				torrent.nameIndex = torrent.name
 
-				mysqlSingle.insertValues('torrents', torrent, function(err, result) {
+				sphinxSingle.insertValues('torrents', torrent, function(err, result) {
 					if(result) {
 						if(!silent)
 							send('newTorrent', {
@@ -513,49 +462,19 @@ app.get('*', function(req, res)
 					}
 					else
 					{
-						console.log(torrent);
-						console.error(err);
+						logTE('add', err);
 					}
 					resolve()
 					events.emit('insert', torrent)
 				});
 			})
-
-			mysqlSingle.query('SELECT count(*) as files_count FROM files WHERE hash = ?', [torrent.hash], function(err, rows) {
-				if(!rows)
-					return
-
-				const db_files = rows[0]['files_count'];
-				if(db_files !== torrent.files)
-				{
-					mysqlSingle.query('DELETE FROM files WHERE hash = ?', torrent.hash, function (err, result) {
-						if(err)
-						{
-							return;
-						}
-
-						filesList.forEach((file) => {
-							file.id = filesId++;
-							file.pathIndex = file.path;
-						});
-
-						mysqlSingle.insertValues('files', filesList, function(err, result) {
-							if(!result) {
-								console.error(err);
-								return
-							}
-							if(!silent)
-								send('filesReady', torrent.hash);
-						});
-					})
-				}
-			})
 		})
 
 		const removeTorrentFromDB = async (torrent) => {
 			const {hash} = torrent
-			await mysqlSingle.query('DELETE FROM torrents WHERE hash = ?', hash)
-			await mysqlSingle.query('DELETE FROM files WHERE hash = ?', hash)
+			await sphinxSingle.query('DELETE FROM torrents WHERE hash = ?', hash)
+			await sphinxSingle.query('DELETE FROM files WHERE hash = ?', hash)
+			logT('remove', 'removed torrent', torrent.name || torrent.hash)
 		}
 
 		const updateTorrentToDB = async (torrent) => {
@@ -571,11 +490,12 @@ app.get('*', function(req, res)
 			delete torrent.id
 			delete torrent.filesList
 
-			await mysqlSingle.updateValues('torrents', torrent, {hash: torrent.hash})
+			await sphinxSingle.updateValues('torrents', torrent, {hash: torrent.hash})
+			logT('update', 'updated torrent', torrent.name)
 		}
 
 		const insertMetadata = (metadata, infohash, rinfo) => {
-			console.log('finded torrent', metadata.info.name, ' and add to database');
+			logT('spider', 'finded torrent', metadata.info.name, ' and add to database');
 
 			const bufferToString = (buffer) => Buffer.isBuffer(buffer) ? buffer.toString() : buffer
 
@@ -598,19 +518,19 @@ app.get('*', function(req, res)
 				for(let i = 0; i < metadata.info.files.length; i++)
 				{
 					let file = metadata.info.files[i];
-					let filePath = bufferToString(file.path).join('/');
+					let filePath = bufferToString(file['path.utf-8'] || file.path).join('/');
 					filesAdd(filePath, file.length);
 					size += file.length;
 				}
 			}
 			else
 			{
-				filesAdd(bufferToString(metadata.info.name), size)
+				filesAdd(bufferToString(metadata.info['name.utf-8'] || metadata.info.name), size)
 			}
 
 			const torrentQ = {
 				hash: hash,
-				name: bufferToString(metadata.info.name),
+				name: bufferToString(metadata.info['name.utf-8'] || metadata.info.name),
 				size: size,
 				files: filesCount,
 				piecelength: metadata.info['piece length'],
@@ -632,7 +552,7 @@ app.get('*', function(req, res)
 			{
 				disk.check(rootPath, function(err, info) {
 					if (err) {
-						console.log(err);
+						logTE('quota', err);
 					} else {
 						const {available, free, total} = info;
 
@@ -675,7 +595,7 @@ app.get('*', function(req, res)
 		}
 
 		recive('dropTorrents', (pathTorrents) => {
-			console.log('drop torrents and replicate from original')
+			logT('drop', 'drop torrents and replicate from original')
 			const torrents = pathTorrents.map(path => parseTorrent(fs.readFileSync(path)))
 			torrents.forEach(torrent => insertMetadata(torrent, torrent.infoHashBuffer, {address: '127.0.0.1', port: 666}))
 		})
@@ -691,7 +611,7 @@ app.get('*', function(req, res)
 				const {address, port} = stunMsg.getAttribute(STUN_ATTR_XOR_MAPPED_ADDRESS).value
 				stunServer.close()
     
-				console.log('p2p stun ignore my address', address)
+				logT('stun', 'p2p stun ignore my address', address)
 				p2p.ignore(address)
 
 				// check port avalibility
@@ -713,7 +633,7 @@ app.get('*', function(req, res)
 					ttl: 0
 				}, function(err) {
 					if(err)
-						console.log('upnp server dont respond')
+						logT('upnp', 'upnp server dont respond')
 				});
 				upnp.portMapping({
 					public: config.spiderPort,
@@ -723,7 +643,7 @@ app.get('*', function(req, res)
 					ttl: 0
 				}, function(err) {
 					if(err)
-						console.log('upnp server dont respond')
+						logT('upnp', 'upnp server dont respond')
 				});
 				upnp.portMapping({
 					public: config.udpTrackersPort,
@@ -733,7 +653,7 @@ app.get('*', function(req, res)
 					ttl: 0
 				}, function(err) {
 					if(err)
-						console.log('upnp server dont respond')
+						logT('upnp', 'upnp server dont respond')
 				});
 			}
 
@@ -758,7 +678,7 @@ app.get('*', function(req, res)
 				if(err)
 					return
 
-				console.log('p2p upnp ignore my address', ip)
+				logT('upnp', 'p2p upnp ignore my address', ip)
 				p2p.ignore(ip)
 			});
 		}
@@ -774,6 +694,7 @@ app.get('*', function(req, res)
 		// setup api
 		await API({
 			sphinx,
+			sphinxSingle: sphinxSingleAlternative,
 			recive,
 			send,
 			p2p,
@@ -812,17 +733,20 @@ app.get('*', function(req, res)
 		}
 
 		// load torrents sessions
-		console.log('restore downloading sessions')
+		logT('downloader', 'restore downloading sessions')
 		torrentClient.loadSession(dataDirectory + '/downloads.json')
 
 		this.stop = async (callback) => {
 			this.closing = true
-			console.log('spider closing...')
+			logT('close', 'spider closing...')
 			if(upnp)
 				upnp.ratsUnmap()
 
+			logT('close', 'closing alternative db interface')
+			await sphinxSingleAlternative.end()
+
 			// save torrents sessions
-			console.log('save torrents downloads sessions')
+			logT('close', 'save torrents downloads sessions')
 			torrentClient.saveSession(dataDirectory + '/downloads.json')
 
 			// save feed
@@ -832,7 +756,7 @@ app.get('*', function(req, res)
 			if(config.p2pBootstrap && p2pBootstrapLoop)
 			{
 				clearInterval(p2pBootstrapLoop)
-				console.log('bootstrap loop stoped')
+				logT('close', 'bootstrap loop stoped')
 			}
 
 			// safe future peers
@@ -843,7 +767,7 @@ app.get('*', function(req, res)
 				if(addresses.length > 0)
 				{
 					fs.writeFileSync(dataDirectory + '/peers.p2p', peersEncripted, 'utf8');
-					console.log('local peers saved')
+					logT('close', 'local peers saved')
 				}
 
 				if(config.p2pBootstrap)
@@ -881,7 +805,7 @@ app.get('*', function(req, res)
 								'Content-Type' : "application/json",
 							}
 						};
-						console.log('bootstrap peers saved to', host)
+						logT('close', 'bootstrap peers saved to', host)
 						const req = http.request(options, resolve);
 						req.on('error', resolve)
 						req.end(JSON.stringify({
@@ -897,7 +821,7 @@ app.get('*', function(req, res)
 				}
 			}
 
-			console.log('closing p2p...')
+			logT('close', 'closing p2p...')
 			// don't listen spider peer appears
 			spider.removeAllListeners('peer')
 			await p2p.close()
@@ -905,13 +829,15 @@ app.get('*', function(req, res)
 			// don't listen complete torrent responses
 			client.removeAllListeners('complete')
 
-			torrentClient.destroy(() => {
-				sphinx.end(() => spider.close(() => {
-					mysqlSingle.destroy()
-					console.log('spider closed')
-					callback()
-				}))
-			})
+			logT('close', 'closing torrent client')
+			torrentClient.destroy(() => spider.close(async () => {
+				await sphinx.end()
+				logT('close', 'pool closed')
+				await sphinxSingle.end()
+				logT('close', 'single closed')
+				logT('close', 'spider closed')
+				callback()
+			}))
 		}
     
 	})()

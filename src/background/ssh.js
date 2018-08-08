@@ -46,7 +46,7 @@ const startSSH = (port, host, user, password, callback) => {
 	}
 
 	ssh.stdout.on('data', (data) => {
-		console.log(`ssh: ${data}`)
+		logT('ssh', `ssh: ${data}`)
 		checkMessage(data)
 		if(data.includes('Store key in cache?'))
 		{
@@ -56,7 +56,7 @@ const startSSH = (port, host, user, password, callback) => {
 	})
 
 	ssh.stderr.on('data', (data) => {
-		console.log(`ssh error: ${data}`);
+		logT('ssh', `ssh error: ${data}`);
 		checkMessage(data)
 		if(data.includes('Password authentication failed'))
 		{
@@ -70,7 +70,7 @@ const startSSH = (port, host, user, password, callback) => {
 	});
 
 	ssh.on('close', (code, signal) => {
-		console.log(`ssh closed with code ${code} and signal ${signal}`)
+		logT('ssh', `ssh closed with code ${code} and signal ${signal}`)
 		if(callback)
 			callback(false)
 	})

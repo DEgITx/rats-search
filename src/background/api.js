@@ -4,9 +4,11 @@ const compareVersions = require('compare-versions');
 const getTorrent = require('./gettorrent')
 const _ = require('lodash')
 const asyncForEach = require('./asyncForEach')
+const cpuUsage = require('./bt/cpu-usage-global')
 
 module.exports = async ({
 	sphinx,
+	sphinxSingle,
 	send,
 	recive,
 	p2p,
@@ -104,7 +106,7 @@ module.exports = async ({
 
 		sphinx.query('SELECT count(*) AS torrents, sum(size) AS sz FROM `torrents`', function (error, rows, fields) {
 			if(!rows) {
-				console.error(error)
+				logTE('statistic', error)
 				callback(undefined)
 				return;
 			}
@@ -113,7 +115,7 @@ module.exports = async ({
 
 			sphinx.query('SELECT count(*) AS files FROM `files`', function (error, rows, fields) {
 				if(!rows) {
-					console.error(error)
+					logTE('statistic', error)
 					callback(undefined)
 					return;
 				}
@@ -135,22 +137,22 @@ module.exports = async ({
 		// remote request
 		if(options.peer)
 		{
-			console.log('remote torrent request to peer')
+			logT('search', 'remote torrent request to peer')
 			const peer = p2p.find(options.peer)
 			if(!peer)
 			{
-				console.log('dont found requested peer in peers')
+				logT('search', 'dont found requested peer in peers')
 				callback(undefined)
 				return;
 			}
 			delete options.peer;
 			peer.emit('torrent', {hash, options}, (data, nil, address) => {
-				console.log('remote torrent result', hash)
+				logT('search', 'remote torrent result', hash)
 				callback(data)
 
 				if(compareVersions(address.version, '0.19.0') < 0)
 				{
-					console.log('replication selected torrent now works only with 0.19.0 version, ignore this torrent')
+					logT('search', 'replication selected torrent now works only with 0.19.0 version, ignore this torrent')
 					return
 				}
 
@@ -184,7 +186,7 @@ module.exports = async ({
 			});
 			if(torrent.good != good || torrent.bad != bad)
 			{
-				console.log('finded new rating on', torrent.name, 'update votes to it')
+				logT('rating', 'finded new rating on', torrent.name, 'update votes to it')
 				torrent.good = good
 				torrent.bad = bad
 				updateTorrentToDB(torrent)
@@ -202,13 +204,16 @@ module.exports = async ({
 
 	if(config.p2pReplicationServer)
 	{
-		console.log('p2p replication server enabled')
+		logT('replication', 'p2p replication server enabled')
 
 		p2p.on('randomTorrents', (nil, callback) => {
 			if(typeof callback != 'function')
 				return;
-    
-			sphinx.query('SELECT * FROM `torrents` ORDER BY rand() limit 5', (error, torrents) => {
+	
+			const cpu = cpuUsage()
+			const limit = Math.max(1, 5 - (cpu / 20) | 0)
+
+			sphinxSingle.query(`SELECT * FROM torrents ORDER BY rand() limit ${limit}`, (error, torrents) => {
 				if(!torrents || torrents.length == 0) {
 					callback(undefined)
 					return;
@@ -222,7 +227,7 @@ module.exports = async ({
 				}
     
 				const inSql = Object.keys(hashes).map(hash => sphinx.escape(hash)).join(',');
-				sphinx.query(`SELECT * FROM files WHERE hash IN(${inSql}) limit 50000`, (error, files) => {
+				sphinxSingle.query(`SELECT * FROM files WHERE hash IN(${inSql}) limit 50000`, (error, files) => {
 					if(!files)
 					{
 						files = []
@@ -248,14 +253,14 @@ module.exports = async ({
 
 					if(compareVersions(address.version, '0.19.0') < 0)
 					{
-						console.log('replication now works only with 0.19.0 version, ignore this torrent')
+						logT('replication', 'replication now works only with 0.19.0 version, ignore this torrent')
 						return
 					}
 
 					gotTorrents += torrents.length
 
 					torrents.forEach((torrent) => {
-						console.log('replicate remote torrent', torrent && torrent.name)
+						logT('replication', 'replicate remote torrent', torrent && torrent.name)
 						insertTorrentToDB(torrent)
 					})
 				})
@@ -263,7 +268,7 @@ module.exports = async ({
 				setTimeout(() => getReplicationTorrents(gotTorrents > 8 ? gotTorrents * 600 : 10000), nextTimeout)
 			}
 			// start
-			console.log('replication client is enabled')
+			logT('replication', 'replication client is enabled')
 			getReplicationTorrents()
 		}
 	}
@@ -338,13 +343,13 @@ module.exports = async ({
 		const isSHA1 = isSH1Hash(text)
 		sphinx.query('SELECT * FROM `torrents` WHERE ' + (isSHA1 ? 'hash = ?' : 'MATCH(?)') + ' ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
 			if(!rows) {
-				console.log(error)
+				logT('search', error)
 				callback(undefined)
 				return;
 			}
 			if(rows.length === 0 && isSHA1 && !isP2P) // trying to get via dht
 			{
-				console.log('get torrent via infohash with dht')
+				logT('search', 'get torrent via infohash with dht')
 				torrentClient.getMetadata(text, (torrent) => {
 					searchList.push(baseRowData(torrent));
 					callback(searchList);
@@ -363,7 +368,7 @@ module.exports = async ({
 	recive('searchTorrent', mergeTorrentsWithDownloadsFn((text, navigation, callback) => {
 		searchTorrentCall(text, navigation, callback)
 		p2p.emit('searchTorrent', {text, navigation}, (remote, socketObject) => {
-			console.log('remote search results', remote && remote.length)
+			logT('search', 'remote search results', remote && remote.length)
 			if(remote && remote.length > 0)
 			{
 				const { _socket: socket } = socketObject
@@ -438,7 +443,7 @@ module.exports = async ({
 		//sphinx.query('SELECT * FROM `files` inner join torrents on(torrents.hash = files.hash) WHERE files.path like \'%' + text + '%\' ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
 		sphinx.query('SELECT * FROM `files` WHERE MATCH(?) ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, files, fields) {
 			if(!files) {
-				console.log(error)
+				logT('search', error)
 				callback(undefined)
 				return;
 			}
@@ -458,7 +463,7 @@ module.exports = async ({
 			const inSql = Object.keys(search).map(hash => sphinx.escape(hash)).join(',');
 			sphinx.query(`SELECT * FROM torrents WHERE hash IN(${inSql})`, (err, torrents) => {
 				if(!torrents) {
-					console.log(err)
+					logT('search', err)
 					return;
 				}
 
@@ -486,7 +491,7 @@ module.exports = async ({
 	recive('searchFiles', mergeTorrentsWithDownloadsFn((text, navigation, callback) => {
 		searchFilesCall(text, navigation, callback)
 		p2p.emit('searchFiles', {text, navigation}, (remote, socketObject) => {
-			console.log('remote search files results', remote && remote.length)
+			logT('search', 'remote search files results', remote && remote.length)
 			if(remote && remote.length > 0)
 			{
 				const { _socket: socket } = socketObject
@@ -562,7 +567,7 @@ module.exports = async ({
 	{
 		topTorrentsCall(type, navigation, callback)
 		p2p.emit('topTorrents', {type, navigation}, (remote, socketObject) => {
-			console.log('remote top results', remote && remote.length)
+			logT('top', 'remote top results', remote && remote.length)
 			if(remote && remote.length > 0)
 			{
 				const { _socket: socket } = socketObject
@@ -652,9 +657,9 @@ module.exports = async ({
 	torrentClient._add = (torrentObject, savePath, callback) =>
 	{
 		const magnet = `magnet:?xt=urn:btih:${torrentObject.hash}`
-		console.log('download', magnet)
+		logT('downloader', 'download', magnet)
 		if(torrentClient.get(magnet)) {
-			console.log('aready added')
+			logT('downloader', 'aready added')
 			if(callback)
 				callback(false)
 			return
@@ -675,7 +680,7 @@ module.exports = async ({
 		}
 
 		torrent.on('ready', () => {
-			console.log('start downloading', torrent.infoHash, 'to', torrent.path)
+			logT('downloader', 'start downloading', torrent.infoHash, 'to', torrent.path)
 			send('downloading', torrent.infoHash)
 			progress(0) // immediately display progress
 			if(torrent._paused)
@@ -686,7 +691,7 @@ module.exports = async ({
 		})
 
 		torrent.on('done', () => { 
-			console.log('download done', torrent.infoHash)
+			logT('downloader', 'download done', torrent.infoHash)
 			progress(0) // update progress
 			// remove torrent if marked
 			if(torrent.removeOnDone)
@@ -694,7 +699,7 @@ module.exports = async ({
 				torrentClient.remove(magnet, (err) => {
 					if(err)
 					{
-						console.log('download removing error', err)
+						logT('downloader', 'download removing error', err)
 						return
 					}
         
@@ -719,7 +724,7 @@ module.exports = async ({
 
 		//custom api pause
 		torrent._pause = () => {
-			console.log('pause torrent downloading', torrent.infoHash)
+			logT('downloader', 'pause torrent downloading', torrent.infoHash)
 			torrent.pause()
 			torrent.wires = [];
 			setTimeout(() => {
@@ -737,7 +742,7 @@ module.exports = async ({
 		}
 
 		torrent._resume = () => {
-			console.log('resume torrent downloading', torrent.infoHash)
+			logT('downloader', 'resume torrent downloading', torrent.infoHash)
 			torrent._restoreWires()
 			torrent.resume()
 		}
@@ -767,13 +772,13 @@ module.exports = async ({
 		const id = torrentClientHashMap[hash]
 		if(!id)
 		{
-			console.log('cant find torrent for removing', hash)
+			logT('downloader', 'cant find torrent for removing', hash)
 			return
 		}
         
 		const torrent = torrentClient.get(id)
 		if(!torrent) {
-			console.log('no torrent for update founded')
+			logT('downloader', 'no torrent for update founded')
 			return
 		}
 
@@ -802,7 +807,7 @@ module.exports = async ({
 		const id = torrentClientHashMap[hash]
 		if(!id)
 		{
-			console.log('cant find torrent for removing', hash)
+			logT('downloader', 'cant find torrent for removing', hash)
 			if(callback)
 				callback(false)
 			return
@@ -811,7 +816,7 @@ module.exports = async ({
 		torrentClient.remove(id, (err) => {
 			if(err)
 			{
-				console.log('download removing error', err)
+				logT('downloader', 'download removing error', err)
 				if(callback)
 					callback(false)
 				return
@@ -846,12 +851,12 @@ module.exports = async ({
 			return
 		removeProtect = true
 
-		console.log('checktorrents call')
+		logT('clean', 'checktorrents call')
 
 		const toRemove = []
 
 		const done = async () => {
-			console.log('torrents to remove founded', toRemove.length)
+			logT('clean', 'torrents to remove founded', toRemove.length)
 			if(checkOnly)
 			{
 				callback(toRemove.length)
@@ -865,7 +870,7 @@ module.exports = async ({
 			})
 			callback(toRemove.length)
 			removeProtect = false
-			console.log('removed torrents by filter:', toRemove.length)
+			logT('clean', 'removed torrents by filter:', toRemove.length)
 		}
 
 		let i = 1
@@ -960,7 +965,7 @@ module.exports = async ({
 
 		if(!myself)
 		{
-			console.log('replicate torrent from store record', torrent.hash)
+			logT('store', 'replicate torrent from store record', torrent.hash)
 			await insertTorrentToDB(torrent)
 		}
 
@@ -1009,7 +1014,7 @@ module.exports = async ({
 			
 					if(remoteFeed.feed.length > feed.size() || (remoteFeed.feed.length == feed.size() && remoteFeed.feedDate > feed.feedDate))
 					{
-						console.log('replace our feed with remote feed')
+						logT('feed', 'replace our feed with remote feed')
 						feed.feed = remoteFeed.feed
 						feed.feedDate = remoteFeed.feedDate || 0
 						// it can be new torrents replicate all

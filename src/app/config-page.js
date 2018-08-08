@@ -247,6 +247,18 @@ export default class ConfigPage extends Page {
 						/>
 						<div className='fs0-75' style={{color: 'grey'}}>* {__('Enable torrents replication from another rats clients. Dont recomended if torrent scanner works correct')}.</div>
 					</div>
+					<div className='column w100p'>
+						<Toggle
+							style={{marginTop: '10px'}}
+							label={__('Check torrent files intergrity')}
+							toggled={this.options.recheckFilesOnAdding}
+							onToggle={(e, checked) => {
+								this.options.recheckFilesOnAdding = checked
+								this.forceUpdate()
+							}}
+						/>
+						<div className='fs0-75' style={{color: 'grey'}}>* {__('Enable database torrents files intergrity check on adding each torrent. Disable this will free some cpu usage on adding operation.')}</div>
+					</div>
 
 
 					<div style={{marginTop: 10}}>{__('Torrent network scanner settings')}:</div>
