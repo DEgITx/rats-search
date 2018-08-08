@@ -81,7 +81,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		p2p.info.torrents = (await sphinxSingle.query("SELECT COUNT(*) as cnt from torrents"))[0].cnt
 		p2p.info.files = (await sphinxSingle.query("SELECT COUNT(*) as cnt from files"))[0].cnt
 		const sphinxSingleAlternative = await single().waitConnection()
-		
+        
 
 		// start
 		function baseRowData(row)
@@ -388,7 +388,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				sphinxSingle.query('SELECT count(*) as files_count FROM files WHERE hash = ?', [torrent.hash], function(err, rows) {
 					if(!rows)
 						return
-	
+    
 					const db_files = rows[0]['files_count'];
 					if(db_files !== torrent.files)
 					{
@@ -575,7 +575,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			}
 		});
 
-		
+        
 		let downloadersCallbacks = {}
 		events.on('insert', (torrent) => {
 			const { hash } = torrent

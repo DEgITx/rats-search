@@ -58,13 +58,13 @@ class PagesPie extends Component {
     				{
     					this.pie.map(({Page, params}, index) => {
     						let focus = false;
-    						if (index === this.pie.length-1) {
+    						if (index === this.pie.length - 1) {
     							focus = true;
     						}
     						return (
     							<Page
     								focused={focus}
-    								closeHandler={() => { index> 0 ? this.close() : null}}
+    								closeHandler={() => { index > 0 ? this.close() : null}}
     								index={index}
     								key={index}
     								ref={index}

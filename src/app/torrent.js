@@ -187,7 +187,7 @@ export default class Torrent extends Component {
 
   componentDidMount()
   {
-	scrollBack()
+  	scrollBack()
 
   	this.downloading = (hash) => {
   		if(this.props.torrent.hash != hash)
@@ -275,7 +275,7 @@ export default class Torrent extends Component {
               return true;
             }
             */
-					window.rememberYOffset = window.pageYOffset
+  					window.rememberYOffset = window.pageYOffset
   					window.routerFix()
   					PagesPie.instance().open(TorrentPage, {replace: 'all', hash: torrent.hash, peer: torrent.peer})
   				}} 

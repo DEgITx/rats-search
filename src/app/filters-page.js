@@ -249,7 +249,7 @@ export default class ConfigPage extends Page {
 							null
 					}
 					{
-							this.removed > 0 && !this.toRemove && !this.toRemoveProbably
+						this.removed > 0 && !this.toRemove && !this.toRemoveProbably
 							?
 							<div style={{color: 'purple'}}>{this.realRemove ? __('removing') : __('calculation')}...: {this.removed}{this.removedMax > 0 ? '/' + this.removedMax : ''}</div>
 							:
