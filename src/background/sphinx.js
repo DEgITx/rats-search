@@ -156,7 +156,11 @@ module.exports = (callback, dataDirectory, onClose) => {
 			appConfig['dbPath'] = sphinxConfigDirectory
 		}
 
-		const { isInitDb } = writeSphinxConfig(sphinxConfigDirectory, appConfig.dbPath)
+		const sphinxPid=`${sphinxConfigDirectory}/searchd.pid`
+		const isSphinxExternal=fs.existsSync(sphinxPid)
+		logT('sphinx', "Pid: "+sphinxPid + (isSphinxExternal?" exists.":" no file."));
+
+		const { isInitDb } = isSphinxExternal ? {isInitDb: false} : writeSphinxConfig(sphinxConfigDirectory, appConfig.dbPath)
 
 		const config = `${sphinxConfigDirectory}/sphinx.conf`
 		const options = ['--config', config]
@@ -164,7 +168,10 @@ module.exports = (callback, dataDirectory, onClose) => {
 		{
 			options.push('--nodetach')
 		}
-		const sphinx = spawn(sphinxPath, options)
+
+		const sphinx = !isSphinxExternal ? spawn(sphinxPath, options) :
+			{isExternal: true, on: (d,f) => {}, stdout: {on : (d,f)=>{} }};
+
 		// remeber initizalizing of db
 		sphinx.start = start
 		sphinx.isInitDb = isInitDb
@@ -172,6 +179,8 @@ module.exports = (callback, dataDirectory, onClose) => {
 		sphinx.directoryPathDb = appConfig.dbPath + '/database'
 
 		const optimizeResolvers = {}
+
+		if (isSphinxExternal && callback) setTimeout(()=>{logT('sphinx', 'external sphinx signalled');callback()},500);
 
 		sphinx.stdout.on('data', (data) => {
 			logT('sphinx', `sphinx: ${data}`)
@@ -216,7 +225,8 @@ module.exports = (callback, dataDirectory, onClose) => {
 				sphinx.onClose = onFinish
 			if(replaceFinish)
 				sphinx.replaceOnClose = true // sometime we don't want to call default callback
-			exec(`"${sphinxPath}" --config "${config}" --stopwait`)
+			if (!sphinx.isExternal)
+				exec(`"${sphinxPath}" --config "${config}" --stopwait`)
 		}
 
 		sphinx.waitOptimized = (table) => new Promise((resolve) => {
@@ -227,6 +237,9 @@ module.exports = (callback, dataDirectory, onClose) => {
 		})
 
 		sphinx.fixDatabase = async () => {
+			if(sphinx.isExternal)
+				return
+
 			if(sphinx.fixing)
 				return
 			sphinx.fixing = true
