@@ -261,7 +261,8 @@ export default class Torrent extends Component {
 
   	return (
   		<div>
-  			<ListItem 
+			  <ListItem 
+			  	className='torrentRow'
   				innerDivStyle={{paddingRight: 84}}
   				onClick={(e) => {
   					const link = '/torrent/' + torrent.hash;
@@ -284,7 +285,7 @@ export default class Torrent extends Component {
   						if(node)
   							node.onclick = () => { return false }
   					}}>
-  						<span className='break-word' style={{
+  						<span className='break-word torrentName' style={{
   							color: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : (torrent.peer ? '#9083e2' : 'grey')
   						}}>
   							{torrent.name}
