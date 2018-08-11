@@ -28,6 +28,7 @@ let config = {
 	sphinx: {
 		host     : '127.0.0.1',
 		port     : 9306,
+		interfacePort: 9312,
 		connectionLimit: 10
 	},
 
@@ -107,7 +108,7 @@ const configProxy = new Proxy(config, {
 })
 
 config.load = () => {
-	debug('loading configuration')
+	debug('loading configuration', configPath)
 	if(fs.existsSync(configPath))
 	{
 		debug('finded configuration', configPath)
@@ -131,6 +132,11 @@ config.load = () => {
 		}
 	}
 	return configProxy
+}
+
+config.reload = (path) => {
+	configPath = path  + '/rats.json'
+	return config.load()
 }
 
 module.exports = configProxy.load()

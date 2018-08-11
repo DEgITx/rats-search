@@ -11,8 +11,21 @@ const appConfig = require('./config')
 const findFiles = require('./findFiles')
 const _ = require('lodash')
 const isRunning = require('is-running')
+const portCheck = require('./portCheck')
 
-const writeSphinxConfig = (path, dbPath) => {
+const findGoodPort = async (port, host) => {
+	while (!(await portCheck(port, host))) {
+	  port++
+	  logT('sphinx', 'port is busy, listen on', port)
+	}
+	return port
+}
+
+const writeSphinxConfig = async (path, dbPath) => {
+	appConfig.sphinx.port = await findGoodPort(appConfig.sphinx.port)
+	appConfig.sphinx.interfacePort = await findGoodPort(appConfig.sphinx.interfacePort)
+	appConfig.sphinx = appConfig.sphinx
+
 	let config = `
   index torrents
   {
@@ -83,8 +96,8 @@ const writeSphinxConfig = (path, dbPath) => {
 
   searchd
   {
-    listen      = 9312
-    listen      = 9306:mysql41
+    listen      = 127.0.0.1:${appConfig.sphinx.interfacePort}
+    listen      = 127.0.0.1:${appConfig.sphinx.port}:mysql41
     read_timeout    = 5
     max_children    = 30
     seamless_rotate   = 1
@@ -143,8 +156,8 @@ const writeSphinxConfig = (path, dbPath) => {
 	return {isInitDb}
 }
 
-module.exports = (callback, dataDirectory, onClose) => {
-	const start = (callback) => {
+module.exports = async (callback, dataDirectory, onClose) => {
+	const start = async (callback) => {
 
 		const sphinxPath = path.resolve(appPath('searchd'))
 		logT('sphinx', 'Sphinx Path:', sphinxPath)
@@ -163,7 +176,7 @@ module.exports = (callback, dataDirectory, onClose) => {
 		if(isSphinxExternal)
 			logT('sphinx', `founded running sphinx instance in ${sphinxPid}, using it`)
 
-		const { isInitDb } = isSphinxExternal ? {isInitDb: false} : writeSphinxConfig(sphinxConfigDirectory, appConfig.dbPath)
+		const { isInitDb } = isSphinxExternal ? {isInitDb: false} : await writeSphinxConfig(sphinxConfigDirectory, appConfig.dbPath)
 
 		const config = `${sphinxConfigDirectory}/sphinx.conf`
 		const options = ['--config', config]
@@ -288,7 +301,7 @@ module.exports = (callback, dataDirectory, onClose) => {
 
 			sphinx.fixing = false
 
-			_.merge(sphinx, sphinx.start(callback));
+			_.merge(sphinx, await sphinx.start(callback));
 		}
 
 		if (isSphinxExternal && callback) setTimeout(()=>{logT('sphinx', 'external sphinx signalled');callback()}, 0);
@@ -296,5 +309,5 @@ module.exports = (callback, dataDirectory, onClose) => {
 		return sphinx
 	}
 
-	return start(callback)
+	return await start(callback)
 }

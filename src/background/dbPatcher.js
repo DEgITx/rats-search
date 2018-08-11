@@ -246,9 +246,9 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 
 			logT('patcher', 'cleaned torrents db structure, rectreating again')
 			i = 1
-			await new Promise((resolve) => {
+			await new Promise(async (resolve) => {
 				// reopen sphinx
-				sphinxApp = sphinxApp.start(async () => {
+				sphinxApp = await sphinxApp.start(async () => {
 					sphinx = await single().waitConnection()
 					resolve()
 				}) // same args

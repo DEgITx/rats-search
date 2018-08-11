@@ -68,14 +68,17 @@ io.on('connection', (socket) =>
 	}
 })
 
-sphinx = startSphinx(() => {
-	dbPatcher(() => {
-		spider = new spiderCall((...data) => io.sockets.emit(...data), (message, callback) => {
-			socketMessages[message] = callback
-		}, path.resolve(packageJson.serverDataDirectory), packageJson.version, 'production')
-	}, null, sphinx)
-}, path.resolve(packageJson.serverDataDirectory), () => {})
-
+const start = async () => 
+{
+	sphinx = await startSphinx(() => {
+		dbPatcher(() => {
+			spider = new spiderCall((...data) => io.sockets.emit(...data), (message, callback) => {
+				socketMessages[message] = callback
+			}, path.resolve(packageJson.serverDataDirectory), packageJson.version, 'production')
+		}, null, sphinx)
+	}, path.resolve(packageJson.serverDataDirectory), () => {})
+}
+start()
 
 var rl = require("readline").createInterface({
 	input: process.stdin,
@@ -92,8 +95,12 @@ process.on("SIGINT", () => {
 	{
 		spider.stop(() => sphinx.stop(() => process.exit()))
 	}
-	else
+	else if(sphinx)
 	{
 		sphinx.stop(() => process.exit())
+	}
+	else
+	{
+		process.exit()
 	}
 });

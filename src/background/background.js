@@ -171,8 +171,8 @@ autoUpdater.on('update-downloaded', () => {
 
 let tray = undefined
 
-app.on("ready", () => {
-	sphinx = startSphinx(() => {
+app.on("ready", async () => {
+	sphinx = await startSphinx(() => {
   
 		mainWindow = createWindow("main", {
 			width: 1000,
