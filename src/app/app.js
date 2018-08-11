@@ -151,7 +151,7 @@ class App extends Component {
 			if(!files || files.length == 0)
 				return
 
-			torrentSocket.emit('dropTorrents', Array.from(files).filter(file => file.type == 'application/x-bittorrent').map(file => file.path))
+			torrentSocket.emit('dropTorrents', Array.from(files).filter(file => (file.type == 'application/x-bittorrent' || file.type == '')).map(file => file.path))
 		}
 
 		document.addEventListener('dragover', (event) => {
