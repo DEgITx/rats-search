@@ -367,3 +367,8 @@ rl.on("SIGINT", function () {
 process.on("SIGINT", () => {
 	stop()
 });
+
+process.on("exit", () => {
+	if(spider)
+		spider.preventNetworkOnExit = true
+})
