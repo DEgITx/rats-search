@@ -187,7 +187,7 @@ export default class Torrent extends Component {
 
   componentDidMount()
   {
-	scrollBack()
+  	scrollBack()
 
   	this.downloading = (hash) => {
   		if(this.props.torrent.hash != hash)
@@ -261,7 +261,8 @@ export default class Torrent extends Component {
 
   	return (
   		<div>
-  			<ListItem 
+			  <ListItem 
+			  	className='torrentRow'
   				innerDivStyle={{paddingRight: 84}}
   				onClick={(e) => {
   					const link = '/torrent/' + torrent.hash;
@@ -275,7 +276,7 @@ export default class Torrent extends Component {
               return true;
             }
             */
-					window.rememberYOffset = window.pageYOffset
+  					window.rememberYOffset = window.pageYOffset
   					window.routerFix()
   					PagesPie.instance().open(TorrentPage, {replace: 'all', hash: torrent.hash, peer: torrent.peer})
   				}} 
@@ -284,7 +285,7 @@ export default class Torrent extends Component {
   						if(node)
   							node.onclick = () => { return false }
   					}}>
-  						<span className='break-word' style={{
+  						<span className='break-word torrentName' style={{
   							color: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5643db' : 'black') : (torrent.peer ? '#9083e2' : 'grey')
   						}}>
   							{torrent.name}

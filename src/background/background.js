@@ -84,9 +84,9 @@ const stringHashCode = (str) => {
 	if (str.length === 0) 
 		return hash;
 	for (i = 0; i < str.length; i++) {
-	  chr   = str.charCodeAt(i);
-	  hash  = ((hash << 5) - hash) + chr;
-	  hash |= 0; // Convert to 32bit integer
+		chr   = str.charCodeAt(i);
+		hash  = ((hash << 5) - hash) + chr;
+		hash |= 0; // Convert to 32bit integer
 	}
 	return hash;
 };
@@ -171,8 +171,8 @@ autoUpdater.on('update-downloaded', () => {
 
 let tray = undefined
 
-app.on("ready", () => {
-	sphinx = startSphinx(() => {
+app.on("ready", async () => {
+	sphinx = await startSphinx(() => {
   
 		mainWindow = createWindow("main", {
 			width: 1000,
@@ -367,3 +367,8 @@ rl.on("SIGINT", function () {
 process.on("SIGINT", () => {
 	stop()
 });
+
+process.on("exit", () => {
+	if(spider)
+		spider.preventNetworkOnExit = true
+})

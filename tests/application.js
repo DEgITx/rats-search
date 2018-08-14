@@ -8,7 +8,7 @@ const startApplication = function() {
 		args: ["."],
 		startTimeout: 30000,
 		waitTimeout: 30000,
-		quitTimeout: 10000
+		quitTimeout: 15000
 	});
 	return this.app.start();
 };

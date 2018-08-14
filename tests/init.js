@@ -9,6 +9,8 @@ describe("application", () => {
 	it("check start", async function() {
 		const { app } = this
 		await app.client.waitForExist('#index-window')
+		// fix realtime config
+		require('../src/background/config').reload(await app.electron.remote.app.getPath('userData'))
 	});
 
 	//TESTS

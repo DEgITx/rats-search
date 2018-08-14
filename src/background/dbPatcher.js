@@ -12,7 +12,7 @@ const getTorrent = require('./gettorrent')
 const startSphinx = require('./sphinx')
 
 
-const currentVersion = 5
+const currentVersion = 6
 
 
 module.exports = async (callback, mainWindow, sphinxApp) => {
@@ -104,6 +104,112 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 
 	const patch = async (version) => {
 		logT('patcher', 'db version', version)
+
+		const rebuildTorrentsFull = async () => {
+
+			if(sphinxApp.isExternal)
+			{
+				logTE('patcher', 'this patch avaiable only not on external db')
+				throw new Error('this patch avaiable only not on external db')
+			}
+
+			let i = 1
+			const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
+
+			let torrentsArray = []
+
+			let patch = 1
+			await forBigTable(sphinx, 'torrents', async (torrent) => {
+				logT('patcher', 'remember index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
+				if(patchWindow)
+					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
+
+				torrentsArray.push(torrent)
+				// keep memory safe
+				if(torrentsArray.length >= 20000)
+				{
+					fs.writeFileSync(`${sphinxApp.directoryPath}/torrents.patch.${patch++}`, JSON.stringify(torrentsArray, null, 4), 'utf8');
+					logT('patcher', 'write torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${patch - 1}`)
+					torrentsArray = []
+				}
+			})
+			// keep last elemets
+			if(torrentsArray.length > 0)
+			{
+				fs.writeFileSync(`${sphinxApp.directoryPath}/torrents.patch.${patch}`, JSON.stringify(torrentsArray, null, 4), 'utf8');
+				logT('patcher', 'write torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${patch}`)
+				torrentsArray = []
+			}
+			else
+			{
+				patch-- //no last patch
+			}
+
+			// stop sphinx
+			await new Promise((resolve) => {
+				// reopen sphinx
+				sphinx.destroy() // destory connection
+				sphinxApp.stop(resolve, true)
+			})
+
+			logT('patcher', 'sphinx stoped for patching')
+
+			await new Promise((resolve) => {
+				glob(`${sphinxApp.directoryPathDb}/torrents.*`, function (er, files) {
+					files.forEach(file => {
+						logT('patcher', 'clear torrents file', file)
+						fs.unlinkSync(path.resolve(file))
+					})
+					resolve()
+				})
+			})
+
+			logT('patcher', 'cleaned torrents db structure, rectreating again')
+			i = 1
+			await new Promise(async (resolve) => {
+				// reopen sphinx
+				sphinxApp = await sphinxApp.start(async () => {
+					sphinx = await single().waitConnection()
+					resolve()
+				}) // same args
+			})
+
+			logT('patcher', 'sphinx restarted, patch db now')
+
+			for(let k = 1; k <= patch; k++)
+			{
+				torrentsArray = JSON.parse(fs.readFileSync(`${sphinxApp.directoryPath}/torrents.patch.${k}`, 'utf8'))
+				logT('patcher', 'read torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${k}`)
+				await asyncForEach(torrentsArray, async (torrent) => {
+					logT('patcher', 'update index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
+					if(patchWindow)
+						patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
+
+					torrent.nameIndex = torrent.name
+					await sphinx.query(`DELETE FROM torrents WHERE id = ${torrent.id}`)
+					await sphinx.insertValues('torrents', torrent)
+				})
+			}
+
+			await new Promise((resolve) => {
+				glob(`${sphinxApp.directoryPath}/torrents.patch.*`, function (er, files) {
+					files.forEach(file => {
+						logT('patcher', 'clear dump file', file)
+						fs.unlinkSync(path.resolve(file))
+					})
+					resolve()
+				})
+			})
+
+			torrentsArray = null
+
+			logT('patcher', 'optimizing torrents')
+			if(patchWindow)
+				patchWindow.webContents.send('optimize', {field: 'torrents'})
+			sphinx.query(`OPTIMIZE INDEX torrents`)
+			await sphinxApp.waitOptimized('torrents')
+		}
+
 		switch(version)
 		{
 		case 1:
@@ -192,104 +298,14 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 		case 4:
 		{
 			openPatchWindow()
-
-			let i = 1
-			const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
-
-			let torrentsArray = []
-
-			let patch = 1
-			await forBigTable(sphinx, 'torrents', async (torrent) => {
-				logT('patcher', 'remember index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
-				if(patchWindow)
-					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
-
-				torrentsArray.push(torrent)
-				// keep memory safe
-				if(torrentsArray.length >= 20000)
-				{
-					fs.writeFileSync(`${sphinxApp.directoryPath}/torrents.patch.${patch++}`, JSON.stringify(torrentsArray, null, 4), 'utf8');
-					logT('patcher', 'write torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${patch-1}`)
-					torrentsArray = []
-				}
-			})
-			// keep last elemets
-			if(torrentsArray.length > 0)
-			{
-				fs.writeFileSync(`${sphinxApp.directoryPath}/torrents.patch.${patch}`, JSON.stringify(torrentsArray, null, 4), 'utf8');
-				logT('patcher', 'write torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${patch}`)
-				torrentsArray = []
-			}
-			else
-			{
-				patch-- //no last patch
-			}
-
-			// stop sphinx
-			await new Promise((resolve) => {
-				// reopen sphinx
-				sphinx.destroy() // destory connection
-				sphinxApp.stop(resolve, true)
-			})
-
-			logT('patcher', 'sphinx stoped for patching')
-
-			await new Promise((resolve) => {
-				glob(`${sphinxApp.directoryPathDb}/torrents.*`, function (er, files) {
-					files.forEach(file => {
-						logT('patcher', 'clear torrents file', file)
-						fs.unlinkSync(path.resolve(file))
-					})
-					resolve()
-				})
-			})
-
-			logT('patcher', 'cleaned torrents db structure, rectreating again')
-			i = 1
-			await new Promise((resolve) => {
-				// reopen sphinx
-				sphinxApp = sphinxApp.start(async () => {
-					sphinx = await single().waitConnection()
-					resolve()
-				}) // same args
-			})
-
-			logT('patcher', 'sphinx restarted, patch db now')
-
-			for(let k = 1; k <= patch; k++)
-			{
-				torrentsArray = JSON.parse(fs.readFileSync(`${sphinxApp.directoryPath}/torrents.patch.${k}`, 'utf8'))
-				logT('patcher', 'read torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${k}`)
-				await asyncForEach(torrentsArray, async (torrent) => {
-					logT('patcher', 'update index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
-					if(patchWindow)
-						patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
-
-					torrent.nameIndex = torrent.name
-					await sphinx.query(`DELETE FROM torrents WHERE id = ${torrent.id}`)
-					await sphinx.insertValues('torrents', torrent)
-				})
-			}
-
-			await new Promise((resolve) => {
-				glob(`${sphinxApp.directoryPath}/torrents.patch.*`, function (er, files) {
-					files.forEach(file => {
-						logT('patcher', 'clear dump file', file)
-						fs.unlinkSync(path.resolve(file))
-					})
-					resolve()
-				})
-			})
-
-			torrentsArray = null
-
-			logT('patcher', 'optimizing torrents')
-			if(patchWindow)
-				patchWindow.webContents.send('optimize', {field: 'torrents'})
-			sphinx.query(`OPTIMIZE INDEX torrents`)
-			await sphinxApp.waitOptimized('torrents')
-    
+			await rebuildTorrentsFull()
 			await setVersion(5)
+		}
+		case 5:
+		{
+			openPatchWindow()
+			await rebuildTorrentsFull()
+			await setVersion(6)
 		}
 		}
 		logT('patcher', 'db patch done')
