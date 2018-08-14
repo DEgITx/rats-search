@@ -31,6 +31,9 @@ const checkInternet = require('./checkInternet')
 const {torrentTypeDetect} = require('../app/content');
 
 const torrentClient = require('./torrentClient')
+const directoryFilesRecursive = require('./directoryFilesRecursive')
+const _ = require('lodash')
+const mime = require('mime');
 
 // Start server
 //server.listen(config.httpPort);
@@ -81,7 +84,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		p2p.info.torrents = (await sphinxSingle.query("SELECT COUNT(*) as cnt from torrents"))[0].cnt
 		p2p.info.files = (await sphinxSingle.query("SELECT COUNT(*) as cnt from files"))[0].cnt
 		const sphinxSingleAlternative = await single().waitConnection()
-		
+        
 
 		// start
 		function baseRowData(row)
@@ -388,7 +391,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				sphinxSingle.query('SELECT count(*) as files_count FROM files WHERE hash = ?', [torrent.hash], function(err, rows) {
 					if(!rows)
 						return
-	
+    
 					const db_files = rows[0]['files_count'];
 					if(db_files !== torrent.files)
 					{
@@ -495,9 +498,9 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		}
 
 		const insertMetadata = (metadata, infohash, rinfo) => {
-			logT('spider', 'finded torrent', metadata.info.name, ' and add to database');
-
 			const bufferToString = (buffer) => Buffer.isBuffer(buffer) ? buffer.toString() : buffer
+
+			logT('spider', 'finded torrent', bufferToString(metadata.info.name), 'and add to database');
 
 			const hash = infohash.toString('hex');
 			let size = metadata.info.length ? metadata.info.length : 0;
@@ -575,7 +578,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			}
 		});
 
-		
+        
 		let downloadersCallbacks = {}
 		events.on('insert', (torrent) => {
 			const { hash } = torrent
@@ -595,9 +598,25 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		}
 
 		recive('dropTorrents', (pathTorrents) => {
-			logT('drop', 'drop torrents and replicate from original')
-			const torrents = pathTorrents.map(path => parseTorrent(fs.readFileSync(path)))
-			torrents.forEach(torrent => insertMetadata(torrent, torrent.infoHashBuffer, {address: '127.0.0.1', port: 666}))
+			logT('drop', 'drop torrents and replicate from original torrent files')
+			const torrents = _.flatten(pathTorrents.map(path => directoryFilesRecursive(path)))
+								.filter(path => mime.getType(path) == 'application/x-bittorrent')
+								.map(path => { 
+									try {
+										return ({ 
+											torrent: parseTorrent(fs.readFileSync(path)), 
+											path 
+										})
+									} catch(err) {
+										logT('drop', 'error on parse torrent:', path)
+									}
+								})
+								.filter(torrent => torrent)
+			torrents.forEach(({torrent, path}) => {
+				 insertMetadata(torrent, torrent.infoHashBuffer, {address: '127.0.0.1', port: 666})
+				 logT('drop', 'copied torrent to db:', path)
+			})
+			logT('drop', 'torrent finish adding to db')
 		})
 
 		checkInternet((connected) => {
@@ -814,10 +833,13 @@ module.exports = function (send, recive, dataDirectory, version, env)
 						}))
 					})
 
-					await Promise.all([
-						saveBootstrapPeers('api.myjson.com', '/bins/1e5rmh'),
-						saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa')
-					])
+					if(!this.preventNetworkOnExit)
+					{
+						await Promise.all([
+							saveBootstrapPeers('api.myjson.com', '/bins/1e5rmh'),
+							saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa')
+						])
+					}
 				}
 			}
 

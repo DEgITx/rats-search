@@ -67,7 +67,7 @@ torrentClient.dht.on('peer', (peer, infoHash) => {
 		torrentClient._downloader(peer, infoHash, (...data) => {
 			if(metaHashes[hash])
 				metaHashes[hash](...data)
-			
+            
 			delete metaHashes[hash]
 		})
 	}

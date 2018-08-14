@@ -150,12 +150,12 @@ const pool = async () => {
 		let currentConnection = 0
 		for(let i = 0; i < connectionsLimit; i++)
 		{
-			connectionPool[i] = await single().waitConnection()	
+			connectionPool[i] = await single().waitConnection() 
 		}
 		const buildPoolMethod = (name, ...args) => {
 			if(!connectionPool)
 				return
-			
+            
 			const data = connectionPool[currentConnection][name](...args)
 			currentConnection = (currentConnection + 1) % connectionsLimit
 			return data
@@ -220,7 +220,7 @@ const single = (callback) => {
 			promiseResolve = resolve
 		})
 		mysqlSingle.waitConnection = () => connectionPromise;
-	
+    
 		mysqlSingle._mysql.connect((mysqlError) => {
 			if (mysqlError) {
 				logT('sql', 'error connecting: ' + mysqlError.stack);
@@ -232,7 +232,7 @@ const single = (callback) => {
 
 			promiseResolve(proxySingle)
 		});
-	
+    
 		mysqlSingle._mysql.on('error', (err) => {
 			if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
 				logT('sql', 'lost connection, restart single sql connection')
@@ -245,7 +245,7 @@ const single = (callback) => {
 		});
 
 		mysqlSingle._mysql = expand(mysqlSingle._mysql)
-	
+    
 		// fix prevent query after closing
 		const end = mysqlSingle._mysql.end.bind(mysqlSingle._mysql)
 		mysqlSingle._mysql.end = (cb) => new Promise(resolve => {
@@ -254,7 +254,7 @@ const single = (callback) => {
 				resolve()
 				if(cb)
 					cb()
-			})	
+			})  
 		})
 
 		return proxySingle

@@ -11,6 +11,7 @@
         "react"
     ],
     "rules": {
-        "indent": ["error", "tab"]
+        "indent": ["error", "tab"],
+        "space-infix-ops": ["error", {"int32Hint": false}]
     }
 }

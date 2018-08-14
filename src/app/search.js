@@ -287,6 +287,7 @@ class Search extends Component {
 						floatingLabelText={__('What to search?')}
 						fullWidth={true}
 						ref='searchInput'
+						id='searchInput'
 						defaultValue={this.searchValue}
 						errorText={this.searchError}
 						onKeyPress={(e) => {
@@ -335,7 +336,7 @@ class Search extends Component {
 						</Tooltip>
 					</div>
 
-					<RaisedButton style={{marginLeft: '10px'}} label={__('Search')} primary={true} onClick={() =>{
+					<RaisedButton style={{marginLeft: '10px'}} id='search' label={__('Search')} primary={true} onClick={() =>{
 						this.search()
 					}} />
 				</div>

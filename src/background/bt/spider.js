@@ -33,7 +33,7 @@ function generateTid() {
 class Spider extends Emiter {
 	constructor(client) {
 		super()
-		const options = arguments.length? arguments[0]: {}
+		const options = arguments.length ? arguments[0] : {}
 		this.table = new Table(options.tableCaption || 1000)
 		this.bootstraps = options.bootstraps || bootstraps
 		this.token = new Token()
