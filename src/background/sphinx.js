@@ -51,7 +51,10 @@ const writeSphinxConfig = async (path, dbPath) => {
     rt_attr_uint = completed
     rt_attr_timestamp = trackersChecked
     rt_attr_uint = good
-    rt_attr_uint = bad
+	rt_attr_uint = bad
+	
+	ngram_len = 1
+	ngram_chars = U+3000..U+2FA1F
   }
 
   index files

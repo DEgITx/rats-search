@@ -12,7 +12,7 @@ const getTorrent = require('./gettorrent')
 const startSphinx = require('./sphinx')
 
 
-const currentVersion = 5
+const currentVersion = 6
 
 
 module.exports = async (callback, mainWindow, sphinxApp) => {
@@ -104,94 +104,14 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 
 	const patch = async (version) => {
 		logT('patcher', 'db version', version)
-		switch(version)
-		{
-		case 1:
-		{
-			logT('patcher', 'patch db to version 2')
-			openPatchWindow()
-			let i = 1
 
-			const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
-			const files = (await sphinx.query("SELECT COUNT(*) AS c FROM files"))[0].c
+		const rebuildTorrentsFull = async () => {
 
-			await forBigTable(sphinx, 'torrents', async (torrent) => {
-				logT('patcher', 'update index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
-				if(patchWindow)
-					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
-
-				torrent.nameIndex = torrent.name
-				await sphinx.query(`DELETE FROM torrents WHERE id = ${torrent.id}`)
-				await sphinx.insertValues('torrents', torrent)
-			})
-			i = 1
-			await forBigTable(sphinx, 'files', async (file) => {
-				logT('patcher', 'update index', file.id, file.path, '[', i, 'of', files, ']')
-				if(patchWindow)
-					patchWindow.webContents.send('reindex', {field: file.path, index: i++, all: files})
-
-				file.pathIndex = file.path
-				await sphinx.query(`DELETE FROM files WHERE id = ${file.id}`)
-				await sphinx.insertValues('files', file)
-			})
-
-			await setVersion(2)
-		}
-		case 2:
-		{
-			openPatchWindow()
-
-			logT('patcher', 'optimizing torrents')
-			if(patchWindow)
-				patchWindow.webContents.send('optimize', {field: 'torrents'})
-			sphinx.query(`OPTIMIZE INDEX torrents`)
-			await sphinxApp.waitOptimized('torrents')
-
-			logT('patcher', 'optimizing files')
-			if(patchWindow)
-				patchWindow.webContents.send('optimize', {field: 'files'})
-			sphinx.query(`OPTIMIZE INDEX files`)
-			await sphinxApp.waitOptimized('files')
-
-			await setVersion(3)
-		}
-		case 3:
-		{
-			openPatchWindow()
-
-			// block xxx
-			let bad = 0
-
-			let i = 1
-			const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
-			await forBigTable(sphinx, 'torrents', async (torrent) => {
-				logT('patcher', 'update index', torrent.id, torrent.name, '[', i, 'of', torrents, '] - delete:', bad)
-				if(patchWindow)
-					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
-
-				if(torrent.contentcategory == 'xxx')
-				{
-					delete torrent.contentcategory
-					delete torrent.contenttype
-					torrent = await getTorrent(sphinx, null, torrent) // get files
-					torrentTypeDetect(torrent, torrent.filesList)
-					if(torrent.contentType == 'bad')
-					{
-						logT('patcher', 'remove bad torrent', torrent.name)
-						bad++
-						await sphinx.query(`DELETE FROM torrents WHERE hash = '${torrent.hash}'`)
-						await sphinx.query(`DELETE FROM files WHERE hash = '${torrent.hash}'`)
-					}
-				}
-			})
-
-			logT('patcher', 'removed', bad, 'torrents')
-
-			await setVersion(4)
-		}
-		case 4:
-		{
-			openPatchWindow()
+			if(sphinxApp.isExternal)
+			{
+				logTE('patcher', 'this patch avaiable only not on external db')
+				throw new Error('this patch avaiable only not on external db')
+			}
 
 			let i = 1
 			const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
@@ -288,8 +208,104 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 				patchWindow.webContents.send('optimize', {field: 'torrents'})
 			sphinx.query(`OPTIMIZE INDEX torrents`)
 			await sphinxApp.waitOptimized('torrents')
-    
+		}
+
+		switch(version)
+		{
+		case 1:
+		{
+			logT('patcher', 'patch db to version 2')
+			openPatchWindow()
+			let i = 1
+
+			const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
+			const files = (await sphinx.query("SELECT COUNT(*) AS c FROM files"))[0].c
+
+			await forBigTable(sphinx, 'torrents', async (torrent) => {
+				logT('patcher', 'update index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
+				if(patchWindow)
+					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
+
+				torrent.nameIndex = torrent.name
+				await sphinx.query(`DELETE FROM torrents WHERE id = ${torrent.id}`)
+				await sphinx.insertValues('torrents', torrent)
+			})
+			i = 1
+			await forBigTable(sphinx, 'files', async (file) => {
+				logT('patcher', 'update index', file.id, file.path, '[', i, 'of', files, ']')
+				if(patchWindow)
+					patchWindow.webContents.send('reindex', {field: file.path, index: i++, all: files})
+
+				file.pathIndex = file.path
+				await sphinx.query(`DELETE FROM files WHERE id = ${file.id}`)
+				await sphinx.insertValues('files', file)
+			})
+
+			await setVersion(2)
+		}
+		case 2:
+		{
+			openPatchWindow()
+
+			logT('patcher', 'optimizing torrents')
+			if(patchWindow)
+				patchWindow.webContents.send('optimize', {field: 'torrents'})
+			sphinx.query(`OPTIMIZE INDEX torrents`)
+			await sphinxApp.waitOptimized('torrents')
+
+			logT('patcher', 'optimizing files')
+			if(patchWindow)
+				patchWindow.webContents.send('optimize', {field: 'files'})
+			sphinx.query(`OPTIMIZE INDEX files`)
+			await sphinxApp.waitOptimized('files')
+
+			await setVersion(3)
+		}
+		case 3:
+		{
+			openPatchWindow()
+
+			// block xxx
+			let bad = 0
+
+			let i = 1
+			const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
+			await forBigTable(sphinx, 'torrents', async (torrent) => {
+				logT('patcher', 'update index', torrent.id, torrent.name, '[', i, 'of', torrents, '] - delete:', bad)
+				if(patchWindow)
+					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
+
+				if(torrent.contentcategory == 'xxx')
+				{
+					delete torrent.contentcategory
+					delete torrent.contenttype
+					torrent = await getTorrent(sphinx, null, torrent) // get files
+					torrentTypeDetect(torrent, torrent.filesList)
+					if(torrent.contentType == 'bad')
+					{
+						logT('patcher', 'remove bad torrent', torrent.name)
+						bad++
+						await sphinx.query(`DELETE FROM torrents WHERE hash = '${torrent.hash}'`)
+						await sphinx.query(`DELETE FROM files WHERE hash = '${torrent.hash}'`)
+					}
+				}
+			})
+
+			logT('patcher', 'removed', bad, 'torrents')
+
+			await setVersion(4)
+		}
+		case 4:
+		{
+			openPatchWindow()
+			await rebuildTorrentsFull()
 			await setVersion(5)
+		}
+		case 5:
+		{
+			openPatchWindow()
+			await rebuildTorrentsFull()
+			await setVersion(6)
 		}
 		}
 		logT('patcher', 'db patch done')
