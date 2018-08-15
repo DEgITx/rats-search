@@ -39,6 +39,11 @@ const mime = require('mime');
 //server.listen(config.httpPort);
 //console.log('Listening web server on', config.httpPort, 'port')
 
+
+const Rutracker = require('./strategies/rutracker')
+const Nyaa = require('./strategies/nyaa')
+
+
 module.exports = function (send, recive, dataDirectory, version, env)
 {
 	this.initialized = (async () =>
@@ -84,7 +89,38 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		p2p.info.torrents = (await sphinxSingle.query("SELECT COUNT(*) as cnt from torrents"))[0].cnt
 		p2p.info.files = (await sphinxSingle.query("SELECT COUNT(*) as cnt from files"))[0].cnt
 		const sphinxSingleAlternative = await single().waitConnection()
-        
+		
+		
+		class RemoteTrackers
+		{
+			constructor(sphinx)
+			{
+				this.sphinx = sphinx
+				this.trackers = [
+					new Rutracker,
+					new Nyaa
+				]
+			}
+
+			findHash(hash, callback)
+			{
+				for(const tracker of this.trackers)
+					if(tracker.findHash)
+						tracker.findHash(hash).then(data => callback(tracker.name(), data))
+			}
+
+			update({hash, name})
+			{
+				this.findHash(hash, (tracker, data) => {
+					if(!data)
+						return
+
+					logT('tracker', 'found', name, 'on', tracker)
+					this.sphinx.replaceValues('torrents', {hash, info: data}, true, 'hash')			
+				})
+			}
+		}
+		const remoteTrackers = new RemoteTrackers(sphinxSingle)
 
 		// start
 		function baseRowData(row)
@@ -462,6 +498,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 								contentCategory: torrent.contentCategory,
 							});
 						updateTorrentTrackers(torrent.hash);
+						remoteTrackers.update(torrent)
 					}
 					else
 					{
@@ -729,7 +766,8 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			checkTorrent,
 			setupTorrentRecord,
 			p2pStore,
-			feed
+			feed,
+			remoteTrackers
 		})
 
 		if(config.indexer) {

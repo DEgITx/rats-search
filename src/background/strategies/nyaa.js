@@ -4,6 +4,8 @@ const cheerio = require('cheerio')
 
 module.exports = class Nyaa
 {
+	name() { return 'nyaa' }
+
 	async findHash(hash)
 	{
 		this.hash = hash
