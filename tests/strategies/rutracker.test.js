@@ -19,5 +19,6 @@ describe("rutracker", () => {
 		const data = await rutracker.parse()
 		assert.equal(data.name, '(Doom metal / Melodic metal / Instrumental) Folie A Deux - Demo - 2012, MP3, 128-320 kbps')
 		assert.equal(data.poster, 'http://i44.fastpic.ru/big/2012/1018/a2/4e8740f608387b32b74c5deea72d05a2.jpg')
+		assert.equal(data.rutrackerThreadId, 4220109)
 	})
 });
