@@ -118,6 +118,60 @@ const expand = (sphinx) => {
 		})
 	})
 
+	sphinx.replaceValues = (table, values, particial = true, key = 'id', callback = () => {}) => new Promise((resolve) => {
+		values = Object.assign({}, values) // copy
+		
+		let names = '';
+		let data = '';
+		const parseValues = (values) => {
+			let valuesData = ''
+			names = ''
+			for(const val in values)
+			{
+				if(values[val] === null)
+					continue;
+
+				if(typeof values[val] == 'object')
+					values[val] = JSON.stringify(values[val])
+                
+				names += '`' + val + '`,';
+				valuesData += sphinx.escape(values[val]) + ',';
+			}
+			names = names.slice(0, -1)
+			valuesData = valuesData.slice(0, -1)
+			return valuesData
+		}
+		const finalQuery = () => {
+			let query = `REPLACE INTO ${table}(${names}) VALUES ${data}`;
+			queryCall(query, (...responce) => {
+				if(callback)
+					callback(...responce)
+				resolve(...responce)
+			})
+		}
+
+		if(particial)
+		{
+			queryCall(`SELECT * from ${table} WHERE \`${key}\` = ${sphinx.escape(values[key])}`, (err, row) => {
+				if(err || row.length == 0)
+				{
+					logTE('sql', 'error on sql replace request', row)
+					resolve(undefined)
+					callback(undefined)
+					return
+				}
+
+				data = `(${parseValues(Object.assign(row[0], values))})`
+				finalQuery()
+			})
+		}
+		else
+		{
+			data = `(${parseValues(values)})`
+			finalQuery()
+		}
+	})
+
 	return sphinx
 }
 
