@@ -14,7 +14,12 @@ module.exports = class Nyaa
 
 	async parse()
 	{
-		let html = await fetch('https://nyaa.si/' + (this.threadId ? `view/${this.threadId}` : (this.hash ? `?q=${this.hash}` : '')))
+		let html;
+		try {
+			html = await fetch('https://nyaa.si/' + (this.threadId ? `view/${this.threadId}` : (this.hash ? `?q=${this.hash}` : '')))
+		} catch(err) {
+			return
+		}
 		if(!html)
 			return
 		html = await html.text()

@@ -11,6 +11,9 @@ import LinearProgress from 'material-ui/LinearProgress';
 let rating = require('./rating');
 import scrollBack from './remember-scroll'
 
+import RutrackerIcon from './images/strategies/rutracker.png'
+import NyaaIcon from './images/strategies/nyaa.jpg'
+
 const contentIcon = (type, category, fill = 'grey') => {
 	if(category == 'xxx')
 	{
@@ -250,7 +253,7 @@ export default class Torrent extends Component {
   {
   	const torrent = this.props.torrent;
   	if(!torrent)
-  		return null // can try draw null torrent (for example on downloading not started)  
+		  return null // can try draw null torrent (for example on downloading not started)  
 
   	let torrentRating = -1
   	if(torrent.good > 0 || torrent.bad > 0)
@@ -357,7 +360,14 @@ export default class Torrent extends Component {
                                             <div style={{marginLeft: 5, color: 'rgb(0, 188, 212)'}}>{this.state.downloadProgress && formatBytes(this.state.downloadProgress.downloadSpeed || 0, 0)}/s</div>
                                     	}
                                     </div>
-  							}
+							  }
+							  <div>
+								  {
+									torrent.info && torrent.info.trackers && torrent.info.trackers.includes('rutracker')
+									&&
+									<img src={RutrackerIcon} style={{height: 32}} />
+								  }
+							</div>
   						</div>
   					</a>
   				}
