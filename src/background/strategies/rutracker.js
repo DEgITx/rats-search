@@ -31,6 +31,7 @@ module.exports = class Rutracker
 			name: topicTitle,
 			poster: $('.post_body .postImgAligned').attr('title'),
 			description: $('.post_body').text(),
+			rutrackerThreadId: parseInt($('a.magnet-link').attr('data-topic_id')),
 		}
 	}
 }
