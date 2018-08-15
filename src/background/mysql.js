@@ -118,7 +118,11 @@ const expand = (sphinx) => {
 		})
 	})
 
-	sphinx.replaceValues = (table, values, particial = true, key = 'id', callback = () => {}) => new Promise((resolve) => {
+	sphinx.replaceValues = (table, values, options = {}, callback = () => {}) => new Promise((resolve) => {
+		const {particial, key, merge, mergeCallback} = Object.assign({
+			particial: true,
+			key: 'id'
+		}, options)
 		values = Object.assign({}, values) // copy
 		
 		let names = '';
@@ -159,6 +163,16 @@ const expand = (sphinx) => {
 					resolve(undefined)
 					callback(undefined)
 					return
+				}
+
+				if(merge)
+				{
+					for(const m of merge)
+					{
+						values[m] = Object.assign(JSON.parse(row[0][m] || '{}'), values[m])
+						if(mergeCallback)
+							mergeCallback(m, values[m])
+					}
 				}
 
 				data = `(${parseValues(Object.assign(row[0], values))})`
