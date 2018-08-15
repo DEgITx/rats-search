@@ -116,7 +116,15 @@ module.exports = function (send, recive, dataDirectory, version, env)
 						return
 
 					logT('tracker', 'found', name, 'on', tracker)
-					this.sphinx.replaceValues('torrents', {hash, info: data}, true, 'hash')			
+					this.sphinx.replaceValues('torrents', {hash, info: data}, {particial: true, key: 'hash', merge: ['info'], mergeCallback: (n, obj) => {
+						if(n != 'info')
+							return
+
+						if(!obj.trackers)
+							obj.trackers = []
+						obj.trackers.push(name)
+						obj.trackers = [...new Set(obj.trackers)]
+					} })			
 				})
 			}
 		}
