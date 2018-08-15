@@ -307,10 +307,14 @@ app.on("ready", async () => {
 				);
 			})
 		}, mainWindow, sphinx)
-	}, app.getPath("userData"), () => app.quit())
+	}, app.getPath("userData"), () => { 
+		stopped = true
+		app.quit() 
+	})
 });
 
 let stopProtect = false
+let stopped = false
 const stop = () => {
 	if(stopProtect)
 		return
@@ -355,6 +359,12 @@ app.on('before-quit', () => {
 	stop()
 })
 
+// prevent closing app on kill
+app.on('will-quit', (event) => {
+	if(!stopped)
+		event.preventDefault()
+})
+
 var rl = require("readline").createInterface({
 	input: process.stdin,
 	output: process.stdout
@@ -367,8 +377,3 @@ rl.on("SIGINT", function () {
 process.on("SIGINT", () => {
 	stop()
 });
-
-process.on("exit", () => {
-	if(spider)
-		spider.preventNetworkOnExit = true
-})
