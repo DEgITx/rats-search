@@ -155,7 +155,7 @@ const expand = (sphinx) => {
 			queryCall(`SELECT * from ${table} WHERE \`${key}\` = ${sphinx.escape(values[key])}`, (err, row) => {
 				if(err || row.length == 0)
 				{
-					logTE('sql', 'error on sql replace request', row)
+					logTE('sql', 'error on sql replace request', err)
 					resolve(undefined)
 					callback(undefined)
 					return

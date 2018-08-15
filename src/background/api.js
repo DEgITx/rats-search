@@ -24,7 +24,8 @@ module.exports = async ({
 	checkTorrent,
 	setupTorrentRecord,
 	p2pStore,
-	feed
+	feed,
+	remoteTrackers
 }) => {
 	let torrentClientHashMap = {}
 
