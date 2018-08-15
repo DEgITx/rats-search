@@ -119,7 +119,7 @@ const expand = (sphinx) => {
 	})
 
 	sphinx.replaceValues = (table, values, options = {}, callback = () => {}) => new Promise((resolve) => {
-		const {particial, key, merge, mergeCallback} = Object.assign({
+		const {particial, key, merge, mergeCallback, sphinxIndex} = Object.assign({
 			particial: true,
 			key: 'id'
 		}, options)
@@ -128,6 +128,10 @@ const expand = (sphinx) => {
 		let names = '';
 		let data = '';
 		const parseValues = (values) => {
+			if(sphinxIndex)
+				for(const k in sphinxIndex)
+					values[k] = values[sphinxIndex[k]]
+
 			let valuesData = ''
 			names = ''
 			for(const val in values)

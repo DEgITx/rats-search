@@ -14,7 +14,12 @@ module.exports = class Rutracker
 
 	async parse()
 	{
-		let html = await fetch('https://rutracker.org/forum/viewtopic.php?' + (this.threadId ? `t=${this.threadId}` : (this.hash ? `h=${this.hash}` : '')))
+		let html; 
+		try {
+			html = await fetch('https://rutracker.org/forum/viewtopic.php?' + (this.threadId ? `t=${this.threadId}` : (this.hash ? `h=${this.hash}` : '')))
+		} catch(err) {
+			return
+		}
 		if(!html)
 			return
 		html = await html.text()

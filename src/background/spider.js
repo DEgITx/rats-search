@@ -116,14 +116,19 @@ module.exports = function (send, recive, dataDirectory, version, env)
 						return
 
 					logT('tracker', 'found', name, 'on', tracker)
-					this.sphinx.replaceValues('torrents', {hash, info: data}, {particial: true, key: 'hash', merge: ['info'], mergeCallback: (n, obj) => {
-						if(n != 'info')
-							return
+					this.sphinx.replaceValues('torrents', {hash, info: data}, {
+						particial: true,
+						key: 'hash', 
+						sphinxIndex: {nameIndex: 'name'},
+						merge: ['info'], 
+						mergeCallback: (n, obj) => {
+							if(n != 'info')
+								return
 
-						if(!obj.trackers)
-							obj.trackers = []
-						obj.trackers.push(name)
-						obj.trackers = [...new Set(obj.trackers)]
+							if(!obj.trackers)
+								obj.trackers = []
+							obj.trackers.push(tracker)
+							obj.trackers = [...new Set(obj.trackers)]
 					} })			
 				})
 			}
@@ -149,6 +154,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				trackersChecked: row.trackersChecked ? row.trackersChecked.getTime() : undefined,
 				good: row.good,
 				bad: row.bad,
+				info: typeof row.info == 'string' && row.info.length > 0 ? JSON.parse(row.info) : undefined 
 			}
 		}
 
