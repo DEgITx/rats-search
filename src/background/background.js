@@ -233,11 +233,14 @@ app.on("ready", async () => {
 			tray.setContextMenu(contextMenu)
 			tray.setToolTip('Rats on The Boat search')
 
-			mainWindow.webContents.on('will-navigate', e => { e.preventDefault() })
+			mainWindow.webContents.on('will-navigate', (e, url) => { 
+				e.preventDefault() 
+				shell.openExternal(url)
+			})
 			mainWindow.webContents.on('new-window', (event, url, frameName) => {
+				event.preventDefault()
 				if(frameName == '_self')
 				{
-					event.preventDefault()
 					mainWindow.loadURL(url)
 				}
 			})
