@@ -10,9 +10,7 @@ import TorrentPage from './torrent-page'
 import LinearProgress from 'material-ui/LinearProgress';
 let rating = require('./rating');
 import scrollBack from './remember-scroll'
-
-import RutrackerIcon from './images/strategies/rutracker.png'
-import NyaaIcon from './images/strategies/nyaa.jpg'
+import TrackersImages from './trackers-images'
 
 const contentIcon = (type, category, fill = 'grey') => {
 	if(category == 'xxx')
@@ -361,13 +359,7 @@ export default class Torrent extends Component {
                                     	}
                                     </div>
 							  }
-							  <div>
-								  {
-									torrent.info && torrent.info.trackers && torrent.info.trackers.includes('rutracker')
-									&&
-									<img src={RutrackerIcon} style={{height: 32}} />
-								  }
-							</div>
+							  <TrackersImages info={torrent.info} className='row' />
   						</div>
   					</a>
   				}
