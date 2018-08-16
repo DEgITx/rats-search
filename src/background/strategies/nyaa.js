@@ -22,7 +22,7 @@ module.exports = class Nyaa
 		}
 		if(!html)
 			return
-		html = await html.text()
+		html = await html.textConverted()
 		const $ = cheerio.load(html)
 		let topicTitle = $('.panel-title').first().text()
 		if(!topicTitle)

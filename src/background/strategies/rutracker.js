@@ -22,7 +22,7 @@ module.exports = class Rutracker
 		}
 		if(!html)
 			return
-		html = await html.text()
+		html = await html.textConverted()
 		const $ = cheerio.load(html)
 		const topicTitle = $('#topic-title').text()
 		if(!topicTitle)
