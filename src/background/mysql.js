@@ -49,6 +49,9 @@ const expand = (sphinx) => {
 			{
 				if(values[val] === null)
 					continue;
+
+				if(typeof values[val] == 'object')
+					values[val] = JSON.stringify(values[val])
                 
 				names += '`' + val + '`,';
 				valuesData += sphinx.escape(values[val]) + ',';
