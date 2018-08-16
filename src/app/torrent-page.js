@@ -187,8 +187,8 @@ export default class TorrentPage extends Page {
   			}
   			//this.forceUpdate(); // вызывается через searchingIndicator
 
-  			// Получаем более новую статистику пира
-  			if((new Date).getTime() - this.torrent.trackersChecked > 10 * 60 * 1000) {
+			  // Получаем более новую статистику пира
+			if((Date.now() / 1000) - this.torrent.trackersChecked > 10 * 60) {
   				window.torrentSocket.emit('checkTrackers', this.torrent.hash);
   			}
   		}
@@ -220,7 +220,7 @@ export default class TorrentPage extends Page {
   		if(!this.torrent)
   			return;
 
-  		Object.assign(this.torrent, info);
+		this.torrent = Object.assign(this.torrent, info);
   		this.forceUpdate();
   	}
   	window.torrentSocket.on('trackerTorrentUpdate', this.trackerUpdate);
@@ -358,7 +358,7 @@ export default class TorrentPage extends Page {
   										<TorrentInformation torrent={this.torrent} parent={this} />
   									</div>
   									<div style={{flexBasis: '40%'}} className='column center w100p'>
-  										<img src={NoImage} className='pad0-75' style={{height: '200px'}} />
+  										<img src={(this.torrent && this.torrent.info && this.torrent.info.poster) ? this.torrent.info.poster : NoImage} className='pad0-75' style={{height: '200px'}} />
   										<RaisedButton
   											href={`magnet:?xt=urn:btih:${this.torrent.hash}`}
   											target="_self"
@@ -509,6 +509,15 @@ export default class TorrentPage extends Page {
   										}
   									</div>
   								</div>
+								<div>
+									{
+										this.torrent && this.torrent.info && this.torrent.info.description
+										?
+										<div />
+										:
+										null
+									}
+								</div>
   							</div>
   						</Tab>
   						<Tab label={__('Files')} value="files" >

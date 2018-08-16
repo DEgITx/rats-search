@@ -25,6 +25,7 @@ module.exports = async ({
 	setupTorrentRecord,
 	p2pStore,
 	feed,
+	updateTorrentTrackers,
 	remoteTrackers
 }) => {
 	let torrentClientHashMap = {}
@@ -515,7 +516,9 @@ module.exports = async ({
 		if(hash.length != 40)
 			return;
 
+		logT('tracker', 'recheck trackers for', hash)
 		updateTorrentTrackers(hash);
+		remoteTrackers.update({hash, name: hash})
 	});
 
 	const topTorrentsCall = (type, navigation = {}, callback) => {

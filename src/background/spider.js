@@ -116,6 +116,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 						return
 
 					logT('tracker', 'found', name, 'on', tracker)
+					let info;
 					this.sphinx.replaceValues('torrents', {hash, info: data}, {
 						particial: true,
 						key: 'hash', 
@@ -129,7 +130,14 @@ module.exports = function (send, recive, dataDirectory, version, env)
 								obj.trackers = []
 							obj.trackers.push(tracker)
 							obj.trackers = [...new Set(obj.trackers)]
-					} })			
+
+							info = obj
+					} }).then(() => {
+						send('trackerTorrentUpdate', {
+							hash,
+							info
+						});
+					})			
 				})
 			}
 		}
@@ -151,7 +159,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				seeders: row.seeders,
 				completed: row.completed,
 				leechers: row.leechers,
-				trackersChecked: row.trackersChecked ? row.trackersChecked.getTime() : undefined,
+				trackersChecked: row.trackerschecked || row.trackersChecked,
 				good: row.good,
 				bad: row.bad,
 				info: typeof row.info == 'string' && row.info.length > 0 ? JSON.parse(row.info) : undefined 
@@ -781,6 +789,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			setupTorrentRecord,
 			p2pStore,
 			feed,
+			updateTorrentTrackers,
 			remoteTrackers
 		})
 
