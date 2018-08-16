@@ -18,6 +18,20 @@ import LinearProgress from 'material-ui/LinearProgress';
 import FlatButton from 'material-ui/FlatButton';
 import {fileTypeDetect} from './content'
 import {contentIcon} from './torrent'
+import TrackersImages from './trackers-images'
+
+let parseDescriptionText = (text) => {
+	return text.split("\n").map(function(item) {
+		const text = /([A-Za-zА-Яа-я]+:) (.+)/.exec(item)
+
+		return (
+		  <span>
+			{text ? <span><b>{`${text[1]} `}</b>{text[2]}</span> : item}
+			<br/>
+		  </span>
+		)
+	  })
+}
 
 let buildFilesTree = (filesList) => {
 	let rootTree = {
@@ -359,7 +373,8 @@ export default class TorrentPage extends Page {
   									</div>
   									<div style={{flexBasis: '40%'}} className='column center w100p'>
   										<img src={(this.torrent && this.torrent.info && this.torrent.info.poster) ? this.torrent.info.poster : NoImage} className='pad0-75' style={{height: '200px'}} />
-  										<RaisedButton
+  										<TrackersImages info={this.torrent && this.torrent.info} className='column' />
+										<RaisedButton
   											href={`magnet:?xt=urn:btih:${this.torrent.hash}`}
   											target="_self"
   											label="Magnet"
@@ -509,15 +524,13 @@ export default class TorrentPage extends Page {
   										}
   									</div>
   								</div>
-								<div>
-									{
-										this.torrent && this.torrent.info && this.torrent.info.description
-										?
-										<div />
-										:
-										null
-									}
-								</div>
+								{
+									this.torrent && this.torrent.info && this.torrent.info.description
+									&&
+									<div className='fs0-85' style={{width: '95%', padding: 15, margin: 20, boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px'}}>
+										<div>{parseDescriptionText(this.torrent.info.description)}</div>
+									</div>
+								}
   							</div>
   						</Tab>
   						<Tab label={__('Files')} value="files" >
