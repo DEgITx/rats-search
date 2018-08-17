@@ -23,15 +23,24 @@ module.exports = class Rutracker
 		if(!html)
 			return
 		html = await html.textConverted()
+		html = html.replace(/\<span class\="post-br"\>/g, '\n<span class="post-br">')
+		html = html.replace(/\><span class\="post-b"\>/g, '>\n<span class="post-b">')
 		const $ = cheerio.load(html)
 		const topicTitle = $('#topic-title').text()
 		if(!topicTitle)
 			return
+
+		let contentCategory;
+		try {
+			contentCategory = $('.vBottom .nav').text().replace(/[\t]+/g, '').replace(/[\n]+/g, ' ').trim()
+		} catch(er) {}
+
 		return {
 			name: topicTitle,
-			poster: $('.post_body .postImgAligned').attr('title'),
+			poster: $('.post_body .postImgAligned').attr('title') || $('.post_body .postImg').attr('title'),
 			description: $('.post_body').first().text(),
 			rutrackerThreadId: parseInt($('a.magnet-link').attr('data-topic_id')),
+			contentCategory
 		}
 	}
 }

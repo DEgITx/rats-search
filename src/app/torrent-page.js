@@ -22,11 +22,13 @@ import TrackersImages from './trackers-images'
 
 let parseDescriptionText = (text) => {
 	return text.split("\n").map(function(item) {
-		const text = /([A-Za-zА-Яа-я]+:) (.+)/.exec(item)
+		const text = /(.+?:)(.*)/.exec(item)
 
 		return (
 		  <span>
-			{text ? <span><b>{`${text[1]} `}</b>{text[2]}</span> : item}
+			{
+				text ? <span><b>{`${text[1]} `}</b>{text[2]}</span> : item
+			}
 			<br/>
 		  </span>
 		)
@@ -106,7 +108,7 @@ const TorrentInformation = (props) => {
 				//leftAvatar={<Avatar icon={<ActionAssignment />} backgroundColor={blue500} />}
 				rightIcon={<ActionInfo />}
 				primaryText={__('Torrent Name')}
-				secondaryText={<span className='break-word' style={{whiteSpace: 'normal'}}>{torrent.name}</span>}
+				secondaryText={<span className='break-word' style={{whiteSpace: 'normal'}}>{(torrent.info && torrent.info.name) || torrent.name}</span>}
 			/>
 			<ListItem
 				// leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
@@ -144,7 +146,7 @@ const TorrentInformation = (props) => {
 				// leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
 				rightIcon={<ActionInfo />}
 				primaryText={__('Category')}
-				secondaryText={torrent.contentCategory || 'unknown'}
+				secondaryText={(torrent.info && torrent.info.contentCategory) || torrent.contentCategory || 'unknown'}
 			/>
 		</List>
 	);
@@ -202,9 +204,9 @@ export default class TorrentPage extends Page {
   			//this.forceUpdate(); // вызывается через searchingIndicator
 
 			  // Получаем более новую статистику пира
-			if((Date.now() / 1000) - this.torrent.trackersChecked > 10 * 60) {
+			  if((Date.now() / 1000) - this.torrent.trackersChecked > 10 * 60) {
   				window.torrentSocket.emit('checkTrackers', this.torrent.hash);
-  			}
+			  }
   		}
   	}, () => {
   		this.setState({
