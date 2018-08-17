@@ -96,6 +96,13 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			constructor(sphinx)
 			{
 				this.sphinx = sphinx
+				if(!config.trackers)
+				{
+					logT('tracker', 'trackers disabled')
+					this.trackers = []
+					return
+				}
+
 				this.trackers = [
 					new Rutracker,
 					new Nyaa
