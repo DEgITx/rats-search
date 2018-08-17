@@ -11,6 +11,7 @@ let config = {
 	udpTrackersTimeout: 3 * 60 * 1000,
 	peerId: undefined, 
 	language: 'en',
+	trackers: true,
     
 	p2p: true,
 	p2pConnections: 10,
