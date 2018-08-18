@@ -21,7 +21,7 @@ describe("search", function() {
 		 await app.client.click('#search')
 		 await app.client.waitForExist('.torrentRow .torrentName')
 		 const results = (await app.client.$$('.torrentRow .torrentName')).length
-		 assert(results >= 1)
+		 assert(results >= 1, 'default search on Roblox must return Roblox_setup record')
 	})
 
 	it("sphinx particial search", async function() {
@@ -30,7 +30,7 @@ describe("search", function() {
 		await app.client.click('#search')
 		await app.client.waitForExist('.torrentRow .torrentName')
 		const results = (await app.client.$$('.torrentRow .torrentName')).length
-		assert(results >= 1)
+		assert(results >= 1, 'particial word search must find string')
    })
 
    it("magnet search", async function() {
@@ -39,6 +39,6 @@ describe("search", function() {
 		await app.client.click('#search')
 		await app.client.waitForExist('.torrentRow .torrentName')
 		const results = (await app.client.$$('.torrentRow .torrentName')).length
-		assert(results == 1)
+		assert(results >= 1, 'magnet search must return 1 or more record')
 	})
 });
