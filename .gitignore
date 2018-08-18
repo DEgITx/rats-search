@@ -9,6 +9,7 @@ version.vrs
 sphinx.conf
 *.p2p
 downloads.json
+node.exe
 
 /dist
 /temp
