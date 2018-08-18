@@ -78,6 +78,10 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			{
 				host: '9.rarbg.me',
 				port: 2710
+			},
+			{
+				host: 'open.stealth.si',
+				port: 80
 			}
 		]
 
