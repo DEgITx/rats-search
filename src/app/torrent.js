@@ -251,7 +251,7 @@ export default class Torrent extends Component {
   {
   	const torrent = this.props.torrent;
   	if(!torrent)
-		  return null // can try draw null torrent (for example on downloading not started)  
+  		return null // can try draw null torrent (for example on downloading not started)  
 
   	let torrentRating = -1
   	if(torrent.good > 0 || torrent.bad > 0)
@@ -262,8 +262,8 @@ export default class Torrent extends Component {
 
   	return (
   		<div>
-			  <ListItem 
-			  	className='torrentRow'
+  			<ListItem 
+  				className='torrentRow'
   				innerDivStyle={{paddingRight: 84}}
   				onClick={(e) => {
   					const link = '/torrent/' + torrent.hash;
@@ -358,8 +358,8 @@ export default class Torrent extends Component {
                                             <div style={{marginLeft: 5, color: 'rgb(0, 188, 212)'}}>{this.state.downloadProgress && formatBytes(this.state.downloadProgress.downloadSpeed || 0, 0)}/s</div>
                                     	}
                                     </div>
-							  }
-							  <TrackersImages info={torrent.info} className='row' />
+  							}
+  							<TrackersImages info={torrent.info} className='row' />
   						</div>
   					</a>
   				}

@@ -15,8 +15,8 @@ const portCheck = require('./portCheck')
 
 const findGoodPort = async (port, host) => {
 	while (!(await portCheck(port, host))) {
-	  port++
-	  logT('sphinx', 'port is busy, listen on', port)
+		port++
+		logT('sphinx', 'port is busy, listen on', port)
 	}
 	return port
 }
@@ -51,11 +51,11 @@ const writeSphinxConfig = async (path, dbPath) => {
     rt_attr_uint = completed
     rt_attr_timestamp = trackersChecked
     rt_attr_uint = good
-	rt_attr_uint = bad
-	rt_attr_json = info
-	
-	ngram_len = 1
-	ngram_chars = U+3000..U+2FA1F
+    rt_attr_uint = bad
+    rt_attr_json = info
+    
+    ngram_len = 1
+    ngram_chars = U+3000..U+2FA1F
   }
 
   index files
