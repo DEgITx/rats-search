@@ -25,14 +25,14 @@ let parseDescriptionText = (text) => {
 		const text = /(.+?:)(.*)/.exec(item)
 
 		return (
-		  <span>
-			{
-				text ? <span><b>{`${text[1]} `}</b>{text[2]}</span> : item
-			}
-			<br/>
-		  </span>
+			<span>
+				{
+					text ? <span><b>{`${text[1]} `}</b>{text[2]}</span> : item
+				}
+				<br/>
+			</span>
 		)
-	  })
+	})
 }
 
 let buildFilesTree = (filesList) => {
@@ -203,10 +203,10 @@ export default class TorrentPage extends Page {
   			}
   			//this.forceUpdate(); // вызывается через searchingIndicator
 
-			  // Получаем более новую статистику пира
-			  if((Date.now() / 1000) - this.torrent.trackersChecked > 10 * 60) {
+  			// Получаем более новую статистику пира
+  			if((Date.now() / 1000) - this.torrent.trackersChecked > 10 * 60) {
   				window.torrentSocket.emit('checkTrackers', this.torrent.hash);
-			  }
+  			}
   		}
   	}, () => {
   		this.setState({
@@ -236,7 +236,7 @@ export default class TorrentPage extends Page {
   		if(!this.torrent)
   			return;
 
-		this.torrent = Object.assign(this.torrent, info);
+  		this.torrent = Object.assign(this.torrent, info);
   		this.forceUpdate();
   	}
   	window.torrentSocket.on('trackerTorrentUpdate', this.trackerUpdate);
@@ -376,7 +376,7 @@ export default class TorrentPage extends Page {
   									<div style={{flexBasis: '40%'}} className='column center w100p'>
   										<img src={(this.torrent && this.torrent.info && this.torrent.info.poster) ? this.torrent.info.poster : NoImage} className='pad0-75' style={{height: '200px'}} />
   										<TrackersImages info={this.torrent && this.torrent.info} className='column' />
-										<RaisedButton
+  										<RaisedButton
   											href={`magnet:?xt=urn:btih:${this.torrent.hash}`}
   											target="_self"
   											label="Magnet"
@@ -526,13 +526,13 @@ export default class TorrentPage extends Page {
   										}
   									</div>
   								</div>
-								{
-									this.torrent && this.torrent.info && this.torrent.info.description
-									&&
-									<div className='fs0-85' style={{width: '95%', padding: 15, margin: 20, boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px'}}>
-										<div>{parseDescriptionText(this.torrent.info.description)}</div>
-									</div>
-								}
+  								{
+  									this.torrent && this.torrent.info && this.torrent.info.description
+                                    &&
+                                    <div className='fs0-85' style={{width: '95%', padding: 15, margin: 20, boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px'}}>
+                                    	<div>{parseDescriptionText(this.torrent.info.description)}</div>
+                                    </div>
+  								}
   							</div>
   						</Tab>
   						<Tab label={__('Files')} value="files" >

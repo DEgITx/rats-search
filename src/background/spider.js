@@ -93,8 +93,8 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		p2p.info.torrents = (await sphinxSingle.query("SELECT COUNT(*) as cnt from torrents"))[0].cnt
 		p2p.info.files = (await sphinxSingle.query("SELECT COUNT(*) as cnt from files"))[0].cnt
 		const sphinxSingleAlternative = await single().waitConnection()
-		
-		
+        
+        
 		class RemoteTrackers
 		{
 			constructor(sphinx)
@@ -143,12 +143,12 @@ module.exports = function (send, recive, dataDirectory, version, env)
 							obj.trackers = [...new Set(obj.trackers)]
 
 							info = obj
-					} }).then(() => {
+						} }).then(() => {
 						send('trackerTorrentUpdate', {
 							hash,
 							info
 						});
-					})			
+					})          
 				})
 			}
 		}
@@ -670,21 +670,21 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		recive('dropTorrents', (pathTorrents) => {
 			logT('drop', 'drop torrents and replicate from original torrent files')
 			const torrents = _.flatten(pathTorrents.map(path => directoryFilesRecursive(path)))
-								.filter(path => mime.getType(path) == 'application/x-bittorrent')
-								.map(path => { 
-									try {
-										return ({ 
-											torrent: parseTorrent(fs.readFileSync(path)), 
-											path 
-										})
-									} catch(err) {
-										logT('drop', 'error on parse torrent:', path)
-									}
-								})
-								.filter(torrent => torrent)
+				.filter(path => mime.getType(path) == 'application/x-bittorrent')
+				.map(path => { 
+					try {
+						return ({ 
+							torrent: parseTorrent(fs.readFileSync(path)), 
+							path 
+						})
+					} catch(err) {
+						logT('drop', 'error on parse torrent:', path)
+					}
+				})
+				.filter(torrent => torrent)
 			torrents.forEach(({torrent, path}) => {
-				 insertMetadata(torrent, torrent.infoHashBuffer, {address: '127.0.0.1', port: 666})
-				 logT('drop', 'copied torrent to db:', path)
+				insertMetadata(torrent, torrent.infoHashBuffer, {address: '127.0.0.1', port: 666})
+				logT('drop', 'copied torrent to db:', path)
 			})
 			logT('drop', 'torrent finish adding to db')
 		})

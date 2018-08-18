@@ -127,7 +127,7 @@ const expand = (sphinx) => {
 			key: 'id'
 		}, options)
 		values = Object.assign({}, values) // copy
-		
+        
 		let names = '';
 		let data = '';
 		const parseValues = (values) => {
