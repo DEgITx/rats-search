@@ -11,6 +11,9 @@ export default (props) => {
 	if(!info)
 		return null
 
+	if(!info.trackers)
+		return null
+
 	return (
 		<div>
 			{
