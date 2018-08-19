@@ -414,6 +414,16 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				delete torrent.contenttype;
 			}
 
+			if(torrent.info && typeof torrent.info == 'string')
+			{
+				try {
+					torrent.info = JSON.parse(torrent.info)
+				} catch(err) {
+					logT('add', 'problem with info torrent parse for torrent', torrent.name, 'just ignore')
+					delete torrent.info
+				}
+			}
+
 			// clean download info if added
 			if(torrent.download)
 				delete torrent.download
@@ -529,6 +539,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 								piecelength: torrent.piecelength,
 								contentType: torrent.contentType,
 								contentCategory: torrent.contentCategory,
+								info: torrent.info,
 							});
 						updateTorrentTrackers(torrent.hash);
 						remoteTrackers.update(torrent)
