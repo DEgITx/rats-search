@@ -1,3 +1,10 @@
+## [0.29.1](https://github.com/DEgITx/rats-search/compare/v0.29.0...v0.29.1) (2018-08-19)
+
+
+### Bug Fixes
+
+* **gui:** display feed fix ([e3d7c73](https://github.com/DEgITx/rats-search/commit/e3d7c73))
+
 # [0.29.0](https://github.com/DEgITx/rats-search/compare/v0.28.0...v0.29.0) (2018-08-18)
 
 
