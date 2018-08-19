@@ -1,3 +1,37 @@
+# [0.29.0](https://github.com/DEgITx/rats-search/compare/v0.28.0...v0.29.0) (2018-08-18)
+
+
+### Bug Fixes
+
+* **closing:** another part of closing fixes ([24a3fa0](https://github.com/DEgITx/rats-search/commit/24a3fa0))
+* **db:** broke remote connection (security purposes) ([0ba03c7](https://github.com/DEgITx/rats-search/commit/0ba03c7))
+* **db:** fix external sphinx openning check in some cases [#57](https://github.com/DEgITx/rats-search/issues/57) ([d46ede3](https://github.com/DEgITx/rats-search/commit/d46ede3))
+* **gui:** fix new window on middle clicks and open external on link clicks ([505787c](https://github.com/DEgITx/rats-search/commit/505787c))
+* **linux:** fix closing on linux in some cases ([125a857](https://github.com/DEgITx/rats-search/commit/125a857))
+* **nyaa:** nyaa test fix ([aa97708](https://github.com/DEgITx/rats-search/commit/aa97708))
+* **replication:** fix replication from object info ([49c52d7](https://github.com/DEgITx/rats-search/commit/49c52d7))
+* **rutracker:** encoding fix ([16d9dc1](https://github.com/DEgITx/rats-search/commit/16d9dc1))
+* **rutracker:** fix first post ([d0e5d29](https://github.com/DEgITx/rats-search/commit/d0e5d29))
+* **rutracker:** rutracker id feat ([e358587](https://github.com/DEgITx/rats-search/commit/e358587))
+* **ssh:** prevent ssh relay startup on exit ([229752b](https://github.com/DEgITx/rats-search/commit/229752b))
+* **trackers:** fix updating trackers on page open ([ae6111a](https://github.com/DEgITx/rats-search/commit/ae6111a))
+
+
+### Features
+
+* **config:** add config to disable trackers ([0551402](https://github.com/DEgITx/rats-search/commit/0551402))
+* **drop:** support torrents folder drag and drop with recursive scan torrents files ([aa78216](https://github.com/DEgITx/rats-search/commit/aa78216))
+* **gui:** trackers basic display ([c8e1dcf](https://github.com/DEgITx/rats-search/commit/c8e1dcf))
+* **nyaa:** support of nyaa torrents ([cfb8235](https://github.com/DEgITx/rats-search/commit/cfb8235))
+* **rutracker:** category and torrent name from rutracker ([8d77e0c](https://github.com/DEgITx/rats-search/commit/8d77e0c))
+* **rutracker:** rutracker basic integratioin ([34f2344](https://github.com/DEgITx/rats-search/commit/34f2344))
+* **search:** support japanese, korean, chinese propper search ([1411b83](https://github.com/DEgITx/rats-search/commit/1411b83))
+* **tests:** search test ([ee7fa63](https://github.com/DEgITx/rats-search/commit/ee7fa63))
+* **trackers:** basic trackers integration ([abd1b85](https://github.com/DEgITx/rats-search/commit/abd1b85))
+* **trackers:** display descriptions ([73cfc89](https://github.com/DEgITx/rats-search/commit/73cfc89))
+* **trackers:** merge trackers info ([d7a10d3](https://github.com/DEgITx/rats-search/commit/d7a10d3))
+* **udp-trackers:** more alternative ([47afb46](https://github.com/DEgITx/rats-search/commit/47afb46))
+
 # [0.28.0](https://github.com/DEgITx/rats-search/compare/v0.27.0...v0.28.0) (2018-08-07)
 
 
