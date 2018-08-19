@@ -22,14 +22,19 @@ module.exports = class Nyaa
 				html = await fetch('https://nyaa.si/' + (this.threadId ? `view/${this.threadId}` : (this.hash ? `?q=${this.hash}` : '')))
 			} catch(err) {
 				resolve()
+				return
 			}
-			if(!html)
+			if(!html) {
 				resolve()
+				return
+			}
 			html = await html.textConverted()
 			const $ = cheerio.load(html)
 			let topicTitle = $('.panel-title').first().text()
-			if(!topicTitle)
+			if(!topicTitle) {
 				resolve()
+				return
+			}
 
 			topicTitle = topicTitle.replace(/\t/g, '').replace(/\n/g, '')
 

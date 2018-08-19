@@ -35,6 +35,14 @@ describe("big table for check", () => {
 		assert.equal((await sphinx.query(`select data from feed where id = 1`))[0].data, '{"a":1,"b":2,"c":3,"d":6,"e":5}')
 	})
 
+	it("insert object to database", async function() {
+		const obj = {a: 1, v: 2}
+		const p = {id: 3, data: obj}
+		await sphinx.insertValues('feed', p)
+		assert.equal((await sphinx.query(`select data from feed where id = 3`))[0].data, '{"a":1,"v":2}')
+		assert.equal(obj, p.data)
+	})
+
 	it("close", async function() {
 		await sphinx.end()
 	})
