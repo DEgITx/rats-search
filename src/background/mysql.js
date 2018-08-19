@@ -51,10 +51,11 @@ const expand = (sphinx) => {
 					continue;
 
 				if(typeof values[val] == 'object')
-					values[val] = JSON.stringify(values[val])
-                
+					valuesData += sphinx.escape(JSON.stringify(values[val])) + ',';
+				else
+					valuesData += sphinx.escape(values[val]) + ',';
+				
 				names += '`' + val + '`,';
-				valuesData += sphinx.escape(values[val]) + ',';
 			}
 			names = names.slice(0, -1)
 			valuesData = valuesData.slice(0, -1)
