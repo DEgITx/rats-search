@@ -1,3 +1,12 @@
+## [0.29.2](https://github.com/DEgITx/rats-search/compare/v0.29.1...v0.29.2) (2018-08-20)
+
+
+### Bug Fixes
+
+* **feed:** fix check adding record on info table ([58ea5cb](https://github.com/DEgITx/rats-search/commit/58ea5cb))
+* **nyaa:** fix errors on nyaa ([64547e8](https://github.com/DEgITx/rats-search/commit/64547e8))
+* **translations:** fix translations change on server version ([6b4a1bd](https://github.com/DEgITx/rats-search/commit/6b4a1bd))
+
 ## [0.29.1](https://github.com/DEgITx/rats-search/compare/v0.29.0...v0.29.1) (2018-08-19)
 
 
