@@ -3,6 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
 const glob = require('glob')
 const path = require('path')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
 	mode: 'development',
@@ -79,6 +80,7 @@ module.exports = {
 			staticFileGlobs: glob.sync('public/images/**/*.*').concat(glob.sync('public/sounds/**/*.*')),
 			stripPrefix: 'public/',
 		}),
+		new CopyWebpackPlugin(['translations/**']),
 	],
 	node: {
 		dgram: 'empty',
