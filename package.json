@@ -158,6 +158,7 @@
     "babel-loader": "^8.0.0-beta.3",
     "babel-plugin-transform-object-rest-spread": "^7.0.0-beta.3",
     "chai": "^4.1.2",
+    "copy-webpack-plugin": "^4.5.2",
     "css-loader": "^0.28.11",
     "electron": "2.0.7",
     "electron-builder": "20.14.7",
