@@ -27,10 +27,13 @@ else
 	window.torrentSocket.callbacks = {}
 	window.torrentSocket.listeners = {}
 	window.torrentSocket.on = (name, func) => {
+		const id = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2)
 		const newListener = (event, ...data) => {
 			func(...data)
 		}
-		window.torrentSocket.listeners[func] = newListener
+		window.torrentSocket.listeners[id] = newListener
+		func._eventId = id
+
 		ipcRenderer.on(name, newListener);
 	}
 	window.torrentSocket.off = (name, func) => {
@@ -38,12 +41,13 @@ else
 			ipcRenderer.removeAllListeners(name);
 		else
 		{
-			const realListener = window.torrentSocket.listeners[func]
+			const realListener = window.torrentSocket.listeners[func._eventId]
 			if(realListener)
 			{
 				ipcRenderer.removeListener(name, realListener);
-				delete window.torrentSocket.listeners[func]
+				delete window.torrentSocket.listeners[func._eventId]
 			}
+			delete func._eventId
 		}
 	}
 	window.torrentSocket.emit = (name, ...data) => {
