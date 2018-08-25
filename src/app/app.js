@@ -80,6 +80,34 @@ injectTapEventPlugin();
 
 //registerServiceWorker();
 
+// override log to main process
+const consoleLog = console.log
+console.log = (...log) => {
+	window.torrentSocket.emit('log', ...log)
+	consoleLog(...log)
+}
+const consoleError = console.error
+console.error = (...log) => {
+	let type = 'logE'
+
+	if(log[0] && log[0].startsWith('Warning:'))
+		type = 'log'
+	if(log[0] && log[0].includes('MaxListenersExceededWarning:'))
+		type = 'log'
+
+	window.torrentSocket.emit(type, ...log)
+	consoleError(...log)
+}
+
+window.onerror = function (msg, url, line, col, error) {
+	if(!error || !error.stack)
+		console.error(msg, 'at', url + ':' + line)
+	else
+		console.error(error.stack)
+
+	return true; // same as preventDefault
+};
+
 let loadersCount = 0;
 let appReady = false;
 window.customLoader = (func, onLoading, onLoaded) => {

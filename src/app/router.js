@@ -42,8 +42,6 @@ const router = (page, callback, dontClearRemember) => {
 			{
 				params[pg.args[i]] = p[i]
 			}
-			console.log(params)
-            
 			pg.callback({
 				params
 			})
@@ -65,7 +63,6 @@ const router = (page, callback, dontClearRemember) => {
 
 window.router = router;
 window.routerOpenPrev = () => {
-	console.log(history)
 	if(history.length < 2)
 		return
 	history.pop() // last page

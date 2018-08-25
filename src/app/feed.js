@@ -13,7 +13,6 @@ export default class RecentTorrents extends Component {
 		window.torrentSocket.emit('feed', window.customLoader((data) => {
 			if(data) {
 				this.torrents = data;
-				console.log(data)
 				this.forceUpdate();
 			}
 		}))
