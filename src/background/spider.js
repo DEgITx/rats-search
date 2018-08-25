@@ -48,6 +48,13 @@ module.exports = function (send, recive, dataDirectory, version, env)
 {
 	this.initialized = (async () =>
 	{
+		recive('log', (...log) => {
+			logT('gui', ...log)
+		})
+
+		recive('logE', (...log) => {
+			logTE('gui', ...log)
+		})
 
 		let torrentsId = 1;
 		let filesId = 1;

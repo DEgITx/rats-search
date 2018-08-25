@@ -23,7 +23,6 @@ export default class ConfigPage extends Page {
 	loadSettings() {
 		window.torrentSocket.emit('config', window.customLoader((options) => {
 			this.options = options;
-			console.log(this.options)
 			this.forceUpdate();
 		}));
 	}
