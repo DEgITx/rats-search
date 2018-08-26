@@ -36,32 +36,50 @@ export default class TopPage extends Page {
 	}
 	loadMoreTorrents(type, time)
 	{
+		this.firstUpdate = false
 		time = time ? time : this.state.time
+		const page = (this.topTorrents[type] && this.topTorrents[type][time] && this.topTorrents[type][time].page) || 0
 		window.torrentSocket.emit('topTorrents', 
 			type == 'main' ? null : type, 
-			{index: (this.topTorrents[type] && this.topTorrents[type][time] && this.topTorrents[type][time].length) || 0, time},
-			window.customLoader((data) => {
-				if(!this.topTorrents[type])
-					this.topTorrents[type] = {}
-				if(!this.topTorrents[type][time])
-					this.topTorrents[type][time] = []
-
-				if(data && data.length > 0)
-				{
-					this.topTorrents[type][time] = this.topTorrents[type][time].concat(data);
-					this._update()
-				}
+			{index: page * 20, limit: 20, time},
+			window.customLoader((torrents) => {
+				this.mergeTorrents(torrents, type, time)
+				this.topTorrents[type][time].page = page + 1
 			})
 		)
 	}
+	mergeTorrents(torrents, type, time)
+	{
+		if(!this.topTorrents[type])
+			this.topTorrents[type] = {}
+		if(!this.topTorrents[type][time])
+			this.topTorrents[type][time] = {torrents: [], page: 0}
+
+		if(!torrents || torrents.length == 0)
+			return
+
+		this.topTorrents[type][time].torrents = _.orderBy(_.unionBy(this.topTorrents[type][time].torrents, torrents, 'hash'), ['seeders'], ['desc'])
+		
+		if(this.state.type == type && this.state.time == time)
+		{
+			this._update();
+		}
+	}
 	_update()
 	{
+		if(!this.firstUpdate)
+		{
+			this.firstUpdate = true
+			this.forceUpdate()
+			return
+		}
+
 		if(this.timeForce)
 			return
 		this.timeForce = setTimeout(() => {
 			delete this.timeForce
 			this.forceUpdate()
-		}, 550)
+		}, 700)
 	}
 	componentDidMount()
 	{
@@ -71,13 +89,9 @@ export default class TopPage extends Page {
 			this.loadMoreTorrents(type)
 		}
 		this.remoteTopTorrents = ({torrents, type, time}) => {
-			if(!torrents)
-				return
-
 			time = time ? time : 'overall'
 			type = type ? type : 'main'
-			this.topTorrents[type][time] = _.orderBy(_.unionBy(this.topTorrents[type][time], torrents, 'hash'), ['seeders'], ['desc'])
-			this._update();
+			this.mergeTorrents(torrents, type, time)
 		}
 		window.torrentSocket.on('remoteTopTorrents', this.remoteTopTorrents);
 	}
@@ -134,7 +148,7 @@ export default class TopPage extends Page {
 										>
 											{
 												Object.keys(this.times).map((time, index) => {
-													const torrents = this.topTorrents[type][time];
+													const {torrents} = this.topTorrents[type][time] || {torrents: undefined};
 
 													if(!torrents)
 														return (
