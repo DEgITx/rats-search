@@ -7,7 +7,7 @@ import ToolTip from './tooltip';
 import PagesPie from './pages-pie.js';
 import TorrentPage from './torrent-page'
 
-import LinearProgress from 'material-ui/LinearProgress';
+import LinearProgress from './LinearProgress';
 let rating = require('./rating');
 import scrollBack from './remember-scroll'
 import TrackersImages from './trackers-images'

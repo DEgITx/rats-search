@@ -14,7 +14,7 @@ import NoImage from './images/no-image-icon.png'
 var moment = require('moment');
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 let rating = require('./rating');
-import LinearProgress from 'material-ui/LinearProgress';
+import LinearProgress from './LinearProgress';
 import FlatButton from 'material-ui/FlatButton';
 import {fileTypeDetect} from './content'
 import {contentIcon} from './torrent'

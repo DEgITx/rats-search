@@ -6,7 +6,7 @@ import {List, ListItem} from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import Subheader from 'material-ui/Subheader';
 import RaisedButton from 'material-ui/RaisedButton';
-import LinearProgress from 'material-ui/LinearProgress';
+import LinearProgress from './LinearProgress';
 
 import {Tabs, Tab} from 'material-ui/Tabs';
 import _ from 'lodash'
@@ -149,6 +149,12 @@ export default class TopPage extends Page {
 											{
 												Object.keys(this.times).map((time, index) => {
 													const {torrents} = this.topTorrents[type][time] || {torrents: undefined};
+
+													// dont draw top on other page rather than focused
+													if(this.state.type !== type || this.state.time !== time)
+													{
+														return <Tab buttonStyle={time === this.state.time ? {fontWeight: 'bold'} : undefined} style={{minWidth: 150}} key={index} label={this.times[time]} value={time}></Tab>
+													}
 
 													if(!torrents)
 														return (
