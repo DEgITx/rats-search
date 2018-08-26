@@ -1,3 +1,17 @@
+## [0.29.3](https://github.com/DEgITx/rats-search/compare/v0.29.2...v0.29.3) (2018-08-26)
+
+
+### Bug Fixes
+
+* **gui:** fix memory leak on events handling ([4801a24](https://github.com/DEgITx/rats-search/commit/4801a24))
+* **log:** display render log in main log ([3719d53](https://github.com/DEgITx/rats-search/commit/3719d53))
+
+
+### Performance Improvements
+
+* **top:** fix unnecessary drawing on top page ([55eda2b](https://github.com/DEgITx/rats-search/commit/55eda2b))
+* **top:** opmization on top load ([44d2495](https://github.com/DEgITx/rats-search/commit/44d2495))
+
 ## [0.29.2](https://github.com/DEgITx/rats-search/compare/v0.29.1...v0.29.2) (2018-08-20)
 
 
