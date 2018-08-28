@@ -35,6 +35,15 @@ describe("big table for check", () => {
 		assert.equal((await sphinx.query(`select data from feed where id = 1`))[0].data, '{"a":1,"b":2,"c":3,"d":6,"e":5}')
 	})
 
+	it("replace text index as function", async function() {
+		await sphinx.replaceValues('feed', {id: 1, data: {a: 6}}, {particial: true, sphinxIndex: { feedIndex: (obj) => {
+			assert.equal(obj.data.a, 6)
+			return "aabbccdd"
+		}} })
+		assert.equal((await sphinx.query(`select data from feed where id = 1`))[0].data, '{"a":6}')
+		assert.equal((await sphinx.query(`select id from feed where match('aabbccdd')`))[0].id, 1)
+	})
+
 	it("insert object to database", async function() {
 		const obj = {a: 1, v: 2}
 		const p = {id: 3, data: obj}
