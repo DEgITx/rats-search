@@ -9,10 +9,9 @@
         }
       }
     ],
-    "@babel/react",
-    ["@babel/stage-0", { "decoratorsLegacy": true }]
+    "@babel/react"
   ],
   "plugins": [
-  	["transform-object-rest-spread", { "useBuiltIns": true }]
+    "@babel/plugin-proposal-class-properties"
   ]
 }
