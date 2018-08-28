@@ -10,7 +10,8 @@ torrentClient.saveSession = (sessionFile) => {
 			torrent: torrent.torrentObject,
 
 			removeOnDone: torrent.removeOnDone,
-			paused: torrent.paused || torrent._paused
+			paused: torrent.paused || torrent._paused,
+			selection: torrent.files.map(file => typeof file.selected === 'undefined' || file.selected)
 		}))
 	}, null, 4), 'utf8');
 }
@@ -34,7 +35,7 @@ torrentClient.loadSession = (sessionFile) => {
 		return
 	}
 	const {torrents} = obj
-	torrents.forEach(({torrent, infoHash, path, removeOnDone, paused}) => {
+	torrents.forEach(({torrent, infoHash, path, removeOnDone, paused, selection}) => {
 		if(!torrent || !infoHash || !path)
 		{
 			logT('downloader', 'no info for starting download this torrent')
@@ -50,6 +51,13 @@ torrentClient.loadSession = (sessionFile) => {
 			if(paused)
 			{
 				download._paused = true
+			}
+			if(selection)
+			{
+				download.on('metadata', () => {
+					logT('downloader', 'load torrent selection from session')
+					download.selectFiles(selection)
+				})
 			}
 		}
 	})

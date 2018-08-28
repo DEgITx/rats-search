@@ -7,6 +7,7 @@ import Subheader from 'material-ui/Subheader';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import ActionInfo from 'material-ui/svg-icons/action/info';
 import RaisedButton from 'material-ui/RaisedButton';
+import Toggle from 'material-ui/Toggle';
 
 import FileFolder from 'material-ui/svg-icons/file/folder';
 import NoImage from './images/no-image-icon.png'
@@ -42,11 +43,21 @@ let buildFilesTree = (filesList) => {
 	filesList.forEach((file) => {
 		let pathTree = file.path.split('/');
 		let currentItem = rootTree;
-		pathTree.forEach((pathItem) => {
+		pathTree.forEach((pathItem, index) => {
 			if(!(pathItem in currentItem)) 
 			{
-				currentItem[pathItem] = {
-					__sizeBT: 0
+				// крайний индекс, значит это объект файла, объединяем объекты
+				if(index === pathTree.length - 1)
+				{
+					file.__sizeBT = 0
+					file.__fileBT = true
+					currentItem[pathItem] = file
+				}
+				else
+				{
+					currentItem[pathItem] = {
+						__sizeBT: 0
+					}
 				}
 			}
 			currentItem = currentItem[pathItem]
@@ -57,22 +68,59 @@ let buildFilesTree = (filesList) => {
 	return rootTree;
 }
 
-const treeToTorrentFiles = (tree) => {
+const treeToTorrentFiles = (tree, torrent, toggles) => {
+	// toggles for button disable/enable torrent/directory in torrent client
+	if(toggles)
+	{
+		if(tree.__fileBT && typeof tree.downloadIndex !== 'undefined')
+		{
+			toggles.push({ 
+				downloadIndex: tree.downloadIndex,
+				selected: typeof tree.downloadSelected === 'undefined' || tree.downloadSelected 
+			})
+		}
+	}
+
+	// this is already file, return
+	if(tree.__fileBT)
+		return
+
 	let arr = [];
 	for(let file in tree)
 	{
 		if(file == '__sizeBT')
 			continue;
 
+		const newToggles = []
+
 		arr.push(<ListItem
 			key={file}
 			primaryText={file}
 			secondaryText={formatBytes(tree[file].__sizeBT)}
-			nestedItems={treeToTorrentFiles(tree[file])}
+			nestedItems={treeToTorrentFiles(tree[file], torrent, newToggles)}
 			primaryTogglesNestedList={true}
 			innerDivStyle={{wordBreak: 'break-word'}}
-			leftIcon={tree[file] && Object.keys(tree[file]).length > 1 ? <FileFolder /> : contentIcon(fileTypeDetect({path: file}))}
+			leftIcon={!tree[file].__fileBT ? <FileFolder /> : contentIcon(fileTypeDetect({path: file}))}
+			rightToggle={
+				newToggles.length > 0
+				&&
+				<Toggle
+					toggled={newToggles.every( ({selected}) => selected )}
+					onToggle={(e, checked) => {
+						e.preventDefault()
+						e.stopPropagation()
+						let toggleValues = {}
+						newToggles.forEach(({downloadIndex}) => toggleValues[downloadIndex] = checked)
+						window.torrentSocket.emit('downloadSelectFiles', torrent, toggleValues)
+					}}
+				/>}
 		/>);
+
+		if(toggles)
+		{
+			for(const newToggle of newToggles)
+				toggles.push(newToggle)
+		}
 	}
 	return arr;
 }
@@ -87,7 +135,7 @@ const TorrentFiles = (props) => {
 					?
 					<div className='w100p'>
 						<Subheader inset={true}>{__('Content of the torrent')}:</Subheader>
-						{treeToTorrentFiles(tree)}
+						{treeToTorrentFiles(tree, {hash: props.torrent.hash})}
 					</div>
 					:
 					<div className='column center'>
@@ -206,7 +254,7 @@ export default class TorrentPage extends Page {
   			// Получаем более новую статистику пира
   			if((Date.now() / 1000) - this.torrent.trackersChecked > 10 * 60) {
   				window.torrentSocket.emit('checkTrackers', this.torrent.hash);
-  			}
+			}
   		}
   	}, () => {
   		this.setState({
@@ -221,11 +269,20 @@ export default class TorrentPage extends Page {
   componentDidMount() {
   	super.componentDidMount();
 
-  	this.filesUpdated = (hash) => {
+  	this.filesUpdated = (hash, filesList) => {
   		if(this.props.hash != hash)
   			return;
 
-  		this.getTorrentInfo();
+		if(filesList)
+		{
+			if(this.torrent)
+			{
+				this.torrent.filesList = filesList
+				this.forceUpdate()
+			}
+		}
+		else
+  			this.getTorrentInfo();
   	}
   	window.torrentSocket.on('filesReady', this.filesUpdated);
 
