@@ -127,6 +127,13 @@ module.exports = function (send, recive, dataDirectory, version, env)
 						tracker.findHash(hash).then(data => callback(tracker.name(), data))
 			}
 
+			async close()
+			{
+				for(const tracker of this.trackers)
+					if(tracker.close)
+						await tracker.close()
+			}
+
 			update({hash, name})
 			{
 				this.findHash(hash, (tracker, data) => {
@@ -870,7 +877,11 @@ module.exports = function (send, recive, dataDirectory, version, env)
 
 			// save feed
 			await feed.save()
-    
+	
+			// close trackers if needed
+			logT('close', 'closing trackers')
+			await remoteTrackers.close()
+
 			// stop bootstrap interval
 			if(config.p2pBootstrap && p2pBootstrapLoop)
 			{
