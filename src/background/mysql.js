@@ -54,7 +54,7 @@ const expand = (sphinx) => {
 					valuesData += sphinx.escape(JSON.stringify(values[val])) + ',';
 				else
 					valuesData += sphinx.escape(values[val]) + ',';
-				
+                
 				names += '`' + val + '`,';
 			}
 			names = names.slice(0, -1)
