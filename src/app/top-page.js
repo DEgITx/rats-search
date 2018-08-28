@@ -50,8 +50,12 @@ export default class TopPage extends Page {
 	}
 	mergeTorrents(torrents, type, time)
 	{
+		let isNewTab = false
 		if(!this.topTorrents[type])
+		{
 			this.topTorrents[type] = {}
+			isNewTab = true
+		}
 		if(!this.topTorrents[type][time])
 			this.topTorrents[type][time] = {torrents: [], page: 0}
 
@@ -60,7 +64,7 @@ export default class TopPage extends Page {
 
 		this.topTorrents[type][time].torrents = _.orderBy(_.unionBy(this.topTorrents[type][time].torrents, torrents, 'hash'), ['seeders'], ['desc'])
         
-		if(this.state.type == type && this.state.time == time)
+		if((this.state.type == type && this.state.time == time) || isNewTab)
 		{
 			this._update();
 		}
