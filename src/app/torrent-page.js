@@ -20,6 +20,7 @@ import FlatButton from 'material-ui/FlatButton';
 import {fileTypeDetect} from './content'
 import {contentIcon} from './torrent'
 import TrackersImages from './trackers-images'
+import DownloadTorrentMenu from './download-torrent-menu'
 
 let parseDescriptionText = (text) => {
 	return text.split("\n").map(function(item) {
@@ -103,17 +104,17 @@ const treeToTorrentFiles = (tree, torrent, toggles) => {
 			leftIcon={!tree[file].__fileBT ? <FileFolder /> : contentIcon(fileTypeDetect({path: file}))}
 			rightToggle={
 				newToggles.length > 0
-				&&
-				<Toggle
-					toggled={newToggles.every( ({selected}) => selected )}
-					onToggle={(e, checked) => {
-						e.preventDefault()
-						e.stopPropagation()
-						let toggleValues = {}
-						newToggles.forEach(({downloadIndex}) => toggleValues[downloadIndex] = checked)
-						window.torrentSocket.emit('downloadSelectFiles', torrent, toggleValues)
-					}}
-				/>}
+                &&
+                <Toggle
+                	toggled={newToggles.every( ({selected}) => selected )}
+                	onToggle={(e, checked) => {
+                		e.preventDefault()
+                		e.stopPropagation()
+                		let toggleValues = {}
+                		newToggles.forEach(({downloadIndex}) => toggleValues[downloadIndex] = checked)
+                		window.torrentSocket.emit('downloadSelectFiles', torrent, toggleValues)
+                	}}
+                />}
 		/>);
 
 		if(toggles)
@@ -254,7 +255,7 @@ export default class TorrentPage extends Page {
   			// Получаем более новую статистику пира
   			if((Date.now() / 1000) - this.torrent.trackersChecked > 10 * 60) {
   				window.torrentSocket.emit('checkTrackers', this.torrent.hash);
-			}
+  			}
   		}
   	}, () => {
   		this.setState({
@@ -273,15 +274,15 @@ export default class TorrentPage extends Page {
   		if(this.props.hash != hash)
   			return;
 
-		if(filesList)
-		{
-			if(this.torrent)
-			{
-				this.torrent.filesList = filesList
-				this.forceUpdate()
-			}
-		}
-		else
+  		if(filesList)
+  		{
+  			if(this.torrent)
+  			{
+  				this.torrent.filesList = filesList
+  				this.forceUpdate()
+  			}
+  		}
+  		else
   			this.getTorrentInfo();
   	}
   	window.torrentSocket.on('filesReady', this.filesUpdated);
@@ -447,30 +448,27 @@ export default class TorrentPage extends Page {
   										{
   											!this.state.downloaded && !this.state.downloading && !this.state.startingDownloading
                       &&
-                      <RaisedButton
-                      	href={`magnet:?xt=urn:btih:${this.torrent.hash}`}
-                      	target="_self"
-                      	label={__('Download')}
-                      	backgroundColor='#00C853'
-                      	labelColor='white'
-                      	style={{marginTop: 8}}
-                      	onClick={(e) => {
-                      		e.preventDefault();
-                      		window.torrentSocket.emit('download', this.torrent, null, (added) => {
-                      			if(added)
-                      				this.setState({startingDownloading: true})
-                      		})
-                      	}}
-                      	icon={
-                      		<svg viewBox="0 0 56 56" fill='white'>
-                      			<g>
-                      				<path d="M35.586,41.586L31,46.172V28c0-1.104-0.896-2-2-2s-2,0.896-2,2v18.172l-4.586-4.586c-0.781-0.781-2.047-0.781-2.828,0
+                      <DownloadTorrentMenu torrent={this.torrent}>
+                      	<RaisedButton
+                      		href={`magnet:?xt=urn:btih:${this.torrent.hash}`}
+                      		target="_self"
+                      		label={__('Download')}
+                      		backgroundColor='#00C853'
+                      		labelColor='white'
+                      		style={{marginTop: 8}}
+                      		onClick={(e) => {
+                      			e.preventDefault();
+                      		}}
+                      		icon={
+                      			<svg viewBox="0 0 56 56" fill='white'>
+                      				<g>
+                      					<path d="M35.586,41.586L31,46.172V28c0-1.104-0.896-2-2-2s-2,0.896-2,2v18.172l-4.586-4.586c-0.781-0.781-2.047-0.781-2.828,0
                                 s-0.781,2.047,0,2.828l7.999,7.999c0.093,0.094,0.196,0.177,0.307,0.251c0.047,0.032,0.099,0.053,0.148,0.081
                                 c0.065,0.036,0.127,0.075,0.196,0.103c0.065,0.027,0.133,0.042,0.2,0.062c0.058,0.017,0.113,0.04,0.173,0.051
                                 C28.738,52.986,28.869,53,29,53s0.262-0.014,0.392-0.04c0.06-0.012,0.115-0.034,0.173-0.051c0.067-0.02,0.135-0.035,0.2-0.062
                                 c0.069-0.028,0.131-0.067,0.196-0.103c0.05-0.027,0.101-0.049,0.148-0.081c0.11-0.074,0.213-0.157,0.307-0.251l7.999-7.999
                                 c0.781-0.781,0.781-2.047,0-2.828S36.367,40.805,35.586,41.586z"/>
-                      				<path d="M47.835,18.986c-0.137-0.019-2.457-0.335-4.684,0.002C43.1,18.996,43.049,19,42.999,19c-0.486,0-0.912-0.354-0.987-0.85
+                      					<path d="M47.835,18.986c-0.137-0.019-2.457-0.335-4.684,0.002C43.1,18.996,43.049,19,42.999,19c-0.486,0-0.912-0.354-0.987-0.85
                                 c-0.083-0.546,0.292-1.056,0.838-1.139c1.531-0.233,3.062-0.196,4.083-0.124C46.262,9.135,39.83,3,32.085,3
                                 C27.388,3,22.667,5.379,19.8,9.129C21.754,10.781,23,13.246,23,16c0,0.553-0.447,1-1,1s-1-0.447-1-1
                                 c0-2.462-1.281-4.627-3.209-5.876c-0.227-0.147-0.462-0.277-0.702-0.396c-0.069-0.034-0.139-0.069-0.21-0.101
@@ -479,10 +477,11 @@ export default class TorrentPage extends Page {
                                 l0.012,0.21l-0.009,0.16C7.008,16.744,7,16.873,7,17v0.63l-0.567,0.271C2.705,19.688,0,24,0,28.154C0,34.135,4.865,39,10.845,39H25
                                 V28c0-2.209,1.791-4,4-4s4,1.791,4,4v11h2.353c0.059,0,0.116-0.005,0.174-0.009l0.198-0.011l0.271,0.011
                                 C36.053,38.995,36.11,39,36.169,39h9.803C51.501,39,56,34.501,56,28.972C56,24.161,52.49,19.872,47.835,18.986z"/>
-                      			</g>
-                      		</svg>
-                      	}
-                      />
+                      				</g>
+                      			</svg>
+                      		}
+                      	/>
+                      </DownloadTorrentMenu>
   										}
   										{
   											this.state.downloading

@@ -59,7 +59,7 @@ export default class TopPage extends Page {
 			return
 
 		this.topTorrents[type][time].torrents = _.orderBy(_.unionBy(this.topTorrents[type][time].torrents, torrents, 'hash'), ['seeders'], ['desc'])
-		
+        
 		if(this.state.type == type && this.state.time == time)
 		{
 			this._update();

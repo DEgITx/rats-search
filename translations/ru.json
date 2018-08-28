@@ -187,6 +187,7 @@
         "Torrents cleaned": "Торренты очещены",
         "or with hash": "или по хэшу",
         "Check torrent files intergrity": "Проверка целостности файлов",
-        "Enable database torrents files intergrity check on adding each torrent. Disable this will free some cpu usage on adding operation.": "Включить проверку целостности файлов в базе при добавлении каждого торрента. Отключение этой опции освободит некоторорое количество ресурсов процессора при добавлении."
+        "Enable database torrents files intergrity check on adding each torrent. Disable this will free some cpu usage on adding operation.": "Включить проверку целостности файлов в базе при добавлении каждого торрента. Отключение этой опции освободит некоторорое количество ресурсов процессора при добавлении.",
+        "Download to": "Скачать в"
     }
 }

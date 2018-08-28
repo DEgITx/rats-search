@@ -800,10 +800,10 @@ module.exports = async ({
 			}
 			torrent.updateFilesSelection()
 		}
-		
+        
 		torrent.updateFilesSelection = () => {
 			torrent.deselect(0, torrent.pieces.length - 1, false)
-		
+        
 			for(const file of torrent.files)
 			{
 				const {selected} = file
