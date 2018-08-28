@@ -138,7 +138,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					this.sphinx.replaceValues('torrents', {hash, info: data}, {
 						particial: true,
 						key: 'hash', 
-						sphinxIndex: {nameIndex: 'name'},
+						sphinxIndex: {nameIndex: (obj) => buildTorrentIndex(obj)},
 						merge: ['info'], 
 						mergeCallback: (n, obj) => {
 							if(n != 'info')
@@ -442,6 +442,16 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			return torrent
 		}
 
+		const buildTorrentIndex = (torrent) => {
+			let index = torrent.name
+			if(torrent.info && typeof torrent.info.name === 'string' && torrent.info.name.length > 0)
+			{
+				if(torrent.info.name.length < 800)
+					index += ' ' + torrent.info.name
+			}
+			return index
+		}
+
 		const insertTorrentToDB = (torrent, silent) => new Promise((resolve) => {
 			if(!torrent)
 			{
@@ -533,7 +543,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					addFilesToDatabase()
 				}
 
-				torrent.nameIndex = torrent.name
+				torrent.nameIndex = buildTorrentIndex(torrent)
 
 				sphinxSingle.insertValues('torrents', torrent, function(err, result) {
 					if(result) {

@@ -133,8 +133,19 @@ const expand = (sphinx) => {
 		let data = '';
 		const parseValues = (values) => {
 			if(sphinxIndex)
+			{
 				for(const k in sphinxIndex)
-					values[k] = values[sphinxIndex[k]]
+				{
+					if(typeof sphinxIndex[k] === 'string')
+					{
+						values[k] = values[sphinxIndex[k]]
+					} 
+					else if (typeof sphinxIndex[k] === 'function')
+					{
+						values[k] = sphinxIndex[k](values)
+					}
+				}
+			}
 
 			let valuesData = ''
 			names = ''

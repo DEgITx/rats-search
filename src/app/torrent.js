@@ -302,6 +302,13 @@ export default class Torrent extends Component {
   							node.onclick = () => { return false }
   					}}>
   						<div className='column' style={{height: 'auto', whiteSpace: 'normal', paddingTop: '0.30em'}}>
+						  	{
+							torrent.info && torrent.info.name
+							&&
+						  	<div className='row w100p inline fs0-85' style={{color: 'grey', padding: '4px 0px 5px'}}>
+							{torrent.info.name}
+  							</div>
+							}
   							<div className='row w100p inline'>
   								<div style={{color: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5252d1' : 'black') : (torrent.peer ? '#9083e2' : 'grey')}}>
   									{
