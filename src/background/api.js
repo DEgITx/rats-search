@@ -57,6 +57,7 @@ module.exports = async ({
 					removeOnDone: download.removeOnDone,
 					paused: torrent.paused || torrent._paused
 				}
+				torrent.filesList = download.files.length > 0 ? downloadFilesList(download) : torrent.filesList
 			}
 		}
 
@@ -80,6 +81,14 @@ module.exports = async ({
 		const rest = args.slice(0, -1)
 		Fn(...rest, (data) => callback(mergeTorrentsWithDownloads(data, copy))) 
 	}
+
+	const downloadFilesList = (torrent) => torrent.files.map((file, index) => ({
+		path: file.path.replace(/\\/g, '/'),
+		size: file.length,
+		downloadIndex: index,
+		downloadSelected: file.selected
+	}))
+
 
 	recive('recentTorrents', function(callback)
 	{
@@ -692,6 +701,7 @@ module.exports = async ({
 				delete torrent._paused
 				torrent._pause()
 			}
+			send('filesReady', torrent.infoHash, downloadFilesList(torrent))
 		})
 
 		torrent.on('done', () => { 
@@ -760,6 +770,49 @@ module.exports = async ({
 				torrent._restoreWires()
 			}
 			return _destroy.call(torrent, ...args)
+		}
+
+		torrent.selectFiles = (selection) => {
+			if(Array.isArray(selection))
+			{
+				if(selection.length !== torrent.files.length)
+				{
+					logTE('downloader', 'selection map not full', torrent.files.length, selection.length)
+					return
+				}
+				for(let i = 0; i < selection.length; i++)
+				{
+					torrent.files[i].selected = !!selection[i]
+				}
+			}
+			else
+			{
+				for(let fileId in selection)
+				{
+					fileId = parseInt(fileId)
+					if(fileId >= torrent.files.length)
+					{
+						logTE('downloader', 'selection map wrong', selection)
+						return
+					}
+					torrent.files[fileId].selected = !!selection[fileId]
+				}
+			}
+			torrent.updateFilesSelection()
+		}
+		
+		torrent.updateFilesSelection = () => {
+			torrent.deselect(0, torrent.pieces.length - 1, false)
+		
+			for(const file of torrent.files)
+			{
+				const {selected} = file
+				if(typeof selected === 'undefined' || selected)
+					file.select()
+				else
+					file.deselect()
+			}
+			logT('downloader', 'selection updated')
 		}
 
 
@@ -832,6 +885,31 @@ module.exports = async ({
 			if(callback)
 				callback(true)
 		})
+	})
+
+	recive('downloadSelectFiles', ({hash}, files, callback) =>
+	{
+		logT('downloader', 'call update selection', hash, files.length)
+		const id = torrentClientHashMap[hash]
+		if(!id)
+		{
+			logT('downloader', 'cant find torrent for selection', hash)
+			if(callback)
+				callback(false)
+			return
+		}
+
+		const torrent = torrentClient.get(id)
+		if(!torrent) {
+			logT('downloader', 'no torrent for selection founded')
+			return
+		}
+
+		torrent.selectFiles(files)
+		send('filesReady', torrent.infoHash, downloadFilesList(torrent))
+
+		if(callback)
+			callback(true)
 	})
 
 	recive('downloads', (callback) =>
