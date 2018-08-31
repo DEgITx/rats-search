@@ -130,6 +130,18 @@ class p2p {
 				++alias;
 			});
 		});
+
+		this.on('file', (path, callback) => {
+			const readable = new fs.ReadStream(path)
+			logT('transfer', 'server transfer file', path)
+			readable.on('data', (chunk) => {
+				callback({data: chunk})
+			});
+			readable.on('end', () => {
+				logT('transfer', 'server finish transfer file', path)
+				callback(undefined)
+			});
+		})
 	}
 
 	listen() {
@@ -261,23 +273,29 @@ class p2p {
 		const socket = new JsonSocket(rawSocket); //Decorate a standard net.Socket with JsonSocket
 		socket.on('connect', () => { //Don't send until we're connected
 			const callbacks = {}
+			const callbacksPermanent = {}
 			socket.on('message', (message) => {
 				if(message.id && callbacks[message.id])
 				{
 					callbacks[message.id](message.data, socket, address);
-					delete callbacks[message.id];
+					if(!callbacksPermanent[message.id])
+						delete callbacks[message.id];
 				}
 			});
             
-			const emit = (type, data, callback) => {
+			const emit = (type, data, callback, callbackPermanent) => {
 				const id = Math.random().toString(36).substring(5)
 				if(callback)
 					callbacks[id] = callback;
+				if(callback && callbackPermanent)
+					callbacksPermanent[id] = true // dont delete callback on message
 				socket.sendMessage({
 					id,
 					type,
 					data
 				});
+
+				return () => delete callbacks[id];
 			}
 
 			// check protocol
@@ -358,6 +376,31 @@ class p2p {
 			if(peer.emit)
 				peer.emit(type, data, callback)
 		}
+	}
+
+	file(peer, path)
+	{
+		const fileStream = fs.createWriteStream(path)
+		let deleteCallback = peer.emit('file', path, (chunk) => {
+			if(!chunk)
+			{
+				logT('transfer', 'closing transfering file stream', path)
+				deleteCallback()
+				fileStream.end()
+				return
+			}
+
+			const {data} = chunk
+			if(!data)
+			{
+				logTE('transfer', 'error on file transfer', path)
+				deleteCallback()
+				fileStream.end()
+				return
+			}
+
+			fileStream.write(data)
+		}, true) // dont clear callback
 	}
 
 	peersList()
