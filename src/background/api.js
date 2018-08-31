@@ -5,6 +5,7 @@ const getTorrent = require('./gettorrent')
 const _ = require('lodash')
 const asyncForEach = require('./asyncForEach')
 const cpuUsage = require('./bt/cpu-usage-global')
+const magnetParse = require('./magnetParse')
 
 module.exports = async ({
 	sphinx,
@@ -289,15 +290,6 @@ module.exports = async ({
 		if(hash.length !== 40)
 			return false
 		return /[0-9a-f]+/i.test(hash)
-	}
-
-	const magnetParse = (magnet) => {
-		const match = /magnet:\?xt=urn:btih:([0-9a-f]+)/i.exec(magnet)
-		if(!match)
-			return
-		if(match[1].length === 40)
-			return match[1].toLowerCase()
-		return
 	}
 
 	const searchTorrentCall = function(text, navigation, callback, isP2P)
