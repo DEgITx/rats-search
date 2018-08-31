@@ -132,7 +132,7 @@ class p2p {
 			});
 		});
 
-		this.on('file', (path, callback) => {
+		this.on('file', ({path}, callback) => {
 			const readable = new fs.ReadStream(path)
 			logT('transfer', 'server transfer file', path)
 			readable.on('data', (chunk) => {
@@ -382,7 +382,7 @@ class p2p {
 	file(peer, path)
 	{
 		const fileStream = fs.createWriteStream(path)
-		let deleteCallback = peer.emit('file', path, (chunk) => {
+		let deleteCallback = peer.emit('file', {path}, (chunk) => {
 			if(!chunk)
 			{
 				logT('transfer', 'closing transfering file stream', path)
