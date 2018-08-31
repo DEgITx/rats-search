@@ -7,6 +7,7 @@ const os = require('os');
 const isPortReachable = require('./isPortReachable')
 const EventEmitter = require('events');
 const _ = require('lodash')
+const fs = require('fs')
 
 class p2p {
 	constructor(send = () => {})
