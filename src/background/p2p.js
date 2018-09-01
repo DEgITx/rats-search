@@ -158,7 +158,7 @@ class p2p {
 
 			if(fs.lstatSync(filePath).isDirectory())
 			{
-				const filesList = directoryFilesRecursive(filePath).map(file => ph.relative(this.dataDirectory, file))
+				const filesList = directoryFilesRecursive(filePath).map(file => ph.relative(this.dataDirectory, file).replace(/\\/g, '/'))
 				callback({filesList})
 				return
 			}
@@ -423,10 +423,13 @@ class p2p {
 		logT('transfer', 'get file request', path)
 		return new Promise(async (resolve) =>
 		{
-			const filePath = this.dataDirectory + '/' + (targetPath || ph.basename(path))
+			const filePath = this.dataDirectory + '/' + (targetPath || path)
 			// recreate directory to file if not exist
 			await mkdirp(ph.dirname(filePath))
-			const fileStream = fs.createWriteStream(filePath)
+			let fileStream
+			if(!fs.existsSync(filePath) || !fs.lstatSync(filePath).isDirectory())
+				fileStream = fs.createWriteStream(filePath)
+			
 			let peer = null
 			let firstTransfer = false
 			let deleteCallback = (remotePeer || this).emit('file', {path}, (chunk, nil, addr) => {
@@ -440,7 +443,8 @@ class p2p {
 				{
 					logT('transfer', 'closing transfering file stream', path)
 					deleteCallback()
-					fileStream.end()
+					if(fileStream)
+						fileStream.end()
 					if(firstTransfer) // данные передало до этого, значит файл целый
 					{
 						resolve(true)
@@ -454,11 +458,28 @@ class p2p {
 				{
 					logT('transfer', 'get folder content', filesList)
 					deleteCallback()
-					fileStream.end()
-					Promise.all(filesList.map(file => this.file(file, null, addr))).then(() => {
-						logT('transfer', 'finish transfer all files from folder')
-						resolve()
-					})
+					const transferFiles = () => {
+						Promise.all(filesList.map(file => this.file(file, null, addr))).then(() => {
+							logT('transfer', 'finish transfer all files from folder')
+							resolve()
+						})
+					}
+					if(fileStream)
+						fileStream.end(null, null, () => {
+							fs.unlinkSync(filePath)
+							transferFiles()	
+						})
+					else
+						transferFiles()
+					
+					return
+				}
+
+				if(!fileStream)
+				{
+					logTE('transfer', 'error on file transfer', path, 'cant create description')
+					deleteCallback()
+					resolve(false)
 					return
 				}
 
