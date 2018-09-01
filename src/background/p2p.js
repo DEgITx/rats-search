@@ -8,7 +8,7 @@ const isPortReachable = require('./isPortReachable')
 const EventEmitter = require('events');
 const _ = require('lodash')
 const fs = require('fs')
-const path = require('path')
+const ph = require('path')
 
 class p2p {
 	constructor(send = () => {})
@@ -140,7 +140,7 @@ class p2p {
 				return
 			}
 
-			const filePath = path.resolve(this.dataDirectory + '/' + path)
+			const filePath = ph.resolve(this.dataDirectory + '/' + path)
 			if(!filePath.includes(this.dataDirectory))
 			{
 				logTE('transfer', 'file get must be from data dir')
@@ -411,7 +411,7 @@ class p2p {
 			return
 		}
 
-		const fileStream = fs.createWriteStream(this.dataDirectory + '/' + (targetPath || path.basename(path)))
+		const fileStream = fs.createWriteStream(this.dataDirectory + '/' + (targetPath || ph.basename(path)))
 		let peer = null
 		let deleteCallback = (remotePeer || this).emit('file', {path}, (chunk, nil, addr) => {
 			if(peer && addr !== peer)
