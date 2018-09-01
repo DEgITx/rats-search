@@ -158,7 +158,7 @@ class p2p {
 
 			if(fs.lstatSync(filePath).isDirectory())
 			{
-				const filesList = directoryFilesRecursive(filePath)
+				const filesList = directoryFilesRecursive(filePath).map(file => ph.relative(this.dataDirectory, file))
 				callback({filesList})
 				return
 			}
