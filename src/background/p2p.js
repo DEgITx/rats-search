@@ -156,7 +156,6 @@ class p2p {
 			let readable = new fs.ReadStream(filePath)
 			logT('transfer', 'server transfer file', path)
 			readable.on('data', (chunk) => {
-				console.log('chunk', chunk.length)
 				callback({data: chunk})
 			});
 			readable.on('end', () => {
@@ -411,8 +410,10 @@ class p2p {
 			return
 		}
 
+		logT('transfer', 'get file request', path)
 		const fileStream = fs.createWriteStream(this.dataDirectory + '/' + (targetPath || ph.basename(path)))
 		let peer = null
+		let firstTransfer = false
 		let deleteCallback = (remotePeer || this).emit('file', {path}, (chunk, nil, addr) => {
 			if(peer && addr !== peer)
 			{
@@ -439,6 +440,11 @@ class p2p {
 
 			// make sure no othe peer will recive data
 			peer = addr
+			if(!firstTransfer)
+			{
+				firstTransfer = true
+				logT('transfer', 'got peer for tranfer, start transfering file', path, 'from peer', addr.peerId)
+			}
 			
 			const buffer = Buffer.from(data.data)
 			fileStream.write(buffer)
