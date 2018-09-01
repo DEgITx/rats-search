@@ -9,6 +9,9 @@ const EventEmitter = require('events');
 const _ = require('lodash')
 const fs = require('fs')
 const ph = require('path')
+const directoryFilesRecursive = require('./directoryFilesRecursive')
+const {promisify} = require('util');
+const mkdirp = promisify(require('mkdirp'))
 
 class p2p {
 	constructor(send = () => {})
@@ -150,6 +153,13 @@ class p2p {
 			if(!fs.existsSync(filePath))
 			{
 				logTE('transfer', 'no such file or directory', filePath)
+				return
+			}
+
+			if(fs.lstatSync(filePath).isDirectory())
+			{
+				const filesList = directoryFilesRecursive(filePath)
+				callback({filesList})
 				return
 			}
 
@@ -411,9 +421,12 @@ class p2p {
 		}
 
 		logT('transfer', 'get file request', path)
-		return new Promise((resolve) =>
+		return new Promise(async (resolve) =>
 		{
-			const fileStream = fs.createWriteStream(this.dataDirectory + '/' + (targetPath || ph.basename(path)))
+			const filePath = this.dataDirectory + '/' + (targetPath || ph.basename(path))
+			// recreate directory to file if not exist
+			await mkdirp(ph.dirname(filePath))
+			const fileStream = fs.createWriteStream(filePath)
 			let peer = null
 			let firstTransfer = false
 			let deleteCallback = (remotePeer || this).emit('file', {path}, (chunk, nil, addr) => {
@@ -435,7 +448,20 @@ class p2p {
 					return
 				}
 
-				const {data} = chunk
+				const {data, filesList} = chunk
+
+				if(filesList)
+				{
+					logT('transfer', 'get folder content', filesList)
+					deleteCallback()
+					fileStream.end()
+					Promise.all(filesList.map(file => this.file(file, null, addr))).then(() => {
+						logT('transfer', 'finish transfer all files from folder')
+						resolve()
+					})
+					return
+				}
+
 				if(!data || data.type !== 'Buffer')
 				{
 					logTE('transfer', 'error on file transfer', path)
