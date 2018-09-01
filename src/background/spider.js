@@ -66,6 +66,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		const p2p = new P2PServer(send)
 		p2p.version = version
 		p2p.encryptor = encryptor
+		p2p.dataDirectory = dataDirectory // make file transfer work
 		p2p.listen()
 		const p2pStore = new P2PStore(p2p, sphinx)
 
