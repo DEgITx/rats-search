@@ -411,44 +411,52 @@ class p2p {
 		}
 
 		logT('transfer', 'get file request', path)
-		const fileStream = fs.createWriteStream(this.dataDirectory + '/' + (targetPath || ph.basename(path)))
-		let peer = null
-		let firstTransfer = false
-		let deleteCallback = (remotePeer || this).emit('file', {path}, (chunk, nil, addr) => {
-			if(peer && addr !== peer)
-			{
-				logT('transfer', 'ignore other peers responce', addr.peerId)
-				return
-			}
+		return new Promise((resolve) =>
+		{
+			const fileStream = fs.createWriteStream(this.dataDirectory + '/' + (targetPath || ph.basename(path)))
+			let peer = null
+			let firstTransfer = false
+			let deleteCallback = (remotePeer || this).emit('file', {path}, (chunk, nil, addr) => {
+				if(peer && addr !== peer)
+				{
+					logT('transfer', 'ignore other peers responce', addr.peerId)
+					return
+				}
 
-			if(!chunk)
-			{
-				logT('transfer', 'closing transfering file stream', path)
-				deleteCallback()
-				fileStream.end()
-				return
-			}
+				if(!chunk)
+				{
+					logT('transfer', 'closing transfering file stream', path)
+					deleteCallback()
+					fileStream.end()
+					if(firstTransfer) // данные передало до этого, значит файл целый
+					{
+						resolve(true)
+					}
+					return
+				}
 
-			const {data} = chunk
-			if(!data || data.type !== 'Buffer')
-			{
-				logTE('transfer', 'error on file transfer', path)
-				deleteCallback()
-				fileStream.end()
-				return
-			}
+				const {data} = chunk
+				if(!data || data.type !== 'Buffer')
+				{
+					logTE('transfer', 'error on file transfer', path)
+					deleteCallback()
+					fileStream.end()
+					resolve(false)
+					return
+				}
 
-			// make sure no othe peer will recive data
-			peer = addr
-			if(!firstTransfer)
-			{
-				firstTransfer = true
-				logT('transfer', 'got peer for tranfer, start transfering file', path, 'from peer', addr.peerId)
-			}
-			
-			const buffer = Buffer.from(data.data)
-			fileStream.write(buffer)
-		}, true) // dont clear callback
+				// make sure no othe peer will recive data
+				peer = addr
+				if(!firstTransfer)
+				{
+					firstTransfer = true
+					logT('transfer', 'got peer for tranfer, start transfering file', path, 'from peer', addr.peerId)
+				}
+				
+				const buffer = Buffer.from(data.data)
+				fileStream.write(buffer)
+			}, true) // dont clear callback
+		})
 	}
 
 	peersList()
