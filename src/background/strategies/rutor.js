@@ -65,10 +65,10 @@ module.exports = class Rutor
 				this.rutorMap = data.hashes
 				logT('rutor', 'add records to', Object.keys(this.rutorMap).length)
 			}
-			else 
+			else if(!this.rutorMap) 
 				this.rutorMap = {}
 
-		if(page > 11)
+		if(page > 10)
 		{
 			delete this.rutorMap
 			return
