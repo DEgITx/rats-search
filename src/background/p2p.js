@@ -26,6 +26,7 @@ class p2p {
 		this.p2pStatus = 0
 		this.version = '0'
 		this.info = {}
+		this.filesRequests = {}
 		if(!config.peerId)
 		{
 			logT('p2p', 'generate peerId')
@@ -152,7 +153,7 @@ class p2p {
 
 			if(!fs.existsSync(filePath))
 			{
-				logTE('transfer', 'no such file or directory', filePath)
+				logT('transfer', 'no such file or directory', filePath)
 				return
 			}
 
@@ -420,8 +421,14 @@ class p2p {
 			return
 		}
 
+		if(this.filesRequests[path])
+		{
+			logT('transfer', 'already downloading', path, 'return downloading request')
+			return this.filesRequests[path]
+		}
+
 		logT('transfer', 'get file request', path)
-		return new Promise(async (resolve) =>
+		const promise = new Promise(async (resolve) =>
 		{
 			const filePath = this.dataDirectory + '/' + (targetPath || path)
 			// recreate directory to file if not exist
@@ -504,6 +511,13 @@ class p2p {
 				fileStream.write(buffer)
 			}, true) // dont clear callback
 		})
+
+		this.filesRequests[path] = promise
+		promise.then(() => {
+			delete this.filesRequests[path]
+		})
+
+		return promise
 	}
 
 	peersList()
