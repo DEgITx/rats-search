@@ -6,6 +6,7 @@ const fs = require('fs')
 const fileRead = promisify(fs.readFile)
 const exist = promisify(fs.exists)
 const magnetParse = require('../magnetParse')
+const mkdirp = promisify(require('mkdirp'))
 
 module.exports = class Rutor
 {
@@ -100,6 +101,7 @@ module.exports = class Rutor
 		  rutorMap[hash] = id
 		});
 	
+		await mkdirp(`${this.dataDirectory}/rutor`)
 		fs.writeFileSync(`${this.dataDirectory}/rutor/rutor.x.json`, JSON.stringify({
 			date: Date.now(),
 			hashes: this.rutorMap
