@@ -2,6 +2,7 @@ import React from 'react';
 
 import RutrackerIcon from './images/strategies/rutracker.png'
 import NyaaIcon from './images/strategies/nyaa.jpg'
+import RutorIcon from './images/strategies/rutor.png'
 
 export default (props) => {
 	let className = ''
@@ -25,6 +26,11 @@ export default (props) => {
 				info.trackers.includes('nyaa')
             &&
            <img src={NyaaIcon} style={{height: 32}} />
+			}
+			{
+				info.trackers.includes('rutor')
+            &&
+			<a href={`http://www.rutor.is/torrent/${info.rutorThreadId}`}><img src={RutorIcon} style={{height: 32}} /></a>
 			}
 		</div>
 	)
