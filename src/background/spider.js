@@ -68,6 +68,23 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		p2p.version = version
 		p2p.encryptor = encryptor
 		p2p.dataDirectory = dataDirectory // make file transfer work
+		p2p.filesBlacklist = [
+			'rats.json',
+			'rats.log',
+			'downloads.json',
+			'Cookies',
+			'Cookies-journal',
+			'searchd',
+			'Preferences',
+			'Local Storage',
+			'IndexedDB',
+			'GPUCache',
+			'Cache',
+			'blob_storage',
+			'peers.p2p',
+			'query.log',
+			'sphinx.conf'
+		]
 		p2p.listen()
 		const p2pStore = new P2PStore(p2p, sphinx)
 

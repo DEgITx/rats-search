@@ -28,6 +28,7 @@ class p2p {
 		this.version = '0'
 		this.info = {}
 		this.filesRequests = {}
+		this.filesBlacklist = []
 		if(!config.peerId)
 		{
 			logT('p2p', 'generate peerId')
@@ -146,7 +147,7 @@ class p2p {
 			}
 
 			const filePath = ph.resolve(this.dataDirectory + '/' + path)
-			if(!filePath.includes(this.dataDirectory))
+			if(!filePath.includes(this.dataDirectory) || filePath == this.dataDirectory)
 			{
 				logTE('transfer', 'file get must be from data dir')
 				return
@@ -156,6 +157,15 @@ class p2p {
 			{
 				logT('transfer', 'no such file or directory', filePath)
 				return
+			}
+
+			for(const blackWord of this.filesBlacklist)
+			{
+				if(filePath.includes(blackWord))
+				{
+					logTE('transfer', 'file in blackwords', filePath, blackWord)
+					return
+				}
 			}
 
 			if(fs.lstatSync(filePath).isDirectory())
