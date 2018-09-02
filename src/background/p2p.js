@@ -12,6 +12,7 @@ const ph = require('path')
 const directoryFilesRecursive = require('./directoryFilesRecursive')
 const {promisify} = require('util');
 const mkdirp = promisify(require('mkdirp'))
+const deleteFolderRecursive = require('./deleteFolderRecursive')
 
 class p2p {
 	constructor(send = () => {})
@@ -413,7 +414,7 @@ class p2p {
 		return () => callbacks.forEach(callback => callback())
 	}
 
-	file(path, targetPath, remotePeer)
+	file(path, targetPath, remotePeer, parent)
 	{
 		if(!this.dataDirectory)
 		{
@@ -430,16 +431,19 @@ class p2p {
 		logT('transfer', 'get file request', path)
 		const promise = new Promise(async (resolve) =>
 		{
-			const filePath = this.dataDirectory + '/' + (targetPath || path)
-			// recreate directory to file if not exist
-			await mkdirp(ph.dirname(filePath))
+			const realPath = (targetPath || path).replace(/\\/g, '/')
+			const filePath = this.dataDirectory + '/' + realPath
+			const tmpPath = this.dataDirectory + '/' + realPath.split('/').map(p => p + '.tmp').join('/')
+
+			// create temporary directory and file for downloading
+			await mkdirp(ph.dirname(tmpPath))
 			let fileStream
-			if(!fs.existsSync(filePath) || !fs.lstatSync(filePath).isDirectory())
-				fileStream = fs.createWriteStream(filePath)
+			if(!fs.existsSync(tmpPath) || !fs.lstatSync(tmpPath).isDirectory())
+				fileStream = fs.createWriteStream(tmpPath)
 			
 			let peer = null
 			let firstTransfer = false
-			let deleteCallback = (remotePeer || this).emit('file', {path}, (chunk, nil, addr) => {
+			let deleteCallback = (remotePeer || this).emit('file', {path}, async (chunk, nil, addr) => {
 				if(peer && addr !== peer)
 				{
 					logT('transfer', 'ignore other peers responce', addr.peerId)
@@ -454,7 +458,19 @@ class p2p {
 						fileStream.end()
 					if(firstTransfer) // данные передало до этого, значит файл целый
 					{
-						resolve(true)
+						const renameCallback = async () => {
+							await mkdirp(ph.dirname(filePath))
+							fs.renameSync(tmpPath, filePath)
+						}
+						if(parent)
+						{
+							resolve(renameCallback)
+						}
+						else
+						{
+							await renameCallback()
+							resolve(true)
+						}
 					}
 					return
 				}
@@ -466,14 +482,18 @@ class p2p {
 					logT('transfer', 'get folder content', filesList)
 					deleteCallback()
 					const transferFiles = () => {
-						Promise.all(filesList.map(file => this.file(file, null, addr))).then(() => {
-							logT('transfer', 'finish transfer all files from folder')
-							resolve()
+						Promise.all(filesList.map(file => this.file(file, null, addr, true))).then(async (files) => {
+							// files transfers, now move it from tmp dir
+							Promise.all(files.map((renameCallback) => renameCallback())).then(() => {
+								deleteFolderRecursive(tmpPath)
+								logT('transfer', 'finish transfer all files from folder')
+								resolve()
+							})
 						})
 					}
 					if(fileStream)
 						fileStream.end(null, null, () => {
-							fs.unlinkSync(filePath)
+							fs.unlinkSync(tmpPath)
 							transferFiles()	
 						})
 					else
