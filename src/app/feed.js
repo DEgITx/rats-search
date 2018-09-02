@@ -35,6 +35,9 @@ export default class RecentTorrents extends Component {
 				<Divider />
 				{
 					this.torrents.map((torrent, index) =>{
+						if(torrent.contentCategory === 'xxx')
+							return
+
 						return <TorrentLine key={index} torrent={torrent} />;
 					})
 				}
