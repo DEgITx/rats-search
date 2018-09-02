@@ -15,6 +15,7 @@ describe("rutor", () => {
 		const data = await rutor.findHash('158448f6afbedb079aaf3c4695fb43e7dfa54515')
 		assert.equal(data.name, 'Наруто: Ураганные Хроники / Naruto Shippuuden Movie [4 фильм] (2007) DVDRip')
 		assert.equal(data.rutorThreadId, 5850)
+		assert.equal(data.contentCategory, 'Аниме')
 	})
 
 	it("notFound", async function() {
