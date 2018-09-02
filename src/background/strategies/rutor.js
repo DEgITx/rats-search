@@ -127,11 +127,23 @@ module.exports = class Rutor
 		if(!topicTitle)
 			return
 
+		let contentCategory
+		$('#details tr').each(function(i, elem) {
+		  const row = $(this)
+		  const field = row.find('td.header').text()
+		  if(field == 'Категория')
+		  {
+		  	contentCategory = row.find('td').next().text().trim()
+		  }
+		});
+	
+
 		return {
 			name: topicTitle,
 			poster: $('#details tbody img').attr('src'),
 			description: $('#details tbody').first().text(),
-			rutorThreadId: parseInt(id)
+			rutorThreadId: parseInt(id),
+			contentCategory
 		}
 	
 	}
