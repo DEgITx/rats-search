@@ -122,6 +122,7 @@ module.exports = class Rutor
 		if(!html)
 			return
 		html = await html.textConverted()
+		html = html.replace(/textarea/g, 'div')
 		const $ = cheerio.load(html)
 		const topicTitle = $('h1').text()
 		if(!topicTitle)
