@@ -13,7 +13,8 @@ module.exports = class Rutor
 	{
 		this.p2p = props.p2p
 		this.dataDirectory = props.dataDirectory
-		setTimeout(() => this.recheck(), 30000)
+		let t = setTimeout(() => this.recheck(), 30000)
+		t.unref()
 	}
 
 	name() { return 'rutor' }
@@ -61,6 +62,7 @@ module.exports = class Rutor
 			{
 				let data = JSON.parse(fs.readFileSync(this.dataDirectory + '/rutor/rutor.x.json'))
 				this.rutorMap = data.hashes
+				logT('rutor', 'add records to', Object.keys(this.rutorMap).length)
 			}
 			else 
 				this.rutorMap = {}
