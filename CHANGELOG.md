@@ -1,3 +1,31 @@
+# [0.30.0](https://github.com/DEgITx/rats-search/compare/v0.29.3...v0.30.0) (2018-09-02)
+
+
+### Bug Fixes
+
+* **feed:** temporary hide adult torrents from feed ([b23fabd](https://github.com/DEgITx/rats-search/commit/b23fabd))
+* **gui:** fix some warnings ([cb1c1f4](https://github.com/DEgITx/rats-search/commit/cb1c1f4))
+* **rutor:** fix problems with dir creation ([b09dc9b](https://github.com/DEgITx/rats-search/commit/b09dc9b))
+* **rutor:** fix x rutor file update ([c2d8de5](https://github.com/DEgITx/rats-search/commit/c2d8de5))
+* **rutor:** little fix ([9ec6aaf](https://github.com/DEgITx/rats-search/commit/9ec6aaf))
+* **tests:** rutor test ([9316463](https://github.com/DEgITx/rats-search/commit/9316463))
+* **top:** fix top tab redraw bug regression in v0.29.3 ([860bb30](https://github.com/DEgITx/rats-search/commit/860bb30))
+* **transfer:** fix multiple transfer requests ([654767c](https://github.com/DEgITx/rats-search/commit/654767c))
+
+
+### Features
+
+* **downloading:** ability to choose files which you wanna download ([11275e7](https://github.com/DEgITx/rats-search/commit/11275e7))
+* **downloading:** choose dir on new download ([c771af7](https://github.com/DEgITx/rats-search/commit/c771af7))
+* **p2p:** file transfer p2p feature ([e69ced7](https://github.com/DEgITx/rats-search/commit/e69ced7))
+* **p2p:** folder transfer feature ([64be590](https://github.com/DEgITx/rats-search/commit/64be590))
+* **rutor:** category rutor ([c675974](https://github.com/DEgITx/rats-search/commit/c675974))
+* **rutor:** rutor strategie ([ad01a77](https://github.com/DEgITx/rats-search/commit/ad01a77))
+* **rutor:** visual gui display ([8f3b936](https://github.com/DEgITx/rats-search/commit/8f3b936))
+* **search:** search among info indexes ([f196071](https://github.com/DEgITx/rats-search/commit/f196071))
+* **trackers:** closing ability ([073479d](https://github.com/DEgITx/rats-search/commit/073479d))
+* **transfer:** download everything to tmp dir to prevent unfinish transfers ([a3ae966](https://github.com/DEgITx/rats-search/commit/a3ae966))
+
 ## [0.29.3](https://github.com/DEgITx/rats-search/compare/v0.29.2...v0.29.3) (2018-08-26)
 
 
