@@ -42,6 +42,7 @@ const mime = require('mime');
 
 const Rutracker = require('./strategies/rutracker')
 const Nyaa = require('./strategies/nyaa')
+const Rutor = require('./strategies/rutor')
 
 
 module.exports = function (send, recive, dataDirectory, version, env)
@@ -105,9 +106,9 @@ module.exports = function (send, recive, dataDirectory, version, env)
         
 		class RemoteTrackers
 		{
-			constructor(sphinx)
+			constructor(args)
 			{
-				this.sphinx = sphinx
+				this.sphinx = args.sphinx
 				if(!config.trackers)
 				{
 					logT('tracker', 'trackers disabled')
@@ -116,8 +117,9 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				}
 
 				this.trackers = [
-					new Rutracker,
-					new Nyaa
+					new Rutracker(args),
+					new Nyaa(args),
+					new Rutor(args)
 				]
 			}
 
@@ -167,7 +169,11 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				})
 			}
 		}
-		const remoteTrackers = new RemoteTrackers(sphinxSingle)
+		const remoteTrackers = new RemoteTrackers({
+			sphinx: sphinxSingle,
+			p2p,
+			dataDirectory
+		})
 
 		// start
 		function baseRowData(row)
