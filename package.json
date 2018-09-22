@@ -117,6 +117,7 @@
     "cheerio": "^1.0.0-rc.2",
     "compare-versions": "^3.1.0",
     "debug": "^3.1.0",
+    "detect-onebyte-encoding": "^1.0.2",
     "electron-context-menu": "^0.9.1",
     "electron-log": "^2.2.14",
     "electron-updater": "^2.21.10",
