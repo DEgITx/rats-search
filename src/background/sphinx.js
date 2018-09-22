@@ -12,6 +12,7 @@ const findFiles = require('./findFiles')
 const _ = require('lodash')
 const isRunning = require('is-running')
 const portCheck = require('./portCheck')
+const detectOnebyteEncoding = require('detect-onebyte-encoding')
 
 const findGoodPort = async (port, host) => {
 	while (!(await portCheck(port, host))) {
@@ -150,8 +151,18 @@ const writeSphinxConfig = async (path, dbPath) => {
 		isInitDb = true
 	}
 
+	// fix db path under windows platform (one-byte path)
 	if(/^win/.test(process.platform))
-		config = iconv.encode(config, 'win1251')
+	{
+		let encoding = detectOnebyteEncoding(dbPath)
+		let encoding2 = detectOnebyteEncoding(path)
+		if(encoding != encoding2)
+		{
+			encoding = detectOnebyteEncoding(config)
+		}
+		config = iconv.encode(config, encoding)
+		logT('sphinx', 'config encoded to', encoding)
+	}
 
 	fs.writeFileSync(`${path}/sphinx.conf`, config)
 	logT('sphinx', `writed sphinx config to ${path}`)
