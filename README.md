@@ -13,14 +13,13 @@ BitTorrent search program for desktop and web. Collect and navigate over base of
 
 ## Features
 * Works over p2p torrent network, doesn't require any trackers
-* Supports own p2p protocol for additional data transfer
+* Supports own p2p protocol for additional data transfer (like search between rats clients, descriptions/votes transfer, etc.)
 * Search over torrent collection
 * Torrent and files search
 * Search filters (size ranges, files, seeders etc...)
 * Collection filters (regex filters, adult filters)
 * Trackers peers scan supported
 * Integrated torrent client
-* Pretty safe to use and don't send any information about collected torrents data (statistic)
 * Collect only statistic information and don't save any torrents internal data
 * Supports torrents rating (voting)
 * P2P Search protocol. Search in other Rats clients.
@@ -28,6 +27,8 @@ BitTorrent search program for desktop and web. Collect and navigate over base of
 * Top list (mostly common and popular torrents)
 * Feed list (Rats clients activity feed)
 * Translations: English, Russian, Ukrainian
+* Drag and drop torrents (expand local search database with specific torrents)
+* Descriptions association from trackers
 
 ## Architecture
 ![Basic Architecture](docs/img/ratsarch.png)
