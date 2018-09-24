@@ -51,6 +51,13 @@ class p2p {
 		});
 
 		this.tcpServer.on('connection', (socket) => {
+			if(!config.p2p)
+			{
+				logT('p2p', 'ignore incoming p2p connection because of p2p disabled')
+				socket.destroy()
+				return
+			}
+
 			this.tcpServer.getConnections((err,con) => {
 				logT('p2p', 'server connected', con, 'max', this.tcpServer.maxConnections)
 			})
@@ -263,6 +270,9 @@ class p2p {
 
 	add(address) {
 		const { peers } = this
+
+		if(!config.p2p)
+			return
 
 		if(this.size > config.p2pConnections)
 			return;

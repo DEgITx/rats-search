@@ -245,7 +245,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		})
 
 		let p2pBootstrapLoop = null
-		if(config.p2pBootstrap)
+		if(config.p2p && config.p2pBootstrap)
 		{
 			const loadBootstrapPeers = async (url) => {
 				const json = await getServiceJson(url)
