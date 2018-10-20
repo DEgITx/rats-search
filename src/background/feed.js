@@ -1,4 +1,5 @@
 const config = require('./config');
+const rating = require('../app/rating');
 
 module.exports = class Feed {
 	constructor({sphinx})
@@ -102,6 +103,12 @@ module.exports = class Feed {
 		if(time > maxTime)
 			time = maxTime
 		const relativeTime = (maxTime - time) / maxTime
-		return relativeTime * relativeTime + good * 1.5 * relativeTime + comments * 4 * relativeTime - bad * 0.6 * relativeTime
+		return (
+			relativeTime * relativeTime 
+			+ good * 1.5 * relativeTime 
+			+ comments * 4 * relativeTime 
+			- bad * 0.6 * relativeTime
+			+ rating(good, bad)
+		)
 	}
 }
