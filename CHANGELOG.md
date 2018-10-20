@@ -1,3 +1,13 @@
+## [0.30.1](https://github.com/DEgITx/rats-search/compare/v0.30.0...v0.30.1) (2018-10-17)
+
+
+### Bug Fixes
+
+* **config:** fully disable p2p activity if option with p2p search disabled ([20f9a6b](https://github.com/DEgITx/rats-search/commit/20f9a6b))
+* **downloading:** fix continue downloading on selection ([d4608b6](https://github.com/DEgITx/rats-search/commit/d4608b6))
+* **downloading:** fix finishing files in some cases ([b7cd443](https://github.com/DEgITx/rats-search/commit/b7cd443))
+* **windows:** fix starting under some path'es ([2c11120](https://github.com/DEgITx/rats-search/commit/2c11120))
+
 # [0.30.0](https://github.com/DEgITx/rats-search/compare/v0.29.3...v0.30.0) (2018-09-02)
 
 
