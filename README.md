@@ -26,7 +26,7 @@ BitTorrent search program for desktop and web. Collect and navigate over base of
 * Web version (web interface) for servers
 * Top list (mostly common and popular torrents)
 * Feed list (Rats clients activity feed)
-* Translations: English, Russian, Ukrainian
+* Translations: English, Russian, Ukrainian, Chinese
 * Drag and drop torrents (expand local search database with specific torrents)
 * Descriptions association from trackers
 
