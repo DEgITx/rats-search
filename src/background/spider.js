@@ -514,19 +514,6 @@ module.exports = function (send, recive, dataDirectory, version, env)
 
 			torrent.id = torrentsId++;
 
-			const recheckFiles = (callback) => {
-				sphinxSingle.query('SELECT count(*) as files_count FROM files WHERE hash = ?', [torrent.hash], function(err, rows) {
-					if(!rows)
-						return
-    
-					const db_files = rows[0]['files_count'];
-					if(db_files !== torrent.files)
-					{
-						callback()
-					}
-				})
-			}
-
 			const addFilesToDatabase = () => {
 				sphinxSingle.query('DELETE FROM files WHERE hash = ?', torrent.hash, function (err, result) {
 					if(err)
@@ -534,12 +521,23 @@ module.exports = function (send, recive, dataDirectory, version, env)
 						return;
 					}
 
-					filesList.forEach((file) => {
-						file.id = filesId++;
-						file.pathIndex = file.path;
-					});
+					let path = '';
+					let size = '';
+					for(const file of filesList)
+					{
+						path += file.path + '\n';
+						size += file.size + '\n';
+					}
+					path = path.slice(0, -1);
+					size = size.slice(0, -1);
 
-					sphinxSingle.insertValues('files', filesList, function(err, result) {
+					sphinxSingle.insertValues('files', { 
+						id: torrent.id,
+						hash: torrent.hash,
+						path,
+						pathIndex: path,
+						size
+					 }, function(err, result) {
 						if(!result) {
 							console.error(err);
 							return
@@ -559,20 +557,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				}
 
 				// torrent already probably in db
-				if(single.length > 0)
-				{
-					if(config.recheckFilesOnAdding)
-					{
-						// recheck files and if they not ok add their to database
-						recheckFiles(addFilesToDatabase)
-					}
-					resolve()
-					return
-				}
-				else
-				{
-					addFilesToDatabase()
-				}
+				addFilesToDatabase();
 
 				torrent.nameIndex = buildTorrentIndex(torrent)
 
