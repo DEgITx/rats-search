@@ -1,11 +1,12 @@
 const ipaddr = require('ipaddr.js');
 const forBigTable = require('./forBigTable')
 const compareVersions = require('compare-versions');
-const getTorrent = require('./gettorrent')
+const getTorrent = require('./getTorrent')
 const _ = require('lodash')
 const asyncForEach = require('./asyncForEach')
 const cpuUsage = require('./bt/cpu-usage-global')
 const magnetParse = require('./magnetParse')
+const parseTorrentFiles = require('./parsetTorrentFiles')
 
 module.exports = async ({
 	sphinx,
@@ -183,7 +184,8 @@ module.exports = async ({
 
 			if(options.files)
 			{
-				torrent.filesList = await sphinx.query('SELECT * FROM `files` WHERE `hash` = ? LIMIT 50000', hash);
+				torrent.filesList = parseTorrentFiles(await sphinx.query('SELECT * FROM `files` WHERE `hash` = ?', hash));
+				console.log(torrent.filesList)
 				callback(baseRowData(torrent))
 			}
 			else
@@ -239,17 +241,10 @@ module.exports = async ({
 				}
     
 				const inSql = Object.keys(hashes).map(hash => sphinx.escape(hash)).join(',');
-				sphinxSingle.query(`SELECT * FROM files WHERE hash IN(${inSql}) limit 50000`, (error, files) => {
-					if(!files)
-					{
-						files = []
-					}
-    
-					files.forEach((file) => {
-						if(!hashes[file.hash].filesList)
-							hashes[file.hash].filesList = []
-						hashes[file.hash].filesList.push(file)
-					})
+				sphinxSingle.query(`SELECT * FROM files WHERE hash IN(${inSql})`, (error, files) => {
+					for(const file of files)
+						hashes[file.hash].filesList = parseTorrentFiles(file);
+					
 					callback(Object.values(hashes))
 				})
 			})

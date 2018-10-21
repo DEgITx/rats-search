@@ -8,7 +8,7 @@ const glob = require("glob")
 const asyncForEach = require('./asyncForEach')
 
 const {torrentTypeDetect} = require('../app/content');
-const getTorrent = require('./gettorrent')
+const getTorrent = require('./getTorrent')
 const startSphinx = require('./sphinx')
 
 

@@ -67,7 +67,7 @@ const writeSphinxConfig = async (path, dbPath) => {
       rt_attr_string = path
       rt_field = pathIndex
     rt_attr_string = hash
-    rt_attr_bigint = size
+    rt_attr_string = size
   }
 
   index version
