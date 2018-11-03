@@ -25,7 +25,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 	}
     
 	let patchWindow;
-	const openPatchWindow = () => {
+	const openPatchWindow = (closable = false) => {
 		if(patchWindow)
 			return
 
@@ -35,9 +35,11 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 		if(mainWindow)
 			mainWindow.hide()
 
-		patchWindow = new BrowserWindow({width: 800, height: 400, closable: false})
+		patchWindow = new BrowserWindow({width: 800, height: 400, closable})
 
 		patchWindow.setMenu(null)
+
+		patchWindow.on('close', () => mainWindow.appClose())
 
 		patchWindow.loadURL("data:text/html;charset=utf-8," + encodeURI(`
             <html>
@@ -72,12 +74,24 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
                 }
                 #one {
                     padding: 20px;
+				}
+				#long {
+					font-size: 0.8em;
+					padding: 10px;
+				}
+				#canBreak {
+					font-size: 0.8em;
+					padding: 10px;
                 }
                 </style>
                 <script>
                     const {ipcRenderer} = require('electron')
                     ipcRenderer.on('reindex', (e, data) =>{
-                        document.getElementById('one').innerHTML = \`Updating \${data.torrent ? 'torrent': 'file'} \${data.index} of \${data.all} [\${data.field} index]\`
+						document.getElementById('one').innerHTML = \`Updating \${data.torrent ? 'torrent': 'file'} \${data.index} of \${data.all} [\${data.field} index]\`
+						if(data.longTime)
+							document.getElementById('long').innerHTML = 'This patch is very long, may be some hours. So you can take some cup of tea, while we perform db patch.'
+						if(data.canBreak)
+							document.getElementById('canBreak').innerHTML = 'You can break this patch, and continue when you will have time to patch, it will be resumed.'
                     })
                     ipcRenderer.on('optimize', (e, data) =>{
                         document.getElementById('one').innerHTML = \`Optimization for \${data.field}...\`
@@ -94,7 +108,9 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
                     c4.416,0.15,17.979,1.621,17.683-4.273c-0.292-5.897-11.491-3.241-13.854-6.487c-2.359-3.234-10.023-15.504-7.366-21.104
                     c2.65-5.59,12.674-21.229,24.463-22.988c11.789-1.777,42.451,7.361,47.459,0c5.012-7.372-6.783-11.512-15.918-28.611
                     C243.779,80.572,238.768,71.728,220.195,71.427z"/>
-                    <div id="one"></div>
+					<div id="one"></div>
+					<div id="long"></div>
+					<div id="canBreak"></div>
                 </svg>
                 </body>
             </html>
@@ -308,18 +324,46 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 		}
 		case 6:
 		{
-			openPatchWindow()
+			openPatchWindow(true)
 			logT('patcher', 'merge all files in db patch');
 
 			let filesMap = {}
-			let newId = 1;
+			let newId = 0;
 			let fileIndex = 0;
-			const count = (await sphinx.query("select count(*) as cnt from files"))[0].cnt;
+			const count = (await sphinx.query("select count(*) as cnt from files where size > 0"))[0].cnt;
+
+			if(patchWindow)
+				patchWindow.webContents.send('reindex', {field: 'calculate', index: 'calculate', all: count, longTime: true, canBreak: true})
+
+			// found new id
+			try {
+				const maxNotPatched = (await sphinx.query("select min(id) as cnt from files where size > 0"))[0].cnt;
+				newId = (await sphinx.query(`select max(id) as cnt from files where id < ${maxNotPatched}`))[0].cnt | 0;
+				if(newId <= 0) {
+					logTE('patcher', 'not founded old if');
+					newId = 0;
+				}
+			} catch(e) {
+				newId = 0;
+			}
+			newId++;
+			logT('patcher', 'founded newId', newId);
 			
 			//sphinx.query(`OPTIMIZE INDEX files`)
 			//await sphinxApp.waitOptimized('files')
+
+			const descFiles = await sphinx.query(`desc files`);
+			let isSizeNewExists = false;
+			descFiles.forEach(({Field}) => {
+				if(Field == 'size_new')
+					isSizeNewExists = true;
+			});
 			
-			await sphinx.query("alter table files add column `size_new` string");
+			if(!isSizeNewExists)
+				await sphinx.query("alter table files add column `size_new` string");
+			else
+				logT('patcher', 'size_new already exists, skip');
+
 			const fileMapWorker = async (keys) => {
 				let hashCount = 0;
 				for(let hash of keys)
@@ -344,7 +388,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 					});
 					logT('patcher', 'patched file', fileIndex, 'from', count, 'hash', hash, 'cIndex', ++hashCount);
 					if(patchWindow)
-						patchWindow.webContents.send('reindex', {field: hash, index: fileIndex, all: count})
+						patchWindow.webContents.send('reindex', {field: hash, index: fileIndex, all: count, longTime: true, canBreak: true})
 
 					delete filesMap[hash];
 				}
@@ -356,7 +400,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 					filesMap[file.hash] = []
 				}
 				filesMap[file.hash].push(file);
-			}, null, 1000, '', async (lastTorrent) => {
+			}, null, 1000, 'and size > 0', async (lastTorrent) => {
 				let keys = Object.keys(filesMap);
 				if(keys.length > 2000) {
 					await fileMapWorker(keys.filter(key => key !== lastTorrent.hash));

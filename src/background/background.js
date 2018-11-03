@@ -179,6 +179,10 @@ app.on("ready", async () => {
 			height: 600
 		});
 
+		// Need for db patcher, to close application
+		if(stop)
+			mainWindow.appClose = stop;
+
 		dbPatcher(() => {
 			changeLanguage(appConfig.language, () => setApplicationMenu())
 
