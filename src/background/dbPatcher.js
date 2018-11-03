@@ -8,11 +8,10 @@ const glob = require("glob")
 const asyncForEach = require('./asyncForEach')
 
 const {torrentTypeDetect} = require('../app/content');
-const getTorrent = require('./getTorrent')
 const startSphinx = require('./sphinx')
 
 
-const currentVersion = 6
+const currentVersion = 7
 
 
 module.exports = async (callback, mainWindow, sphinxApp) => {
@@ -279,7 +278,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 				{
 					delete torrent.contentcategory
 					delete torrent.contenttype
-					torrent = await getTorrent(sphinx, null, torrent) // get files
+					torrent.filesList = (await sphinx.query(`SELECT * FROM files WHERE hash = '${torrent.hash}'`)) || []
 					torrentTypeDetect(torrent, torrent.filesList)
 					if(torrent.contentType == 'bad')
 					{
@@ -306,6 +305,79 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 			openPatchWindow()
 			await rebuildTorrentsFull()
 			await setVersion(6)
+		}
+		case 6:
+		{
+			openPatchWindow()
+			logT('patcher', 'merge all files in db patch');
+
+			let filesMap = {}
+			let newId = 1;
+			let fileIndex = 0;
+			const count = (await sphinx.query("select count(*) as cnt from files"))[0].cnt;
+			
+			//sphinx.query(`OPTIMIZE INDEX files`)
+			//await sphinxApp.waitOptimized('files')
+			
+			await sphinx.query("alter table files add column `size_new` string");
+			const fileMapWorker = async (keys) => {
+				let hashCount = 0;
+				for(let hash of keys)
+				{
+					if(filesMap[hash].length == 0)
+						continue;
+
+					fileIndex++;
+					for(let i = 1; i < filesMap[hash].length; i++)
+					{
+						fileIndex++;
+						filesMap[hash][0].path += '\n' + filesMap[hash][i].path;
+						filesMap[hash][0].size += '\n' + filesMap[hash][i].size;
+					}
+					await sphinx.query(`DELETE FROM files WHERE hash = '${hash}'`);
+					await sphinx.insertValues('files', { 
+						id: newId++,
+						hash,
+						path: filesMap[hash][0].path,
+						pathIndex: filesMap[hash][0].path,
+						size_new: filesMap[hash][0].size
+					});
+					logT('patcher', 'patched file', fileIndex, 'from', count, 'hash', hash, 'cIndex', ++hashCount);
+					if(patchWindow)
+						patchWindow.webContents.send('reindex', {field: hash, index: fileIndex, all: count})
+
+					delete filesMap[hash];
+				}
+			}
+
+			await forBigTable(sphinx, 'files', (file) => {
+				if(!filesMap[file.hash])
+				{
+					filesMap[file.hash] = []
+				}
+				filesMap[file.hash].push(file);
+			}, null, 1000, '', async (lastTorrent) => {
+				let keys = Object.keys(filesMap);
+				if(keys.length > 2000) {
+					await fileMapWorker(keys.filter(key => key !== lastTorrent.hash));
+				}
+			})
+			let keys = Object.keys(filesMap);
+			if(keys.length > 0)
+				await fileMapWorker(keys);
+			filesMap = null;
+
+			await sphinx.query("alter table files drop column `size`");
+			await sphinx.query("alter table files add column `size` string");
+			await forBigTable(sphinx, 'files', async (file) => {
+				await sphinx.query(`UPDATE files SET size = '${file.size_new}' where id = ${file.id}`);
+			});
+			await sphinx.query("alter table files drop column `size_new`");
+
+			sphinx.query(`OPTIMIZE INDEX files`)
+			await sphinxApp.waitOptimized('files')
+
+			await setVersion(7)
 		}
 		}
 		logT('patcher', 'db patch done')
