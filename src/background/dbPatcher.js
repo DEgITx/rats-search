@@ -330,6 +330,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 			let filesMap = {}
 			let newId = 0;
 			let fileIndex = 0;
+			let fileIndexChecked = 0;
 			const count = (await sphinx.query("select count(*) as cnt from files where size > 0"))[0].cnt;
 
 			if(patchWindow)
@@ -403,7 +404,8 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 				}
 				filesMap[file.hash].push(file);
 			}, null, 1000, 'and size > 0', async (lastTorrent) => {
-				if(fileIndex > 0 && fileIndex % 500000 === 0) {
+				if(fileIndex > 0 && fileIndex - fileIndexChecked > 500000) {
+					fileIndexChecked = fileIndex;
 					logT('patcher', 'perform optimization');
 					sphinx.query(`OPTIMIZE INDEX files`)
 					await sphinxApp.waitOptimized('files')
