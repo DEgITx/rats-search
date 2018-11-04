@@ -349,8 +349,9 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 			newId++;
 			logT('patcher', 'founded newId', newId);
 			
-			//sphinx.query(`OPTIMIZE INDEX files`)
-			//await sphinxApp.waitOptimized('files')
+			logT('patcher', 'perform optimization');
+			sphinx.query(`OPTIMIZE INDEX files`)
+			await sphinxApp.waitOptimized('files')
 
 			const descFiles = await sphinx.query(`desc files`);
 			let isSizeNewExists = false;
@@ -378,13 +379,14 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 						filesMap[hash][0].path += '\n' + filesMap[hash][i].path;
 						filesMap[hash][0].size += '\n' + filesMap[hash][i].size;
 					}
+
 					await sphinx.query(`DELETE FROM files WHERE hash = '${hash}'`);
 					await sphinx.insertValues('files', { 
 						id: newId++,
 						hash,
 						path: filesMap[hash][0].path,
 						pathIndex: filesMap[hash][0].path,
-						size_new: filesMap[hash][0].size
+						size_new: filesMap[hash][0].size.toString()
 					});
 					logT('patcher', 'patched file', fileIndex, 'from', count, 'hash', hash, 'cIndex', ++hashCount);
 					if(patchWindow)
@@ -401,6 +403,12 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 				}
 				filesMap[file.hash].push(file);
 			}, null, 1000, 'and size > 0', async (lastTorrent) => {
+				if(fileIndex > 0 && fileIndex % 500000 === 0) {
+					logT('patcher', 'perform optimization');
+					sphinx.query(`OPTIMIZE INDEX files`)
+					await sphinxApp.waitOptimized('files')
+				}
+
 				let keys = Object.keys(filesMap);
 				if(keys.length > 2000) {
 					await fileMapWorker(keys.filter(key => key !== lastTorrent.hash));
