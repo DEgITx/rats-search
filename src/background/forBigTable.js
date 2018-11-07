@@ -1,8 +1,6 @@
 module.exports = (sphinx, table, callback, doneCallback, max = 1000, where = '', intermediateCallback = null) => new Promise((done) => {
 	const checker = async (index = 0) => {
 		const finish = () => {
-			if(err)
-				logTE('sql', 'big table parse error', err)
 			if(doneCallback)
 				doneCallback(true)
 			done(true)

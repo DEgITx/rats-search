@@ -126,14 +126,14 @@ module.exports = async ({
 
 			let result = {torrents: rows[0].torrents || 0, size: rows[0].sz || 0}
 
-			sphinx.query('SELECT count(*) AS files FROM `files`', function (error, rows, fields) {
+			sphinx.query('SELECT sum(files) AS flist FROM `torrents`', function (error, rows, fields) {
 				if(!rows) {
 					logTE('statistic', error)
 					callback(undefined)
 					return;
 				}
 
-				result.files = rows[0].files || 0
+				result.files = rows[0].flist || 0
 
 				callback(result)
 			})
