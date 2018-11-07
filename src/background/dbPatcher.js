@@ -331,7 +331,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 			let newId = 0;
 			let fileIndex = 0;
 			let fileIndexChecked = 0;
-			const count = (await sphinx.query("select count(*) as cnt from files where size > 0"))[0].cnt;
+			let count = (await sphinx.query("select count(*) as cnt from files where size > 0"))[0].cnt;
 
 			if(patchWindow)
 				patchWindow.webContents.send('reindex', {field: 'calculate', index: 'calculate', all: count, longTime: true, canBreak: true})
@@ -356,9 +356,12 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 
 			const descFiles = await sphinx.query(`desc files`);
 			let isSizeNewExists = false;
-			descFiles.forEach(({Field}) => {
+			let isSizeAlreadyPatched = false;
+			descFiles.forEach(({Field, Type}) => {
 				if(Field == 'size_new')
 					isSizeNewExists = true;
+				if(Field == 'size' && Type == 'string')
+					isSizeAlreadyPatched = true;
 			});
 			
 			if(!isSizeNewExists)
@@ -397,41 +400,54 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 				}
 			}
 
-			await forBigTable(sphinx, 'files', (file) => {
-				if(!filesMap[file.hash])
-				{
-					filesMap[file.hash] = []
-				}
-				filesMap[file.hash].push(file);
-			}, null, 1000, 'and size > 0', async (lastTorrent) => {
-				if(fileIndex > 0 && fileIndex - fileIndexChecked > 500000) {
-					fileIndexChecked = fileIndex;
-					logT('patcher', 'perform optimization');
-					sphinx.query(`OPTIMIZE INDEX files`)
-					await sphinxApp.waitOptimized('files')
-				}
+			if(!isSizeAlreadyPatched)
+			{
+				await forBigTable(sphinx, 'files', (file) => {
+					if(!filesMap[file.hash])
+					{
+						filesMap[file.hash] = []
+					}
+					filesMap[file.hash].push(file);
+				}, null, 1000, 'and size > 0', async (lastTorrent) => {
+					if(fileIndex > 0 && fileIndex - fileIndexChecked > 500000) {
+						fileIndexChecked = fileIndex;
+						logT('patcher', 'perform optimization');
+						sphinx.query(`OPTIMIZE INDEX files`)
+						await sphinxApp.waitOptimized('files')
+					}
 
+					let keys = Object.keys(filesMap);
+					if(keys.length > 2000) {
+						await fileMapWorker(keys.filter(key => key !== lastTorrent.hash));
+					}
+				})
 				let keys = Object.keys(filesMap);
-				if(keys.length > 2000) {
-					await fileMapWorker(keys.filter(key => key !== lastTorrent.hash));
-				}
-			})
-			let keys = Object.keys(filesMap);
-			if(keys.length > 0)
-				await fileMapWorker(keys);
-			filesMap = null;
+				if(keys.length > 0)
+					await fileMapWorker(keys);
+				filesMap = null;
+			}
 
 			await sphinx.query("alter table files drop column `size`");
 			await sphinx.query("alter table files add column `size` string");
+			fileIndex = 1;
+			count = (await sphinx.query("select count(*) as cnt from files where size is null"))[0].cnt;
+			logT('patcher', 'restore files', count);
 			await forBigTable(sphinx, 'files', async (file) => {
-				await sphinx.query(`UPDATE files SET size = '${file.size_new}' where id = ${file.id}`);
-			});
+				if(!file.size_new)
+					return
+				file.size = file.size_new.toString();
+				delete file.size_new;
+				await sphinx.replaceValues('files', file, {particial: false, sphinxIndex: {pathIndex: 'path'}});
+				if(patchWindow)
+					patchWindow.webContents.send('reindex', {field: file.id, index: fileIndex, all: count, longTime: false, canBreak: true})
+				logT('patcher', 'restore patched file', fileIndex++, 'from', count, 'hash', file.hash);
+			}, null, 1000, 'and size is null');
 			await sphinx.query("alter table files drop column `size_new`");
+
+			await setVersion(7)
 
 			sphinx.query(`OPTIMIZE INDEX files`)
 			await sphinxApp.waitOptimized('files')
-
-			await setVersion(7)
 		}
 		}
 		logT('patcher', 'db patch done')
