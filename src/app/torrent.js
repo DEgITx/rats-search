@@ -320,7 +320,17 @@ export default class Torrent extends Component {
   								torrent.path && torrent.path.length > 0
   									?
   									torrent.path.map((path, index) => {
-  										return <div key={index} className='break-word fs0-75' style={{paddingTop: '0.3em', marginLeft: '0.6em'}}>{path}</div>
+										const boldRe = /\<b\>(.+?)\<\/b\>/g;
+										let boldText;
+										let newPath = [];
+										let idx = 0;
+										while ((boldText = boldRe.exec(path)) !== null) {
+											newPath.push(<span>{path.substring(idx, boldText.index)}</span>);
+											newPath.push(<b>{boldText[1]}</b>);
+											idx = boldRe.lastIndex;
+										}
+										newPath.push(<span>{path.substring(idx, path.length)}</span>);
+										return <div key={index} className='break-word fs0-75' style={{paddingTop: '0.3em', marginLeft: '0.6em'}}>{newPath}</div>
   									})
   									:
   									null

@@ -398,70 +398,39 @@ module.exports = async ({
 
 		const index = navigation.index || 0;
 		const limit = navigation.limit || 10;
-		let args = [text, index, limit];
+		let args = [text, text, index, limit];
 		const orderBy = navigation.orderBy;
 		let order = '';
 		let where = '';
 
-		/*
-        if(orderBy && orderBy.length > 0)
-        {
-            const orderDesc = navigation.orderDesc ? 'DESC' : 'ASC';
-            args.splice(1, 0, orderBy);
-            order = 'ORDER BY ?? ' + orderDesc;
-        }
-        */
-		/*
-        if(safeSearch)
-        {
-            where += " and contentCategory != 'xxx' ";
-        }
-        if(navigation.type && navigation.type.length > 0)
-        {
-            where += ' and contentType = ' + sphinx.escape(navigation.type) + ' ';
-        }
-        if(navigation.size)
-        {
-            if(navigation.size.max > 0)
-                where += ' and torrentSize < ' + sphinx.escape(navigation.size.max) + ' ';
-            if(navigation.size.min > 0)
-                where += ' and torrentSize > ' + sphinx.escape(navigation.size.min) + ' ';
-        }
-        if(navigation.files)
-        {
-            if(navigation.files.max > 0)
-                where += ' and files < ' + sphinx.escape(navigation.files.max) + ' ';
-            if(navigation.files.min > 0)
-                where += ' and files > ' + sphinx.escape(navigation.files.min) + ' ';
-        }
-        */
-
 		let search = {};
-		//args.splice(orderBy && orderBy.length > 0 ? 1 : 0, 1);
-		//sphinx.query('SELECT * FROM `files` inner join torrents on(torrents.hash = files.hash) WHERE files.path like \'%' + text + '%\' ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
-		sphinx.query('SELECT * FROM `files` WHERE MATCH(?) ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, files, fields) {
-			if(!files) {
-				logT('search', error)
+		sphinx.query('SELECT *, SNIPPET(path, ?, \'around=100\', \'force_all_words=1\') as snipplet FROM `files` WHERE MATCH(?) ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, searchTorrents) {
+			if(!searchTorrents) {
+				logTE('search', error)
 				callback(undefined)
 				return;
 			}
-			if(files.length === 0)
+			if(searchTorrents.length === 0)
 			{
+				logT('search', 'not torrents founded for files search');
 				callback(undefined)
 				return;
 			}
-			for(const file of files)
+			for(const torrent of searchTorrents)
 			{
-				if(!search[file.hash])
+				if(!search[torrent.hash])
 				{
-					search[file.hash] = { path: [] }
+					search[torrent.hash] = { path: [] }
 				}
-				search[file.hash].path.push(file.path)
+				for(const file of torrent.snipplet.split('\n').filter(text => text.includes('<b>')).slice(0, 25))
+				{
+					search[torrent.hash].path.push(file)
+				}
 			}
 			const inSql = Object.keys(search).map(hash => sphinx.escape(hash)).join(',');
 			sphinx.query(`SELECT * FROM torrents WHERE hash IN(${inSql})`, (err, torrents) => {
 				if(!torrents) {
-					logT('search', err)
+					logTE('search', err)
 					return;
 				}
 
