@@ -133,7 +133,7 @@ module.exports = async ({
 					return;
 				}
 
-				result.files = rows[0].flist || 0
+				result.files = (rows[0] && rows[0].flist) || 0
 
 				callback(result)
 			})
@@ -185,7 +185,6 @@ module.exports = async ({
 			if(options.files)
 			{
 				torrent.filesList = parseTorrentFiles(await sphinx.query('SELECT * FROM `files` WHERE `hash` = ?', hash));
-				console.log(torrent.filesList)
 				callback(baseRowData(torrent))
 			}
 			else
