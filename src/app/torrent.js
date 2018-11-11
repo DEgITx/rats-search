@@ -302,13 +302,13 @@ export default class Torrent extends Component {
   							node.onclick = () => { return false }
   					}}>
   						<div className='column' style={{height: 'auto', whiteSpace: 'normal', paddingTop: '0.30em'}}>
-						  	{
-							torrent.info && torrent.info.name
-							&&
-						  	<div className='row w100p inline fs0-85' style={{color: 'grey', padding: '4px 0px 5px'}}>
-							{torrent.info.name}
-  							</div>
-							}
+  							{
+  								torrent.info && torrent.info.name
+                            &&
+                            <div className='row w100p inline fs0-85' style={{color: 'grey', padding: '4px 0px 5px'}}>
+                            	{torrent.info.name}
+                            </div>
+  							}
   							<div className='row w100p inline'>
   								<div style={{color: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5252d1' : 'black') : (torrent.peer ? '#9083e2' : 'grey')}}>
   									{
@@ -320,17 +320,17 @@ export default class Torrent extends Component {
   								torrent.path && torrent.path.length > 0
   									?
   									torrent.path.map((path, index) => {
-										const boldRe = /\<b\>(.+?)\<\/b\>/g;
-										let boldText;
-										let newPath = [];
-										let idx = 0;
-										while ((boldText = boldRe.exec(path)) !== null) {
-											newPath.push(<span>{path.substring(idx, boldText.index)}</span>);
-											newPath.push(<b>{boldText[1]}</b>);
-											idx = boldRe.lastIndex;
-										}
-										newPath.push(<span>{path.substring(idx, path.length)}</span>);
-										return <div key={index} className='break-word fs0-75' style={{paddingTop: '0.3em', marginLeft: '0.6em'}}>{newPath}</div>
+  										const boldRe = /\<b\>(.+?)\<\/b\>/g;
+  										let boldText;
+  										let newPath = [];
+  										let idx = 0;
+  										while ((boldText = boldRe.exec(path)) !== null) {
+  											newPath.push(<span>{path.substring(idx, boldText.index)}</span>);
+  											newPath.push(<b>{boldText[1]}</b>);
+  											idx = boldRe.lastIndex;
+  										}
+  										newPath.push(<span>{path.substring(idx, path.length)}</span>);
+  										return <div key={index} className='break-word fs0-75' style={{paddingTop: '0.3em', marginLeft: '0.6em'}}>{newPath}</div>
   									})
   									:
   									null

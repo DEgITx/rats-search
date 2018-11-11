@@ -36,7 +36,7 @@ describe("sphinx", () => {
 				throw new Error(err)
 			if(result.length !== 1)
 				throw new Error('not one result')
-	  
+      
 			if(result[0].size != 50)
 				throw new Error('not 50 in field')
 

@@ -74,24 +74,24 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
                 }
                 #one {
                     padding: 20px;
-				}
-				#long {
-					font-size: 0.8em;
-					padding: 10px;
-				}
-				#canBreak {
-					font-size: 0.8em;
-					padding: 10px;
+                }
+                #long {
+                    font-size: 0.8em;
+                    padding: 10px;
+                }
+                #canBreak {
+                    font-size: 0.8em;
+                    padding: 10px;
                 }
                 </style>
                 <script>
                     const {ipcRenderer} = require('electron')
                     ipcRenderer.on('reindex', (e, data) =>{
-						document.getElementById('one').innerHTML = \`Updating \${data.torrent ? 'torrent': 'file'} \${data.index} of \${data.all} [\${data.field} index]\`
-						if(data.longTime)
-							document.getElementById('long').innerHTML = 'This patch is very long, may be some hours. So you can take some cup of tea, while we perform db patch.'
-						if(data.canBreak)
-							document.getElementById('canBreak').innerHTML = 'You can break this patch, and continue when you will have time to patch, it will be resumed.'
+                        document.getElementById('one').innerHTML = \`Updating \${data.torrent ? 'torrent': 'file'} \${data.index} of \${data.all} [\${data.field} index]\`
+                        if(data.longTime)
+                            document.getElementById('long').innerHTML = 'This patch is very long, may be some hours. So you can take some cup of tea, while we perform db patch.'
+                        if(data.canBreak)
+                            document.getElementById('canBreak').innerHTML = 'You can break this patch, and continue when you will have time to patch, it will be resumed.'
                     })
                     ipcRenderer.on('optimize', (e, data) =>{
                         document.getElementById('one').innerHTML = \`Optimization for \${data.field}...\`
@@ -108,9 +108,9 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
                     c4.416,0.15,17.979,1.621,17.683-4.273c-0.292-5.897-11.491-3.241-13.854-6.487c-2.359-3.234-10.023-15.504-7.366-21.104
                     c2.65-5.59,12.674-21.229,24.463-22.988c11.789-1.777,42.451,7.361,47.459,0c5.012-7.372-6.783-11.512-15.918-28.611
                     C243.779,80.572,238.768,71.728,220.195,71.427z"/>
-					<div id="one"></div>
-					<div id="long"></div>
-					<div id="canBreak"></div>
+                    <div id="one"></div>
+                    <div id="long"></div>
+                    <div id="canBreak"></div>
                 </svg>
                 </body>
             </html>
@@ -349,7 +349,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 			}
 			newId++;
 			logT('patcher', 'founded newId', newId);
-			
+            
 			logT('patcher', 'perform optimization');
 			sphinx.query(`OPTIMIZE INDEX files`)
 			await sphinxApp.waitOptimized('files')
@@ -363,7 +363,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 				if(Field == 'size' && Type == 'string')
 					isSizeAlreadyPatched = true;
 			});
-			
+            
 			if(!isSizeNewExists)
 				await sphinx.query("alter table files add column `size_new` string");
 			else

@@ -460,7 +460,7 @@ class p2p {
 			let fileStream
 			if(!fs.existsSync(tmpPath) || !fs.lstatSync(tmpPath).isDirectory())
 				fileStream = fs.createWriteStream(tmpPath)
-			
+            
 			let peer = null
 			let firstTransfer = false
 			let deleteCallback = (remotePeer || this).emit('file', {path}, async (chunk, nil, addr) => {
@@ -514,11 +514,11 @@ class p2p {
 					if(fileStream)
 						fileStream.end(null, null, () => {
 							fs.unlinkSync(tmpPath)
-							transferFiles()	
+							transferFiles() 
 						})
 					else
 						transferFiles()
-					
+                    
 					return
 				}
 
@@ -546,7 +546,7 @@ class p2p {
 					firstTransfer = true
 					logT('transfer', 'got peer for tranfer, start transfering file', path, 'from peer', addr.peerId)
 				}
-				
+                
 				const buffer = Buffer.from(data.data)
 				fileStream.write(buffer)
 			}, true) // dont clear callback

@@ -105,10 +105,10 @@ module.exports = class Feed {
 		const relativeTime = (maxTime - time) / maxTime
 		return (
 			relativeTime * relativeTime 
-			+ good * 1.5 * relativeTime 
-			+ comments * 4 * relativeTime 
-			- bad * 0.6 * relativeTime
-			+ rating(good, bad)
+            + good * 1.5 * relativeTime 
+            + comments * 4 * relativeTime 
+            - bad * 0.6 * relativeTime
+            + rating(good, bad)
 		)
 	}
 }
