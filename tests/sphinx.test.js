@@ -17,11 +17,11 @@ describe("sphinx", () => {
 	})
 
 	it("insert",  function(done) {
-		sphinx.query("INSERT INTO files(id, hash, path, pathIndex, size) VALUES(50001, 'a', 'bashaa', 'bashaa', 50)", (err) => {
+		sphinx.query("INSERT INTO files(id, hash, path, pathIndex, size) VALUES(50001, 'a', 'bashaa', 'bashaa', '50')", (err) => {
 			if(err)
 				throw new Error(err)
       
-			sphinx.query("INSERT INTO files(id, hash, path, pathIndex, size) VALUES(50002, 'b', 'biotu', 'biotu', 30)", (err) => {
+			sphinx.query("INSERT INTO files(id, hash, path, pathIndex, size) VALUES(50002, 'b', 'biotu', 'biotu', '30')", (err) => {
 				if(err)
 					throw new Error(err)
 
@@ -36,8 +36,8 @@ describe("sphinx", () => {
 				throw new Error(err)
 			if(result.length !== 1)
 				throw new Error('not one result')
-      
-			if(result[0].size !== 50)
+	  
+			if(result[0].size != 50)
 				throw new Error('not 50 in field')
 
 			done()
@@ -53,7 +53,7 @@ describe("sphinx", () => {
       
 			if(result[0].hash !== 'a')
 				throw new Error('not a in hash')
-			if(result[0].size !== 50)
+			if(result[0].size != 50)
 				throw new Error('not 50 in field')
 
 			done()
