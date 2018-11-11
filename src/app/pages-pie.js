@@ -15,31 +15,31 @@ class PagesPie extends Component {
     		delete params.replace;
     	}
     	if (Array.isArray(pages)) {
-			for (let i in pages) {
-				this.pie.push({
-					Page: pages[i],
-					params: params
-				});             
-			}
-		} else {
-			this.pie.push({
-				Page: pages,
-				params: params
-			});
-		}
-		if(this._mounted)
-			this.forceUpdate()
-	}
-	
-	componentWillMount()
-	{
-		this._mounted = true
-	}
+    		for (let i in pages) {
+    			this.pie.push({
+    				Page: pages[i],
+    				params: params
+    			});             
+    		}
+    	} else {
+    		this.pie.push({
+    			Page: pages,
+    			params: params
+    		});
+    	}
+    	if(this._mounted)
+    		this.forceUpdate()
+    }
+    
+    componentWillMount()
+    {
+    	this._mounted = true
+    }
 
-	componentWillUnmount()
-	{
-		this._mounted = false
-	}
+    componentWillUnmount()
+    {
+    	this._mounted = false
+    }
 
     close(count) {
     	if (count && typeof count === 'number') {
@@ -59,7 +59,7 @@ class PagesPie extends Component {
     }
     // ОТРИСОВКА
     render() {
-		if (this.pie.length > 0) {
+    	if (this.pie.length > 0) {
     		return (
     			<div
     				className={'pie full-size ' + (this.props.className || '')}

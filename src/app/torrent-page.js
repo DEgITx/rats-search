@@ -104,19 +104,19 @@ const treeToTorrentFiles = (tree, torrent, toggles) => {
 			leftIcon={!tree[file].__fileBT ? <FileFolder /> : contentIcon(fileTypeDetect({path: file}))}
 			rightToggle={
 				newToggles.length > 0
-                ?
-                <Toggle
-                	toggled={newToggles.every( ({selected}) => selected )}
-                	onToggle={(e, checked) => {
-                		e.preventDefault()
-                		e.stopPropagation()
-                		let toggleValues = {}
-                		newToggles.forEach(({downloadIndex}) => toggleValues[downloadIndex] = checked)
-                		window.torrentSocket.emit('downloadSelectFiles', torrent, toggleValues)
-                	}}
-				/>
-				:
-				null
+					?
+					<Toggle
+						toggled={newToggles.every( ({selected}) => selected )}
+						onToggle={(e, checked) => {
+							e.preventDefault()
+							e.stopPropagation()
+							let toggleValues = {}
+							newToggles.forEach(({downloadIndex}) => toggleValues[downloadIndex] = checked)
+							window.torrentSocket.emit('downloadSelectFiles', torrent, toggleValues)
+						}}
+					/>
+					:
+					null
 			}
 		/>);
 

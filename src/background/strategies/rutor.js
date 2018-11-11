@@ -59,14 +59,14 @@ module.exports = class Rutor
 		if(!this.dataDirectory)
 			return
 
-			if(!this.rutorMap && fs.existsSync(this.dataDirectory + '/rutor/rutor.x.json'))
-			{
-				let data = JSON.parse(fs.readFileSync(this.dataDirectory + '/rutor/rutor.x.json'))
-				this.rutorMap = data.hashes
-				logT('rutor', 'add records to', Object.keys(this.rutorMap).length)
-			}
-			else if(!this.rutorMap) 
-				this.rutorMap = {}
+		if(!this.rutorMap && fs.existsSync(this.dataDirectory + '/rutor/rutor.x.json'))
+		{
+			let data = JSON.parse(fs.readFileSync(this.dataDirectory + '/rutor/rutor.x.json'))
+			this.rutorMap = data.hashes
+			logT('rutor', 'add records to', Object.keys(this.rutorMap).length)
+		}
+		else if(!this.rutorMap) 
+			this.rutorMap = {}
 
 		if(page > 10)
 		{
@@ -84,29 +84,29 @@ module.exports = class Rutor
 			return
 		html = await html.textConverted()
 		const $ = cheerio.load(html)
-	
+    
 		const rutorMap = this.rutorMap
 		$('#index tr').each(function(i, elem) {
-		  const row = $(this)
-		  const nameField = row.find('td').next()
-		  if(!nameField)
+			const row = $(this)
+			const nameField = row.find('td').next()
+			if(!nameField)
 				return
-		  let id = nameField.find('a').attr('href')
-		  if(!id)
-			  return
-		  id = id.match(/download\/([0-9]+)/)[1]
-		  id = parseInt(id)
-		  const hash = magnetParse(nameField.find('a').next().attr('href'))
-	
-		  rutorMap[hash] = id
+			let id = nameField.find('a').attr('href')
+			if(!id)
+				return
+			id = id.match(/download\/([0-9]+)/)[1]
+			id = parseInt(id)
+			const hash = magnetParse(nameField.find('a').next().attr('href'))
+    
+			rutorMap[hash] = id
 		});
-	
+    
 		await mkdirp(`${this.dataDirectory}/rutor`)
 		fs.writeFileSync(`${this.dataDirectory}/rutor/rutor.x.json`, JSON.stringify({
 			date: Date.now(),
 			hashes: this.rutorMap
 		}, null, 4), 'utf8');
-	
+    
 		logT('rutor', 'parse new links page', page)
 		setTimeout(() => this.recheck(page + 1), 30)
 	}
@@ -130,14 +130,14 @@ module.exports = class Rutor
 
 		let contentCategory
 		$('#details tr').each(function(i, elem) {
-		  const row = $(this)
-		  const field = row.find('td.header').text()
-		  if(field == 'Категория')
-		  {
-		  	contentCategory = row.find('td').next().text().trim()
-		  }
+			const row = $(this)
+			const field = row.find('td.header').text()
+			if(field == 'Категория')
+			{
+				contentCategory = row.find('td').next().text().trim()
+			}
 		});
-	
+    
 
 		return {
 			name: topicTitle,
@@ -146,7 +146,7 @@ module.exports = class Rutor
 			rutorThreadId: parseInt(id),
 			contentCategory
 		}
-	
+    
 	}
 
 }

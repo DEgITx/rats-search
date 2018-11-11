@@ -243,7 +243,7 @@ module.exports = async ({
 				sphinxSingle.query(`SELECT * FROM files WHERE hash IN(${inSql})`, (error, files) => {
 					for(const file of files)
 						hashes[file.hash].filesList = parseTorrentFiles(file);
-					
+                    
 					callback(Object.values(hashes))
 				})
 			})

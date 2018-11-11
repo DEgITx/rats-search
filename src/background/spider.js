@@ -551,7 +551,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 						path,
 						pathIndex: path,
 						size
-					 }, function(err, result) {
+					}, function(err, result) {
 						if(!result) {
 							console.error(err);
 							return
@@ -913,7 +913,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 
 			// save feed
 			await feed.save()
-	
+    
 			// close trackers if needed
 			logT('close', 'closing trackers')
 			await remoteTrackers.close()

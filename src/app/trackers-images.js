@@ -30,7 +30,7 @@ export default (props) => {
 			{
 				info.trackers.includes('rutor')
             &&
-			<a href={`http://www.rutor.is/torrent/${info.rutorThreadId}`}><img src={RutorIcon} style={{height: 32}} /></a>
+            <a href={`http://www.rutor.is/torrent/${info.rutorThreadId}`}><img src={RutorIcon} style={{height: 32}} /></a>
 			}
 		</div>
 	)
