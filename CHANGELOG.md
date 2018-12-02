@@ -1,3 +1,20 @@
+# [1.0.0](https://github.com/DEgITx/rats-search/compare/v0.30.1...v1.0.0) (2018-12-02)
+
+
+### Bug Fixes
+
+* **feed:** rating also accumulate for times over ([b72d365](https://github.com/DEgITx/rats-search/commit/b72d365))
+
+
+### Performance Improvements
+
+* **architecture:** Big performance improvements over big databases and files highlight in search. ([#63](https://github.com/DEgITx/rats-search/issues/63)) ([92d0d13](https://github.com/DEgITx/rats-search/commit/92d0d13))
+
+
+### BREAKING CHANGES
+
+* **architecture:** databases v6 and v7 are incompatible and need a lot of time for updating (may be even some days/a lot of hours on very big databases)
+
 ## [0.30.1](https://github.com/DEgITx/rats-search/compare/v0.30.0...v0.30.1) (2018-10-17)
 
 
