@@ -40,7 +40,7 @@ export default class ContextMenu extends Component {
                 	zIndex: 3
                 }, !this.props.rightAlign ? { left: -30 } : { right: -30 })}>
                 	{
-                		this.props.menu && this.props.menu.map((menu, index) => <ListItem key={index} style={{fontSize: '0.9em'}} primaryText={menu.name} leftIcon={menu.icon} onClick={(e) => {
+                		this.props.menu && this.props.menu.map((menu, index) => <ListItem key={index} className={menu.className} style={{fontSize: '0.9em'}} primaryText={menu.name} leftIcon={menu.icon} onClick={(e) => {
                 			menu.click()
                 			this.setState({toggle: !this.state.toggle})
                 			e.preventDefault()

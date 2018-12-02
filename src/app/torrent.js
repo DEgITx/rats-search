@@ -371,7 +371,7 @@ export default class Torrent extends Component {
                                     		mode="determinate" 
                                     		value={this.state.downloadProgress && (this.state.downloadProgress.progress ? this.state.downloadProgress.progress : 0) * 100}
                                     	/>
-                                    	<div className='pad0-75' style={{marginLeft: 20}} style={{color: 'rgb(0, 188, 212)'}}>{this.state.downloadProgress && (this.state.downloadProgress.progress * 100).toFixed(1)}%</div>
+                                    	<div className='pad0-75 progressDownloading' style={{marginLeft: 20}} style={{color: 'rgb(0, 188, 212)'}}>{this.state.downloadProgress && (this.state.downloadProgress.progress * 100).toFixed(1)}%</div>
                                     	{
                                     		this.state.downloadProgress.progress !== 1
                                             &&
@@ -463,7 +463,7 @@ export default class Torrent extends Component {
   										this.setState({startingDownloading: true})
   								}}>
   									<ToolTip hint={__('Download using built-in client')} right={true}>
-  										<a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
+  										<a className='downloadButton' href={`magnet:?xt=urn:btih:${torrent.hash}`}>
   											<svg style={{
   												height: '24px',
   												marginRight: 12,
@@ -515,7 +515,7 @@ export default class Torrent extends Component {
   									this.state.downloaded
   										?
   										<ToolTip hint={__('Delete download (files saved)')} right={true}>
-  											<a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
+  											<a className='deleteDownload deleteDownloadAfterFinish' href={`magnet:?xt=urn:btih:${torrent.hash}`}>
   												<svg style={{
   													height: '24px',
   													fill: '#00C853',
@@ -532,7 +532,7 @@ export default class Torrent extends Component {
   										this.state.downloading
                                             &&
                                             <ToolTip hint={__('Delete download (files saved)')} right={true}>
-                                            	<a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
+                                            	<a className='deleteDownload deleteDownloadBeforeFinish' href={`magnet:?xt=urn:btih:${torrent.hash}`}>
                                             		<svg style={{
                                             			height: '24px',
                                             			marginRight: 12,

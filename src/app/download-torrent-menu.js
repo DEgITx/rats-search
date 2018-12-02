@@ -16,7 +16,9 @@ export default (props) => {
 					if(props.onAdded)
 						props.onAdded(added)
 				})
-			}, icon: <svg style={{
+			}, 
+			className: 'downloadFullButton',
+			icon: <svg style={{
 				fill: 'black'
 			}} viewBox="0 0 56 56">
 				<g>
