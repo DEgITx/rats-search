@@ -392,7 +392,7 @@ export default class Torrent extends Component {
                               &&
                               <ToolTip hint={__('Pause torrent downloading')} right={true}>
                               	<a href={`magnet:?xt=urn:btih:${torrent.hash}`}>
-                              		<svg style={{
+                              		<svg className='pauseTorrent' style={{
                               			height: '24px',
                               			marginRight: 16,
                               			fill: this.state.downloadPaused ? '#42f47a' : 'black'

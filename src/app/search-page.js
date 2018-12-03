@@ -32,7 +32,7 @@ export default class SearchPage extends Page {
 
 		return (
 			<div className='column center'>
-				<div className='torrents-container'>
+				<div className='torrents-container search-list'>
 					<SearchResults 
 						torrentsSearchResults={Search.instance().searchTorrents} 
 						filesSearchResults={Search.instance().searchFiles}
