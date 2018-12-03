@@ -264,6 +264,7 @@ class Search extends Component {
                         <div style={{width: 25, height: 25, margin: 2, marginRight: 8}}>
                         	<Tooltip hint={__('display search results for current search request')}>
                         		<Checkbox
+									id='open-recent-search'
                         			checked={false}
                         			uncheckedIcon={<svg viewBox="0 0 459 459">
                         				<g>

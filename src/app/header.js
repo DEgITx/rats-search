@@ -216,6 +216,7 @@ class Header extends React.Component {
 							/>
 							<RaisedButton
 								label={__('Downloads')}
+								id='downloadTab'
 								onClick={() => {
 									window.router('/downloads')
 								}}

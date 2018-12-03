@@ -43,7 +43,7 @@ export default class TopPage extends Page {
   				<RaisedButton label={__('Back to main page')} primary={true} onClick={() => {
   					window.router('/')
   				}} />
-  				<List style={{paddingBottom: '70px', minWidth: '60%'}} className='animated recent-torrents'>
+  				<List style={{paddingBottom: '70px', minWidth: '60%'}} className='animated recent-torrents downloads-list'>
   					{
   						this.downloads.map((torrentDownload, index) => {
   							const {torrentObject: torrent, ...download} = torrentDownload
