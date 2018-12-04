@@ -117,7 +117,11 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		filesId = (await sphinxSingle.query("SELECT MAX(`id`) as mx from files"))[0]
 		filesId = ((filesId && filesId.mx) || 0) + 1
 		p2p.info.torrents = (await sphinxSingle.query("SELECT COUNT(*) as cnt from torrents"))[0].cnt
-		p2p.info.files = (await sphinxSingle.query("SELECT COUNT(*) as cnt from files"))[0].cnt
+		p2p.info.files = await sphinxSingle.query("SELECT SUM(files) as cnt from torrents")
+		if(p2p.info.files && p2p.info.files.length > 0)
+			p2p.info.files = p2p.info.files[0].cnt
+		else
+			p2p.info.files = 0
 		const sphinxSingleAlternative = await single().waitConnection()
         
         
