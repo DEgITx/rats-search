@@ -40,11 +40,6 @@ const mime = require('mime');
 //console.log('Listening web server on', config.httpPort, 'port')
 
 
-const Rutracker = require('./strategies/rutracker')
-const Nyaa = require('./strategies/nyaa')
-const Rutor = require('./strategies/rutor')
-
-
 module.exports = function (send, recive, dataDirectory, version, env)
 {
 	this.initialized = (async () =>
@@ -137,11 +132,12 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					return
 				}
 
-				this.trackers = [
-					new Rutracker(args),
-					new Nyaa(args),
-					new Rutor(args)
-				]
+				this.trackers = []
+				let strategies = require.context('./strategies', false, /\.js$/);
+				strategies.keys().forEach(strategie => {
+					this.trackers.push(new (strategies(strategie))(args))
+					logT('tracker', 'loaded strategie', strategie)
+				})
 			}
 
 			findHash(hash, callback)
