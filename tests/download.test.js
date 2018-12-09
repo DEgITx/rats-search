@@ -28,6 +28,12 @@ describe("download", function() {
 		await app.client.click('.torrentRow .downloadFullButton')
 	})
 
+	it("download started", async function() {
+		this.timeout(45000);
+		const { app } = this
+		await app.client.waitForExist('.torrentRow .deleteDownloadBeforeFinish')
+	})
+
 	it("check download exists in download tab", async function() {
 		this.timeout(8000);
 		const { app } = this
