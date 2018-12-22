@@ -4,7 +4,7 @@ const cheerio = require('cheerio')
 
 module.exports = class Rutracker
 {
-	name() { return 'rutracker' }
+	get name() { return 'rutracker' }
 
 	async findHash(hash)
 	{

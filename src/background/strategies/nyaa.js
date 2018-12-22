@@ -3,7 +3,7 @@ const cheerio = require('cheerio')
 
 module.exports = class Nyaa
 {
-	name() { return 'nyaa' }
+	get name() { return 'nyaa' }
 
 	async findHash(hash)
 	{
