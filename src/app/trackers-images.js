@@ -32,6 +32,11 @@ export default (props) => {
             &&
             <a href={`http://www.rutor.is/torrent/${info.rutorThreadId}`}><img src={RutorIcon} style={{height: 32}} /></a>
 			}
+			{
+				info.trackers.includes('1337x')
+            &&
+            <a href={`https://1337x.to${info.x1337Href}`}><img src='https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/1337X_logo.svg/1200px-1337X_logo.svg.png' style={{height: 32}} /></a>
+			}
 		</div>
 	)
 }

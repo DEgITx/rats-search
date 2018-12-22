@@ -144,7 +144,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			{
 				for(const tracker of this.trackers)
 					if(tracker.findHash)
-						tracker.findHash(hash).then(data => callback(tracker.name(), data))
+						tracker.findHash(hash).then(data => callback(tracker.name, data))
 			}
 
 			async close()

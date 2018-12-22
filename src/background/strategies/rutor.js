@@ -18,7 +18,7 @@ module.exports = class Rutor
 		t.unref()
 	}
 
-	name() { return 'rutor' }
+	get name() { return 'rutor' }
 
 	async findHash(hash)
 	{
