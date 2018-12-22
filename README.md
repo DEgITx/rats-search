@@ -38,6 +38,8 @@ We are welcome any contributing: bug fixes, improvements, code refactoring and o
 
 [Translation guide](docs/TRANSLATION.md)
 
+[Own strategy / Other tracker support](docs/TRACKERS.md)
+
 ## Usage Manuals
 * [English](docs/USAGE.md)
 * [Russian](docs/USAGE.RU.md)
