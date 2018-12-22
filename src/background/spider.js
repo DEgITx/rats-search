@@ -133,11 +133,18 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				}
 
 				this.trackers = []
-				let strategies = require.context('./strategies', false, /\.js$/);
-				strategies.keys().forEach(strategie => {
-					this.trackers.push(new (strategies(strategie))(args))
-					logT('tracker', 'loaded strategie', strategie)
-				})
+				if(process.versions.electron) {
+					let strategies = require.context('./strategies', false, /\.js$/);
+					strategies.keys().forEach(strategie => {
+						this.trackers.push(new (strategies(strategie))(args))
+						logT('tracker', 'loaded strategie', strategie)
+					})
+				} else {
+					fs.readdirSync(__dirname + '/strategies').forEach((strategie) => {
+					    this.trackers.push(new (require('./strategies/' + strategie))(args))
+					    logT('tracker', 'loaded strategie', strategie)
+					})
+				}
 			}
 
 			findHash(hash, callback)
