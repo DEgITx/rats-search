@@ -120,7 +120,7 @@
     "detect-onebyte-encoding": "^1.0.2",
     "electron-context-menu": "^0.10.1",
     "electron-log": "^2.2.17",
-    "electron-updater": "^4.0.5",
+    "electron-updater": "^4.0.6",
     "fs-jetpack": "^1.2.0",
     "glob": "^7.1.2",
     "google": "^2.1.0",
