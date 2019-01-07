@@ -117,27 +117,11 @@ module.exports = async ({
 		if(typeof callback != 'function')
 			return;
 
-		sphinx.query('SELECT count(*) AS torrents, sum(size) AS sz FROM `torrents`', function (error, rows, fields) {
-			if(!rows) {
-				logTE('statistic', error)
-				callback(undefined)
-				return;
-			}
-
-			let result = {torrents: rows[0].torrents || 0, size: rows[0].sz || 0}
-
-			sphinx.query('SELECT sum(files) AS flist FROM `torrents`', function (error, rows, fields) {
-				if(!rows) {
-					logTE('statistic', error)
-					callback(undefined)
-					return;
-				}
-
-				result.files = (rows[0] && rows[0].flist) || 0
-
-				callback(result)
-			})
-		});
+		callback({
+			torrents: p2p.info.torrents,
+			size: p2p.info.filesSize,
+			files: p2p.info.files
+		})
 	});
 
 	const onTorrent = (hash, options, callback) => {

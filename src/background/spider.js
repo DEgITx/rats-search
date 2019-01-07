@@ -107,16 +107,44 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		]
 
 		const sphinxSingle = await single().waitConnection()
-		torrentsId = (await sphinxSingle.query("SELECT MAX(`id`) as mx from torrents"))[0]
-		torrentsId = ((torrentsId && torrentsId.mx) || 0) + 1
-		filesId = (await sphinxSingle.query("SELECT MAX(`id`) as mx from files"))[0]
-		filesId = ((filesId && filesId.mx) || 0) + 1
-		p2p.info.torrents = (await sphinxSingle.query("SELECT COUNT(*) as cnt from torrents"))[0].cnt
-		p2p.info.files = await sphinxSingle.query("SELECT SUM(files) as cnt from torrents")
-		if(p2p.info.files && p2p.info.files.length > 0)
-			p2p.info.files = p2p.info.files[0].cnt
+		let torrentsInfo = await sphinxSingle.query(`
+			SELECT 
+				MAX(id) as maxid,
+				COUNT(*) as torrentscount,
+				SUM(files) as numfiles,
+				SUM(size) as filessize
+			FROM torrents
+		`);
+		let filesInfo = await sphinxSingle.query(`
+			SELECT 
+				MAX(id) as maxid
+			FROM files
+		`);
+		if(torrentsInfo && torrentsInfo[0]) 
+		{
+			torrentsInfo = torrentsInfo[0]
+			torrentsId = (torrentsInfo.maxid || 0) + 1
+			p2p.info.torrents = torrentsInfo.torrentscount || 0
+			p2p.info.files = torrentsInfo.numfiles || 0
+			p2p.info.filesSize = torrentsInfo.filessize || 0
+		}
 		else
-			p2p.info.files = 0
+		{
+			torrentsId = 1;
+			p2p.info.torrents = 0;
+			p2p.info.files = 0;
+			p2p.info.filesSize = 0;
+		}
+
+		if(filesInfo && filesInfo[0])
+		{
+			filesInfo = filesInfo[0]
+			filesId = (filesInfo.maxid || 0) + 1
+		}
+		else
+		{
+			filesId = 1;
+		}
 		const sphinxSingleAlternative = await single().waitConnection()
         
         
@@ -610,6 +638,9 @@ module.exports = function (send, recive, dataDirectory, version, env)
 							});
 						updateTorrentTrackers(torrent.hash);
 						remoteTrackers.update(torrent)
+						p2p.info.torrents++;
+						p2p.info.files += torrent.files;
+						p2p.info.filesSize += torrent.size;
 					}
 					else
 					{
