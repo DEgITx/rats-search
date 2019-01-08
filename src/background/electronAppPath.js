@@ -6,6 +6,10 @@ module.exports = (app) => {
 		return `./${app}`
 	}
 
+	if (process.arch === 'arm' || process.arch === 'arm64') {
+		return `imports/${process.arch}/${app}`
+	}
+
 	if (/^win/.test(process.platform) && fs.existsSync(`./${app}.exe`)) {
 		return `./${app}.exe`
 	}
