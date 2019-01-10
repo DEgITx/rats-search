@@ -1,5 +1,6 @@
 const appPath = require('./electronAppPath')
 const { spawn } = require('child_process')
+const fs = require('fs')
 
 function getRandomInt(min, max) {
 	return Math.floor(Math.random() * (max - min)) + min;
@@ -27,7 +28,13 @@ const startSSH = (port, host, user, password, callback) => {
 		'-v'
 	]
 
-	const ssh = spawn(appPath('plink'), options)
+	const sshClientPath = appPath('plink');
+	if(!fs.existsSync(sshClientPath)) {
+		logTE('ssh', 'plink not founded for system in path', sshClientPath)
+		return
+	}
+
+	const ssh = spawn(sshClientPath, options)
 
 	const checkMessage = (data) => {
 		if(data.includes(`Remote port forwarding from 0.0.0.0:${remotePort}`))
