@@ -188,6 +188,9 @@
         "or with hash": "or with hash",
         "Check torrent files intergrity": "Check torrent files intergrity",
         "Enable database torrents files intergrity check on adding each torrent. Disable this will free some cpu usage on adding operation.": "Enable database torrents files intergrity check on adding each torrent. Disable this will free some cpu usage on adding operation.",
-        "Download to": "Download to"
+        "Download to": "Download to",
+        "Main settings": "Main settings",
+        "P2P settings": "P2P settings",
+        "Performance settings": "Performance settings"
     }
 }
