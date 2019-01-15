@@ -188,6 +188,9 @@
         "or with hash": "或者使用Hash",
         "Check torrent files intergrity": "检查种子文件的完整性",
         "Enable database torrents files intergrity check on adding each torrent. Disable this will free some cpu usage on adding operation.": "每个种子添加到数据库时都检查完整性，禁用这个可用减少一些CPU使用率。",
-        "Download to": "下载到"
+        "Download to": "下载到",
+        "Main settings": "Main settings",
+        "P2P settings": "P2P settings",
+        "Performance settings": "Performance settings"
     }
 }
