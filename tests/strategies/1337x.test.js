@@ -5,6 +5,7 @@ describe("1337x", () => {
 	let strategy = new Strategy();
 
 	it("findHash", async function() {
+		this.timeout(8000);
 		const data = await strategy.findHash('1734BCCAA7B05BD4D77B86E17820C840BF0C2EF5')
 		assert.equal(data.name, 'DEgITx - Discography (01.10.2016) FLAC')
 		assert.equal(data.poster, 'http://i58.fastpic.ru/big/2014/0224/62/eec1c9dc98892d5a88b46ade2edc7662.jpg')
