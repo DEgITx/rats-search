@@ -5,6 +5,7 @@ describe("rutor", () => {
 	let rutor = new Rutor({dataDirectory: 'tests/strategies'});
 
 	it("findHash", async function() {
+		this.timeout(5000);
 		const data = await rutor.findHash('7ea9e38a48a8d8f4e1a6807e02dda204bd90c94a')
 		assert.equal(data.name, 'DJ Farta - Пацанская сборка в тачку. Vol 8 (2015) MP3')
 		assert.equal(data.poster, 'http://s016.radikal.ru/i337/1509/72/f76a929da813.jpg')
@@ -12,6 +13,7 @@ describe("rutor", () => {
 	})
 
 	it("findHash second", async function() {
+		this.timeout(5000);
 		const data = await rutor.findHash('158448f6afbedb079aaf3c4695fb43e7dfa54515')
 		assert.equal(data.name, 'Наруто: Ураганные Хроники / Naruto Shippuuden Movie [4 фильм] (2007) DVDRip')
 		assert.equal(data.rutorThreadId, 5850)
