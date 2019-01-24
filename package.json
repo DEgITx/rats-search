@@ -127,7 +127,7 @@
     "iconv-lite": "^0.4.19",
     "ipaddr.js": "^1.5.4",
     "is-running": "^2.1.0",
-    "json-socket": "^0.3.0",
+    "json-socket": "github:DEgITx/node-json-socket",
     "lodash": "^4.17.5",
     "material-ui": "^0.20.2",
     "mime": "^2.3.1",
