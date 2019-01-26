@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/DEgITx/rats-search/compare/v1.1.0...v1.1.1) (2019-01-26)
+
+
+### Bug Fixes
+
+* **portative:** fix updater check [#71](https://github.com/DEgITx/rats-search/issues/71) ([b524845](https://github.com/DEgITx/rats-search/commit/b524845))
+
 # [1.1.0](https://github.com/DEgITx/rats-search/compare/v1.0.0...v1.1.0) (2019-01-26)
 
 
