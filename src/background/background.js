@@ -260,7 +260,13 @@ app.on("ready", async () => {
 
 					if(portative)
 					{
-						autoUpdater.getUpdateInfo().then(info => {
+						autoUpdater.getUpdateInfoAndProvider().then(({info}) => {
+							if(!info)
+							{
+								logTE('updater', 'info not provided for updater')
+								return
+							}
+
 							if(info.version == app.getVersion())
 							{
 								logT('updater', 'update not founded for version', app.getVersion())
