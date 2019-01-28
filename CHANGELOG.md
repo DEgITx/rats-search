@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/DEgITx/rats-search/compare/v1.1.1...v1.1.2) (2019-01-28)
+
+
+### Bug Fixes
+
+* **bootstrap:** fix preventing bootstrap saving [#74](https://github.com/DEgITx/rats-search/issues/74) [#69](https://github.com/DEgITx/rats-search/issues/69) ([a68ebc5](https://github.com/DEgITx/rats-search/commit/a68ebc5))
+
 ## [1.1.1](https://github.com/DEgITx/rats-search/compare/v1.1.0...v1.1.1) (2019-01-26)
 
 
