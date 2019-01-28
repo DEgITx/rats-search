@@ -271,7 +271,12 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				});
 
 				resp.on('end', () => {
-					resolve(data.length > 0 && JSON.parse(data))
+					try {
+						resolve(data.length > 0 && JSON.parse(data))
+					} catch(e) {
+						logTE('p2p', 'loading bootstrap failed', e)
+						resolve(false)
+					}
 				});
 			}).on("error", (err) => {
 				logTE('http', `${url} error: ` + err.message)
