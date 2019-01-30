@@ -59,6 +59,7 @@
       ]
     },
     "linux": {
+      "artifactName": "${name}-${version}-${arch}.${ext}",
       "category": "Network",
       "target": [
         {
