@@ -47,9 +47,13 @@ module.exports = class Stragegie
             contentCategory = $('.torrent-category-detail .list li').first().find('span').text()
         } catch(er) {}
 
+        let poster = $('.torrent-image img').attr('src') || $('#description img').attr('data-original');
+        if(poster)
+        	poster = poster.replace(/^\/\//, 'https://');
+
         return {
             name: topicTitle.trim(),
-            poster: $('#description img').attr('data-original'),
+            poster,
             description: $('#description').text(),
             x1337ThreadId: parseInt(this.id),
             x1337Href: this.href,

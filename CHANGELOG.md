@@ -1,3 +1,44 @@
+## [1.1.2](https://github.com/DEgITx/rats-search/compare/v1.1.1...v1.1.2) (2019-01-28)
+
+
+### Bug Fixes
+
+* **bootstrap:** fix preventing bootstrap saving [#74](https://github.com/DEgITx/rats-search/issues/74) [#69](https://github.com/DEgITx/rats-search/issues/69) ([a68ebc5](https://github.com/DEgITx/rats-search/commit/a68ebc5))
+
+## [1.1.1](https://github.com/DEgITx/rats-search/compare/v1.1.0...v1.1.1) (2019-01-26)
+
+
+### Bug Fixes
+
+* **portative:** fix updater check [#71](https://github.com/DEgITx/rats-search/issues/71) ([b524845](https://github.com/DEgITx/rats-search/commit/b524845))
+
+# [1.1.0](https://github.com/DEgITx/rats-search/compare/v1.0.0...v1.1.0) (2019-01-26)
+
+
+### Bug Fixes
+
+* **1337x:** proper poster in some cases ([515d30c](https://github.com/DEgITx/rats-search/commit/515d30c))
+* **arm:** ignore relay on arm [#66](https://github.com/DEgITx/rats-search/issues/66) ([e8cb4d8](https://github.com/DEgITx/rats-search/commit/e8cb4d8))
+* **build:** fix production build after upgrade to new engine ([09ef602](https://github.com/DEgITx/rats-search/commit/09ef602))
+* **p2p:** fix files in db count on new architecture ([073eefe](https://github.com/DEgITx/rats-search/commit/073eefe))
+* **p2p:** potencial problem with some p2p decoding messages ([db48f44](https://github.com/DEgITx/rats-search/commit/db48f44))
+* **tests:** fix check of starting download ([0dee20d](https://github.com/DEgITx/rats-search/commit/0dee20d))
+* **tests:** more timeout time for some strategies ([471efc1](https://github.com/DEgITx/rats-search/commit/471efc1))
+
+
+### Features
+
+* **arm:** added testing arm support ([8b9f9f6](https://github.com/DEgITx/rats-search/commit/8b9f9f6))
+* **core:** updated to new browser engine ([2370847](https://github.com/DEgITx/rats-search/commit/2370847))
+* **strategies:** 1337 strategie ([3f75cce](https://github.com/DEgITx/rats-search/commit/3f75cce))
+* **strategies:** autoload trackers strategies ([4367da9](https://github.com/DEgITx/rats-search/commit/4367da9))
+* **ui:** settings tabs ([5cb119f](https://github.com/DEgITx/rats-search/commit/5cb119f))
+
+
+### Performance Improvements
+
+* **start:** simplify some init statistic calls ([c788569](https://github.com/DEgITx/rats-search/commit/c788569))
+
 # [1.0.0](https://github.com/DEgITx/rats-search/compare/v0.30.1...v1.0.0) (2018-12-02)
 
 
