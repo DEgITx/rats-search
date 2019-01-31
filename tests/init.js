@@ -7,6 +7,7 @@ describe("application", () => {
 	after(stopApplication);
 
 	it("check start", async function() {
+		this.timeout(5000);
 		const { app } = this
 		await app.client.waitForExist('#index-window')
 		// fix realtime config
