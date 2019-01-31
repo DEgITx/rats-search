@@ -1,3 +1,16 @@
+## [1.1.3](https://github.com/DEgITx/rats-search/compare/v1.1.2...v1.1.3) (2019-01-31)
+
+
+### Bug Fixes
+
+* **test:** less agressive start timeout ([badfd21](https://github.com/DEgITx/rats-search/commit/badfd21))
+* **updater:** linux update format was broken ([116cbd7](https://github.com/DEgITx/rats-search/commit/116cbd7))
+
+
+### Performance Improvements
+
+* **memory:** fix memory leak on gui size ([d0d02cd](https://github.com/DEgITx/rats-search/commit/d0d02cd))
+
 ## [1.1.2](https://github.com/DEgITx/rats-search/compare/v1.1.1...v1.1.2) (2019-01-28)
 
 
