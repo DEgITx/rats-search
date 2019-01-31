@@ -14,6 +14,13 @@ describe("1337x", () => {
 		assert.equal(data.contentCategory, 'Music')
 	})
 
+	it("properFilmPoster", async function() {
+		this.timeout(8000);
+		const data = await strategy.findHash('BA696FB753078807B696A6F1DA5D8DD24F43BE04')
+		assert.equal(data.name, 'Tears of the Sun (2003) [720p] [BluRay] [YTS.ME] [YIFY]')
+		assert.equal(data.poster, 'https://lx1.dyncdn.cc/cdn/89/891b2655428e3016e1fe648539e22220.jpg')
+	})
+
 	it("notFound", async function() {
 		assert(!await strategy.findHash('1734BCCAA7B05BD4D77B86E17820C840BF0C2EF6'))
 	})
