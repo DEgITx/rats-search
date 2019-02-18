@@ -13,10 +13,14 @@ const directoryFilesRecursive = require('./directoryFilesRecursive')
 const {promisify} = require('util');
 const mkdirp = promisify(require('mkdirp'))
 const deleteFolderRecursive = require('./deleteFolderRecursive')
+const compareVersions = require('compare-versions');
 
 class p2p {
 	constructor(send = () => {})
 	{
+		this.minClientVersion = '1.1.0'
+		this.minServerVersion = '1.1.0'
+
 		this.events = new EventEmitter
 		this.peers = []
 		this.clients = []
@@ -91,6 +95,11 @@ class p2p {
 		this.on('protocol', (data, callback, socketObject) => {
 			if(!data || data.protocol != 'rats')
 				return
+
+			if(compareVersions(data.version, this.minServerVersion) < 0) {
+				logTE('p2p', `ignore peer because of version ${data.version} < ${this.minServerVersion}`);
+				return;
+			}
 
 			// protocol ok
 			clearTimeout(socketObject.protocolTimeout)
@@ -368,6 +377,12 @@ class p2p {
 				// can be added to ignore list while connecting
 				if(this.ignoreAddresses.includes(address.address))
 					return;
+
+				if(compareVersions(data.version, this.minClientVersion) < 0) {
+					logTE('p2p', `ignore client peer because of version ${data.version} < ${this.minClientVersion}`)
+					rawSocket.destroy()
+					return;
+				}
 
 				// success
 				clearTimeout(protocolTimeout)
