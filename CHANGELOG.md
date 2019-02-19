@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/DEgITx/rats-search/compare/v1.1.3...v1.1.4) (2019-02-19)
+
+
+### Bug Fixes
+
+* **p2p:** break backward p2p compability < 1.1.0 ([e0a1c87](https://github.com/DEgITx/rats-search/commit/e0a1c87))
+
 ## [1.1.3](https://github.com/DEgITx/rats-search/compare/v1.1.2...v1.1.3) (2019-01-31)
 
 
