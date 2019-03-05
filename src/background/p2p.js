@@ -384,6 +384,15 @@ class p2p {
 					return;
 				}
 
+				for(let peer of this.peers) {
+					if(peer.peerId === data.peerId) {
+						// already connected from different interface
+						logT('p2p', 'peer', data.peerId, 'already connected from different address', '( check:', peer.files === data.files && peer.torrents === data.torrents, ')');
+						rawSocket.destroy()
+						return;
+					}
+				}
+
 				// success
 				clearTimeout(protocolTimeout)
 
