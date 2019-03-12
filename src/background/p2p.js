@@ -1,4 +1,3 @@
-const ssh = require('./ssh')
 const shuffle = require('./shuffle')
 const config = require('./config');
 const net = require('net')
@@ -43,6 +42,9 @@ class p2p {
 		this.send = send
 		this.tcpServer = net.createServer();
 		this.tcpServer.maxConnections = config.p2pConnections * 2;
+
+		this.relay = {server: false, client: false}
+		this.relaySocket = null;
 
 		// define some help info
 		Object.defineProperty(this.info, 'maxPeersConnections', { 
@@ -101,15 +103,25 @@ class p2p {
 				return;
 			}
 
+			for(const peer of this.clients) {
+				if(peer.peerId === data.peerId) {
+					// already connected from different interface
+					logT('p2p', 'server peer', data.peerId, 'already connected from different address', '( check:', peer.files === data.files && peer.torrents === data.torrents, ')');
+					return;
+				}
+			}
+
 			// protocol ok
 			clearTimeout(socketObject.protocolTimeout)
 			const { _socket: socket } = socketObject
 			socketObject.rats = true
+			socketObject.peerId = data.peerId
 
 			callback({
 				protocol: 'rats',
 				version: this.version,
 				peerId: this.peerId,
+				relay: this.relay,
 				info: this.info,
 				peers: this.addresses(this.recommendedPeersList())
 			})
@@ -212,58 +224,19 @@ class p2p {
 	checkPortAndRedirect(address, port) {
 		isPortReachable(port, {host: address}).then((isAvailable) => {
 			if(this.closing)
-				return // responce can be very late, and ssh can start after closing of program, this will break on linux
+				return // responce can be very late, and can start after closing of program, this will break on linux
 
-			this.p2pStatus = isAvailable ? 2 : 0
-			this.send('p2pStatus', this.p2pStatus)
-
-			// all ok don't need to start any ssh tunnels
 			if(isAvailable)
 			{   
-				logT('ssh', 'tcp p2p port is reachable - all ok')
+				logT('relay', 'tcp p2p port is reachable - all ok')
 				return;
 			}
-			else
-			{
-				logT('ssh', 'tcp p2p port is unreachable - try ssh tunnel')
-			}
-
-			if(!this.encryptor)
-			{
-				logT('ssh', 'something wrong with encryptor')
-				return
-			}
-
-			let remoteHost = '03de848286b8fbe6e775e6601c3bcfb9b71dfddcacb861b061458ce5e4020a15a649aabef88234d2af01ead4276a6de1YlqiJBlXCmoA7TpnbRuSRHNDsIBLlZ9McbovKJXHtAA='
-
-			this.ssh = ssh(config.spiderPort, this.encryptor.decrypt(remoteHost), 'relay', 'relaymytrf', (selfPeer) => {
-				if(!selfPeer)
-				{
-					this.p2pStatus = 0
-					this.send('p2pStatus', this.p2pStatus)
-					this.externalPeers = []
-					return
-				}
-                
-				logT('ssh', 'ssh tunnel success, redirect peers to ssh')
-
-				this.p2pStatus = 1
-				this.send('p2pStatus', this.p2pStatus)
-				this.ignore(selfPeer)
-				this.emit('peer', selfPeer)
-				this.externalPeers = [selfPeer] // add external peers and tell this on every connection
-			})
 		})
 	}
 
 	close()
 	{
 		this.closing = true
-		if(this.ssh)
-		{
-			logT('ssh', 'closing ssh...')
-			this.ssh.kill()
-		}
 		// close server
 		const promise = new Promise(resolve => this.tcpServer.close(resolve))
 		for (const client in this.clients) {
@@ -368,6 +341,7 @@ class p2p {
 				port: config.spiderPort,
 				version: this.version,
 				peerId: this.peerId,
+				relay: this.relay,
 				info: this.info,
 				peers: this.addresses(this.recommendedPeersList()).concat(this.externalPeers) // also add external peers
 			}, (data) => {
@@ -406,6 +380,7 @@ class p2p {
 				//extra info
 				address.version = data.version
 				address.peerId = data.peerId
+				address.relay = data.relay
 				address.info = data.info
 				this.send('peer', {
 					size: this.size,
@@ -418,6 +393,11 @@ class p2p {
 				if(data.peers && data.peers.length > 0)
 				{
 					data.peers.forEach(peer => this.add(peer))
+				}
+
+				// try connect to relay if needed
+				if(this.relay.client && data.relay.server && !this.relaySocket) {
+					logT('relay', 'connect to relay', data.peerId)
 				}
 			})
 		});
