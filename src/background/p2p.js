@@ -44,7 +44,10 @@ class p2p {
 		this.tcpServer.maxConnections = config.p2pConnections * 2;
 
 		this.relay = {server: false, client: false}
+		this.relayServers = {};
+		// <-> server commination for relays
 		this.relaySocket = null;
+		this.relaySocketToServer = null
 
 		// define some help info
 		Object.defineProperty(this.info, 'maxPeersConnections', { 
@@ -117,11 +120,32 @@ class p2p {
 			socketObject.rats = true
 			socketObject.peerId = data.peerId
 
+			// relay is supported and needed
+			let relayPort = 0;
+			if(this.relay.server && data.client) {
+				if(!this.relayServers[data.peerId]) {
+					const server = net.createServer();
+					this.relayServers[data.peerId] = server;
+					let relay;
+					server.on('connection', (socket) => {
+						socket.on('data', (data) => {
+							if (!relay && socketObject.peerId == data) {
+								relay = socket
+								return;
+							}
+							if (relay)
+								relay.write(data);
+						});
+					});
+					server.listen(config.spiderPort, '0.0.0.0');
+				}
+			}
+
 			callback({
 				protocol: 'rats',
 				version: this.version,
 				peerId: this.peerId,
-				relay: this.relay,
+				relay: Object.assign(this.relay, { port: relayPort > 0 ? relayPort : undefined }),
 				info: this.info,
 				peers: this.addresses(this.recommendedPeersList())
 			})
@@ -396,8 +420,39 @@ class p2p {
 				}
 
 				// try connect to relay if needed
-				if(this.relay.client && data.relay.server && !this.relaySocket) {
-					logT('relay', 'connect to relay', data.peerId)
+				if(this.relay.client && data.relay.server && data.relay.port && !this.relaySocket) {
+					logT('relay', 'connecting to relay', data.peerId)
+					this.relaySocket = new net.Socket();
+					this.relaySocket.connect(data.relay.port, address.address, () => {
+						logT('relay', 'connected to relay', data.peerId);
+
+						if (this.relaySocketToServer) {
+							this.relaySocketToServer.destroy();
+							this.relaySocketToServer = null;
+						}
+						this.relaySocketToServer = new net.Socket();
+						this.relaySocket.connect(config.spiderPort, '0.0.0.0', () => {
+							logT('relay', 'back communication establised', data.peerId);
+							this.relaySocket.write('relay');
+						});
+						this.relaySocketToServer.on('data', (data) => {
+							this.relaySocket.write(data);
+						});
+	
+						this.relaySocketToServer.on('close', () => {
+							this.relaySocket.destroy();
+						});		
+					});
+
+					this.relaySocket.on('data', (data) => {
+						if(this.relaySocketToServer)
+							this.relaySocketToServer.write(data);
+					});
+
+					this.relaySocket.on('close', () => {
+						if(this.relaySocketToServer)
+							this.relaySocketToServer.destroy();
+					});		
 				}
 			})
 		});
