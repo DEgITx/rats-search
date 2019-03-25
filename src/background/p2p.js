@@ -47,7 +47,6 @@ class p2p {
 		this.relayServers = {};
 		// <-> server commination for relays
 		this.relaySocket = null;
-		this.relaySocketToServer = null
 
 		// define some help info
 		Object.defineProperty(this.info, 'maxPeersConnections', { 
@@ -121,23 +120,36 @@ class p2p {
 			socketObject.peerId = data.peerId
 
 			// relay is supported and needed
-			let relayPort = 0;
-			if(this.relay.server && data.client) {
+			let relayPort = 5010;
+			if(this.relay.server && data.relay && data.relay.client) {
 				if(!this.relayServers[data.peerId]) {
 					const server = net.createServer();
 					this.relayServers[data.peerId] = server;
 					let relay;
-					server.on('connection', (socket) => {
-						socket.on('data', (data) => {
-							if (!relay && socketObject.peerId == data) {
-								relay = socket
+					const peers = {}
+					server.on('connection', (peer) => {
+						peer = new JsonSocket(peer);
+						peer._id = Math.random().toString(36).substring(2, 15)
+						peers[peer._id] = peer
+						peer.on('message', (data) => {
+							if (!relay && data && socketObject.peerId == data.peerId) {
+								relay = peer
+								logTE('relay', `reply pear connected`);
 								return;
 							}
-							if (relay)
-								relay.write(data);
+							if (relay) {
+								if(peer === relay && data.id && peers[data.id]) {
+									logTE('relay', `message to pear ${data.id}`);
+									peers[data.id].sendMessage(data.data)
+								} else {
+									logTE('relay', `message to relay ${peer._id}`);
+									relay.sendMessage({id: peer._id, data});
+								}
+							}
 						});
 					});
-					server.listen(config.spiderPort, '0.0.0.0');
+					server.listen(relayPort, '0.0.0.0');
+					logTE('relay', `establish new relay server on port`, relayPort);
 				}
 			}
 
@@ -421,37 +433,37 @@ class p2p {
 
 				// try connect to relay if needed
 				if(this.relay.client && data.relay.server && data.relay.port && !this.relaySocket) {
-					logT('relay', 'connecting to relay', data.peerId)
-					this.relaySocket = new net.Socket();
+					logT('relay', 'try connecting to relay', data.peerId)
+					let peers = {}
+					this.relaySocket = new JsonSocket(new net.Socket());
 					this.relaySocket.connect(data.relay.port, address.address, () => {
 						logT('relay', 'connected to relay', data.peerId);
-
-						if (this.relaySocketToServer) {
-							this.relaySocketToServer.destroy();
-							this.relaySocketToServer = null;
-						}
-						this.relaySocketToServer = new net.Socket();
-						this.relaySocket.connect(config.spiderPort, '0.0.0.0', () => {
-							logT('relay', 'back communication establised', data.peerId);
-							this.relaySocket.write('relay');
-						});
-						this.relaySocketToServer.on('data', (data) => {
-							this.relaySocket.write(data);
-						});
-	
-						this.relaySocketToServer.on('close', () => {
-							this.relaySocket.destroy();
-						});		
+						this.relaySocket.sendMessage({peerId: this.peerId})
 					});
 
-					this.relaySocket.on('data', (data) => {
-						if(this.relaySocketToServer)
-							this.relaySocketToServer.write(data);
+					this.relaySocket.on('message', (data) => {
+						if(!data.id)
+							return
+						
+						if(!peers[data.id]) {
+							peers[data.id] = new JsonSocket(new net.Socket());
+							peers[data.id].on('message', (toPeer) => {
+								this.relaySocket.sendMessage({id: data.id, data: toPeer})
+							})
+							peers[data.id].connect(config.spiderPort, '0.0.0.0', () => {
+								peers[data.id].sendMessage(data.data)
+							});
+						} else {
+							peers[data.id].sendMessage(data.data)
+						}
 					});
 
 					this.relaySocket.on('close', () => {
-						if(this.relaySocketToServer)
-							this.relaySocketToServer.destroy();
+						logT('relay', 'relay client closed because server exit');
+						for(const id in peers) {
+							peers[id].destroy();
+						}
+						peers = null
 					});		
 				}
 			})
