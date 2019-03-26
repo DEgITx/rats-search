@@ -43,7 +43,7 @@ class p2p {
 		this.tcpServer = net.createServer();
 		this.tcpServer.maxConnections = config.p2pConnections * 2;
 
-		this.relay = {server: false, client: true}
+		this.relay = {server: false, client: false}
 		this.selfAddress = null;
 		this.relayServers = {};
 		// <-> server commination for relays
