@@ -284,8 +284,13 @@ class p2p {
 
 			if(isAvailable)
 			{   
-				logT('relay', 'tcp p2p port is reachable - all ok')
-				return;
+				logT('relay', 'tcp p2p port is reachable - all ok, can use as server')
+				this.relay.server = true;
+			}
+			else
+			{
+				logT('relay', 'tcp p2p port is unreachable, using relay client')
+				this.relay.client = true;
 			}
 		})
 	}
