@@ -43,7 +43,8 @@ class p2p {
 		this.tcpServer = net.createServer();
 		this.tcpServer.maxConnections = config.p2pConnections * 2;
 
-		this.relay = {server: false, client: false}
+		this.relay = {server: false, client: true}
+		this.selfAddress = null;
 		this.relayServers = {};
 		// <-> server commination for relays
 		this.relaySocket = null;
@@ -128,23 +129,40 @@ class p2p {
 					let relay;
 					const peers = {}
 					server.on('connection', (peer) => {
+						logTE('relay', `new relay connection`);
 						peer = new JsonSocket(peer);
 						peer._id = Math.random().toString(36).substring(2, 15)
 						peers[peer._id] = peer
 						peer.on('message', (data) => {
 							if (!relay && data && socketObject.peerId == data.peerId) {
 								relay = peer
-								logTE('relay', `reply pear connected`);
+								logTE('relay', `reply root pear fouded`);
+								if (this.selfAddress) {
+									logTE('relay', `exchange relay to other peers`);
+									this.emit('peer', {port: relayPort, address: this.selfAddress})
+								}
 								return;
 							}
 							if (relay) {
 								if(peer === relay && data.id && peers[data.id]) {
-									logTE('relay', `message to pear ${data.id}`);
+									logTE('relay', `server message to pear ${data.id}`);
 									peers[data.id].sendMessage(data.data)
 								} else {
-									logTE('relay', `message to relay ${peer._id}`);
+									logTE('relay', `server message to relay ${peer._id}`);
 									relay.sendMessage({id: peer._id, data});
 								}
+							}
+						});
+						peer.on('close', () => {
+							if(peer._id && peers[peer._id])
+								delete peers[peer._id]
+							if(peer == relay) {
+								logTE('relay', `relay client discronnected`);
+								relay = null
+								server.close();
+								delete this.relayServers[data.peerId]
+							} else {
+								logTE('relay', `relay peer discronnected`);
 							}
 						});
 					});
@@ -258,6 +276,7 @@ class p2p {
 	}
 
 	checkPortAndRedirect(address, port) {
+		this.selfAddress = address;
 		isPortReachable(port, {host: address}).then((isAvailable) => {
 			if(this.closing)
 				return // responce can be very late, and can start after closing of program, this will break on linux
