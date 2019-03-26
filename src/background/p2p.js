@@ -14,6 +14,13 @@ const mkdirp = promisify(require('mkdirp'))
 const deleteFolderRecursive = require('./deleteFolderRecursive')
 const compareVersions = require('compare-versions');
 
+const findGoodPort = async (port, host) => {
+	while (!(await portCheck(port, host))) {
+		port++
+	}
+	return port
+}
+
 class p2p {
 	constructor(send = () => {})
 	{
@@ -46,6 +53,7 @@ class p2p {
 		this.relay = {server: false, client: false}
 		this.selfAddress = null;
 		this.relayServers = {};
+		this.relayServersLimit = 8;
 		// <-> server commination for relays
 		this.relaySocket = null;
 
@@ -97,7 +105,7 @@ class p2p {
 			socket.protocolTimeout = setTimeout(() => socket._socket.destroy(), 7000)
 		})
 		// check protocol
-		this.on('protocol', (data, callback, socketObject) => {
+		this.on('protocol', async (data, callback, socketObject) => {
 			if(!data || data.protocol != 'rats')
 				return
 
@@ -121,9 +129,9 @@ class p2p {
 			socketObject.peerId = data.peerId
 
 			// relay is supported and needed
-			let relayPort = 5010;
+			let relayPort = -1;
 			if(this.relay.server && data.relay && data.relay.client) {
-				if(!this.relayServers[data.peerId]) {
+				if(!this.relayServers[data.peerId] && Object.keys(this.relayServers).length < this.relayServersLimit) {
 					const server = net.createServer();
 					this.relayServers[data.peerId] = server;
 					let relay;
@@ -167,6 +175,7 @@ class p2p {
 								delete peers[peer._id]
 						});
 					});
+					relayPort = await findGoodPort(Math.floor(Math.random() * 50000) + 10000, '0.0.0.0')
 					server.listen(relayPort, '0.0.0.0');
 					logTE('relay', `establish new relay server on port`, relayPort);
 				}

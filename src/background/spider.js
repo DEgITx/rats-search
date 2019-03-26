@@ -39,7 +39,6 @@ const mime = require('mime');
 //server.listen(config.httpPort);
 //console.log('Listening web server on', config.httpPort, 'port')
 
-
 module.exports = function (send, recive, dataDirectory, version, env)
 {
 	this.initialized = (async () =>
