@@ -229,8 +229,9 @@ class p2p {
 		})
 
 		this.on('relay', async (nil, callback, remote) => {
-			if(this.relay.server && remote.relay && remote.relay.client && remote.relay.request) {
+			if(this.relay.server && remote.relay && remote.relay.client) {
 				if(!this.relayServers[remote.peerId] && Object.keys(this.relayServers).length < this.relayServersLimit) {
+					let relayPort;
 					const server = net.createServer();
 					this.relayServers[remote.peerId] = server;
 					let relay;
