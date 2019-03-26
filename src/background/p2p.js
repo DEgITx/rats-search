@@ -154,8 +154,6 @@ class p2p {
 							}
 						});
 						peer.on('close', () => {
-							if(peer._id && peers[peer._id])
-								delete peers[peer._id]
 							if(peer == relay) {
 								logTE('relay', `relay client discronnected`);
 								relay = null
@@ -163,7 +161,10 @@ class p2p {
 								delete this.relayServers[data.peerId]
 							} else {
 								logTE('relay', `relay peer discronnected`);
+								relay.sendMessage({id: peer._id, close: true});
 							}
+							if(peer._id && peers[peer._id])
+								delete peers[peer._id]
 						});
 					});
 					server.listen(relayPort, '0.0.0.0');
@@ -465,17 +466,27 @@ class p2p {
 							return
 						
 						if(!peers[data.id]) {
+							if(data.close)
+								return
+
 							peers[data.id] = new JsonSocket(new net.Socket());
 							peers[data.id].on('message', (toPeer) => {
-								logT('relay', 'client message to my server from', data.id);
+								logT('relay', 'client message to relay', data.id);
 								this.relaySocket.sendMessage({id: data.id, data: toPeer})
 							})
 							peers[data.id].connect(config.spiderPort, '0.0.0.0', () => {
-								logT('relay', 'client message to peer', data.id);
+								logT('relay', 'client message to my server', data.id);
 								peers[data.id].sendMessage(data.data)
 							});
 						} else {
-							logT('relay', 'client message to peer', data.id);
+							if(data.close) {
+								peers[data.id].destroy();
+								delete peers[data.id];
+								logT('relay', 'peer disconnected');
+								return
+							}
+
+							logT('relay', 'client message to my server', data.id);
 							peers[data.id].sendMessage(data.data)
 						}
 					});
