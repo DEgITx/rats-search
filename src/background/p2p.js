@@ -265,12 +265,12 @@ class p2p {
 						});
 						peer.on('close', () => {
 							if(peer == relay) {
-								logTE('relay', `relay client discronnected`);
+								logTE('relay', `relay client disconnected`);
 								relay = null
 								server.close();
 								delete this.relayServers[remote.peerId]
-							} else {
-								logTE('relay', `relay peer discronnected`);
+							} else if(relay) {
+								logTE('relay', `relay peer disconnected`);
 								relay.sendMessage({id: peer._id, close: true});
 							}
 							if(peer._id && peers[peer._id])
