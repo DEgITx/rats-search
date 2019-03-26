@@ -131,7 +131,7 @@ class p2p {
 
 			// relay is supported and needed
 			let relayPort = -1;
-			if(this.relay.server && data.relay && data.relay.client) {
+			if(this.relay.server && data.relay && data.relay.client && data.relay.request) {
 				if(!this.relayServers[data.peerId] && Object.keys(this.relayServers).length < this.relayServersLimit) {
 					const server = net.createServer();
 					this.relayServers[data.peerId] = server;
@@ -470,7 +470,7 @@ class p2p {
 				port: config.spiderPort,
 				version: this.version,
 				peerId: this.peerId,
-				relay: this.relay,
+				relay: Object.assign(this.relay, {request: this.relay.client && !this.relaySocket}), // ask relay only when no relay usage for now
 				info: this.info,
 				peers: this.addresses(this.recommendedPeersList()).concat(this.externalPeers) // also add external peers
 			}, (data) => {
