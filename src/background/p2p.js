@@ -306,6 +306,12 @@ class p2p {
 			{
 				logT('relay', 'tcp p2p port is unreachable, using relay client')
 				this.relay.client = true;
+				// try reconnect to new relay server
+				let candidatePeer = this.peersList().filter(peer => peer.relay && peer.relay.server)
+				if(candidatePeer && candidatePeer.length > 0) {
+					logT('relay', 'reconnect to new relay, because no relays connection before check');
+					this.connectToRelay(candidatePeer[0])
+				}
 			}
 		})
 	}
