@@ -478,7 +478,7 @@ class p2p {
 				port: config.spiderPort,
 				version: this.version,
 				peerId: this.peerId,
-				relay: Object.assign(this.relay, {request: this.relay.client && !this.relaySocket}), // ask relay only when no relay usage for now
+				relay: this.relay,
 				info: this.info,
 				peers: this.addresses(this.recommendedPeersList()).concat(this.externalPeers) // also add external peers
 			}, (data) => {
