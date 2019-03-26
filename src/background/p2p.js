@@ -13,6 +13,7 @@ const {promisify} = require('util');
 const mkdirp = promisify(require('mkdirp'))
 const deleteFolderRecursive = require('./deleteFolderRecursive')
 const compareVersions = require('compare-versions');
+const portCheck = require('./portCheck')
 
 const findGoodPort = async (port, host) => {
 	while (!(await portCheck(port, host))) {
