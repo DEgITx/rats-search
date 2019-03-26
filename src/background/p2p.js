@@ -364,7 +364,7 @@ class p2p {
 			logT('relay', 'try connecting to new relay', relayPeer.peerId)
 			let peers = {}
 			this.relaySocket = new JsonSocket(new net.Socket());
-			this.relaySocket.connect(relayPeer.relay.port, address.address, () => {
+			this.relaySocket.connect(relayPeer.relay.port, relayPeer.address, () => {
 				logT('relay', 'connected to relay', relayPeer.peerId);
 				this.relaySocket.sendMessage({peerId: this.peerId})
 			});
