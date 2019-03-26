@@ -467,12 +467,15 @@ class p2p {
 						if(!peers[data.id]) {
 							peers[data.id] = new JsonSocket(new net.Socket());
 							peers[data.id].on('message', (toPeer) => {
+								logT('relay', 'client message to my server from', data.id);
 								this.relaySocket.sendMessage({id: data.id, data: toPeer})
 							})
 							peers[data.id].connect(config.spiderPort, '0.0.0.0', () => {
+								logT('relay', 'client message to peer', data.id);
 								peers[data.id].sendMessage(data.data)
 							});
 						} else {
+							logT('relay', 'client message to peer', data.id);
 							peers[data.id].sendMessage(data.data)
 						}
 					});
