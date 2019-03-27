@@ -67,7 +67,7 @@ Now you can get access to web interface on 8095 port: http://localhost:8095
 
 [More about configuration](docs/SERVER.md)
 
-[More about server compatibility](docs/SERVER_COMPATIBILITY.md)
+[More about server compatibility and known issues](docs/SERVER_COMPATIBILITY.md)
 
 ## Donation
 
