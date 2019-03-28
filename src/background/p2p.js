@@ -310,6 +310,7 @@ class p2p {
 					} else {
 						logT('relay', 'relay server port check failes - not using as relay')
 					}
+					server.close();
 				})
 			}
 			else
