@@ -251,7 +251,7 @@ class p2p {
 						peer.on('message', (data) => {
 							if (!relay && data && remote.peerId == data.peerId) {
 								relay = peer
-								logT('relay', `reply root pear fouded`);
+								logT('relay', `reply root pear fouded, current openned relays ${Object.keys(this.relayServers).length}`);
 								if (this.selfAddress) {
 									logT('relay', `exchange ${remote.peerId} relay to other peers`);
 									this.emit('peer', {port: relayPort, address: this.selfAddress})
