@@ -424,7 +424,8 @@ class p2p {
 					logT('relay', 'connected to relay', relayPeer.peerId);
 					this.relaySocket.sendMessage({peerId: this.peerId})
 					this.p2pStatus = 1
-            		this.send('p2pStatus', this.p2pStatus)
+					this.send('p2pStatus', this.p2pStatus)
+					tryes = 3; // restore tryies bebause we connected
 				});
 	
 				this.relaySocket.on('message', (data) => {
