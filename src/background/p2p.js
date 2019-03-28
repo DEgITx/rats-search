@@ -244,16 +244,16 @@ class p2p {
 						delete this.relayServers[remote.peerId]
 					}, 8000)
 					server.on('connection', (peer) => {
-						logTE('relay', `new relay connection`);
+						logT('relay', `new relay connection`);
 						peer = new JsonSocket(peer);
 						peer._id = Math.random().toString(36).substring(2, 15)
 						peers[peer._id] = peer
 						peer.on('message', (data) => {
 							if (!relay && data && remote.peerId == data.peerId) {
 								relay = peer
-								logTE('relay', `reply root pear fouded`);
+								logT('relay', `reply root pear fouded`);
 								if (this.selfAddress) {
-									logTE('relay', `exchange relay to other peers`);
+									logT('relay', `exchange relay to other peers`);
 									this.emit('peer', {port: relayPort, address: this.selfAddress})
 								}
 								clearTimeout(establishConnectionTimeout);
@@ -261,31 +261,34 @@ class p2p {
 							}
 							if (relay) {
 								if(peer === relay && data.id && peers[data.id]) {
-									logTE('relay', `server message to pear ${data.id}`);
+									logT('relay', `server message to pear ${data.id}`);
 									peers[data.id].sendMessage(data.data)
 								} else {
-									logTE('relay', `server message to relay ${peer._id}`);
+									logT('relay', `server message to relay ${peer._id}`);
 									relay.sendMessage({id: peer._id, data});
 								}
 							}
 						});
 						peer.on('close', () => {
 							if(peer == relay) {
-								logTE('relay', `relay client disconnected`);
+								logT('relay', `relay client disconnected`);
 								relay = null
 								server.close();
 								delete this.relayServers[remote.peerId]
 							} else if(relay) {
-								logTE('relay', `relay peer disconnected`);
+								logT('relay', `relay peer disconnected`);
 								relay.sendMessage({id: peer._id, close: true});
 							}
 							if(peer._id && peers[peer._id])
 								delete peers[peer._id]
 						});
+						peer.on('error', (err) => {
+							logTE('relay', `relay server peer error ${err}`);
+						})
 					});
 					relayPort = await findGoodPort(Math.floor(Math.random() * 50000) + 10000, '0.0.0.0')
 					server.listen(relayPort, '0.0.0.0');
-					logTE('relay', `establish new relay server on port`, relayPort);
+					logT('relay', `establish new relay server on port`, relayPort);
 					callback({port: relayPort})
 				}
 			}
