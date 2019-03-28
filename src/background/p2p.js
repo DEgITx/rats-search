@@ -453,7 +453,7 @@ class p2p {
 							return
 						}
 	
-						logT('relay', 'client message to my server', data.id);
+						//logT('relay', 'client message to my server', data.id);
 						peers[data.id].sendMessage(data.data)
 					}
 				});
