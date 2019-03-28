@@ -253,7 +253,7 @@ class p2p {
 								relay = peer
 								logT('relay', `reply root pear fouded`);
 								if (this.selfAddress) {
-									logT('relay', `exchange relay to other peers`);
+									logT('relay', `exchange ${remote.peerId} relay to other peers`);
 									this.emit('peer', {port: relayPort, address: this.selfAddress})
 								}
 								clearTimeout(establishConnectionTimeout);
@@ -261,10 +261,10 @@ class p2p {
 							}
 							if (relay) {
 								if(peer === relay && data.id && peers[data.id]) {
-									logT('relay', `server message to pear ${data.id}`);
+									//logT('relay', `server message to pear ${data.id}`);
 									peers[data.id].sendMessage(data.data)
 								} else {
-									logT('relay', `server message to relay ${peer._id}`);
+									//logT('relay', `server message to relay ${peer._id}`);
 									relay.sendMessage({id: peer._id, data});
 								}
 							}
@@ -438,11 +438,11 @@ class p2p {
 	
 						peers[data.id] = new JsonSocket(new net.Socket());
 						peers[data.id].on('message', (toPeer) => {
-							logT('relay', 'client message to relay', data.id);
+							//logT('relay', 'client message to relay', data.id);
 							this.relaySocket.sendMessage({id: data.id, data: toPeer})
 						})
 						peers[data.id].connect(config.spiderPort, '0.0.0.0', () => {
-							logT('relay', 'client message to my server', data.id);
+							//logT('relay', 'client message to my server', data.id);
 							peers[data.id].sendMessage(data.data)
 						});
 					} else {
