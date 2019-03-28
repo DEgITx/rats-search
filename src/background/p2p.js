@@ -465,6 +465,8 @@ class p2p {
 					}
 					peers = null
 					this.relaySocket = null
+					this.p2pStatus = 0
+            		this.send('p2pStatus', this.p2pStatus)
 					// try reconnect to new relay server
 					let candidatePeer = this.peersList().filter(peer => peer.relay && peer.relay.server && peer != relayPeer)
 					if(candidatePeer && candidatePeer.length > 0 && tryes > 0) {
