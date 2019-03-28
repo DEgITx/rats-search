@@ -293,14 +293,24 @@ class p2p {
 
 	checkPortAndRedirect(address, port) {
 		this.selfAddress = address;
-		isPortReachable(port, {host: address}).then((isAvailable) => {
+		isPortReachable(port, {host: address}).then(async (isAvailable) => {
 			if(this.closing)
 				return // responce can be very late, and can start after closing of program, this will break on linux
 
 			if(isAvailable)
 			{   
-				logT('relay', 'tcp p2p port is reachable - all ok, can use as server')
-				this.relay.server = true;
+				logT('relay', 'tcp p2p port is reachable - all ok')
+				const server = net.createServer();
+				const randomPort = await findGoodPort(Math.floor(Math.random() * 50000) + 10000, '0.0.0.0')
+				server.listen(randomPort, '0.0.0.0');
+				isPortReachable(randomPort, {host: address}).then(async (isAvailable) => {
+					if(isAvailable) {
+						logT('relay', 'relay server port check success - can be using as relay')
+						this.relay.server = true;
+					} else {
+						logT('relay', 'relay server port check failes - not using as relay')
+					}
+				})
 			}
 			else
 			{
