@@ -318,6 +318,8 @@ class p2p {
 					}
 					server.close();
 				})
+				this.p2pStatus = 2
+            	this.send('p2pStatus', this.p2pStatus)
 			}
 			else
 			{
@@ -329,6 +331,8 @@ class p2p {
 					logT('relay', 'reconnect to new relay, because no relays connection before check');
 					this.connectToRelay(candidatePeer[0])
 				}
+				this.p2pStatus = 0
+            	this.send('p2pStatus', this.p2pStatus)
 			}
 		})
 	}
@@ -416,6 +420,8 @@ class p2p {
 				this.relaySocket.connect(port, relayPeer.address, () => {
 					logT('relay', 'connected to relay', relayPeer.peerId);
 					this.relaySocket.sendMessage({peerId: this.peerId})
+					this.p2pStatus = 1
+            		this.send('p2pStatus', this.p2pStatus)
 				});
 	
 				this.relaySocket.on('message', (data) => {
