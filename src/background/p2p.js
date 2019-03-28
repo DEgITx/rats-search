@@ -238,6 +238,11 @@ class p2p {
 					this.relayServers[remote.peerId] = server;
 					let relay;
 					const peers = {}
+					const establishConnectionTimeout = setTimeout(() => {
+						logTE('relay', `not recived relay income connection, timeout`);
+						server.close();
+						delete this.relayServers[remote.peerId]
+					}, 8000)
 					server.on('connection', (peer) => {
 						logTE('relay', `new relay connection`);
 						peer = new JsonSocket(peer);
@@ -251,6 +256,7 @@ class p2p {
 									logTE('relay', `exchange relay to other peers`);
 									this.emit('peer', {port: relayPort, address: this.selfAddress})
 								}
+								clearTimeout(establishConnectionTimeout);
 								return;
 							}
 							if (relay) {
@@ -398,9 +404,11 @@ class p2p {
 	connectToRelay(relayPeer, tryes = 3)
 	{
 		if(this.relay.client && relayPeer.relay.server && !this.relaySocket) {
-			relayPeer.emit('relay', {}, ({port}) => {
-				if(!port)
+			relayPeer.emit('relay', {}, ({port} = {}) => {
+				if(!port) {
+					logTE('relay', 'no port in relay request responce');
 					return;
+				}
 				
 				logT('relay', 'try connecting to new relay', relayPeer.peerId)
 				let peers = {}
