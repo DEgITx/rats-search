@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/DEgITx/rats-search/compare/v1.1.4...v1.2.0) (2019-03-31)
+
+
+### Bug Fixes
+
+* **p2p:** additional check of dublicated peers ([11ff3d0](https://github.com/DEgITx/rats-search/commit/11ff3d0))
+
+
+### Features
+
+* **p2p:** replaced old ssh relay to new relay mechanism (improved p2p network stablity over NAT). ([ae15f59](https://github.com/DEgITx/rats-search/commit/ae15f59))
+
 ## [1.1.4](https://github.com/DEgITx/rats-search/compare/v1.1.3...v1.1.4) (2019-02-19)
 
 
