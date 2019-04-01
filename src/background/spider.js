@@ -123,9 +123,9 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		{
 			torrentsInfo = torrentsInfo[0]
 			torrentsId = (torrentsInfo.maxid || 0) + 1
-			p2p.info.torrents = torrentsInfo.torrentscount || 0
-			p2p.info.files = torrentsInfo.numfiles || 0
-			p2p.info.filesSize = torrentsInfo.filessize || 0
+			p2p.info.torrents = Number(torrentsInfo.torrentscount) || 0
+			p2p.info.files = Number(torrentsInfo.numfiles) || 0
+			p2p.info.filesSize = Number(torrentsInfo.filessize) || 0
 		}
 		else
 		{
@@ -643,8 +643,8 @@ module.exports = function (send, recive, dataDirectory, version, env)
 						updateTorrentTrackers(torrent.hash);
 						remoteTrackers.update(torrent)
 						p2p.info.torrents++;
-						p2p.info.files += torrent.files;
-						p2p.info.filesSize += torrent.size;
+						p2p.info.files += Number(torrent.files);
+						p2p.info.filesSize += Number(torrent.size);
 					}
 					else
 					{
