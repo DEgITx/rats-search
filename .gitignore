@@ -20,4 +20,3 @@ node.exe
 /app/app.js
 /app/background.js
 /app/**/*.map
-
