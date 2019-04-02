@@ -52,6 +52,7 @@ class p2p {
 		this.tcpServer.maxConnections = config.p2pConnections * 2;
 
 		this.relay = {server: false, client: false}
+		this.relaysList = [];
 		this.selfAddress = null;
 		this.relayServers = {};
 		this.relayServersLimit = 8;
@@ -135,6 +136,7 @@ class p2p {
 				version: this.version,
 				peerId: this.peerId,
 				relay: this.relay,
+				relays: this.relays(data.relays),
 				info: this.info,
 				peers: this.addresses(this.recommendedPeersList())
 			})
@@ -300,6 +302,13 @@ class p2p {
 		this.tcpServer.listen(config.spiderPort, '0.0.0.0');
 	}
 
+	relays(relaysList = []) {
+		relaysList = relaysList || []
+		const myRelays = this.addresses(this.peersList().filter(peer => peer.relay && peer.relay.server)) || []
+		this.relaysList = myRelays.concat(this.relaysList).concat(this.addresses(relaysList)).slice(0, 3)
+		return this.relaysList
+	}
+
 	checkPortAndRedirect(address, port) {
 		this.selfAddress = address;
 		isPortReachable(port, {host: address}).then(async (isAvailable) => {
@@ -356,13 +365,13 @@ class p2p {
 		this.messageHandlers[type] = callback
 	}
 
-	add(address) {
+	add(address, force = false) {
 		const { peers } = this
 
 		if(!config.p2p)
 			return
 
-		if(this.size > config.p2pConnections)
+		if(this.size > config.p2pConnections && !force)
 			return;
 
 		if(address.port <= 1 || address.port > 65535)
@@ -518,6 +527,7 @@ class p2p {
 				version: this.version,
 				peerId: this.peerId,
 				relay: this.relay,
+				relays: this.relays(),
 				info: this.info,
 				peers: this.addresses(this.recommendedPeersList()).concat(this.externalPeers) // also add external peers
 			}, (data) => {
@@ -570,6 +580,18 @@ class p2p {
 				{
 					data.peers.forEach(peer => this.add(peer))
 				}
+
+				if(data.relays && Array.isArray(data.relays) && data.relays.length > 0)
+				{
+					// keep relays list updated
+					this.relays(data.relays);
+					// add replays if needed
+					if(this.relay.client && !this.relaySocket)
+					{
+						data.relays.forEach(peer => this.add(peer, true))
+					}
+				}
+				
 
 				// try connect to relay if needed
 				this.connectToRelay(address)

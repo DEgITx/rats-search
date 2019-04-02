@@ -316,6 +316,15 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					}
 					logT('p2p', 'loaded peers map from bootstrap')
 				}
+				if(json.relays)
+				{
+					const relays = encryptor.decrypt(json.relays)
+					if(Array.isArray(relays) && relays.length > 0)
+					{
+						relays.forEach(peer => p2p.add(peer, true))
+					}
+					logT('relay', 'loaded relays from bootstrap')
+				}
 			}
 
 			const loadBootstrap = () => {
@@ -1018,7 +1027,8 @@ module.exports = function (send, recive, dataDirectory, version, env)
 						req.on('error', resolve)
 						req.end(JSON.stringify({
 							bootstrap: peersEncripted,
-							bootstrapMap: encryptor.encrypt(bootstrapMap)
+							bootstrapMap: encryptor.encrypt(bootstrapMap),
+							relays: encryptor.encrypt(p2p.relays())
 						}))
 					})
 
