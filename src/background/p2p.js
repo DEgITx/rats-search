@@ -116,6 +116,11 @@ class p2p {
 				return;
 			}
 
+			if(data.peerId === this.peerId) {
+				logT('p2p', 'try connection to myself, ignore', this.peerId)
+				return;
+			}
+
 			for(const peer of this.clients) {
 				if(peer.peerId === data.peerId) {
 					// already connected from different interface
@@ -540,6 +545,13 @@ class p2p {
 
 				if(compareVersions(data.version, this.minClientVersion) < 0) {
 					logTE('p2p', `ignore client peer because of version ${data.version} < ${this.minClientVersion}`)
+					rawSocket.destroy()
+					return;
+				}
+
+				// ignore myself check
+				if(data.peerId === this.peerId) {
+					logT('p2p', 'try connection to myself, ignore', this.peerId)
 					rawSocket.destroy()
 					return;
 				}
