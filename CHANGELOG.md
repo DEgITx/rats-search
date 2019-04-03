@@ -1,3 +1,11 @@
+## [1.2.1](https://github.com/DEgITx/rats-search/compare/v1.2.0...v1.2.1) (2019-04-03)
+
+
+### Bug Fixes
+
+* **core:** fix sometimes calc of torrents sizes ([41ebb68](https://github.com/DEgITx/rats-search/commit/41ebb68))
+* **relay:** priority to relays peers ([c168903](https://github.com/DEgITx/rats-search/commit/c168903))
+
 # [1.2.0](https://github.com/DEgITx/rats-search/compare/v1.1.4...v1.2.0) (2019-03-31)
 
 
