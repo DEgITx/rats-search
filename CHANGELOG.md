@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/DEgITx/rats-search/compare/v1.2.1...v1.2.2) (2019-04-04)
+
+
+### Bug Fixes
+
+* **p2p:** additional myself check ([ae760ec](https://github.com/DEgITx/rats-search/commit/ae760ec))
+
 ## [1.2.1](https://github.com/DEgITx/rats-search/compare/v1.2.0...v1.2.1) (2019-04-03)
 
 
