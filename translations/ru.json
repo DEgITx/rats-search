@@ -191,6 +191,7 @@
         "Download to": "Скачать в",
         "Main settings": "Главные настройки",
         "P2P settings": "Настройки P2P",
-        "Performance settings": "Настройки производительности"
+        "Performance settings": "Настройки производительности",
+        "Start application minimized": "Запусть приложение свернутым"
     }
 }
