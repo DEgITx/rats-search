@@ -184,6 +184,11 @@ app.on("ready", async () => {
 		if(stop)
 			mainWindow.appClose = stop;
 
+		if(appConfig.startMinimized) {
+			logT('app', 'start application minimized in tray');
+			mainWindow.hide();
+		}
+
 		dbPatcher(() => {
 			changeLanguage(appConfig.language, () => setApplicationMenu())
 

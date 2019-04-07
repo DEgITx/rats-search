@@ -196,6 +196,16 @@ export default class ConfigPage extends Page {
 								}}
 							/>
 
+							<Toggle
+								style={{marginTop: '10px'}}
+								label={__('Start application minimized')}
+								toggled={this.options.startMinimized}
+								onToggle={(e, checked) => {
+									this.options.startMinimized = checked
+									this.forceUpdate()
+								}}
+							/>
+
 						</div>
 					</Tab>
 					<Tab value='p2p' label={__("P2P settings")} icon={<SvgIcon viewBox="0 0 47 47">

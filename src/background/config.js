@@ -23,6 +23,7 @@ let config = {
 
 	trayOnClose: false,
 	trayOnMinimize: true,
+	startMinimized: false,
 
 	sitemapMaxSize: 25000,
 
