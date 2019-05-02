@@ -131,15 +131,15 @@ if (!gotTheLock) {
 	logT('app', 'closed because of second application')
 	app.exit(0);
 } else {
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
-	// Someone tried to run a second instance, we should focus our window.
-	logT('app', 'openned second application, just focus this one')
-	if (mainWindow) {
-		if (mainWindow.isMinimized()) 
-			mainWindow.restore();
-		mainWindow.focus();
-	}
-  })
+	app.on('second-instance', (event, commandLine, workingDirectory) => {
+		// Someone tried to run a second instance, we should focus our window.
+		logT('app', 'openned second application, just focus this one')
+		if (mainWindow) {
+			if (mainWindow.isMinimized()) 
+				mainWindow.restore();
+			mainWindow.focus();
+		}
+	})
 }
 
 // log autoupdate

@@ -107,18 +107,18 @@ module.exports = function (send, recive, dataDirectory, version, env)
 
 		const sphinxSingle = await single().waitConnection()
 		let torrentsInfo = await sphinxSingle.query(`
-			SELECT 
-				MAX(id) as maxid,
-				COUNT(*) as torrentscount,
-				SUM(files) as numfiles,
-				SUM(size) as filessize
-			FROM torrents
-		`);
+            SELECT 
+                MAX(id) as maxid,
+                COUNT(*) as torrentscount,
+                SUM(files) as numfiles,
+                SUM(size) as filessize
+            FROM torrents
+        `);
 		let filesInfo = await sphinxSingle.query(`
-			SELECT 
-				MAX(id) as maxid
-			FROM files
-		`);
+            SELECT 
+                MAX(id) as maxid
+            FROM files
+        `);
 		if(torrentsInfo && torrentsInfo[0]) 
 		{
 			torrentsInfo = torrentsInfo[0]
@@ -168,8 +168,8 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					})
 				} else {
 					fs.readdirSync(__dirname + '/strategies').forEach((strategie) => {
-					    this.trackers.push(new (require('./strategies/' + strategie))(args))
-					    logT('tracker', 'loaded strategie', strategie)
+						this.trackers.push(new (require('./strategies/' + strategie))(args))
+						logT('tracker', 'loaded strategie', strategie)
 					})
 				}
 			}

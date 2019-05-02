@@ -336,7 +336,7 @@ class p2p {
 					server.close();
 				})
 				this.p2pStatus = 2
-            	this.send('p2pStatus', this.p2pStatus)
+				this.send('p2pStatus', this.p2pStatus)
 			}
 			else
 			{
@@ -349,7 +349,7 @@ class p2p {
 					this.connectToRelay(candidatePeer[0])
 				}
 				this.p2pStatus = 0
-            	this.send('p2pStatus', this.p2pStatus)
+				this.send('p2pStatus', this.p2pStatus)
 			}
 		})
 	}
@@ -430,7 +430,7 @@ class p2p {
 					logTE('relay', 'no port in relay request responce');
 					return;
 				}
-				
+                
 				logT('relay', 'try connecting to new relay', relayPeer.peerId)
 				let peers = {}
 				this.relaySocket = new JsonSocket(new net.Socket());
@@ -441,15 +441,15 @@ class p2p {
 					this.send('p2pStatus', this.p2pStatus)
 					tryes = 3; // restore tryies bebause we connected
 				});
-	
+    
 				this.relaySocket.on('message', (data) => {
 					if(!data.id)
 						return
-					
+                    
 					if(!peers[data.id]) {
 						if(data.close)
 							return
-	
+    
 						peers[data.id] = new JsonSocket(new net.Socket());
 						peers[data.id].on('message', (toPeer) => {
 							//logT('relay', 'client message to relay', data.id);
@@ -466,12 +466,12 @@ class p2p {
 							logT('relay', 'peer disconnected');
 							return
 						}
-	
+    
 						//logT('relay', 'client message to my server', data.id);
 						peers[data.id].sendMessage(data.data)
 					}
 				});
-	
+    
 				this.relaySocket.on('close', () => {
 					logT('relay', 'relay client closed because server exit');
 					for(const id in peers) {
@@ -480,14 +480,14 @@ class p2p {
 					peers = null
 					this.relaySocket = null
 					this.p2pStatus = 0
-            		this.send('p2pStatus', this.p2pStatus)
+					this.send('p2pStatus', this.p2pStatus)
 					// try reconnect to new relay server
 					let candidatePeer = this.peersList().filter(peer => peer.relay && peer.relay.server && peer != relayPeer)
 					if(candidatePeer && candidatePeer.length > 0 && tryes > 0) {
 						logT('relay', 'reconnect to new relay, because old closed');
 						this.connectToRelay(candidatePeer[0], --tryes)
 					}
-				});	
+				}); 
 			})
 		}
 	}
@@ -603,7 +603,7 @@ class p2p {
 						data.relays.forEach(peer => this.add(peer, true))
 					}
 				}
-				
+                
 
 				// try connect to relay if needed
 				this.connectToRelay(address)
