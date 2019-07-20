@@ -177,7 +177,10 @@ app.on("ready", async () => {
   
 		mainWindow = createWindow("main", {
 			width: 1000,
-			height: 600
+			height: 600,
+			webPreferences: {
+				nodeIntegration: true
+			}
 		});
 
 		// Need for db patcher, to close application
