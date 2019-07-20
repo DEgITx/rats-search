@@ -12,7 +12,10 @@ export const aboutMenuTemplateFunc = () => ({
 			click: () => {
 				const win = new BrowserWindow({
 					parent: BrowserWindow.getFocusedWindow(),
-					modal: true
+					modal: true,
+					webPreferences: {
+						nodeIntegration: true
+					}
 				})
 				win.setMenu(null)
 				win.loadURL(url.format({
