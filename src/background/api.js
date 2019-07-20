@@ -1006,9 +1006,9 @@ module.exports = async ({
 		});
 	})
 
-	const feedCall = (callback) =>
+	const feedCall = (index, callback) =>
 	{
-		callback(feed.feed)
+		callback(feed.feed.slice(index || 0, (index || 0) + 20));
 	}
 	recive('feed', mergeTorrentsWithDownloadsFn(feedCall, true)); // don't overwrite feed value
 
@@ -1032,6 +1032,11 @@ module.exports = async ({
             
 					if(Array.isArray(remoteFeed) || !remoteFeed.feed)
 						return // old version call
+
+					if(remoteFeed.feed.length > feed.max) {
+						logT('feed', 'remote feed have more torrent that needed: ', remoteFeed.feed.length, ' > ', feed.max);
+						remoteFeed.feed = remoteFeed.feed.slice(0, feed.max);
+					}
             
 					if(remoteFeed.feed.length > feed.size() || (remoteFeed.feed.length == feed.size() && remoteFeed.feedDate > feed.feedDate))
 					{
