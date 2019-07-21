@@ -75,13 +75,6 @@
             "x64",
             "ia32"
           ]
-        },
-        {
-          "target": "deb",
-          "arch": [
-            "x64",
-            "ia32"
-          ]
         }
       ],
       "extraFiles": [
