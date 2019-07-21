@@ -119,6 +119,7 @@ logT('system', 'CPU Logic cores:', os.cpus().length)
 logT('system', 'Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB')
 logT('system', 'Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
 logT('system', 'NodeJS:', process.version)
+logT('system', 'Desktop server')
 
 if(portative)
 	logT('system', 'portative compability')
