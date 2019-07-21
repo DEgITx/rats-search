@@ -48,6 +48,7 @@ logT('system', 'CPU Logic cores:', os.cpus().length)
 logT('system', 'Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB')
 logT('system', 'Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
 logT('system', 'NodeJS:', process.version)
+logT('system', 'Web server')
 
 const majorVersion = /v?([0-9]+)\.?([0-9]+)?\.?([0-9]+)?\.?([0-9]+)?/.exec(process.version)[1]
 if(majorVersion < 8)
