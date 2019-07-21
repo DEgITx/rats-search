@@ -251,3 +251,22 @@ body::-webkit-scrollbar-thumb {
 	outline: 1px solid slategrey;
 	border-radius: 8px;
 }
+
+.hint {
+	margin-top: 10px;
+	font-size: 0.8em;
+	padding: 14px;
+	background: #F0F0F0;
+	border-radius: 10px;
+	box-shadow: 0 0 10px rgba(0,0,0,0.2);
+	color: #888888;
+	display: flex;
+	align-items: center;
+  justify-content: center;
+}
+
+.hint svg {
+	fill: #888888;
+	height: 26px;
+	margin-right: 8px;
+}

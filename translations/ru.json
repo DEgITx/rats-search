@@ -193,6 +193,7 @@
         "P2P settings": "Настройки P2P",
         "Performance settings": "Настройки производительности",
         "Start application minimized": "Запусть приложение свернутым",
-        "Magnet": "Магнет-ссылка"
+        "Magnet": "Магнет-ссылка",
+        "You can extend your collected search DB with your own .torrent files. Just drag and drop them into the Rats window (or folder with them). They will immediately appear on activity tab.": "Вы можете расшириться вашу базу поиска вашими .torrent файлами. Просто переместите их в окно программы (или папку с ними). Они сразу же появятся во вкладке активности."
     }
 }
