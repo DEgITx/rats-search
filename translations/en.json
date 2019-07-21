@@ -192,6 +192,7 @@
         "Main settings": "Main settings",
         "P2P settings": "P2P settings",
         "Performance settings": "Performance settings",
-        "Start application minimized": "Start application minimized"
+        "Start application minimized": "Start application minimized",
+        "Magnet": "Magnet"
     }
 }

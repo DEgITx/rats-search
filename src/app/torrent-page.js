@@ -440,7 +440,7 @@ export default class TorrentPage extends Page {
   										<RaisedButton
   											href={`magnet:?xt=urn:btih:${this.torrent.hash}`}
   											target="_self"
-  											label="Magnet"
+  											label={__('Magnet')}
   											secondary={true}
   											onClick={(e) => {
   												e.preventDefault();
