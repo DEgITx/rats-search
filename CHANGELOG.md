@@ -1,3 +1,14 @@
+# [1.3.0](https://github.com/DEgITx/rats-search/compare/v1.2.2...v1.3.0) (2019-08-02)
+
+
+### Features
+
+* **app:** start app in minimized look ([138c323](https://github.com/DEgITx/rats-search/commit/138c323))
+* **deps:** core update ([3538ba8](https://github.com/DEgITx/rats-search/commit/3538ba8))
+* **feed:** auto-loading feed list ([4bac050](https://github.com/DEgITx/rats-search/commit/4bac050))
+* **gui:** tip about torrent drops ([21f4c0b](https://github.com/DEgITx/rats-search/commit/21f4c0b))
+* **log:** web/desktop log message ([0bd1940](https://github.com/DEgITx/rats-search/commit/0bd1940))
+
 ## [1.2.2](https://github.com/DEgITx/rats-search/compare/v1.2.1...v1.2.2) (2019-04-04)
 
 
