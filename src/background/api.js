@@ -168,7 +168,15 @@ module.exports = async ({
 
 			if(options.files)
 			{
-				torrent.filesList = parseTorrentFiles(await sphinx.query('SELECT * FROM `files` WHERE `hash` = ?', hash));
+				const filesList = await sphinx.query('SELECT * FROM `files` WHERE `hash` = ?', hash);
+				if (filesList)
+				{
+					torrent.filesList = parseTorrentFiles(filesList);
+				}
+				else
+				{
+					logTE('search', "can't find filesList for torrent", hash, " - ignore it.")
+				}
 				callback(baseRowData(torrent))
 			}
 			else
