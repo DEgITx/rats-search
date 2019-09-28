@@ -1,3 +1,17 @@
+# [1.4.0](https://github.com/DEgITx/rats-search/compare/v1.3.0...v1.4.0) (2019-09-28)
+
+
+### Bug Fixes
+
+* **rutr:** test fix ([17c085e](https://github.com/DEgITx/rats-search/commit/17c085e))
+* **search:** fix error on some cases of torrent opening ([24d2f18](https://github.com/DEgITx/rats-search/commit/24d2f18)), closes [#98](https://github.com/DEgITx/rats-search/issues/98)
+
+
+### Features
+
+* **core:** core update ([14ab914](https://github.com/DEgITx/rats-search/commit/14ab914))
+* **drop:** support drop torrent file from web version [#99](https://github.com/DEgITx/rats-search/issues/99) ([a997929](https://github.com/DEgITx/rats-search/commit/a997929))
+
 # [1.3.0](https://github.com/DEgITx/rats-search/compare/v1.2.2...v1.3.0) (2019-08-02)
 
 
