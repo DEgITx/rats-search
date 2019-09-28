@@ -791,12 +791,11 @@ module.exports = function (send, recive, dataDirectory, version, env)
 
 		recive('dropTorrents', (pathTorrents) => {
 			logT('drop', 'drop torrents and replicate from original torrent files')
-			const torrents = _.flatten(pathTorrents.map(path => directoryFilesRecursive(path)))
-				.filter(path => mime.getType(path) == 'application/x-bittorrent')
-				.map(path => { 
+			const addTorrents = (torrents) => {
+				torrents.map(({data, path}) => { 
 					try {
 						return ({ 
-							torrent: parseTorrent(fs.readFileSync(path)), 
+							torrent: parseTorrent(data), 
 							path 
 						})
 					} catch(err) {
@@ -804,11 +803,21 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					}
 				})
 				.filter(torrent => torrent)
-			torrents.forEach(({torrent, path}) => {
-				insertMetadata(torrent, torrent.infoHashBuffer, {address: '127.0.0.1', port: 666})
-				logT('drop', 'copied torrent to db:', path)
-			})
-			logT('drop', 'torrent finish adding to db')
+				.forEach(({torrent, path}) => {
+					insertMetadata(torrent, torrent.infoHashBuffer, {address: '127.0.0.1', port: 666})
+					logT('drop', 'copied torrent to db:', path)
+				})
+				logT('drop', 'torrent finish adding to db')
+			}
+
+			if(pathTorrents[0].data) {
+				addTorrents(pathTorrents.map(({data}) => ({data, path: '.'})));
+			} else {
+				const torrents = _.flatten(pathTorrents.map(({path}) => directoryFilesRecursive(path)))
+				.filter(path => mime.getType(path) == 'application/x-bittorrent')
+				.map(path => ({data: fs.readFileSync(path), path}));
+				addTorrents(torrents);
+			}
 		})
 
 		checkInternet((connected) => {

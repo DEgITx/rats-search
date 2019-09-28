@@ -173,11 +173,21 @@ class App extends Component {
 			changeLanguage(lang, () => this.forceUpdate())
 		})
 
-		const processTorrents = (files) => {
+		const processTorrents = async (files) => {
 			if(!files || files.length == 0)
 				return
 
-			torrentSocket.emit('dropTorrents', Array.from(files).filter(file => (file.type == 'application/x-bittorrent' || file.type == '')).map(file => file.path))
+			files = await Promise.all(Array.from(files).filter(file => (file.type == 'application/x-bittorrent' || file.type == '')).map(file => {
+				if(file.path)
+					return {path: file.path};
+
+				return new Promise(resolve => {
+					const reader = new FileReader();
+					reader.onload = () => resolve({data: reader.result});
+					reader.readAsArrayBuffer(file);
+				})
+			}));
+			torrentSocket.emit('dropTorrents', files);
 		}
 
 		document.addEventListener('dragover', (event) => {
