@@ -43,18 +43,35 @@ export default (props) => {
 			{name: __('Download to') + '...', click: async () => {
 				if(dialog)
 				{
-					const path = (await dialog.showOpenDialog({
-						properties: ['openDirectory']
-					})).filePaths;
-					if(!path || path.length < 1)
-						return
-					console.log(path);
+					// Path using in testing
+					let testPath = window.downloadFolderTest;
+					if(testPath && testPath.length > 0) 
+						testPath = [testPath];
+					else
+						testPath = null
+					
+					// Main path
+					let path;
+
+					if (!testPath)
+					{
+						path = (await dialog.showOpenDialog({
+							properties: ['openDirectory']
+						})).filePaths;
+						if(!path || path.length < 1)
+							return
+					}
+					else
+					{
+						path = testPath;
+					}
 					window.torrentSocket.emit('download', props.torrent, path[0], (added) => {
 						if(props.onAdded)
 							props.onAdded(added)
 					})  
 				}
 			},
+			className: 'downloadDirectoryButton',
 			icon: <svg viewBox="0 0 60 60">
 				<g>
 					<path d="M54.168,0H5.832C4.271,0,3,1.271,3,2.832v54.336C3,58.729,4.271,60,5.832,60h48.336C55.729,60,57,58.729,57,57.168V2.832

@@ -8,10 +8,14 @@ describe("download", function() {
 	this.timeout(30000);
 
 	const fileTest = config.client.downloadPath + "/Roblox_setup.exe"
+	const fileFolder = config.client.downloadPath + "/folderTest"
+	const fileFolderTest = fileFolder + "/Roblox_setup.exe"
 
 	it("cleanup", function() {
 		if(fs.existsSync(fileTest))
 			fs.unlinkSync(fileTest);
+		if(fs.existsSync(fileFolderTest))
+			fs.unlinkSync(fileFolderTest);
 	})
 
 	it("click download", async function() {
@@ -96,5 +100,29 @@ describe("download", function() {
 		this.timeout(10000);
 		assert(fs.existsSync(fileTest));
 		assert.equal(await md5(fileTest), '7df171da63e2013c9b17e1857615b192');
+	})
+
+	it("download file to folder", async function() {
+		this.timeout(60000);
+		const { app } = this
+		await app.client.waitForExist('#searchInput')
+		await app.client.$('#searchInput').setValue('1413ba1915affdc3de7e1a81d6fdc32ef19395c9')
+		await app.client.click('#search')
+		await app.client.waitForExist('.torrentRow .downloadButton')
+		// Click download button (must open menu)
+		await app.client.click('.torrentRow .downloadButton')
+		await app.client.waitForExist('.torrentRow .downloadDirectoryButton')
+		// Click download to folder and start download
+		await app.client.execute((folder) => {
+	        window.downloadFolderTest = folder
+	    }, fileFolder)
+		await app.client.click('.torrentRow .downloadDirectoryButton')
+		// Downloading check
+		await app.client.waitUntil(async () => {
+			return (await app.client.getText('.torrentRow .progressDownloading')) === '100.0%'
+		}, 60000, 'expected that download will be finished', 200)
+		// Check downloaded to directory
+		assert(fs.existsSync(fileFolderTest));
+		assert.equal(await md5(fileFolderTest), '7df171da63e2013c9b17e1857615b192');
 	})
 });
