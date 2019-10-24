@@ -45,6 +45,7 @@ describe("download", function() {
 		await app.client.waitForExist('.downloads-list .torrentRow .torrentName')
 		const value = await app.client.$('.downloads-list .torrentRow .torrentName').getText()
 		assert.equal(value, 'Roblox_setup.exe')
+		console.log('download progress', await app.client.getText('.torrentRow .progressDownloading'));
 		// cancel in progress button must be exists
 		assert(await app.client.isExisting('.torrentRow .deleteDownloadBeforeFinish'));
 		assert(await app.client.isExisting('.torrentRow .pauseTorrent'));
@@ -57,6 +58,7 @@ describe("download", function() {
 		this.timeout(90000);
 		const { app } = this
 		await app.client.waitForExist('.torrentRow .progressDownloading')
+		console.log('download progress', await app.client.getText('.torrentRow .progressDownloading'));
 		await app.client.waitUntil(async () => {
 			return (await app.client.getText('.torrentRow .progressDownloading')) === '100.0%'
 		}, 60000, 'expected that download will be finished', 200)

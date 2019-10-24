@@ -256,7 +256,7 @@ class Search extends Component {
 		};
 
 		return (
-			<div className="column w100p center">
+			<div className="column w100p center" style={{position: 'relative'}}>
 				<div className='row inline w100p pad0-75 search-row' style={{minWidth: '35em', backgroundColor: 'white', paddingTop: 0, paddingBottom: this.searchError ? 17 : 0, margin: 5, borderRadius: 3}}>
 					{
 						((this.searchTorrents && this.searchTorrents.length > 0) || (this.searchFiles && this.searchFiles.length > 0))
