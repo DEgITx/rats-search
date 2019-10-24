@@ -629,6 +629,19 @@ module.exports = async ({
 		torrentClientHashMap[torrent.infoHash] = magnet
 		torrent.torrentObject = torrentObject
 
+		torrent.secondTry = setTimeout(() => {
+			logT('downloader', 'second try to find hash', torrent.infoHash)
+			torrentClient.remove(magnet, (err) => {
+				if(err)
+				{
+					logTE('downloader', 'cant remove torrent for second try', torrent.infoHash)
+					return
+				}
+				delete torrentClientHashMap[torrentObject.hash];
+				torrentClient._add(torrentObject, savePath, callback)
+			})
+		}, 8000);
+
 		const progress = (bytes) => {
 			send('downloadProgress', torrent.infoHash, {
 				received: bytes,
@@ -642,6 +655,7 @@ module.exports = async ({
 		torrent.on('ready', () => {
 			logT('downloader', 'start downloading', torrent.infoHash, 'to', torrent.path)
 			send('downloading', torrent.infoHash)
+			clearTimeout(torrent.secondTry);
 			progress(0) // immediately display progress
 			if(torrent._paused)
 			{
@@ -816,7 +830,7 @@ module.exports = async ({
 				callback(false)
 			return
 		}
-
+		clearTimeout(torrentClient.get(id).secondTry)
 		torrentClient.remove(id, (err) => {
 			if(err)
 			{
