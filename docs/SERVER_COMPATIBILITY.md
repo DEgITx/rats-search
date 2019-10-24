@@ -1,12 +1,12 @@
 ## Alpine Linux
 
-Alpine don't using glibc as default library so you need to other precompiled components:
+Alpine is not using glibc as default library so you need to other precompiled components:
 
 [Alpine x86_64 3.7.0](https://github.com/DEgITx/rats-search/files/1972698/alpine_x64_searchd.tar.gz) - replace in "imports/linux/x64"
 
 ## CentOS 6
 
-CentOS 6 using old glibc, you need atleast 2.7 to start precompiled components.
+CentOS 6 is using old glibc, you need atleast 2.7 to start precompiled components.
 
 Start as root to update glibc to 2.7:
 ```console
