@@ -56,6 +56,8 @@ describe("download", function() {
 		await app.client.waitUntil(async () => {
 			return (await app.client.getText('.torrentRow .progressDownloading')) === '100.0%'
 		}, 60000, 'expected that download will be finished', 200)
+		// There is some time before button will be replaced
+		await asyncWait(800);
         
 		// Check Buttons After finish
 		assert(!(await app.client.isExisting('.torrentRow .deleteDownloadBeforeFinish')));
