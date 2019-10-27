@@ -6,6 +6,7 @@ const startApplication = function() {
 	this.app = new Application({
 		path: electron,
 		args: ["."],
+		chromeDriverArgs: ['remote-debugging-port=' + Math.floor(Math.random() * (9999 - 9000) + 9000)],
 		startTimeout: 30000,
 		waitTimeout: 30000,
 		quitTimeout: 15000
