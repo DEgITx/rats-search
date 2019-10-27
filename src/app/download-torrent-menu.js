@@ -40,14 +40,15 @@ export default (props) => {
 				</g>
 			</svg>
 			},
-			{name: __('Download to') + '...', click: () => {
+			{name: __('Download to') + '...', click: async () => {
 				if(dialog)
 				{
-					const path = dialog.showOpenDialog({
+					const path = (await dialog.showOpenDialog({
 						properties: ['openDirectory']
-					});
+					})).filePaths;
 					if(!path || path.length < 1)
 						return
+					console.log(path);
 					window.torrentSocket.emit('download', props.torrent, path[0], (added) => {
 						if(props.onAdded)
 							props.onAdded(added)
