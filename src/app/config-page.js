@@ -142,7 +142,7 @@ export default class ConfigPage extends Page {
 								<RaisedButton style={{marginLeft: 20}} label={__('Browse')} primary={true} onClick={() => {
 									if(!dialog)
 										return
-									const dir = dialog.showOpenDialog({properties: ['openDirectory']})[0]
+									const dir = dialog.showOpenDialogSync({properties: ['openDirectory']})[0]
 									if(dir)
 									{
 										this.options.dbPath = dir
@@ -167,7 +167,7 @@ export default class ConfigPage extends Page {
 								<RaisedButton style={{marginLeft: 20}} label={__('Browse')} primary={true} onClick={() => {
 									if(!dialog)
 										return
-									const dir = dialog.showOpenDialog({properties: ['openDirectory']})[0]
+									const dir = dialog.showOpenDialogSync({properties: ['openDirectory']})[0]
 									if(dir)
 									{
 										this.options.client.downloadPath = dir
