@@ -174,7 +174,8 @@ autoUpdater.on('update-downloaded', () => {
 let tray = undefined
 
 app.on("ready", async () => {
-	sphinx = await startSphinx(() => {
+	let rootPath;
+	({ sphinx, rootPath } = await startSphinx(() => {
   
 		mainWindow = createWindow("main", {
 			width: 1000,
@@ -333,7 +334,14 @@ app.on("ready", async () => {
 	}, app.getPath("userData"), () => { 
 		stopped = true
 		app.quit() 
-	})
+	}, {
+		noWindowsReEncoding: process.argv.includes('--noreencoding') 
+	}))
+	// After configuration of sphinx user directory can be changed
+	if(app.getPath("userData") !== rootPath) {
+		logT('app', 'changed configuration user directory:', rootPath)
+		app.setPath("userData", rootPath);
+	}
 });
 
 let stopProtect = false
@@ -363,6 +371,11 @@ const stop = () => {
 	else if(sphinx)
 	{
 		sphinx.stop()
+		if(sphinx.windowsEncodingFix) {
+			logT('app', 'perform restart because of bad config');
+			app.relaunch({ args: process.argv.slice(1).concat(['--noreencoding']) })
+			app.exit(0)
+		}
 	}
 	else
 	{

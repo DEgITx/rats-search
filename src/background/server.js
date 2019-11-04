@@ -71,13 +71,13 @@ io.on('connection', (socket) =>
 
 const start = async () => 
 {
-	sphinx = await startSphinx(() => {
+	({ sphinx } = await startSphinx(() => {
 		dbPatcher(() => {
 			spider = new spiderCall((...data) => io.sockets.emit(...data), (message, callback) => {
 				socketMessages[message] = callback
 			}, path.resolve(packageJson.serverDataDirectory), packageJson.version, 'production')
 		}, null, sphinx)
-	}, path.resolve(packageJson.serverDataDirectory), () => {})
+	}, path.resolve(packageJson.serverDataDirectory), () => {}))
 }
 start()
 
