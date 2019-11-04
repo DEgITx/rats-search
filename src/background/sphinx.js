@@ -13,6 +13,9 @@ const _ = require('lodash')
 const isRunning = require('is-running')
 const portCheck = require('./portCheck')
 const detectOnebyteEncoding = require('detect-onebyte-encoding')
+const isOneByteEncoding = require('./detectOneByte')
+const {promisify} = require('util');
+const mkdirp = promisify(require('mkdirp'))
 
 const findGoodPort = async (port, host) => {
 	while (!(await portCheck(port, host))) {
@@ -22,12 +25,12 @@ const findGoodPort = async (port, host) => {
 	return port
 }
 
-const writeSphinxConfig = async (path, dbPath) => {
+const writeSphinxConfig = async (rootPath, dbPath, params = {}) => {
 	appConfig.sphinx.port = await findGoodPort(appConfig.sphinx.port)
 	appConfig.sphinx.interfacePort = await findGoodPort(appConfig.sphinx.interfacePort)
 	appConfig.sphinx = appConfig.sphinx
 
-	let config = `
+	let generateConfig = () => (`
   index torrents
   {
     type = rt
@@ -109,12 +112,40 @@ const writeSphinxConfig = async (path, dbPath) => {
     preopen_indexes   = 1
     unlink_old    = 1
     workers     = threads # for RT to work
-    pid_file    = ${path}/searchd.pid
-    log     = ${path}/searchd.log
-    query_log   = ${path}/query.log
-    binlog_path = ${path}
+    pid_file    = ${rootPath}/searchd.pid
+    log     = ${rootPath}/searchd.log
+    query_log   = ${rootPath}/query.log
+    binlog_path = ${rootPath}
   }
-  `;
+  `);
+
+  	let config = generateConfig()
+
+	// fix db path under windows platform (one-byte path)
+	let windowsEncodingFix = false;
+	if(/^win/.test(process.platform) && (!isOneByteEncoding(dbPath) || !isOneByteEncoding(rootPath)))
+	{
+		logT('sphinx', 'detected non-one byte encoding, trying to fix config for db path', dbPath, params.noWindowsReEncoding)
+		let encoding = detectOnebyteEncoding(rootPath + dbPath)
+		if (encoding !== 'utf8' && !params.noWindowsReEncoding) {
+			config = iconv.encode(config, encoding)
+			logT('sphinx', 'config encoded to', encoding)
+			windowsEncodingFix = true
+		} else {
+			logT('sphinx', 'config encoded with utf8, moving config to some root directory')
+			while(!isOneByteEncoding(dbPath) || !(fs.statSync(dbPath).mode & 0x92))
+				dbPath = path.dirname(dbPath)
+			while(!isOneByteEncoding(rootPath) || !(fs.statSync(rootPath).mode & 0x92))
+				rootPath = path.dirname(rootPath)
+			dbPath += "/RatsConfig"
+			rootPath += "/RatsConfig"
+			await mkdirp(dbPath)
+			await mkdirp(rootPath)
+			logT('sphinx', 'changed root directory', rootPath)
+			logT('sphinx', 'changed db directory', dbPath)
+			config = generateConfig()
+		}
+	}
 
 	// clear dir in test env
 	if(env && env.name === 'test')
@@ -127,10 +158,10 @@ const writeSphinxConfig = async (path, dbPath) => {
 				}
 			});
 
-			fs.readdirSync(path).forEach(function(file, index){
+			fs.readdirSync(rootPath).forEach(function(file, index){
 				if(!file.startsWith('binlog'))
 					return;
-				const curPath = path + "/" + file;
+				const curPath = rootPath + "/" + file;
 				if (!fs.lstatSync(curPath).isDirectory()) {
 					fs.unlinkSync(curPath);
 				}
@@ -139,9 +170,9 @@ const writeSphinxConfig = async (path, dbPath) => {
 	}
 
 	// clean query.log because it too large and don't consist any good info
-	if(fs.existsSync(`${path}/query.log`))
+	if(fs.existsSync(`${rootPath}/query.log`))
 	{
-		fs.unlinkSync(`${path}/query.log`)
+		fs.unlinkSync(`${rootPath}/query.log`)
 	}
 
 	let isInitDb = false
@@ -151,33 +182,20 @@ const writeSphinxConfig = async (path, dbPath) => {
 		isInitDb = true
 	}
 
-	// fix db path under windows platform (one-byte path)
-	if(/^win/.test(process.platform))
-	{
-		let encoding = detectOnebyteEncoding(dbPath)
-		let encoding2 = detectOnebyteEncoding(path)
-		if(encoding != encoding2)
-		{
-			encoding = detectOnebyteEncoding(config)
-		}
-		config = iconv.encode(config, encoding)
-		logT('sphinx', 'config encoded to', encoding)
-	}
-
-	fs.writeFileSync(`${path}/sphinx.conf`, config)
-	logT('sphinx', `writed sphinx config to ${path}`)
+	fs.writeFileSync(`${rootPath}/sphinx.conf`, config)
+	logT('sphinx', `writed sphinx config to ${rootPath}`)
 	logT('sphinx', 'db path:', dbPath)
 
-	return {isInitDb}
+	return {isInitDb, rootPath, dbPath, windowsEncodingFix}
 }
 
-module.exports = async (callback, dataDirectory, onClose) => {
+module.exports = async (callback, dataDirectory, onClose, params = {}) => {
 	const start = async (callback) => {
 
 		const sphinxPath = path.resolve(appPath('searchd'))
 		logT('sphinx', 'Sphinx Path:', sphinxPath)
 
-		const sphinxConfigDirectory = dataDirectory
+		let sphinxConfigDirectory = dataDirectory
 		appConfig['dbPath'] = appConfig.dbPath && appConfig.dbPath.length > 0 ? appConfig.dbPath : sphinxConfigDirectory;
 		// on portable dir can move database directory
 		if(!fs.existsSync(appConfig.dbPath) && fs.existsSync(sphinxConfigDirectory))
@@ -191,7 +209,13 @@ module.exports = async (callback, dataDirectory, onClose) => {
 		if(isSphinxExternal)
 			logT('sphinx', `founded running sphinx instance in ${sphinxPid}, using it`)
 
-		const { isInitDb } = isSphinxExternal ? {isInitDb: false} : await writeSphinxConfig(sphinxConfigDirectory, appConfig.dbPath)
+		const { isInitDb, rootPath, dbPath, windowsEncodingFix } = isSphinxExternal ? {isInitDb: false} : await writeSphinxConfig(sphinxConfigDirectory, appConfig.dbPath, params)
+		// on windows directory can be changed during sphinx bug with one byte path
+		if (rootPath != sphinxConfigDirectory || dbPath != appConfig.dbPath)
+		{
+			sphinxConfigDirectory = rootPath;
+			appConfig.dbPath = dbPath;
+		}
 
 		const config = `${sphinxConfigDirectory}/sphinx.conf`
 		const options = ['--config', config]
@@ -228,7 +252,13 @@ module.exports = async (callback, dataDirectory, onClose) => {
 			{
 				sphinx.fixDatabase()
 			}
-    
+	
+			if(windowsEncodingFix && data.includes('failed to parse config file'))
+			{
+				logT('sphinx', 'encoding rewrite failed, forcing restart of application to fix that problem')
+				sphinx.windowsEncodingFix = true;
+			}
+
 			const checkOptimized = String(data).match(/index ([\w]+): optimized/)
 			if(checkOptimized)
 			{
@@ -321,7 +351,7 @@ module.exports = async (callback, dataDirectory, onClose) => {
 
 		if (isSphinxExternal && callback) setTimeout(()=>{logT('sphinx', 'external sphinx signalled');callback()}, 0);
 
-		return sphinx
+		return {sphinx, rootPath: sphinxConfigDirectory, dbPath}
 	}
 
 	return await start(callback)
