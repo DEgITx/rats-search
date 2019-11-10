@@ -1,3 +1,15 @@
+## [1.4.1](https://github.com/DEgITx/rats-search/compare/v1.4.0...v1.4.1) (2019-11-10)
+
+
+### Bug Fixes
+
+* **download:** fix download to directory after update ([ca2df63](https://github.com/DEgITx/rats-search/commit/ca2df63901244363ada6759200194a761fcd510d))
+* **download:** fix search for double download cases ([656f8f7](https://github.com/DEgITx/rats-search/commit/656f8f7b73383e744725fdb3ecde680a953457d2))
+* **gui:** fix inresaction of search panel with other elements [#102](https://github.com/DEgITx/rats-search/issues/102) ([e163547](https://github.com/DEgITx/rats-search/commit/e163547c2d9e32c58c2bf2c896f69dafb0cdae81))
+* **settings:** fix regression with folder selection [#101](https://github.com/DEgITx/rats-search/issues/101) ([b11388a](https://github.com/DEgITx/rats-search/commit/b11388a6a1c56d5aae805ef8cf0a787d44c286dd))
+* **tests:** fix tests on new version ([d088412](https://github.com/DEgITx/rats-search/commit/d08841210c6e613f33b501988ddee6d9133120e8))
+* **windows:** fix some startup problem under windows platform ([a397d09](https://github.com/DEgITx/rats-search/commit/a397d094c60c054b71ad9c5ae677becbcce0d6b0))
+
 # [1.4.0](https://github.com/DEgITx/rats-search/compare/v1.3.0...v1.4.0) (2019-09-28)
 
 
