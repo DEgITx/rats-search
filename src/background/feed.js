@@ -97,7 +97,7 @@ module.exports = class Feed {
 		const good = (x && x.good) || 0
 		const bad = (x && x.bad) || 0
 		const comments = 0
-		let time = Math.floor(Date.now() / 1000) - x.feedDate
+		let time = Math.floor(Date.now() / 1000) - ((x && x.feedDate) || 0)
 
 		const maxTime = 600000
 		if(time > maxTime)
