@@ -1,3 +1,12 @@
+## [1.4.2](https://github.com/DEgITx/rats-search/compare/v1.4.1...v1.4.2) (2020-01-04)
+
+
+### Bug Fixes
+
+* **feed:** fix feed error [#111](https://github.com/DEgITx/rats-search/issues/111) ([1554f7d](https://github.com/DEgITx/rats-search/commit/1554f7d51cee829bf3aed4898861a2dcef09e94a))
+* **log:** exceptions log handling ([8474817](https://github.com/DEgITx/rats-search/commit/84748176e8ac548f3484071cba6200eda96f132d))
+* **test:** fix tests ([65fab30](https://github.com/DEgITx/rats-search/commit/65fab30a5068ea60403959b711beec3cd5fa6609))
+
 ## [1.4.1](https://github.com/DEgITx/rats-search/compare/v1.4.0...v1.4.1) (2019-11-10)
 
 
