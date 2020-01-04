@@ -126,6 +126,7 @@ if(portative)
 
 // handle promise rejections
 process.on('unhandledRejection', r => logTE('system', 'Rejection:', r));
+process.on('uncaughtException', (err, origin) => logTE('system', 'Exception:', err, 'Origin:', origin));
 
 const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
