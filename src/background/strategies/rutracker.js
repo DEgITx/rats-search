@@ -39,7 +39,7 @@ module.exports = class Rutracker
 			name: topicTitle,
 			poster: $('.post_body .postImgAligned').attr('title') || $('.post_body .postImg').attr('title'),
 			description: $('.post_body').first().text(),
-			rutrackerThreadId: parseInt($('a.magnet-link-1').attr('data-topic_id')),
+			rutrackerThreadId: parseInt($('a.magnet-link').attr('data-topic_id')) || parseInt($('a.magnet-link-1').attr('data-topic_id')),
 			contentCategory
 		}
 	}
