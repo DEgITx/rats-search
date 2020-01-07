@@ -160,6 +160,13 @@ class p2p {
 			{
 				data.peers.forEach(peer => this.add(peer))
 			}
+
+			// someone connected to our server, make sure that status updated properly
+			if (this.p2pStatus === 0) {
+				// switch to direct status, otherwise it's relay
+				this.p2pStatus = 2
+				this.send('p2pStatus', this.p2pStatus)
+			}
 		})
 
 		// new peer with peer exchange
