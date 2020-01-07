@@ -50,6 +50,10 @@ logT('system', 'Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
 logT('system', 'NodeJS:', process.version)
 logT('system', 'Web server')
 
+// handle promise rejections
+process.on('unhandledRejection', r => logTE('system', 'Rejection:', r));
+process.on('uncaughtException', (err, origin) => logTE('system', 'Exception:', err, 'Origin:', origin));
+
 const majorVersion = /v?([0-9]+)\.?([0-9]+)?\.?([0-9]+)?\.?([0-9]+)?/.exec(process.version)[1]
 if(majorVersion < 8)
 {
