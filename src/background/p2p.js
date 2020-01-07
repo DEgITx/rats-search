@@ -488,6 +488,10 @@ class p2p {
 						this.connectToRelay(candidatePeer[0], --tryes)
 					}
 				}); 
+
+				this.relaySocket.on('error', (err) => {
+					logT('relay', 'error during relay connection:', err);
+				})
 			})
 		}
 	}
