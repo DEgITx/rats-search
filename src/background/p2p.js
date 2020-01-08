@@ -165,6 +165,7 @@ class p2p {
 			if (this.p2pStatus === 0) {
 				// switch to direct status, otherwise it's relay
 				this.p2pStatus = 2
+				this.relay.client = false;
 				this.send('p2pStatus', this.p2pStatus)
 			}
 		})
@@ -347,16 +348,24 @@ class p2p {
 			}
 			else
 			{
-				logT('relay', 'tcp p2p port is unreachable, using relay client')
-				this.relay.client = true;
-				// try reconnect to new relay server
-				let candidatePeer = this.peersList().filter(peer => peer.relay && peer.relay.server)
-				if(candidatePeer && candidatePeer.length > 0) {
-					logT('relay', 'reconnect to new relay, because no relays connection before check');
-					this.connectToRelay(candidatePeer[0])
+				logT('relay', 'tcp p2p port is unreachable')
+				if(this.p2pStatus === 0)
+				{
+					logT('relay', 'using relay client')
+					this.relay.client = true;
+					// try reconnect to new relay server
+					let candidatePeer = this.peersList().filter(peer => peer.relay && peer.relay.server)
+					if(candidatePeer && candidatePeer.length > 0) {
+						logT('relay', 'reconnect to new relay, because no relays connection before check');
+						this.connectToRelay(candidatePeer[0])
+					}
+					this.p2pStatus = 0
+					this.send('p2pStatus', this.p2pStatus)
 				}
-				this.p2pStatus = 0
-				this.send('p2pStatus', this.p2pStatus)
+				else
+				{
+					this.send('p2pStatus', this.p2pStatus)
+				}
 			}
 		})
 	}
