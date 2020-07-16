@@ -122,7 +122,7 @@
     "ipaddr.js": "^1.9.1",
     "is-running": "^2.1.0",
     "json-socket": "github:DEgITx/node-json-socket",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "material-ui": "^0.20.2",
     "mime": "^2.4.4",
     "mkdirp": "^0.5.1",
