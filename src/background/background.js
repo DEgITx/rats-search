@@ -182,7 +182,8 @@ app.on("ready", async () => {
 			width: 1000,
 			height: 600,
 			webPreferences: {
-				nodeIntegration: true
+				nodeIntegration: true,
+				enableRemoteModule: true,
 			}
 		});
 
@@ -211,10 +212,10 @@ app.on("ready", async () => {
 				mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
 			})
 			mainWindow.on('show', () => {
-				tray.setHighlightMode('always')
+				//tray.setHighlightMode('always')
 			})
 			mainWindow.on('hide', () => {
-				tray.setHighlightMode('never')
+				//tray.setHighlightMode('never')
 			})
 
 			mainWindow.on('close', (event) => {
@@ -314,7 +315,7 @@ app.on("ready", async () => {
 						const id = arg[arg.length - 1].callback
 						arg[arg.length - 1] = (responce) => {
 							if(mainWindow)
-								mainWindow.webContents.send('callback', id, responce)
+								mainWindow.webContents.send('callback', id, JSON.stringify(responce))
 						}
 					}
 					callback.apply(null, arg)
