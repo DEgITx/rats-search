@@ -60,8 +60,12 @@ else
 	}
 	ipcRenderer.on('callback', (event, id, data) => {
 		const callback = window.torrentSocket.callbacks[id]
-		if(callback)
-			callback(data)
+		if(callback) {
+			if(data)
+				callback(JSON.parse(data))
+			else
+				callback(data)
+		}
 		delete window.torrentSocket.callbacks[id]
 	});
 
