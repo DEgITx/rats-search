@@ -15,7 +15,7 @@ const portCheck = require('./portCheck')
 const detectOnebyteEncoding = require('detect-onebyte-encoding')
 const isOneByteEncoding = require('./detectOneByte')
 const {promisify} = require('util');
-const mkdirp = promisify(require('mkdirp'))
+const mkdirp = require('mkdirp')
 
 const findGoodPort = async (port, host) => {
 	while (!(await portCheck(port, host))) {

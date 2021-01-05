@@ -6,7 +6,7 @@ const fs = require('fs')
 const fileRead = promisify(fs.readFile)
 const exist = promisify(fs.exists)
 const magnetParse = require('../magnetParse')
-const mkdirp = promisify(require('mkdirp'))
+const mkdirp = require('mkdirp')
 
 module.exports = class Rutor
 {

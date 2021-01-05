@@ -14,7 +14,7 @@ window.__ = __
 
 if(typeof WEB !== 'undefined')
 {
-	const io = require("socket.io-client");
+	const io = require("socket.io");
 	window.torrentSocket = io(document.location.protocol + '//' + document.location.hostname + (process.env.NODE_ENV === 'production' ? '/' : ':8095/'));
 }
 else
