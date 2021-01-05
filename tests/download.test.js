@@ -1,4 +1,4 @@
-import { assert } from "chai";
+import { assert, expect } from "chai";
 const asyncWait = require('../src/background/asyncWait')
 const md5 = require('md5-file/promise')
 const config = require('../src/background/config')
@@ -21,52 +21,50 @@ describe("download", function() {
 	it("click download", async function() {
 		this.timeout(45000);
 		const { app } = this
-		await app.client.waitForExist('#searchInput')
-		await app.client.$('#searchInput').setValue('1413ba1915affdc3de7e1a81d6fdc32ef19395c9')
-		await app.client.click('#search')
-		await app.client.waitForExist('.torrentRow .downloadButton')
+		await (await app.client.$('#searchInput')).setValue('1413ba1915affdc3de7e1a81d6fdc32ef19395c9')
+		await (await app.client.$('#search')).click()
 		// Click download button (must open menu)
-		await app.client.click('.torrentRow .downloadButton')
-		await app.client.waitForExist('.torrentRow .downloadFullButton')
+		await (await app.client.$('.torrentRow .downloadButton')).click()
 		// Start downloading
-		await app.client.click('.torrentRow .downloadFullButton')
+		await (await app.client.$('.torrentRow .downloadFullButton')).click()
 	})
 
 	it("download started", async function() {
 		this.timeout(45000);
 		const { app } = this
-		await app.client.waitForExist('.torrentRow .deleteDownloadBeforeFinish')
+		await app.client.$('.torrentRow .deleteDownloadBeforeFinish')
 	})
 
 	it("check download exists in download tab", async function() {
 		this.timeout(8000);
 		const { app } = this
-		await app.client.click('#downloadTab')
-		await app.client.waitForExist('.downloads-list .torrentRow .torrentName')
-		const value = await app.client.$('.downloads-list .torrentRow .torrentName').getText()
+		await (await app.client.$('#downloadTab')).click()
+		const value = await (await app.client.$('.downloads-list .torrentRow .torrentName')).getText()
 		assert.equal(value, 'Roblox_setup.exe')
-		console.log('download progress', await app.client.getText('.torrentRow .progressDownloading'));
+		console.log('download progress', await (await app.client.$('.torrentRow .progressDownloading')).getText());
 		// cancel in progress button must be exists
-		assert(await app.client.isExisting('.torrentRow .deleteDownloadBeforeFinish'));
-		assert(await app.client.isExisting('.torrentRow .pauseTorrent'));
+		assert(await (await app.client.$('.torrentRow .deleteDownloadBeforeFinish')).isExisting());
+		assert(await (await app.client.$('.torrentRow .pauseTorrent')).isExisting());
 		// back to recent search
-		await app.client.click('#open-recent-search')
-		await app.client.waitForExist('.search-list')
+		await (await app.client.$('#open-recent-search')).click()
+		await app.client.$('.search-list')
 	})
 
 	it("wait until downloaded", async function() {
 		this.timeout(90000);
 		const { app } = this
-		await app.client.waitForExist('.torrentRow .progressDownloading')
-		console.log('download progress', await app.client.getText('.torrentRow .progressDownloading'));
+		await app.client.$('.torrentRow .progressDownloading')
+		console.log('download progress', await (await app.client.$('.torrentRow .progressDownloading')).getText());
+		app.client.options.waitforTimeout = 60000
 		await app.client.waitUntil(async () => {
-			return (await app.client.getText('.torrentRow .progressDownloading')) === '100.0%'
+			return (await (await app.client.$('.torrentRow .progressDownloading')).getText()) === '100.0%'
 		}, 60000, 'expected that download will be finished', 200)
+		app.client.options.waitforTimeout = 500
 		// There is some time before button will be replaced
 		await asyncWait(800);
-        
+
 		// Check Buttons After finish
-		assert(!(await app.client.isExisting('.torrentRow .deleteDownloadBeforeFinish')));
+		assert(!(await (await app.client.$('.torrentRow .deleteDownloadBeforeFinish')).isExisting()));
 	})
 
 	it("check file after download", async function() {
@@ -79,23 +77,22 @@ describe("download", function() {
 	it("delete download from manager (after finish)", async function() {
 		this.timeout(8000);
 		const { app } = this
-		await app.client.waitForExist('.torrentRow .deleteDownloadAfterFinish')
-		assert(await app.client.isExisting('.torrentRow .deleteDownloadAfterFinish'));
-		assert.equal(await app.client.getText('.search-list .torrentRow .progressDownloading'), '100.0%')
+		assert(await (await app.client.$('.torrentRow .deleteDownloadAfterFinish')).isExisting());
+		assert.equal(await (await app.client.$('.search-list .torrentRow .progressDownloading')).getText(), '100.0%')
 		// Click cancel of download
-		await app.client.click('.torrentRow .deleteDownloadAfterFinish')
-		assert(!(await app.client.isExisting('.torrentRow .deleteDownloadAfterFinish')));
+		await (await app.client.$('.torrentRow .deleteDownloadAfterFinish')).click()
+		assert(!(await (await app.client.$('.torrentRow .deleteDownloadAfterFinish')).isExisting()));
 		// Download deleted, but must be keeped in search
-		const value = await app.client.$('.search-list .torrentRow .torrentName').getText()
+		const value = await (await app.client.$('.search-list .torrentRow .torrentName')).getText()
 		assert.equal(value, 'Roblox_setup.exe')
 	})
 
 	it("there must be no download on download tab", async function() {
 		this.timeout(8000);
 		const { app } = this
-		await app.client.click('#downloadTab')
-		await app.client.waitForExist('.downloads-list')
-		assert(!(await app.client.isExisting('.torrentRow')));
+		await (await app.client.$('#downloadTab')).click()
+		await app.client.$('.downloads-list')
+		assert(!(await (await app.client.$('.torrentRow')).isExisting()));
 	})
 
 	it("file must still exists after delete from manager", async function() {
@@ -107,22 +104,22 @@ describe("download", function() {
 	it("download file to folder", async function() {
 		this.timeout(60000);
 		const { app } = this
-		await app.client.waitForExist('#searchInput')
-		await app.client.$('#searchInput').setValue('1413ba1915affdc3de7e1a81d6fdc32ef19395c9')
-		await app.client.click('#search')
-		await app.client.waitForExist('.torrentRow .downloadButton')
+		await (await app.client.$('#searchInput')).setValue('1413ba1915affdc3de7e1a81d6fdc32ef19395c9')
+		await (await app.client.$('#search')).click()
 		// Click download button (must open menu)
-		await app.client.click('.torrentRow .downloadButton')
-		await app.client.waitForExist('.torrentRow .downloadDirectoryButton')
+		await (await app.client.$('.torrentRow .downloadButton')).click()
+		await app.client.$('.torrentRow .downloadDirectoryButton')
 		// Click download to folder and start download
 		await app.client.execute((folder) => {
 	        window.downloadFolderTest = folder
 	    }, fileFolder)
-		await app.client.click('.torrentRow .downloadDirectoryButton')
+		await (await app.client.$('.torrentRow .downloadDirectoryButton')).click()
 		// Downloading check
+		app.client.options.waitforTimeout = 60000
 		await app.client.waitUntil(async () => {
-			return (await app.client.getText('.torrentRow .progressDownloading')) === '100.0%'
+			return (await (await app.client.$('.torrentRow .progressDownloading')).getText()) === '100.0%'
 		}, 60000, 'expected that download will be finished', 200)
+		app.client.options.waitforTimeout = 500
 		// Check downloaded to directory
 		assert(fs.existsSync(fileFolderTest));
 		assert.equal(await md5(fileFolderTest), '7df171da63e2013c9b17e1857615b192');
