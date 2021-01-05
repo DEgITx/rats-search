@@ -1,6 +1,6 @@
 import { assert, expect } from "chai";
 const asyncWait = require('../src/background/asyncWait')
-const md5 = require('md5-file/promise')
+const md5 = require('md5-file')
 const config = require('../src/background/config')
 const fs = require('fs')
 
