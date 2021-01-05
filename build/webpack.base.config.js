@@ -3,6 +3,10 @@ const nodeExternals = require("webpack-node-externals");
 const FriendlyErrorsWebpackPlugin = require("friendly-errors-webpack-plugin");
 
 module.exports = env => {
+  if(env && env.test)
+    env = 'test'
+  else if(env && env.production)
+    env = 'production'
   return {
     mode: env == 'test' ? 'production' : (env || 'development'),
     target: "node",

@@ -96,7 +96,7 @@
   },
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
-    "pretest": "webpack --config=build/webpack.app.config.js --env=test --display=none && webpack --config=build/webpack.tests.config.js --env=test --display=none",
+    "pretest": "webpack --config=build/webpack.app.config.js --env=test --no-stats && webpack --config=build/webpack.tests.config.js --env=test --no-stats",
     "test": "mocha temp/tests.js --require @babel/core/lib --require source-map-support/register",
     "start": "node build/start.js",
     "prebuild": "webpack --config=build/webpack.app.config.js --env=production",
@@ -169,9 +169,9 @@
     "style-loader": "^0.23.1",
     "sw-precache-webpack-plugin": "^0.11.5",
     "url-loader": "^2.1.0",
-    "webpack": "^4.36.1",
-    "webpack-cli": "^3.3.6",
-    "webpack-merge": "^4.2.1",
-    "webpack-node-externals": "^1.7.2"
+    "webpack": "^5.11.1",
+    "webpack-cli": "^4.3.1",
+    "webpack-merge": "^5.7.3",
+    "webpack-node-externals": "^2.5.2"
   }
 }
