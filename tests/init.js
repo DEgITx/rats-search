@@ -9,7 +9,7 @@ describe("application", () => {
 	it("check start", async function() {
 		this.timeout(5000);
 		const { app } = this
-		await app.client.waitForExist('#index-window')
+		await app.client.$('#index-window')
 		// fix realtime config
 		require('../src/background/config').reload(await app.electron.remote.app.getPath('userData'))
 	});

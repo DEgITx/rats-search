@@ -23,6 +23,6 @@ describe("rutracker", () => {
 		assert.equal(data.poster, 'http://i44.fastpic.ru/big/2012/1018/a2/4e8740f608387b32b74c5deea72d05a2.jpg')
 		assert.equal(data.rutrackerThreadId, 4220109)
 		assert(data.description.includes('выхода'))
-		assert.equal(data.contentCategory, 'Главная » Рок-музыка » Зарубежный Metal » Death, Doom (lossy)')
+		assert.equal(data.contentCategory, 'Рок-музыка » Зарубежный Metal » Death, Doom (lossy)')
 	})
 });
