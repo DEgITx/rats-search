@@ -14,7 +14,8 @@ export const aboutMenuTemplateFunc = () => ({
 					parent: BrowserWindow.getFocusedWindow(),
 					modal: true,
 					webPreferences: {
-						nodeIntegration: true
+						nodeIntegration: true,
+						enableRemoteModule: true,
 					}
 				})
 				win.setMenu(null)
@@ -24,6 +25,7 @@ export const aboutMenuTemplateFunc = () => ({
 					slashes: true
 				}))
 				win.webContents.on('did-finish-load', () => {
+					logT('changelog', "finish load page, open changlog")
 					setTimeout(() => win.send('url', '/changelog'), 0)
 				});
 
