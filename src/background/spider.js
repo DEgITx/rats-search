@@ -262,7 +262,8 @@ module.exports = function (send, recive, dataDirectory, version, env)
 		}
 
 		const getServiceJson = (url) => new Promise((resolve) => {
-			http.get(url, (resp) => {
+			let timeout;
+			const req = http.get(url, (resp) => {
 				let data = '';
 
 				resp.on('data', (chunk) => {
@@ -270,6 +271,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				});
 
 				resp.on('end', () => {
+					clearTimeout(timeout);
 					try {
 						resolve(data.length > 0 && JSON.parse(data))
 					} catch(e) {
@@ -277,10 +279,16 @@ module.exports = function (send, recive, dataDirectory, version, env)
 						resolve(false)
 					}
 				});
-			}).on("error", (err) => {
+			});
+			req.on("error", (err) => {
+				clearTimeout(timeout);
 				logTE('http', `${url} error: ` + err.message)
 				resolve(false)
 			});
+			timeout = setTimeout(() => {
+				logTE('http', `${url} abort by time`)
+				req.destroy();
+			}, 3000) 
 		})
 
 		let p2pBootstrapLoop = null
@@ -333,7 +341,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 						return
 
 					loadBootstrapPeers('https://api.myjson.com/bins/1e5rmh')
-					loadBootstrapPeers('https://jsonblob.com/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa')    
+					loadBootstrapPeers('https://jsonblob.com/api/jsonBlob/4d22c8ba-5046-11eb-b13f-81fd0496c154')    
 				})
 			}
 
@@ -1031,19 +1039,31 @@ module.exports = function (send, recive, dataDirectory, version, env)
 								'Content-Type' : "application/json",
 							}
 						};
-						logT('close', 'bootstrap peers saved to', host)
-						const req = http.request(options, resolve);
-						req.on('error', resolve)
+						let timeout;
+						const req = http.request(options, () => {
+							logT('close', 'bootstrap peers saved to', host)
+							clearTimeout(timeout)
+							resolve()
+						});
+						req.on('error', () => {
+							logTE('close', 'cant save bootstrap pears to', host)
+							clearTimeout(timeout)
+							resolve()
+						})
 						req.end(JSON.stringify({
 							bootstrap: peersEncripted,
 							bootstrapMap: encryptor.encrypt(bootstrapMap),
 							relays: encryptor.encrypt(p2p.relays())
 						}))
+						setTimeout(() => {
+							logTE('close', 'abort by time', host)
+							req.destroy();
+						}, 4000)
 					})
 
 					await Promise.all([
 						saveBootstrapPeers('api.myjson.com', '/bins/1e5rmh'),
-						saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/013a4415-3533-11e8-8290-a901f3cf34aa')
+						saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/4d22c8ba-5046-11eb-b13f-81fd0496c154')
 					])
 				}
 			}
