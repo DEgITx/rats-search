@@ -1,4 +1,4 @@
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 platform:
   - x64
@@ -8,7 +8,7 @@ cache:
   - '%USERPROFILE%\.electron'
 
 install:
-  - ps: Install-Product node 8 x64
+  - ps: Install-Product node 14 x64
   - npm install
 
 build_script:
