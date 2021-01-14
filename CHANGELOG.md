@@ -1,3 +1,23 @@
+# [1.5.0](https://github.com/DEgITx/rats-search/compare/v1.4.2...v1.5.0) (2021-01-14)
+
+
+### Bug Fixes
+
+* **changelog:** fix changelog on new electron ([1d25ba0](https://github.com/DEgITx/rats-search/commit/1d25ba06e4be9265d4910cae56b653176ba36255))
+* **gui:** connection status fix detection in some situations ([1914e17](https://github.com/DEgITx/rats-search/commit/1914e1744500960478b1790335a51f4f70c9165a))
+* **relay:** ignore relays errors [#112](https://github.com/DEgITx/rats-search/issues/112) ([d977ecb](https://github.com/DEgITx/rats-search/commit/d977ecbf6ff58b5db50c774460cdece3d242e4d9))
+* **relay:** ignore some situations when relay not needed ([506e9f3](https://github.com/DEgITx/rats-search/commit/506e9f3c480d1d825363efd0b8fdc53d4522e7bd))
+* **server:** error handling for server [#112](https://github.com/DEgITx/rats-search/issues/112) ([81c61fb](https://github.com/DEgITx/rats-search/commit/81c61fb0012970f745451a1f56e43f1f809ccc6c))
+* **tests:** fix tests on new api ([6d58fde](https://github.com/DEgITx/rats-search/commit/6d58fdef1aa7d565a2a8c1d25360136e460b32bf))
+* **web:** fix web version ([d2569c3](https://github.com/DEgITx/rats-search/commit/d2569c3a869fb49cd2e44a9d034c5398b0c5f89b))
+
+
+### Features
+
+* **deps:** switch to new electron ([3d17004](https://github.com/DEgITx/rats-search/commit/3d170042890e77166f1fdceb09698d76036c7c30))
+* **relay:** bootstrap timeout ([8d48c80](https://github.com/DEgITx/rats-search/commit/8d48c80189fa92f08ccb615da14d70272dd3698c))
+* **update:** update everything to new versions ([57ee517](https://github.com/DEgITx/rats-search/commit/57ee51731e188236baecff0a2110ffcf50865c8e))
+
 ## [1.4.2](https://github.com/DEgITx/rats-search/compare/v1.4.1...v1.4.2) (2020-01-04)
 
 
