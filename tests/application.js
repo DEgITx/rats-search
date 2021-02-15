@@ -11,7 +11,18 @@ const startApplication = function() {
 		waitTimeout: 30000,
 		quitTimeout: 15000
 	});
-	return this.app.start();
+	return this.app.start().then(() => {
+		this.app.client.notExisting$ = async (selector) => {
+			const waitforTimeout = this.app.client.options.waitforTimeout;
+			this.app.client.options.waitforTimeout = 150;
+			await this.app.client.setTimeouts(this.app.client.options.waitforTimeout, this.app.client.options.waitforTimeout, this.app.client.options.waitforTimeout);
+			const notExistElement = await this.app.client.$(selector)
+			const isExist = await notExistElement.isExisting();
+			this.app.client.options.waitforTimeout = waitforTimeout;
+			await this.app.client.setTimeouts(this.app.client.options.waitforTimeout, this.app.client.options.waitforTimeout, this.app.client.options.waitforTimeout);
+			return !isExist
+		}
+	});
 };
 
 const stopApplication = function() {
