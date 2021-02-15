@@ -14,13 +14,19 @@ const startApplication = function() {
 	return this.app.start().then(() => {
 		this.app.client.notExisting$ = async (selector) => {
 			const waitforTimeout = this.app.client.options.waitforTimeout;
-			this.app.client.options.waitforTimeout = 150;
-			await this.app.client.setTimeouts(this.app.client.options.waitforTimeout, this.app.client.options.waitforTimeout, this.app.client.options.waitforTimeout);
-			const notExistElement = await this.app.client.$(selector)
-			const isExist = await notExistElement.isExisting();
-			this.app.client.options.waitforTimeout = waitforTimeout;
-			await this.app.client.setTimeouts(this.app.client.options.waitforTimeout, this.app.client.options.waitforTimeout, this.app.client.options.waitforTimeout);
-			return !isExist
+			try {
+				this.app.client.options.waitforTimeout = 150;
+				await this.app.client.setTimeouts(this.app.client.options.waitforTimeout, this.app.client.options.waitforTimeout, this.app.client.options.waitforTimeout);
+				const notExistElement = await this.app.client.$(selector)
+				const isExist = await notExistElement.isExisting();
+				this.app.client.options.waitforTimeout = waitforTimeout;
+				await this.app.client.setTimeouts(this.app.client.options.waitforTimeout, this.app.client.options.waitforTimeout, this.app.client.options.waitforTimeout);
+				return !isExist
+			} catch(error) {
+				this.app.client.options.waitforTimeout = waitforTimeout;
+				await this.app.client.setTimeouts(this.app.client.options.waitforTimeout, this.app.client.options.waitforTimeout, this.app.client.options.waitforTimeout);
+				return true;
+			}
 		}
 	});
 };
