@@ -165,6 +165,7 @@ const TorrentInformation = (props) => {
 			<ListItem
 				// leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
 				rightIcon={<ActionInfo />}
+				id="torrentSizeId"
 				primaryText={__('Torrent Size')}
 				secondaryText={formatBytes(torrent.size)}
 			/>
@@ -172,6 +173,7 @@ const TorrentInformation = (props) => {
 				// leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
 				rightIcon={<ActionInfo />}
 				primaryText={__('Torrent contains files')}
+				id="torrentFilesId"
 				secondaryText={torrent.files}
 				onClick={() => {
 					if(!props.parent)
@@ -463,7 +465,7 @@ export default class TorrentPage extends Page {
                       			e.preventDefault();
                       		}}
                       		icon={
-                      			<svg viewBox="0 0 56 56" fill='white'>
+                      			<svg viewBox="0 0 56 56" fill='white' id="downloadSvg">
                       				<g>
                       					<path d="M35.586,41.586L31,46.172V28c0-1.104-0.896-2-2-2s-2,0.896-2,2v18.172l-4.586-4.586c-0.781-0.781-2.047-0.781-2.828,0
                                 s-0.781,2.047,0,2.828l7.999,7.999c0.093,0.094,0.196,0.177,0.307,0.251c0.047,0.032,0.099,0.053,0.148,0.081
