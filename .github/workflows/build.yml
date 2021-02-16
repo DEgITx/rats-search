@@ -17,7 +17,7 @@ jobs:
           - 15
         architecture:
           - x64
-          - arm64
+#          - arm64   precompiled bits may not allow for this
         # an extra windows-x86 run:
 #        include:
 #          - os: windows-latest
