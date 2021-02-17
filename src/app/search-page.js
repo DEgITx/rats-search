@@ -6,6 +6,8 @@ import Search from './search'
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 
+import _ from 'lodash'
+
 export default class SearchPage extends Page {
 	constructor(props) {
 		super(props)
@@ -14,10 +16,32 @@ export default class SearchPage extends Page {
 	componentDidMount()
 	{
 		Search.instance().onSearchUpdate = () => this.forceUpdate()
+		window.torrentSocket.emit('downloads', (downloads) => {
+			for(const torrent of downloads) {
+				const hash = torrent.torrentObject.hash;
+				delete torrent.torrentObject;
+				let needUpdate = false;
+				const updateValues = (target) => {
+					let index = _.findIndex(target, {hash});
+					if(index >= 0) {
+						target[index].download = torrent
+						needUpdate = true;
+					}
+				}
+				updateValues(Search.instance().searchTorrents);
+				updateValues(Search.instance().searchFiles);
+				if (needUpdate)
+					this.forceUpdate()
+			}
+		})
 	}
 	componentWillUnmount()
 	{
 		Search.instance().onSearchUpdate = () => {}
+		for(const torrent of Search.instance().searchTorrents)
+			delete torrent.download
+		for(const torrent of Search.instance().searchFiles)
+			delete torrent.download
 	}
 	render() {
 		const orderText = (text, field) => {
