@@ -12,8 +12,6 @@ jobs:
           - macos-latest
           - windows-latest
         node_version:
-          - 10
-          - 12
           - 14
           - 15
         architecture:
@@ -28,6 +26,8 @@ jobs:
 #            node_version: 15
 #            architecture: arm64
     name: Node ${{ matrix.node_version }} - ${{ matrix.architecture }} on ${{ matrix.os }}
+    env:
+      GH_TOKEN: ${{ SECRETS.GH_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - name: Setup node
