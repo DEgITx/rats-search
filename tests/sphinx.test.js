@@ -61,6 +61,7 @@ describe("sphinx", () => {
 	})
 
 	it("query limit", function(done) {
+		this.timeout(8000);
 		const test = async () => {
 			const sphinx = await pool()
 			let promises = []

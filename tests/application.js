@@ -8,7 +8,7 @@ const startApplication = function() {
 		args: ["."],
 		chromeDriverArgs: ['remote-debugging-port=' + Math.floor(Math.random() * (9999 - 9000) + 9000)],
 		startTimeout: 30000,
-		waitTimeout: 30000,
+		waitTimeout: 60000,
 		quitTimeout: 15000
 	});
 	return this.app.start().then(() => {
