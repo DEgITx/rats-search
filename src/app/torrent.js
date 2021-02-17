@@ -169,24 +169,41 @@ export default class Torrent extends Component {
   	downloadRemoveOnDone: false,
   	downloadPaused: false,
   }
+  downloadInited = false;
+
   constructor(props)
   {
-  	super(props)
-
-  	const download = props.download || props.torrent.download
-  	if(download)
-  	{
-  		const { progress, downloaded, downloadSpeed, removeOnDone, paused } = download
-  		this.state.downloadProgress = {
-  			progress, downloaded, downloadSpeed
-  		}
-  		this.state.downloading = progress < 1
-  		this.state.downloaded = progress === 1
-  		this.state.downloadRemoveOnDone = removeOnDone
-  		this.state.downloadPaused = paused
-  	}
-      
+	super(props)
+	
+	const download = props.download || props.torrent.download;
+	this.updateDownload(download);
   	this.downloadPathInput = React.createRef();
+  }
+
+  updateDownload(download)
+  {
+	if(download)
+	{
+		const { progress, downloaded, downloadSpeed, removeOnDone, paused } = download
+		this.state.downloadProgress = {
+			progress, downloaded, downloadSpeed
+		}
+		this.state.downloading = progress < 1
+		this.state.downloaded = progress === 1
+		this.state.downloadRemoveOnDone = removeOnDone
+		this.state.downloadPaused = paused
+
+		this.downloadInited = true;
+	}
+  }
+
+  componentDidUpdate(prevProps)
+  {
+	  const download = this.props.download || this.props.torrent.download;
+	  if(prevProps && !prevProps.download && download && !this.downloadInited) {
+		this.updateDownload(download);
+		this.forceUpdate();
+	  }
   }
 
   componentDidMount()

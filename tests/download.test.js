@@ -36,15 +36,19 @@ describe("download", function() {
 	})
 
 	it("check download exists in download tab", async function() {
-		this.timeout(8000);
+		this.timeout(10000);
 		const { app } = this
 		await (await app.client.$('#downloadTab')).click()
 		const value = await (await app.client.$('.downloads-list .torrentRow .torrentName')).getText()
 		assert.equal(value, 'Roblox_setup.exe')
-		console.log('download progress', await (await app.client.$('.torrentRow .progressDownloading')).getText());
+		let progress = parseInt(await (await app.client.$('.torrentRow .progressDownloading')).getText());
+		console.log('download progress', progress, '%');
 		// cancel in progress button must be exists
-		assert(await (await app.client.$('.torrentRow .deleteDownloadBeforeFinish')).isExisting());
-		assert(await (await app.client.$('.torrentRow .pauseTorrent')).isExisting());
+		if (progress < 90) {
+			console.log('testing buttons')
+			assert(await (await app.client.$('.torrentRow .deleteDownloadBeforeFinish')).isExisting());
+			assert(await (await app.client.$('.torrentRow .pauseTorrent')).isExisting());
+		}
 		// back to recent search
 		await (await app.client.$('#open-recent-search')).click()
 		await app.client.$('.search-list')
@@ -57,7 +61,7 @@ describe("download", function() {
 		console.log('download progress', await (await app.client.$('.torrentRow .progressDownloading')).getText());
 		await app.client.waitUntil(async () => {
 			return (await (await app.client.$('.torrentRow .progressDownloading')).getText()) === '100.0%'
-		}, 60000, 'expected that download will be finished', 200)
+		}, 80000, 'expected that download will be finished', 200)
 		// There is some time before button will be replaced
 		await asyncWait(800);
 
@@ -100,7 +104,7 @@ describe("download", function() {
 	})
 
 	it("download file to folder", async function() {
-		this.timeout(60000);
+		this.timeout(90000);
 		const { app } = this
 		await (await app.client.$('#searchInput')).setValue('1413ba1915affdc3de7e1a81d6fdc32ef19395c9')
 		await (await app.client.$('#search')).click()
@@ -115,7 +119,7 @@ describe("download", function() {
 		// Downloading check
 		await app.client.waitUntil(async () => {
 			return (await (await app.client.$('.torrentRow .progressDownloading')).getText()) === '100.0%'
-		}, 60000, 'expected that download will be finished', 200)
+		}, 80000, 'expected that download will be finished', 200)
 		// Check downloaded to directory
 		assert(fs.existsSync(fileFolderTest));
 		assert.equal(await md5(fileFolderTest), '7df171da63e2013c9b17e1857615b192');
