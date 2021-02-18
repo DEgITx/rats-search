@@ -339,7 +339,24 @@ module.exports = async ({
 			if(rows.length === 0 && isSHA1 && !isP2P) // trying to get via dht
 			{
 				logT('search', 'get torrent via infohash with dht')
+				// double check torrent magnet
+				let secondTry = false;
+				const doubleCheckTimeout = setTimeout(() => {
+					secondTry = true;
+					logT('search', 'second try search by dht')
+					torrentClient.getMetadata(text, (torrent) => {
+						logT('search', 'dht search found something')
+						searchList.push(baseRowData(torrent));
+						callback(searchList);
+					})
+				}, 8000) 
 				torrentClient.getMetadata(text, (torrent) => {
+					clearTimeout(doubleCheckTimeout);
+					if(secondTry) {
+						logT('search', 'ignore search dht resopond because of second try')
+						return
+					}
+					logT('search', 'dht search found something')
 					searchList.push(baseRowData(torrent));
 					callback(searchList);
 				})
