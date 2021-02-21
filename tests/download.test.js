@@ -44,7 +44,7 @@ describe("download", function() {
 		let progress = parseInt(await (await app.client.$('.torrentRow .progressDownloading')).getText());
 		console.log('download progress', progress, '%');
 		// cancel in progress button must be exists
-		if (progress < 90) {
+		if (progress < 50) {
 			console.log('testing buttons')
 			assert(await (await app.client.$('.torrentRow .deleteDownloadBeforeFinish')).isExisting());
 			assert(await (await app.client.$('.torrentRow .pauseTorrent')).isExisting());
@@ -55,13 +55,13 @@ describe("download", function() {
 	})
 
 	it("wait until downloaded", async function() {
-		this.timeout(90000);
+		this.timeout(120000);
 		const { app } = this
 		await app.client.$('.torrentRow .progressDownloading')
 		console.log('download progress', await (await app.client.$('.torrentRow .progressDownloading')).getText());
 		await app.client.waitUntil(async () => {
 			return (await (await app.client.$('.torrentRow .progressDownloading')).getText()) === '100.0%'
-		}, 80000, 'expected that download will be finished', 200)
+		}, 100000, 'expected that download will be finished', 200)
 		// There is some time before button will be replaced
 		await asyncWait(800);
 
@@ -104,7 +104,7 @@ describe("download", function() {
 	})
 
 	it("download file to folder", async function() {
-		this.timeout(90000);
+		this.timeout(120000);
 		const { app } = this
 		await (await app.client.$('#searchInput')).setValue('1413ba1915affdc3de7e1a81d6fdc32ef19395c9')
 		await (await app.client.$('#search')).click()
@@ -119,7 +119,7 @@ describe("download", function() {
 		// Downloading check
 		await app.client.waitUntil(async () => {
 			return (await (await app.client.$('.torrentRow .progressDownloading')).getText()) === '100.0%'
-		}, 80000, 'expected that download will be finished', 200)
+		}, 100000, 'expected that download will be finished', 200)
 		// Check downloaded to directory
 		assert(fs.existsSync(fileFolderTest));
 		assert.equal(await md5(fileFolderTest), '7df171da63e2013c9b17e1857615b192');
