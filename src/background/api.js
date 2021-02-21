@@ -278,6 +278,7 @@ module.exports = async ({
 		return /[0-9a-f]+/i.test(hash)
 	}
 
+	let dhtCheckTimeout;
 	const searchTorrentCall = function(text, navigation, callback, isP2P)
 	{
 		if(typeof callback != 'function')
@@ -328,6 +329,11 @@ module.exports = async ({
 				where += ' and files > ' + sphinx.escape(navigation.files.min) + ' ';
 		}
 
+		if (dhtCheckTimeout) {
+			clearTimeout(dhtCheckTimeout);
+			dhtCheckTimeout = null;
+		}
+
 		let searchList = [];
 		const isSHA1 = isSH1Hash(text)
 		sphinx.query('SELECT * FROM `torrents` WHERE ' + (isSHA1 ? 'hash = ?' : 'MATCH(?)') + ' ' + where + ' ' + order + ' LIMIT ?,?', args, function (error, rows, fields) {
@@ -339,6 +345,31 @@ module.exports = async ({
 			if(rows.length === 0 && isSHA1 && !isP2P) // trying to get via dht
 			{
 				logT('search', 'get torrent via infohash with dht')
+				// 3 try to get torrent from metadata
+				const getTorrentMetadata = (tryCount = 4) => {
+					if(tryCount <= 0) {
+						logT('search', 'dht NOT found anything with dht', text);
+						return
+					}
+					let lock = false;
+					dhtCheckTimeout = setTimeout(() => {
+						lock = true
+						getTorrentMetadata(--tryCount)
+					}, 8000);
+					torrentClient.getMetadata(text, (torrent) => {
+						if(lock) {
+							logT('search', 'this dht response not actual for', text);
+							return
+						}
+						clearTimeout(dhtCheckTimeout);
+						dhtCheckTimeout = null;
+						logT('search', 'dht search found something on try', tryCount)
+						searchList.push(baseRowData(torrent));
+						callback(searchList);
+					})
+				}
+				getTorrentMetadata();
+
 				// double check torrent magnet
 				let secondTry = false;
 				const doubleCheckTimeout = setTimeout(() => {
@@ -350,16 +381,7 @@ module.exports = async ({
 						callback(searchList);
 					})
 				}, 8000) 
-				torrentClient.getMetadata(text, (torrent) => {
-					clearTimeout(doubleCheckTimeout);
-					if(secondTry) {
-						logT('search', 'ignore search dht resopond because of second try')
-						return
-					}
-					logT('search', 'dht search found something')
-					searchList.push(baseRowData(torrent));
-					callback(searchList);
-				})
+
 			}
 			else
 			{

@@ -5,7 +5,7 @@ const config = require('../src/background/config')
 const fs = require('fs')
 
 describe("details", function() {
-	this.timeout(30000);
+	this.timeout(60000);
 
 
 	it("open details", async function() {
