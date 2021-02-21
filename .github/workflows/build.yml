@@ -2,7 +2,7 @@ name: rats
 on: [push, pull_request]
 
 jobs:
-  build:
+  macwin:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -38,7 +38,46 @@ jobs:
       - run: npm run postinstall
       - run: npm run prebuild
       - run: npm run buildweb
-#      - run: npm run test (re-enable after fixing)
+      - run: npm run test
+      - run: npm run build
+      - uses: actions/upload-artifact@v2
+        with:
+          name: executable
+          path: dist/
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node_version: #Why bother with old node, right?
+          - 14
+          - 15
+        architecture:
+          - x64
+#          - arm64   precompiled bits may not allow for this
+        # an extra windows-x86 run:
+#        include:
+#          - os: windows-latest
+#            node_version: 15
+#            architecture: arm64
+#          - os: macos-latest
+#            node_version: 15
+#            architecture: arm64
+    name: Node ${{ matrix.node_version }} - ${{ matrix.architecture }} 
+    env:
+      GH_TOKEN: ${{ SECRETS.GH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node_version }}
+          architecture: ${{ matrix.architecture }}
+      - run: sudo apt install -y chromium
+      - run: npm install
+      - run: npm run postinstall
+      - run: npm run prebuild
+      - run: npm run buildweb
+      - run: npm run test 
       - run: npm run build
       - uses: actions/upload-artifact@v2
         with:
