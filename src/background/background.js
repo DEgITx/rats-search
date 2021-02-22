@@ -317,6 +317,7 @@ app.on("ready", async () => {
 							if(mainWindow)
 								mainWindow.webContents.send('callback', id, JSON.stringify(responce))
 						}
+						arg.push(id);
 					}
 					callback.apply(null, arg)
 				})

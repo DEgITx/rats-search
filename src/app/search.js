@@ -60,7 +60,7 @@ class Search extends Component {
 		if(this.state.advancedSearch && this.advanced)
 			searchTorrentsParams = Object.assign(searchTorrentsParams, this.advanced);
 
-		window.torrentSocket.emit('searchTorrent', oldSearch ? this.currentSearch : this.searchValue, searchTorrentsParams, window.customLoader((torrents) => {
+		this.searchTorrentId = window.torrentSocket.emit('searchTorrent', oldSearch ? this.currentSearch : this.searchValue, searchTorrentsParams, window.customLoader((torrents) => {
 			if(torrents) {
 				this.searchTorrents = torrents;
 				if(torrents.length != this.searchLimit)
@@ -86,7 +86,7 @@ class Search extends Component {
 		if(this.state.advancedSearch && this.advanced)
 			searchFilesParams = Object.assign(searchFilesParams, this.advanced);
     
-		window.torrentSocket.emit('searchFiles', oldSearch ? this.currentSearch : this.searchValue, searchFilesParams, window.customLoader((torrents) => {
+		this.searchFilesId = window.torrentSocket.emit('searchFiles', oldSearch ? this.currentSearch : this.searchValue, searchFilesParams, window.customLoader((torrents) => {
 			if(torrents) {
 				this.searchFiles = torrents;
 				let files = 0;
@@ -113,7 +113,7 @@ class Search extends Component {
 		this.setState({moreTorrentsIndicator: true});
 		this.onSearchUpdate('indicator')
 
-		window.torrentSocket.emit('searchTorrent', this.currentSearch, {
+		this.searchTorrentId = window.torrentSocket.emit('searchTorrent', this.currentSearch, {
 			index: this.searchTorrents.length,
 			limit: this.searchLimit, 
 			safeSearch: !this.notSafeSearch,
@@ -149,7 +149,7 @@ class Search extends Component {
 		this.setState({moreFilesIndicator: true});
 		this.onSearchUpdate('indicator')
 
-		window.torrentSocket.emit('searchFiles', this.currentSearch, {
+		this.searchFilesId = window.torrentSocket.emit('searchFiles', this.currentSearch, {
 			index: index,
 			limit: this.searchLimit, 
 			safeSearch: !this.notSafeSearch,
@@ -201,9 +201,14 @@ class Search extends Component {
 		window.torrentSocket.on('newStatistic', this.newStatisticFunc);
 
 		this.remoteSearchTorrent = (torrents) => {
-			if(!torrents)
+			if(!torrents || !torrents.torrents)
 				return
-      
+	  
+			if (this.searchTorrentId != torrents.id)
+				return
+
+			torrents = torrents.torrents
+
 			if(torrents.length === this.searchLimit)
 				this.moreSearchTorrents = true;
 
@@ -213,8 +218,13 @@ class Search extends Component {
 		window.torrentSocket.on('remoteSearchTorrent', this.remoteSearchTorrent);
 
 		this.remoteSearchFiles = (torrents) => {
-			if(!torrents)
+			if(!torrents || !torrents.torrents)
 				return
+			
+			if (this.searchFilesId != torrents.id)
+				return
+
+			torrents = torrents.torrents
 
 			if(torrents.length > 0 && this.calcTorrentsFiles(torrents) === this.searchLimit)
 				this.moreSearchFiles = true;

@@ -69,7 +69,10 @@ io.on('connection', (socket) =>
 {
 	for(const message in socketMessages)
 	{
-		socket.on(message, socketMessages[message])
+		socket.on(message, (...data) => {
+			const id = data.shift();
+			socketMessages[message](...data, id)
+		})
 	}
 })
 
