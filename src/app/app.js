@@ -16,6 +16,17 @@ if(typeof WEB !== 'undefined')
 {
 	const io = require("socket.io-client");
 	window.torrentSocket = io(document.location.protocol + '//' + document.location.hostname + (process.env.NODE_ENV === 'production' ? '/' : ':8095/'));
+	const emit = window.torrentSocket.emit.bind(window.torrentSocket);
+	window.torrentSocket.emit = (...data) => {
+		let id;
+		if(typeof data[data.length - 1] === 'function')
+		{
+			id = Math.random().toString(36).substring(5)
+		}
+		data.splice(1,0,id);
+		emit(...data)
+		return id
+	}
 }
 else
 {
@@ -50,13 +61,15 @@ else
 		}
 	}
 	window.torrentSocket.emit = (name, ...data) => {
+		let id;
 		if(typeof data[data.length - 1] === 'function')
 		{
-			const id = Math.random().toString(36).substring(5)
+			id = Math.random().toString(36).substring(5)
 			window.torrentSocket.callbacks[id] = data[data.length - 1];
 			data[data.length - 1] = {callback: id}
 		}
 		ipcRenderer.send(name, data)
+		return id
 	}
 	ipcRenderer.on('callback', (event, id, data) => {
 		const callback = window.torrentSocket.callbacks[id]

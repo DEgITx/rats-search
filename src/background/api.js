@@ -79,9 +79,9 @@ module.exports = async ({
 	}
 
 	const mergeTorrentsWithDownloadsFn = (Fn, copy) => (...args) => { 
-		const callback = args[args.length - 1]
-		const rest = args.slice(0, -1)
-		Fn(...rest, (data) => callback(mergeTorrentsWithDownloads(data, copy))) 
+		const callback = args[args.length - 2]
+		const rest = args.slice(0, -2)
+		Fn(...rest, (data) => callback(mergeTorrentsWithDownloads(data, copy)), args[args.length - 1]) 
 	}
 
 	const downloadFilesList = (torrent) => torrent.files.map((file, index) => ({
@@ -393,7 +393,7 @@ module.exports = async ({
 		});
 	}
 
-	recive('searchTorrent', mergeTorrentsWithDownloadsFn((text, navigation, callback) => {
+	recive('searchTorrent', mergeTorrentsWithDownloadsFn((text, navigation, callback, id) => {
 		searchTorrentCall(text, navigation, callback)
 		p2p.emit('searchTorrent', {text, navigation}, (remote, socketObject) => {
 			logT('search', 'remote search results', remote && remote.length)
@@ -403,7 +403,7 @@ module.exports = async ({
 				const peer = { address: socket.remoteAddress, port: socket.remotePort }
 				remote = remote.map(torrent => Object.assign(torrent, {peer}))
 			}
-			send('remoteSearchTorrent', mergeTorrentsWithDownloads(remote))
+			send('remoteSearchTorrent', {torrents: mergeTorrentsWithDownloads(remote), id})
 		})
 	}));
 
@@ -485,7 +485,7 @@ module.exports = async ({
 		});
 	}
 
-	recive('searchFiles', mergeTorrentsWithDownloadsFn((text, navigation, callback) => {
+	recive('searchFiles', mergeTorrentsWithDownloadsFn((text, navigation, callback, id) => {
 		searchFilesCall(text, navigation, callback)
 		p2p.emit('searchFiles', {text, navigation}, (remote, socketObject) => {
 			logT('search', 'remote search files results', remote && remote.length)
@@ -495,7 +495,7 @@ module.exports = async ({
 				const peer = { address: socket.remoteAddress, port: socket.remotePort }
 				remote = remote.map(torrent => Object.assign(torrent, {peer}))
 			}
-			send('remoteSearchFiles', mergeTorrentsWithDownloads(remote))
+			send('remoteSearchFiles', {torrents: mergeTorrentsWithDownloads(remote), id})
 		})
 	}));
 
