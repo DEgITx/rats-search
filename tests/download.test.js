@@ -48,6 +48,7 @@ describe("download", function() {
 			console.log('testing buttons')
 			assert(await (await app.client.$('.torrentRow .deleteDownloadBeforeFinish')).isExisting());
 			assert(await (await app.client.$('.torrentRow .pauseTorrent')).isExisting());
+			console.log('button tested buttons')
 		}
 		// back to recent search
 		await (await app.client.$('#open-recent-search')).click()
