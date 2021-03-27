@@ -36,7 +36,7 @@ describe("download", function() {
 	})
 
 	it("check download exists in download tab", async function() {
-		this.timeout(10000);
+		this.timeout(30000);
 		const { app } = this
 		await (await app.client.$('#downloadTab')).click()
 		const value = await (await app.client.$('.downloads-list .torrentRow .torrentName')).getText()
