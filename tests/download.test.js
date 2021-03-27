@@ -44,7 +44,7 @@ describe("download", function() {
 		let progress = parseInt(await (await app.client.$('.torrentRow .progressDownloading')).getText());
 		console.log('download progress', progress, '%');
 		// cancel in progress button must be exists
-		if (progress < 50) {
+		if (progress < 25) {
 			console.log('testing buttons')
 			assert(await (await app.client.$('.torrentRow .deleteDownloadBeforeFinish')).isExisting());
 			assert(await (await app.client.$('.torrentRow .pauseTorrent')).isExisting());
