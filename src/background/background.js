@@ -184,6 +184,7 @@ app.on("ready", async () => {
 			webPreferences: {
 				nodeIntegration: true,
 				enableRemoteModule: true,
+				contextIsolation: false,
 			}
 		});
 

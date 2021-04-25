@@ -114,7 +114,7 @@
     "detect-onebyte-encoding": "^1.0.3",
     "electron-context-menu": "^2.3.1",
     "electron-log": "^4.3.1",
-    "electron-updater": "^4.3.5",
+    "electron-updater": "^4.3.8",
     "fs-jetpack": "^4.1.0",
     "glob": "^7.1.6",
     "google": "^2.1.0",
@@ -154,8 +154,8 @@
     "chai": "^4.2.0",
     "copy-webpack-plugin": "^7.0.0",
     "css-loader": "^5.0.1",
-    "electron": "11.1.1",
-    "electron-builder": "22.9.1",
+    "electron": "11.4.3",
+    "electron-builder": "22.10.5",
     "eslint": "^7.17.0",
     "eslint-plugin-react": "^7.22.0",
     "express": "^4.17.1",
@@ -169,9 +169,9 @@
     "style-loader": "^2.0.0",
     "sw-precache-webpack-plugin": "^1.0.0",
     "url-loader": "^4.1.1",
-    "webpack": "^5.11.1",
+    "webpack": "^5.35.1",
     "webpack-cli": "^4.3.1",
     "webpack-merge": "^5.7.3",
-    "webpack-node-externals": "^2.5.2"
+    "webpack-node-externals": "^3.0.0"
   }
 }
