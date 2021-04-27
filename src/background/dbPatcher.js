@@ -21,7 +21,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 		await sphinx.query(`delete from version where id = 1`)
 		await sphinx.query(`insert into version(id, version) values(1, ${version})`)
 		if(sphinxApp)
-			fs.writeFileSync(`${sphinxApp.directoryPath}/version.vrs`, version)
+			fs.writeFileSync(`${sphinxApp.directoryPath}/version.vrs`, `${version}`)
 	}
     
 	let patchWindow;
