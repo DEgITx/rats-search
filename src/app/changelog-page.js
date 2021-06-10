@@ -19,7 +19,7 @@ export default class ChangeLog extends Page {
 	render() {
 		return (
 			<div className='pad0-75'>
-				<ReactMarkdown skipHtml={true} source={this.changelog} />
+				<ReactMarkdown skipHtml={true} children={this.changelog.toString()} />
 			</div>
 		);
 	}

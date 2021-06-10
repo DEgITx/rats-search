@@ -16,6 +16,7 @@ export const aboutMenuTemplateFunc = () => ({
 					webPreferences: {
 						nodeIntegration: true,
 						enableRemoteModule: true,
+						contextIsolation: false,
 					}
 				})
 				win.setMenu(null)
