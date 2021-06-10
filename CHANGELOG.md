@@ -1,3 +1,24 @@
+# [1.6.0](https://github.com/DEgITx/rats-search/compare/v1.5.0...v1.6.0) (2021-06-10)
+
+
+### Bug Fixes
+
+* **build:** fix build under windows ([4fb0bb4](https://github.com/DEgITx/rats-search/commit/4fb0bb4d1f9c6801660fa9b104fdb4ed5aebcf85))
+* **changelog:** fix changelog show ([61a8baa](https://github.com/DEgITx/rats-search/commit/61a8baa25abc5bd612df128503c999ec59c72bd4))
+* **db:** first run start fix [#142](https://github.com/DEgITx/rats-search/issues/142) ([af57a58](https://github.com/DEgITx/rats-search/commit/af57a58740fa6aa2dfb0e3ba2bc9e4e2890faf52))
+* **download:** fix download status in recent torrents ([4adbd5c](https://github.com/DEgITx/rats-search/commit/4adbd5c532af8880b5d2f7e5cb3eceb32dffd0ab))
+* **search:** double search on DHT ([f14cdcb](https://github.com/DEgITx/rats-search/commit/f14cdcb45337a6ecb5e12ab23f58ac06e6b3d970))
+* **search:** fix slow query wrong remote response on search ([2329b5a](https://github.com/DEgITx/rats-search/commit/2329b5aa828341145279dc82d32fef3b89755422))
+* **search:** improve search on magnet queries ([a871aed](https://github.com/DEgITx/rats-search/commit/a871aed35f46831f3cf967ca7e7adeb47c95c1a9))
+* **tests:** fix timeout testing ([826b3a7](https://github.com/DEgITx/rats-search/commit/826b3a789bccd6759603165957c9363ae3387713))
+
+
+### Features
+
+* **core:** update all deps ([4162dc7](https://github.com/DEgITx/rats-search/commit/4162dc79337681e4171dfe9aa21ea04ac7d5d57b))
+* **core:** update components ([7ceffc8](https://github.com/DEgITx/rats-search/commit/7ceffc8050e414a31b7236f77e35497d6d067138))
+* **test:** details test ([d02592e](https://github.com/DEgITx/rats-search/commit/d02592e8830fb8ead25385de8b65ca8bedfbacf5))
+
 # [1.5.0](https://github.com/DEgITx/rats-search/compare/v1.4.2...v1.5.0) (2021-01-14)
 
 
