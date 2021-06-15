@@ -10,7 +10,7 @@ const tempDir = jetpack.cwd("temp");
 const entryFilePath = tempDir.path("testsInit.js");
 
 const testsImports = testsDir
-  .find({ matching: "*.test.js" })
+  .find({ matching: process.env.TEST ? `${process.env.TEST}.test.js` : "*.test.js" })
   .reduce((fileContent, path) => {
     const normalizedPath = path.replace(/\\/g, "/");
     return `${fileContent}require("../tests/${normalizedPath}");\n`;
