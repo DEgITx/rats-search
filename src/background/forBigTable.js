@@ -5,7 +5,7 @@ module.exports = (sphinx, table, callback, doneCallback, max = 1000, where = '',
 				doneCallback(true)
 			done(true)
 		}
-		const data = await sphinx.query(`SELECT * FROM ${table} WHERE id > ${index} ${where} LIMIT ${max}`);
+		const data = await sphinx.query(`SELECT * FROM ${table} WHERE id > ${index} ${where} ORDER BY id ASC LIMIT ${max}`);
 		if(data.length == 0) {
 			finish()
 			return;
