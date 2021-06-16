@@ -66,9 +66,10 @@ describe("sphinx", () => {
 			const sphinx = await pool()
 			let promises = []
 			sphinx.query(`delete from feed where id >= 0`, () => {
-				for(let i = 0; i < 500; i++)
+				for(let i = 1; i < 501; i++)
 					promises.push(sphinx.query(`insert into feed(id, data) values(${i}, 'a')`))
-				Promise.all(promises).then(() => {
+				Promise.all(promises).then(async () => {
+					assert.equal((await sphinx.query(`select count(*) as cnt from feed`))[0].cnt, 500);
 					sphinx.query(`delete from feed where id >= 0`, async () => { 
 						await sphinx.end()
 						done() 
