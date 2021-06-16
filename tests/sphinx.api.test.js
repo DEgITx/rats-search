@@ -1,7 +1,7 @@
 import { assert } from "chai";
 const {pool} = require('../src/background/mysql')
 
-describe("big table for check", () => {
+describe("sphinx basic async api", () => {
 	let sphinx;
 
 	it("init", async function() {
