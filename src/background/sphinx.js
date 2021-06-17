@@ -106,7 +106,7 @@ const writeSphinxConfig = async (rootPath, dbPath, params = {}) => {
   {
     listen      = 127.0.0.1:${appConfig.sphinx.interfacePort}
     listen      = 127.0.0.1:${appConfig.sphinx.port}:mysql41
-    read_timeout    = 5
+    network_timeout    = 5
     max_children    = 30
     seamless_rotate   = 1
     preopen_indexes   = 1
