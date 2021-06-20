@@ -16,6 +16,8 @@ const detectOnebyteEncoding = require('detect-onebyte-encoding')
 const isOneByteEncoding = require('./detectOneByte')
 const {promisify} = require('util');
 const mkdirp = require('mkdirp')
+const mysql = require('./mysql')
+const asyncWait = require('./asyncWait')
 
 const findGoodPort = async (port, host) => {
 	while (!(await portCheck(port, host))) {
@@ -106,7 +108,6 @@ const writeSphinxConfig = async (rootPath, dbPath, params = {}) => {
   {
     listen      = 127.0.0.1:${appConfig.sphinx.interfacePort}
     listen      = 127.0.0.1:${appConfig.sphinx.port}:mysql41
-    network_timeout    = 5
     max_children    = 30
     seamless_rotate   = 1
     preopen_indexes   = 1
@@ -252,6 +253,11 @@ module.exports = async (callback, dataDirectory, onClose, params = {}) => {
 			{
 				sphinx.fixDatabase()
 			}
+
+			if(data.includes('indexes with meta prior to v.14 are no longer supported'))
+			{
+				sphinx.convertDatabase()
+			}
 	
 			if(windowsEncodingFix && data.includes('failed to parse config file'))
 			{
@@ -304,6 +310,90 @@ module.exports = async (callback, dataDirectory, onClose, params = {}) => {
 				resolve()
 			}
 		})
+
+		sphinx.convertDatabase = async () => {
+			if(sphinx.isExternal)
+				return
+
+			if(sphinx.fixing)
+				return
+			sphinx.fixing = true
+
+			// close db
+			await new Promise((resolve) => {
+				sphinx.stop(resolve, true)
+				logT('sphinx', 'revent start')
+			})
+
+			logT('sphinx', 'sphinx stoped')
+
+			const converterPath = path.resolve(appPath('index_converter'))
+			logT('dbconverter', 'Convert Path:', converterPath)
+
+			const binLogs = await findFiles(`${rootPath}/binlog.*`)
+			logT('dbconverter', 'remove ', binLogs)
+			if(binLogs)
+				binLogs.forEach(file => fs.unlinkSync(file));
+
+			logT('dbconverter', 'fixing ramchunks')
+			await new Promise((resolve) => {
+				const oldSphinxPath = path.resolve(appPath('searchd.v2'))
+				logT('dbconverter', 'old sphinx', oldSphinxPath);
+				const oldSphinxEXE = spawn(oldSphinxPath, ['--config', config]);
+
+				const tables = [];
+				oldSphinxEXE.stdout.on('data', async (data) => {
+					data = data.toString();
+					logT('sphinx', data);
+
+					const table = /precaching index '(\w+)'/.exec(data);
+					if(table)
+						tables.push(table[1]);
+
+					if (data.includes('accepting connections')) {
+						logT('sphinx', 'catched sphinx start')
+						const mydb = mysql.single();
+						for(const table of tables)
+							await mydb.query(`FLUSH RAMCHUNK ${table}`);
+						await mydb.end()
+						exec(`"${oldSphinxPath}" --config "${config}" --stopwait`)
+					}
+
+					if(data.includes('shutdown complete')) {
+						await asyncWait(200);
+						resolve();
+					}
+				});
+			});
+
+			logT('dbconverter', 'fixing ramchunks ok, start converting...')
+
+			await new Promise((resolve) => {
+				const converterEXE = spawn(converterPath, ['--config', config, '--all']);
+				converterEXE.stdout.on('data', (data) => {
+					data = data.toString();
+					logT('dbconverter', data);
+
+					if(data.includes('converted indexes')) {
+						resolve();
+					}
+				});
+			})
+
+			logT('dbconverter', 'database conveted');
+
+			// cleanup
+			const oldFiles = await findFiles(`${dbPath}/database/*.old.*`)
+			logT('dbconverter', 'remove ', oldFiles)
+			if(oldFiles)
+				oldFiles.forEach(file => fs.unlinkSync(file));
+
+			logT('dbconverter', 'cleanup finish');
+
+			// restart
+			sphinx.fixing = false
+			_.merge(sphinx, await sphinx.start(callback));
+		}
 
 		sphinx.fixDatabase = async () => {
 			if(sphinx.isExternal)
