@@ -118,6 +118,7 @@ const ExtesionBase = {
 	odg: ContentTypes.PICTURES,
 	vml: ContentTypes.PICTURES,
 	wmf: ContentTypes.PICTURES,
+	avif: ContentTypes.PICTURES,
 
 	cbr: ContentTypes.BOOKS,
 	cbz: ContentTypes.BOOKS,
