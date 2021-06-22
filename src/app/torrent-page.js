@@ -168,6 +168,14 @@ const TorrentInformation = (props) => {
 				id="torrentSizeId"
 				primaryText={__('Torrent Size')}
 				secondaryText={formatBytes(torrent.size)}
+				onClick={() => {
+					if(!props.parent)
+						return
+
+					props.parent.setState({
+						value: 'files'
+					})
+				}}
 			/>
 			<ListItem
 				// leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
