@@ -30,8 +30,12 @@ body {
 	width: 100%;
 }
 
-svg {
+svg:not(.main-svg) {
 	height: 1em;
+}
+
+.plotly .modebar {
+	display: none !important;
 }
 
 svg.iconmonstr {
