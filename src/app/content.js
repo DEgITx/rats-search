@@ -8,6 +8,18 @@ const ContentTypes = {
 	DISC: 'disc',
 }
 
+const ContentTypesColors = {
+	'video': '#1ee359',
+	'audio': '#1e94e3',
+	'pictures': '#e31ebc',
+	'books': '#e3d91e',
+	'application': '#e3561e',
+	'archive': '#1e25e3',
+	'disc': '#1ee381'
+}
+
+const niceTypeColor = (type) => ContentTypesColors[type];
+
 const ExtesionBase = {
 	webm: ContentTypes.VIDEO,
 	mkv: ContentTypes.VIDEO,
@@ -311,6 +323,7 @@ const torrentTypeDetect = (torrent, files) => {
 		torrent[ContentTypeProp] = priority[0];
 
 	detectSubCategory(torrent, files, typesPriority, torrent[ContentTypeProp]);
+	return typesPriority;
 }
 
-module.exports = {torrentTypeDetect, fileTypeDetect};
+module.exports = {torrentTypeDetect, fileTypeDetect, niceTypeColor};

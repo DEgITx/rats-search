@@ -21,6 +21,8 @@ import {fileTypeDetect} from './content'
 import {contentIcon} from './torrent'
 import TrackersImages from './trackers-images'
 import DownloadTorrentMenu from './download-torrent-menu'
+import {torrentTypeDetect, niceTypeColor} from './content';
+import Plot from 'react-plotly.js';
 
 let parseDescriptionText = (text) => {
 	return text.split("\n").map(function(item) {
@@ -263,7 +265,8 @@ export default class TorrentPage extends Page {
   			if(this.torrent.contentCategory == 'xxx') {
   				this.setMetaTag('robots', 'noindex');
   			}
-  			//this.forceUpdate(); // вызывается через searchingIndicator
+			this.torrent.filesTypesPriority = torrentTypeDetect(this.torrent, this.torrent.filesList);
+			//this.forceUpdate(); // вызывается через searchingIndicator
 
   			// Получаем более новую статистику пира
   			if((Date.now() / 1000) - this.torrent.trackersChecked > 10 * 60) {
@@ -292,6 +295,7 @@ export default class TorrentPage extends Page {
   			if(this.torrent)
   			{
   				this.torrent.filesList = filesList
+				this.torrent.filesTypesPriority = torrentTypeDetect(this.torrent, this.torrent.filesList);
   				this.forceUpdate()
   			}
   		}
@@ -444,9 +448,36 @@ export default class TorrentPage extends Page {
   									<div className='info-table'>
   										<TorrentInformation torrent={this.torrent} parent={this} />
   									</div>
-  									<div style={{flexBasis: '40%'}} className='column center w100p'>
+  									<div style={{flexBasis: '40%'}} className='info-table-right column center w100p'>
   										<img src={(this.torrent && this.torrent.info && this.torrent.info.poster) ? this.torrent.info.poster : NoImage} className='pad0-75' style={{height: '200px'}} />
   										<TrackersImages info={this.torrent && this.torrent.info} className='column' />
+										  {
+										   this.torrent.filesTypesPriority && Object.keys(this.torrent.filesTypesPriority).length > 0 && Object.keys(this.torrent.filesTypesPriority).filter((key) => this.torrent.filesTypesPriority[key] > 0.0002).length > 1
+										   &&
+										  <Plot
+											data={[
+											{
+												values: Object.values(this.torrent.filesTypesPriority).map(val => (val * 100).toFixed(2)),
+												labels: Object.keys(this.torrent.filesTypesPriority),
+												marker: {
+													colors: Object.keys(this.torrent.filesTypesPriority).map(val => niceTypeColor(val))
+												},
+												type: 'pie',
+												showlegend: false,
+												hiddenlabels: true,
+												textinfo: 'none',
+												displayModeBar: false
+											},
+											]}
+											layout={ {width: 120, height: 120, margin: {
+												l: 0,
+												r: 0,
+												b: 10,
+												t: 5,
+												pad: 0
+											}, autosize: false} }
+										/>
+  										}
   										<RaisedButton
   											href={`magnet:?xt=urn:btih:${this.torrent.hash}`}
   											target="_self"
