@@ -302,7 +302,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					if(peers && peers.length > 0)
 					{
 						peers.forEach(peer => p2p.add(peer))
-						logT('p2p', 'loaded', peers.length, 'peers from bootstrap')
+						logT('p2p', 'loaded', peers.length, 'peers from bootstrap from host', url)
 					}
 				}
 				if(json.bootstrapMap)
@@ -322,7 +322,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 							}
 						}
 					}
-					logT('p2p', 'loaded peers map from bootstrap')
+					logT('p2p', 'loaded peers map from bootstrap from host', url)
 				}
 				if(json.relays)
 				{
@@ -331,7 +331,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					{
 						relays.forEach(peer => p2p.add(peer, true))
 					}
-					logT('relay', 'loaded relays from bootstrap')
+					logT('relay', 'loaded relays', relays.length, 'from bootstrap from host', url)
 				}
 			}
 
@@ -341,7 +341,8 @@ module.exports = function (send, recive, dataDirectory, version, env)
 						return
 
 					loadBootstrapPeers('https://api.myjson.com/bins/1e5rmh')
-					loadBootstrapPeers('https://jsonblob.com/api/jsonBlob/4d22c8ba-5046-11eb-b13f-81fd0496c154')    
+					loadBootstrapPeers('https://jsonblob.com/api/jsonBlob/4d22c8ba-5046-11eb-b13f-81fd0496c154')
+					loadBootstrapPeers('https://getpantry.cloud/apiv1/pantry/2f760eeb-2e76-4ea0-804b-6032223086e1/basket/testBasket')  
 				})
 			}
 
@@ -1055,7 +1056,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 							bootstrapMap: encryptor.encrypt(bootstrapMap),
 							relays: encryptor.encrypt(p2p.relays())
 						}))
-						setTimeout(() => {
+						timeout = setTimeout(() => {
 							logTE('close', 'abort by time', host)
 							req.destroy();
 						}, 4000)
@@ -1063,7 +1064,8 @@ module.exports = function (send, recive, dataDirectory, version, env)
 
 					await Promise.all([
 						saveBootstrapPeers('api.myjson.com', '/bins/1e5rmh'),
-						saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/4d22c8ba-5046-11eb-b13f-81fd0496c154')
+						saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/4d22c8ba-5046-11eb-b13f-81fd0496c154'),
+						saveBootstrapPeers('getpantry.cloud', '/apiv1/pantry/2f760eeb-2e76-4ea0-804b-6032223086e1/basket/testBasket')
 					])
 				}
 			}
