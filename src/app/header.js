@@ -4,7 +4,13 @@ import Background from './images/pirate-mod.jpg'
 import RaisedButton from 'material-ui/RaisedButton';
 import Search from './search'
 import Tooltip from './tooltip'
+import ContextMenu from './context-menu'
 
+import createTorrent from 'create-torrent';
+import fs from 'fs'
+let dialog
+if(typeof WEB === 'undefined')
+	dialog = require('electron').remote.dialog
 class Header extends React.Component {
 	constructor(props)
 	{
@@ -46,6 +52,27 @@ class Header extends React.Component {
 	componentWillUnmount()
 	{
 		window.onscroll = null
+	}
+
+	generateTorrent(folder)
+	{
+		let path = dialog.showOpenDialogSync({properties: [folder ? "openDirectory" : "openFile"]})
+		if(path && path[0])
+		{
+			path = path[0]
+			createTorrent(path, (err, torrent) => {
+				if (!err) {
+					console.log('generated torrent size', torrent.length)
+					let savePath = dialog.showSaveDialogSync({title: 'Save generated torrent file', defaultPath: 'generated', filters: [
+						{ name: 'Torrent files', extensions: ['torrent'] },
+					  ]});
+					if(savePath) {
+						fs.writeFileSync(savePath, torrent)
+						console.log('saved', torrent.length, 'to', savePath)
+					}
+				}
+			})
+		}
 	}
 
 	render()
@@ -273,6 +300,27 @@ class Header extends React.Component {
 								</svg>
 								}
 							/>
+							{
+							dialog &&
+							<ContextMenu rightAlign={true} style={{zIndex: 1}} onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+								}} menu={[
+									{name: __('File'), click: () => this.generateTorrent(false)},
+									{name: __('Folder'), click: () => this.generateTorrent(true)},
+							]}>
+								<RaisedButton
+									label={__('Generate')}
+									backgroundColor='#eb9534'
+									labelColor='white'
+									style={{height: 60, width: 160, borderRadius: 5, margin: 5, zIndex: 1}}
+									buttonStyle={{borderRadius: 5}}
+									icon={
+										<svg fill='white' style={{height: 30}} viewBox="0 0 512 512"><path d="m437.02 74.98c-48.352-48.351-112.64-74.98-181.02-74.98s-132.668 26.629-181.02 74.98c-48.351 48.352-74.98 112.64-74.98 181.02s26.629 132.668 74.981 181.02c3.585 3.585 8.533 4.965 13.176 4.161.007.001.01.008.019.007l121.199-21.227c3.038-.532 5.838-1.987 8.019-4.168l194.918-194.919c5.858-5.858 5.858-15.355 0-21.213l-99.986-99.986c-5.857-5.858-15.355-5.858-21.213 0l-194.919 194.919c-2.182 2.181-3.637 4.982-4.169 8.02l-15.814 90.361c-29.97-39.169-46.211-86.821-46.211-136.975 0-124.617 101.383-226 226-226s226 101.383 226 226-101.383 226-226 226c-8.284 0-15 6.716-15 15s6.716 15 15 15c68.38 0 132.668-26.629 181.02-74.98 48.351-48.352 74.98-112.64 74.98-181.02s-26.629-132.668-74.98-181.02zm-320.419 261.234 59.176 59.175-71.73 12.563zm90.185 47.759-28.773-28.773 173.705-173.705 28.773 28.773zm94.933-252.478 28.787 28.787-173.706 173.705-28.786-28.787z"/></svg>
+									}
+								/>
+							</ContextMenu>
+							}
 							<div className='fs0-85 pad0-75 column search-panel' style={{
 								marginLeft: 'auto', 
 								marginTop: '-10px',

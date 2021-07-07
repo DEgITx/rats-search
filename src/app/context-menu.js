@@ -9,8 +9,8 @@ export default class ContextMenu extends Component {
 	render()
 	{
 		return (
-			<div style={{position: 'relative', display: 'inline-block'}}>
-				<div style={{display: 'inline-block'}} onClick={(e) => {
+			<div style={{position: 'relative', display: 'inline-block', zIndex: this.props.style?.zIndex || null}}>
+				<div style={{display: 'inline-block', zIndex: this.props.style?.zIndex || null}} onClick={(e) => {
 					this.setState({toggle: !this.state.toggle})
 					if(this.props.onClick)
 						this.props.onClick(e)

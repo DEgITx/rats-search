@@ -194,6 +194,9 @@
         "Performance settings": "Performance settings",
         "Start application minimized": "Start application minimized",
         "Magnet": "Magnet",
-        "You can extend your collected search DB with your own .torrent files. Just drag and drop them into the Rats window (or folder with them). They will immediately appear on activity tab.": "You can extend your collected search DB with your own .torrent files. Just drag and drop them into the Rats window (or folder with them). They will immediately appear on activity tab."
+        "You can extend your collected search DB with your own .torrent files. Just drag and drop them into the Rats window (or folder with them). They will immediately appear on activity tab.": "You can extend your collected search DB with your own .torrent files. Just drag and drop them into the Rats window (or folder with them). They will immediately appear on activity tab.",
+        "File": "File",
+        "Folder": "Folder",
+        "Generate": "Generate"
     }
 }
