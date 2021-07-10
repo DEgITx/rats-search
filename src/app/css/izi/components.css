@@ -85,7 +85,7 @@
 	}
 }
 
-@media only screen and (max-width: 912px) 
+@media only screen and (max-width: 1026px) 
 { 
 	.header-row {
 		flex-wrap: wrap;
