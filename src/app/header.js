@@ -69,6 +69,7 @@ class Header extends React.Component {
 					if(savePath) {
 						fs.writeFileSync(savePath, torrent)
 						console.log('saved', torrent.length, 'to', savePath)
+						torrentSocket.emit('dropTorrents', [{path: savePath}]);
 					}
 				}
 			})
