@@ -1,3 +1,29 @@
+# [1.7.0](https://github.com/DEgITx/rats-search/compare/v1.6.0...v1.7.0) (2021-07-11)
+
+
+### Bug Fixes
+
+* **db:** fix order in some cases for future db structure ([c97c981](https://github.com/DEgITx/rats-search/commit/c97c981d32834b026b2d55765bc5a1f7c07e2ebf))
+* **db:** rename deprecated option ([7c3150a](https://github.com/DEgITx/rats-search/commit/7c3150ae5719597e28a259f9bdca20688cb87904))
+* **donate:** change patreon to opencollective ([43fb546](https://github.com/DEgITx/rats-search/commit/43fb5461351bf963763b3c506caf7fe7095786ca))
+* **tests:** fix test on new db engine ([2bb0a7a](https://github.com/DEgITx/rats-search/commit/2bb0a7a48cbdb267f51eb5248794ea84535be51b))
+* **ui:** fix generate button size in ui ([d4913c1](https://github.com/DEgITx/rats-search/commit/d4913c17db03a61b3f13383c21a3f2a59e22c474))
+* **ui:** fix url for [#141](https://github.com/DEgITx/rats-search/issues/141) ([82ae0a9](https://github.com/DEgITx/rats-search/commit/82ae0a9bee5f7d24f3f170b9d092626365b6e858))
+
+
+### Features
+
+* **db:** new db patch ([a038f70](https://github.com/DEgITx/rats-search/commit/a038f70a28eca9ffc6850d9347901ec294df7cbd))
+* **db:** switch to new manticore ([94d537e](https://github.com/DEgITx/rats-search/commit/94d537eaca982343d659d2be8c4961e6d76afa72))
+* **discord:** enable webhook for discord channel support ([0c1b5e8](https://github.com/DEgITx/rats-search/commit/0c1b5e85a22dfecf58489c5d9f358e2d80b3202b))
+* **formats:** avif to formats ([83bc352](https://github.com/DEgITx/rats-search/commit/83bc3526ddb8fd427213498705f1ee14d9d87e1c))
+* **generate:** add generated torrent to search list after generation ([2939834](https://github.com/DEgITx/rats-search/commit/2939834c617c85fae7b39f84f539932c72df3396))
+* **p2p:** new bootstrap pear, also fix problem with bootstrap timeout ([7883aac](https://github.com/DEgITx/rats-search/commit/7883aacc3bfb20a7a0a4970c12070430256bcd5b))
+* **tests:** support custom test to run ([35d20bb](https://github.com/DEgITx/rats-search/commit/35d20bb37181b7cb8215a5994140cdecb831b1cb))
+* **torrent:** generation of torrent functionality ([9ce4bb5](https://github.com/DEgITx/rats-search/commit/9ce4bb5b727b8c98b11e6c3482d14aa31e9811ee))
+* **ui:** click on torrent size opens torrent files ([562a88e](https://github.com/DEgITx/rats-search/commit/562a88e1925fc17dbf22bd77ac67496748979770))
+* **ui:** show torrent pie of the content ([fe5cf3f](https://github.com/DEgITx/rats-search/commit/fe5cf3fe10ffbdbb1ec80e47f71293419891c1fb))
+
 # [1.6.0](https://github.com/DEgITx/rats-search/compare/v1.5.0...v1.6.0) (2021-06-10)
 
 
