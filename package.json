@@ -139,7 +139,8 @@
     "react-plotly.js": "^2.5.1",
     "simple-encryptor": "github:DEgITx/node-simple-encryptor",
     "stun": "1.1.0",
-    "webtorrent": "github:DEgITx/webtorrent"
+    "webtorrent": "github:DEgITx/webtorrent",
+    "create-torrent": "3.33.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",
