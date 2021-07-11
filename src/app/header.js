@@ -6,7 +6,9 @@ import Search from './search'
 import Tooltip from './tooltip'
 import ContextMenu from './context-menu'
 
-import createTorrent from 'create-torrent';
+let createTorrent;
+if(typeof WEB === 'undefined')
+	createTorrent = require('create-torrent')
 import fs from 'fs'
 let dialog
 if(typeof WEB === 'undefined')
