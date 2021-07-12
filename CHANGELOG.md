@@ -1,3 +1,12 @@
+## [1.7.1](https://github.com/DEgITx/rats-search/compare/v1.7.0...v1.7.1) (2021-07-12)
+
+
+### Bug Fixes
+
+* **core:** update to new version ([022b339](https://github.com/DEgITx/rats-search/commit/022b339b36929fb3569883d1aa0b4fbd301e51dd))
+* **ui:** fix blank screen on app start [#147](https://github.com/DEgITx/rats-search/issues/147) ([05d84df](https://github.com/DEgITx/rats-search/commit/05d84dfea35b13cf368bb8a5f6f851daf1fcdca9))
+* **web:** fixed compilation with create-torrent [#148](https://github.com/DEgITx/rats-search/issues/148) ([678a999](https://github.com/DEgITx/rats-search/commit/678a99945a1b0a4c914e955359d086b283f9ea4f))
+
 # [1.7.0](https://github.com/DEgITx/rats-search/compare/v1.6.0...v1.7.0) (2021-07-11)
 
 
