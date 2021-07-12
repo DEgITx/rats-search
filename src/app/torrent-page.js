@@ -22,7 +22,7 @@ import {contentIcon} from './torrent'
 import TrackersImages from './trackers-images'
 import DownloadTorrentMenu from './download-torrent-menu'
 import {torrentTypeDetect, niceTypeColor} from './content';
-import Plot from 'react-plotly.js';
+import { PieChart } from 'react-minimal-pie-chart';
 
 let parseDescriptionText = (text) => {
 	return text.split("\n").map(function(item) {
@@ -454,29 +454,21 @@ export default class TorrentPage extends Page {
 										  {
 										   this.torrent.filesTypesPriority && Object.keys(this.torrent.filesTypesPriority).length > 0 && Object.keys(this.torrent.filesTypesPriority).filter((key) => this.torrent.filesTypesPriority[key] > 0.0002).length > 1
 										   &&
-										  <Plot
-											data={[
-											{
-												values: Object.values(this.torrent.filesTypesPriority).map(val => (val * 100).toFixed(2)),
-												labels: Object.keys(this.torrent.filesTypesPriority),
-												marker: {
-													colors: Object.keys(this.torrent.filesTypesPriority).map(val => niceTypeColor(val))
-												},
-												type: 'pie',
-												showlegend: false,
-												hiddenlabels: true,
-												textinfo: 'none',
-												displayModeBar: false
-											},
-											]}
-											layout={ {width: 120, height: 120, margin: {
-												l: 0,
-												r: 0,
-												b: 10,
-												t: 5,
-												pad: 0
-											}, autosize: false} }
-										/>
+										  <PieChart
+										    style={{height: 128, margin: 5}}
+											data={
+												Object.keys(this.torrent.filesTypesPriority).map(type => ({
+													title: type,
+													value: this.torrent.filesTypesPriority[type],
+													color: niceTypeColor(type)
+												}))
+											}
+											label={({dataEntry}) => dataEntry.title }
+											labelStyle={{
+												fontSize: '0.55em',
+												fill: '#fff'
+											}}
+											/>
   										}
   										<RaisedButton
   											href={`magnet:?xt=urn:btih:${this.torrent.hash}`}
