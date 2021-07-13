@@ -29,6 +29,7 @@ BitTorrent search program for desktop and web. Collect and navigate over base of
 * Translations: English, Russian, Ukrainian, Chinese
 * Drag and drop torrents (expand local search database with specific torrents)
 * Descriptions association from trackers
+* Torrent generation and automatic adding to search DB
 
 ## Architecture
 ![Basic Architecture](docs/img/ratsarch.png)
@@ -44,7 +45,9 @@ We are welcome any contributing: bug fixes, improvements, code refactoring and o
 * [English](docs/USAGE.md)
 * [Russian](docs/USAGE.RU.md)
 
-## Server version install
+## Server webUI version installation
+Beside default desktop cross-platform client, also exist separated webUI that can run from server independant as web-client + Node.JS server.
+
 Clone repository, then make sure that you have Node.js and NPM (with Node.js) installed in your system, then:
 
 ```bash
@@ -71,11 +74,11 @@ Now you can get access to web interface on 8095 port: http://localhost:8095
 
 ## Donation
 
-[**Support Rats Search development on Patreon**](https://www.patreon.com/bePatron?c=1722368)
+[**Support Rats Search development on OpenCollective**](https://opencollective.com/RatsSearch)
 
 [**Support Rats Search via PayPal**](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=vasiliy.kosyanchuk@gmail.com&lc=US&item_name=Rats+Search+Development+Support&no_note=0&cn=&currency_code=USD&bn=PP-DonationsBF:btn_donateCC_LG.gif:NonHosted)
 
-**Support Rats Search via Yandex.Money**: 410012059502693
+**Support Rats Search via Yoo.Money**: 410012059502693
 
 ## Contacts / Support
 
