@@ -28,12 +28,18 @@ const stringHashCode = (str) => {
 	return hash;
 };
 
+const logFile = fs.createWriteStream('rats.log', {flags : 'w'});
+
 global.logT = (type, ...d) => {
+	const date = (new Date).toLocaleTimeString()
 	console.log(colors.fg.codes[Math.abs(stringHashCode(type)) % 256] + `[${type}]` + colors.reset + ' ' + util.format(...d));
+	logFile.write(`[${date}] ` + util.format(...d) + '\n');
 }
 
 global.logTE = (type, ...d) => {
+	const date = (new Date).toLocaleTimeString()
 	console.log(colors.fg.codes[Math.abs(stringHashCode(type)) % 256] + `[${type}]` + colors.reset + ' ' + colors.fg.codes[9] + util.format(...d) + colors.reset + '\n');
+	logFile.write(`[${date}] ` + util.format(...d) + '\n');
 }
 
 
