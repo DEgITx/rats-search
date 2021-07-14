@@ -45,6 +45,20 @@ We are welcome any contributing: bug fixes, improvements, code refactoring and o
 * [English](docs/USAGE.md)
 * [Russian](docs/USAGE.RU.md)
 
+## Download Desktop client
+By default we recomended using desktop version of application. [<b>Download and install most recent one</b>](https://github.com/DEgITx/rats-search/releases) for Windows, MacOS, Linux. 
+
+### Start desktop client from master branch
+Clone repository, then make sure that you have Node.js and NPM (with Node.js) installed in your system, then install all needed packages:
+
+```bash
+npm install
+```
+and start master develop branch version:
+```bash
+npm start
+```
+
 ## Server webUI version installation
 Beside default desktop cross-platform client, also exist separated webUI that can run from server independant as web-client + Node.JS server.
 
