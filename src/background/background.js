@@ -75,39 +75,12 @@ const util = require('util');
 if (!fs.existsSync(app.getPath("userData"))){
 	fs.mkdirSync(app.getPath("userData"));
 }
-const logFile = fs.createWriteStream(app.getPath("userData") + '/rats.log', {flags : 'w'});
-const logStdout = process.stdout;
 
-const colors = require('ansi-256-colors');
-const stringHashCode = (str) => {
-	let hash = 0, i, chr;
-	if (str.length === 0) 
-		return hash;
-	for (i = 0; i < str.length; i++) {
-		chr   = str.charCodeAt(i);
-		hash  = ((hash << 5) - hash) + chr;
-		hash |= 0; // Convert to 32bit integer
-	}
-	return hash;
-};
-
-console.log = (...d) => {
-	const date = (new Date).toLocaleTimeString()
-	logFile.write(`[${date}] ` + util.format(...d) + '\n');
-	logStdout.write(util.format(...d) + '\n');
-};
-
-global.logT = (type, ...d) => {
-	const date = (new Date).toLocaleTimeString()
-	logFile.write(`[${date}] [${type}] ` + util.format(...d) + '\n');
-	logStdout.write(colors.fg.codes[Math.abs(stringHashCode(type)) % 256] + `[${type}]` + colors.reset + ' ' + util.format(...d) + '\n');
-}
-
-global.logTE = (type, ...d) => {
-	const date = (new Date).toLocaleTimeString()
-	logFile.write(`\n[${date}] [ERROR] [${type}] ` + util.format(...d) + '\n\n');
-	logStdout.write(colors.fg.codes[Math.abs(stringHashCode(type)) % 256] + `[${type}]` + colors.reset + ' ' + colors.fg.codes[9] + util.format(...d) + colors.reset + '\n');
-}
+require('tagslog')({
+	logFile: app.getPath("userData") + '/rats.log',
+	stdout: (log) => process.stdout.write(log + '\n'),
+	overrideConsole: true
+});
 
 // print os info
 logT('system', 'Rats', app.getVersion())
