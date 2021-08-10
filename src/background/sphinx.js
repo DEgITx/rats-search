@@ -236,6 +236,7 @@ module.exports = async (callback, dataDirectory, onClose, params = {}) => {
 
 		const optimizeResolvers = {}
 
+		let needConvertation = false;
 		sphinx.stdout.on('data', (data) => {
 			logT('sphinx', `sphinx: ${data}`)
 
@@ -244,7 +245,12 @@ module.exports = async (callback, dataDirectory, onClose, params = {}) => {
 				return
 
 			if (data.includes('accepting connections')) {
-				logT('sphinx', 'catched sphinx start')
+				logT('sphinx', 'catched sphinx start');
+				// convertation for linux after start
+				if(needConvertation) {
+					sphinx.convertDatabase();
+					return;
+				}
 				if(callback)
 					callback()
 			}
@@ -256,7 +262,7 @@ module.exports = async (callback, dataDirectory, onClose, params = {}) => {
 
 			if(data.includes('indexes with meta prior to v.14 are no longer supported'))
 			{
-				sphinx.convertDatabase()
+				needConvertation = true;
 			}
 	
 			if(windowsEncodingFix && data.includes('failed to parse config file'))
@@ -295,8 +301,11 @@ module.exports = async (callback, dataDirectory, onClose, params = {}) => {
 			if(replaceFinish)
 				sphinx.replaceOnClose = true // sometime we don't want to call default callback
             
-			if (!sphinx.isExternal)
+			if (!sphinx.isExternal) 
+			{
+				logT('sphinx', `stoping with sphinx stopwait`);
 				exec(`"${sphinxPath}" --config "${config}" --stopwait`)
+			} 
 			else
 			{
 				logT('sphinx', `ignoring sphinx closing because external sphinx instance`)
@@ -312,12 +321,15 @@ module.exports = async (callback, dataDirectory, onClose, params = {}) => {
 		})
 
 		sphinx.convertDatabase = async () => {
+			logT('sphinx', 'found old database, starting convertiong process...');
 			if(sphinx.isExternal)
 				return
 
 			if(sphinx.fixing)
 				return
 			sphinx.fixing = true
+
+			logT('sphinx', 'run database convertation...');
 
 			// close db
 			await new Promise((resolve) => {
@@ -339,7 +351,12 @@ module.exports = async (callback, dataDirectory, onClose, params = {}) => {
 			await new Promise((resolve) => {
 				const oldSphinxPath = path.resolve(appPath('searchd.v2'))
 				logT('dbconverter', 'old sphinx', oldSphinxPath);
-				const oldSphinxEXE = spawn(oldSphinxPath, ['--config', config]);
+				let options = ['--config', config];
+				if(!(/^win/.test(process.platform)))
+				{
+					options.push('--nodetach')
+				}
+				const oldSphinxEXE = spawn(oldSphinxPath, options);
 
 				const tables = [];
 				oldSphinxEXE.stdout.on('data', async (data) => {
