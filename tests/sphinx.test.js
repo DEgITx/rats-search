@@ -17,11 +17,11 @@ describe("sphinx", () => {
 	})
 
 	it("insert",  function(done) {
-		sphinx.query("INSERT INTO files(id, hash, path, pathIndex, size) VALUES(50001, 'a', 'bashaa', 'bashaa', '50')", (err) => {
+		sphinx.query("INSERT INTO files(id, hash, path, size) VALUES(50001, 'a', 'bashaa', '50')", (err) => {
 			if(err)
 				throw new Error(err)
       
-			sphinx.query("INSERT INTO files(id, hash, path, pathIndex, size) VALUES(50002, 'b', 'biotu', 'biotu', '30')", (err) => {
+			sphinx.query("INSERT INTO files(id, hash, path, size) VALUES(50002, 'b', 'biotu', '30')", (err) => {
 				if(err)
 					throw new Error(err)
 
