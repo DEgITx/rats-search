@@ -48,10 +48,10 @@ const writeSphinxConfig = async (rootPath, dbPath, params = {}) => {
     rt_attr_uint = files
     rt_attr_uint = piecelength
     rt_attr_timestamp = added
-    rt_attr_string = ipv4
+    rt_field = ipv4
     rt_attr_uint = port
-    rt_attr_string = contentType
-    rt_attr_string = contentCategory
+    rt_field = contentType
+    rt_field = contentCategory
     rt_attr_uint = seeders
     rt_attr_uint = leechers
     rt_attr_uint = completed
@@ -60,19 +60,23 @@ const writeSphinxConfig = async (rootPath, dbPath, params = {}) => {
     rt_attr_uint = bad
     rt_attr_json = info
     
+	stored_only_fields = contentType, contentCategory, ipv4
+
     ngram_len = 1
     ngram_chars = U+3000..U+2FA1F
   }
 
   index files
   {
-      type = rt
-      path = ${dbPath}/database/files
+    type = rt
+    path = ${dbPath}/database/files
       
-      rt_attr_string = path
-      rt_field = pathIndex
+    rt_field = path
     rt_attr_string = hash
-    rt_attr_string = size
+    rt_field = size
+
+    stored_fields = path
+	stored_only_fields = size
   }
 
   index version
