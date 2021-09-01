@@ -606,7 +606,6 @@ module.exports = function (send, recive, dataDirectory, version, env)
 						id: torrent.id,
 						hash: torrent.hash,
 						path,
-						pathIndex: path,
 						size
 					}, function(err, result) {
 						if(!result) {

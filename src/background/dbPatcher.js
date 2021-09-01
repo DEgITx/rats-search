@@ -251,7 +251,6 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 				if(patchWindow)
 					patchWindow.webContents.send('reindex', {field: file.path, index: i++, all: files})
 
-				file.pathIndex = file.path
 				await sphinx.query(`DELETE FROM files WHERE id = ${file.id}`)
 				await sphinx.insertValues('files', file)
 			})
@@ -389,7 +388,6 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 						id: newId++,
 						hash,
 						path: filesMap[hash][0].path,
-						pathIndex: filesMap[hash][0].path,
 						size_new: filesMap[hash][0].size.toString()
 					});
 					logT('patcher', 'patched file', fileIndex, 'from', count, 'hash', hash, 'cIndex', ++hashCount);
@@ -437,7 +435,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 					return
 				file.size = file.size_new.toString();
 				delete file.size_new;
-				await sphinx.replaceValues('files', file, {particial: false, sphinxIndex: {pathIndex: 'path'}});
+				await sphinx.replaceValues('files', file, {particial: false});
 				if(patchWindow)
 					patchWindow.webContents.send('reindex', {field: file.id, index: fileIndex, all: count, longTime: false, canBreak: true})
 				logT('patcher', 'restore patched file', fileIndex++, 'from', count, 'hash', file.hash);
