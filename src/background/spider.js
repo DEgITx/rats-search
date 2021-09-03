@@ -28,7 +28,7 @@ const quotaDebug = _debug('main:quota');
 
 const checkInternet = require('./checkInternet')
 
-const {torrentTypeDetect} = require('../app/content');
+const {torrentTypeDetect, torrentTypeId, torrentIdToType, torrentCategoryId, torrentIdToCategory} = require('../app/content');
 
 const torrentClient = require('./torrentClient')
 const directoryFilesRecursive = require('./directoryFilesRecursive')
@@ -237,8 +237,8 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				filesList: row.filesList,
 				piecelength: row.piecelength,
 				added: row.added ? (typeof row.added === 'object' ? row.added.getTime() : row.added) : (new Date()).getTime(),
-				contentType: row.contentType || row.contenttype,
-				contentCategory: row.contentCategory || row.contentcategory,
+				contentType: torrentIdToType(row.contentType || row.contenttype),
+				contentCategory: torrentIdToCategory(row.contentCategory || row.contentcategory),
 				seeders: row.seeders,
 				completed: row.completed,
 				leechers: row.leechers,
@@ -469,13 +469,13 @@ module.exports = function (send, recive, dataDirectory, version, env)
 				}
 			}
 
-			if(torrent.contentType === 'bad')
+			if(torrentIdToType(torrent.contentType) === 'bad')
 			{
 				logT('check', 'ignore torrent', torrent.name, 'because this is a bad thing')
 				return false
 			}
 
-			if(config.filters.adultFilter && torrent.contentCategory === 'xxx')
+			if(config.filters.adultFilter && torrentIdToCategory(torrent.contentCategory) === 'xxx')
 			{
 				logT('check', 'ignore torrent', torrent.name, 'because adult filter')
 				return false
@@ -498,16 +498,19 @@ module.exports = function (send, recive, dataDirectory, version, env)
 
 		const setupTorrentRecord = (torrent) => {
 			// fix cases for low cases letters
-			if(torrent.contentcategory)
+			if(typeof torrent.contentcategory != 'undefined')
 			{
 				torrent.contentCategory = torrent.contentcategory;
 				delete torrent.contentcategory;
 			}
-			if(torrent.contenttype)
+			if(typeof torrent.contenttype != 'undefined')
 			{
 				torrent.contentType = torrent.contenttype;
 				delete torrent.contenttype;
 			}
+
+			torrent.contentType = torrentTypeId(torrent.contentType);
+			torrent.contentCategory = torrentCategoryId(torrent.contentCategory);
 
 			if(torrent.info && typeof torrent.info == 'string')
 			{
@@ -653,8 +656,8 @@ module.exports = function (send, recive, dataDirectory, version, env)
 								size: torrent.size,
 								files: torrent.files,
 								piecelength: torrent.piecelength,
-								contentType: torrent.contentType,
-								contentCategory: torrent.contentCategory,
+								contentType: torrentIdToType(torrent.contentType),
+								contentCategory: torrentIdToCategory(torrent.contentCategory),
 								info: torrent.info,
 							});
 						updateTorrentTrackers(torrent.hash);
