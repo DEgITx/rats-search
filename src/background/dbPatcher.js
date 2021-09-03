@@ -7,7 +7,7 @@ const fs  = require('fs')
 const glob = require("glob")
 const asyncForEach = require('./asyncForEach')
 
-const {torrentTypeDetect} = require('../app/content');
+const {torrentTypeDetect, torrentTypeId, torrentIdToType, torrentCategoryId, torrentIdToCategory} = require('../app/content');
 const startSphinx = require('./sphinx')
 
 
@@ -295,7 +295,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 					delete torrent.contenttype
 					torrent.filesList = (await sphinx.query(`SELECT * FROM files WHERE hash = '${torrent.hash}'`)) || []
 					torrentTypeDetect(torrent, torrent.filesList)
-					if(torrent.contentType == 'bad')
+					if(torrentIdToType(torrent.contentType) == 'bad')
 					{
 						logT('patcher', 'remove bad torrent', torrent.name)
 						bad++
