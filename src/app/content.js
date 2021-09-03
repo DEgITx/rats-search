@@ -6,6 +6,11 @@ const ContentTypes = {
 	APPLICATION: 'application',
 	ARCHIVE: 'archive',
 	DISC: 'disc',
+	BAD: 'bad'
+}
+
+const ContentCategories = {
+	XXX: 'xxx',
 }
 
 const ContentTypesColors = {
@@ -326,4 +331,18 @@ const torrentTypeDetect = (torrent, files) => {
 	return typesPriority;
 }
 
-module.exports = {torrentTypeDetect, fileTypeDetect, niceTypeColor};
+module.exports = {
+	torrentTypeDetect, 
+	fileTypeDetect, 
+	niceTypeColor,
+	torrentTypeId: (type) => {
+		const id = Object.values(ContentTypes).indexOf(type);
+		return id == -1 ? 0 : id + 1;
+	},
+	torrentIdToType: (id) => Object.values(ContentTypes)[id - 1],
+	torrentCategoryId: (type) => {
+		 const id = Object.values(ContentCategories).indexOf(type);
+		 return id == -1 ? 0 : id + 1;
+	},
+	torrentIdToCategory: (id) => Object.values(ContentCategories)[id - 1],
+};
