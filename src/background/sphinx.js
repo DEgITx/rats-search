@@ -50,8 +50,8 @@ const writeSphinxConfig = async (rootPath, dbPath, params = {}) => {
     rt_attr_timestamp = added
     rt_field = ipv4
     rt_attr_uint = port
-    rt_field = contentType
-    rt_field = contentCategory
+    rt_attr_uint = contentType
+    rt_attr_uint = contentCategory
     rt_attr_uint = seeders
     rt_attr_uint = leechers
     rt_attr_uint = completed
@@ -60,7 +60,7 @@ const writeSphinxConfig = async (rootPath, dbPath, params = {}) => {
     rt_attr_uint = bad
     rt_attr_json = info
     
-	stored_only_fields = contentType, contentCategory, ipv4
+	stored_only_fields = ipv4
 
     ngram_len = 1
     ngram_chars = U+3000..U+2FA1F

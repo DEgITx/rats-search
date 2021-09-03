@@ -7,6 +7,7 @@ const asyncForEach = require('./asyncForEach')
 const cpuUsage = require('./bt/cpu-usage-global')
 const magnetParse = require('./magnetParse')
 const parseTorrentFiles = require('./parsetTorrentFiles')
+const {torrentTypeId, torrentIdToType, torrentCategoryId, torrentIdToCategory} = require('../app/content');
 
 module.exports = async ({
 	sphinx,
@@ -308,11 +309,11 @@ module.exports = async ({
 		}
 		if(safeSearch)
 		{
-			where += " and contentCategory != 'xxx' ";
+			where += ` and contentCategory != ${torrentCategoryId('xxx')} `;
 		}
 		if(navigation.type && navigation.type.length > 0)
 		{
-			where += ' and contentType = ' + sphinx.escape(navigation.type) + ' ';
+			where += ' and contentType = ' + torrentTypeId(navigation.type) + ' ';
 		}
 		if(navigation.size)
 		{
@@ -525,7 +526,7 @@ module.exports = async ({
 
 		if(type && type.length > 0)
 		{
-			where += ' and contentType = ' + sphinx.escape(type) + ' ';
+			where += ' and contentType = ' + torrentTypeId(type) + ' ';
 		}
 
 		if(time)
@@ -544,7 +545,7 @@ module.exports = async ({
 			}
 		}
         
-		const query = `SELECT * FROM torrents WHERE seeders > 0 and contentCategory != 'xxx' ${where} ORDER BY seeders DESC LIMIT ${index},${limit}`;
+		const query = `SELECT * FROM torrents WHERE seeders > 0 and contentCategory != ${torrentCategoryId('xxx')} ${where} ORDER BY seeders DESC LIMIT ${index},${limit}`;
 		if(topCache[query])
 		{
 			callback(topCache[query]);
