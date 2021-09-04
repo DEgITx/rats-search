@@ -11,7 +11,7 @@ const {torrentTypeDetect, torrentTypeId, torrentIdToType, torrentCategoryId, tor
 const startSphinx = require('./sphinx')
 
 
-const currentVersion = 7
+const currentVersion = 8
 
 
 module.exports = async (callback, mainWindow, sphinxApp) => {
@@ -120,7 +120,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 	const patch = async (version) => {
 		logT('patcher', 'db version', version)
 
-		const rebuildTorrentsFull = async () => {
+		const rebuildFull = async (table = 'torrents', patchFunction = (torrent) => torrent.nameIndex = torrent.name) => {
 
 			if(sphinxApp.isExternal)
 			{
@@ -129,30 +129,30 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 			}
 
 			let i = 1
-			const torrents = (await sphinx.query("SELECT COUNT(*) AS c FROM torrents"))[0].c
+			const torrents = (await sphinx.query(`SELECT COUNT(*) AS c FROM ${table}`))[0].c
 
 			let torrentsArray = []
 
 			let patch = 1
-			await forBigTable(sphinx, 'torrents', async (torrent) => {
-				logT('patcher', 'remember index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
+			await forBigTable(sphinx, table, async (torrent) => {
+				logT('patcher', 'remember index', torrent.id, torrent.name || torrent.hash, '[', i, 'of', torrents, ']')
 				if(patchWindow)
-					patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
+					patchWindow.webContents.send('reindex', {field: torrent.name || torrent.hash, index: i++, all: torrents, torrent: true})
 
 				torrentsArray.push(torrent)
 				// keep memory safe
 				if(torrentsArray.length >= 20000)
 				{
-					fs.writeFileSync(`${sphinxApp.directoryPath}/torrents.patch.${patch++}`, JSON.stringify(torrentsArray, null, 4), 'utf8');
-					logT('patcher', 'write torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${patch - 1}`)
+					fs.writeFileSync(`${sphinxApp.directoryPath}/${table}.patch.${patch++}`, JSON.stringify(torrentsArray, null, 4), 'utf8');
+					logT('patcher', `write ${table} dump`, `${sphinxApp.directoryPath}/${table}.patch.${patch - 1}`)
 					torrentsArray = []
 				}
 			})
 			// keep last elemets
 			if(torrentsArray.length > 0)
 			{
-				fs.writeFileSync(`${sphinxApp.directoryPath}/torrents.patch.${patch}`, JSON.stringify(torrentsArray, null, 4), 'utf8');
-				logT('patcher', 'write torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${patch}`)
+				fs.writeFileSync(`${sphinxApp.directoryPath}/${table}.patch.${patch}`, JSON.stringify(torrentsArray, null, 4), 'utf8');
+				logT('patcher', 'write torrents dump', `${sphinxApp.directoryPath}/${table}.patch.${patch}`)
 				torrentsArray = []
 			}
 			else
@@ -170,44 +170,45 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 			logT('patcher', 'sphinx stoped for patching')
 
 			await new Promise((resolve) => {
-				glob(`${sphinxApp.directoryPathDb}/torrents.*`, function (er, files) {
+				glob(`${sphinxApp.directoryPathDb}/${table}.*`, function (er, files) {
 					files.forEach(file => {
-						logT('patcher', 'clear torrents file', file)
+						logT('patcher', `clear ${table} file`, file)
 						fs.unlinkSync(path.resolve(file))
 					})
 					resolve()
 				})
 			})
 
-			logT('patcher', 'cleaned torrents db structure, rectreating again')
+			logT('patcher', `cleaned ${table} db structure, rectreating again`)
 			i = 1
 			await new Promise(async (resolve) => {
 				// reopen sphinx
-				sphinxApp = await sphinxApp.start(async () => {
+				const spRun = await sphinxApp.start(async () => {
 					sphinx = await single().waitConnection()
 					resolve()
 				}) // same args
+				sphinxApp = spRun.sphinx;
 			})
 
 			logT('patcher', 'sphinx restarted, patch db now')
 
 			for(let k = 1; k <= patch; k++)
 			{
-				torrentsArray = JSON.parse(fs.readFileSync(`${sphinxApp.directoryPath}/torrents.patch.${k}`, 'utf8'))
-				logT('patcher', 'read torrents dump', `${sphinxApp.directoryPath}/torrents.patch.${k}`)
+				torrentsArray = JSON.parse(fs.readFileSync(`${sphinxApp.directoryPath}/${table}.patch.${k}`, 'utf8'))
+				logT('patcher', 'read torrents dump', `${sphinxApp.directoryPath}/${table}.patch.${k}`)
 				await asyncForEach(torrentsArray, async (torrent) => {
-					logT('patcher', 'update index', torrent.id, torrent.name, '[', i, 'of', torrents, ']')
+					logT('patcher', 'update index', torrent.id, torrent.name || torrent.hash, '[', i, 'of', torrents, ']')
 					if(patchWindow)
 						patchWindow.webContents.send('reindex', {field: torrent.name, index: i++, all: torrents, torrent: true})
 
-					torrent.nameIndex = torrent.name
-					await sphinx.query(`DELETE FROM torrents WHERE id = ${torrent.id}`)
-					await sphinx.insertValues('torrents', torrent)
+					patchFunction(torrent);
+					//await sphinx.query(`DELETE FROM ${table} WHERE id = ${torrent.id}`)
+					await sphinx.insertValues(table, torrent)
 				})
 			}
 
 			await new Promise((resolve) => {
-				glob(`${sphinxApp.directoryPath}/torrents.patch.*`, function (er, files) {
+				glob(`${sphinxApp.directoryPath}/${table}.patch.*`, function (er, files) {
 					files.forEach(file => {
 						logT('patcher', 'clear dump file', file)
 						fs.unlinkSync(path.resolve(file))
@@ -218,11 +219,11 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 
 			torrentsArray = null
 
-			logT('patcher', 'optimizing torrents')
+			logT('patcher', `optimizing ${table}`)
 			if(patchWindow)
-				patchWindow.webContents.send('optimize', {field: 'torrents'})
-			sphinx.query(`OPTIMIZE INDEX torrents`)
-			await sphinxApp.waitOptimized('torrents')
+				patchWindow.webContents.send('optimize', {field: table})
+			sphinx.query(`OPTIMIZE INDEX ${table}`)
+			await sphinxApp.waitOptimized(table)
 		}
 
 		switch(version)
@@ -251,6 +252,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 				if(patchWindow)
 					patchWindow.webContents.send('reindex', {field: file.path, index: i++, all: files})
 
+				file.pathIndex = file.path
 				await sphinx.query(`DELETE FROM files WHERE id = ${file.id}`)
 				await sphinx.insertValues('files', file)
 			})
@@ -295,7 +297,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 					delete torrent.contenttype
 					torrent.filesList = (await sphinx.query(`SELECT * FROM files WHERE hash = '${torrent.hash}'`)) || []
 					torrentTypeDetect(torrent, torrent.filesList)
-					if(torrentIdToType(torrent.contentType) == 'bad')
+					if(torrent.contentType == 'bad')
 					{
 						logT('patcher', 'remove bad torrent', torrent.name)
 						bad++
@@ -312,13 +314,13 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 		case 4:
 		{
 			openPatchWindow()
-			await rebuildTorrentsFull()
+			await rebuildFull()
 			await setVersion(5)
 		}
 		case 5:
 		{
 			openPatchWindow()
-			await rebuildTorrentsFull()
+			await rebuildFull()
 			await setVersion(6)
 		}
 		case 6:
@@ -388,6 +390,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 						id: newId++,
 						hash,
 						path: filesMap[hash][0].path,
+						pathIndex: filesMap[hash][0].path,
 						size_new: filesMap[hash][0].size.toString()
 					});
 					logT('patcher', 'patched file', fileIndex, 'from', count, 'hash', hash, 'cIndex', ++hashCount);
@@ -435,7 +438,7 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 					return
 				file.size = file.size_new.toString();
 				delete file.size_new;
-				await sphinx.replaceValues('files', file, {particial: false});
+				await sphinx.replaceValues('files', file, {particial: false, sphinxIndex: {pathIndex: 'path'}});
 				if(patchWindow)
 					patchWindow.webContents.send('reindex', {field: file.id, index: fileIndex, all: count, longTime: false, canBreak: true})
 				logT('patcher', 'restore patched file', fileIndex++, 'from', count, 'hash', file.hash);
@@ -446,6 +449,17 @@ module.exports = async (callback, mainWindow, sphinxApp) => {
 
 			sphinx.query(`OPTIMIZE INDEX files`)
 			await sphinxApp.waitOptimized('files')
+		}
+		case 7:
+		{
+			openPatchWindow()
+			await rebuildFull('torrents', (torrent) => {
+				torrent.nameIndex = torrent.name
+				torrent.contenttype = torrentTypeId(torrent.contenttype);
+				torrent.contentcategory = torrentCategoryId(torrent.contentcategory);
+			});
+			await rebuildFull('files', (file) => {});
+			await setVersion(8)
 		}
 		}
 		logT('patcher', 'db patch done')
