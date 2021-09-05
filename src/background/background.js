@@ -22,6 +22,7 @@ import env from "env";
 import fs from 'fs';
 
 // plugins and dev tool
+require('@electron/remote/main').initialize()
 require('electron-context-menu')({})
 
 // Save userData in separate folders for each environment.

@@ -105,6 +105,7 @@
     "buildweb": "node src/background/webpack.js"
   },
   "dependencies": {
+    "@electron/remote": "^1.2.1",
     "ansi-256-colors": "^1.1.0",
     "bencode": "^2.0.1",
     "bitfield": "^3.0.0",
@@ -157,7 +158,7 @@
     "chai": "^4.3.4",
     "copy-webpack-plugin": "^9.0.0",
     "css-loader": "^5.2.6",
-    "electron": "13.1.6",
+    "electron": "14.0.0",
     "electron-builder": "22.11.7",
     "eslint": "^7.28.0",
     "eslint-plugin-react": "^7.24.0",
