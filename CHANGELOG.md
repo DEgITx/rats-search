@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/DEgITx/rats-search/compare/v1.8.0...v1.8.1) (2021-09-22)
+
+
+### Bug Fixes
+
+* **windows:** missed library [#154](https://github.com/DEgITx/rats-search/issues/154) ([b23b9c7](https://github.com/DEgITx/rats-search/commit/b23b9c7c139e56503e8ebcf9078541f829ed740c))
+
 # [1.8.0](https://github.com/DEgITx/rats-search/compare/v1.7.1...v1.8.0) (2021-09-12)
 
 
