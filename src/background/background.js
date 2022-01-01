@@ -147,6 +147,8 @@ autoUpdater.on('update-downloaded', () => {
 
 let tray = undefined
 
+require('@electron/remote/main').initialize();
+
 app.on("ready", async () => {
 	let rootPath;
 	({ sphinx, rootPath } = await startSphinx(() => {
@@ -223,6 +225,8 @@ app.on("ready", async () => {
 
 			tray.setContextMenu(contextMenu)
 			tray.setToolTip('Rats on The Boat search')
+
+			require("@electron/remote/main").enable(mainWindow.webContents);
 
 			mainWindow.webContents.on('will-navigate', (e, url) => { 
 				e.preventDefault() 

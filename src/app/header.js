@@ -12,7 +12,7 @@ if(typeof WEB === 'undefined')
 import fs from 'fs'
 let dialog
 if(typeof WEB === 'undefined')
-	dialog = require('electron').remote.dialog
+	dialog = require('@electron/remote').dialog
 class Header extends React.Component {
 	constructor(props)
 	{

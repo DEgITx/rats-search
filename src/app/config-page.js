@@ -11,7 +11,7 @@ import SvgIcon from 'material-ui/SvgIcon';
 import fs from 'fs'
 let dialog
 if(typeof WEB === 'undefined')
-	dialog = require('electron').remote.dialog
+	dialog = require('@electron/remote').dialog
 
 export default class ConfigPage extends Page {
 	constructor(props) {
