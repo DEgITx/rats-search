@@ -30,7 +30,8 @@ if(typeof WEB !== 'undefined')
 }
 else
 {
-	const { ipcRenderer, remote } = require('electron');
+	const { ipcRenderer } = require('electron');
+	const remote = require('@electron/remote')
 	window.currentWindow = remote.getCurrentWindow()
 
 	window.torrentSocket = {}

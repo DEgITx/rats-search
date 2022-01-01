@@ -25,6 +25,7 @@ export const aboutMenuTemplateFunc = () => ({
 					protocol: "file:",
 					slashes: true
 				}))
+				require("@electron/remote/main").enable(win.webContents);
 				win.webContents.on('did-finish-load', () => {
 					logT('changelog', "finish load page, open changlog")
 					setTimeout(() => win.send('url', '/changelog'), 0)

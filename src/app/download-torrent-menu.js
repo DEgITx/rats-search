@@ -3,7 +3,7 @@ import ContextMenu from './context-menu'
 
 let dialog
 if(typeof WEB === 'undefined')
-	dialog = require('electron').remote.dialog
+	dialog = require('@electron/remote').dialog
 
 export default (props) => {
 	return (
