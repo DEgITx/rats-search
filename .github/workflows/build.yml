@@ -53,6 +53,6 @@ jobs:
           path: dist/
       - uses: nelonoel/branch-name@v1.0.1
       - name: Deploy release (MacOS)
-        if: ${{ matrix.node_version }} == 16 && ${BRANCH_NAME} == 'master' && runner.os == 'macOS' && ${{ github.event.head_commit.message }} == 'release'
+        if: matrix.node_version == 16 && env.BRANCH_NAME == 'master' && runner.os == 'macOS' && github.event.head_commit.message == 'release'
         run: |
           npx semantic-release@17
