@@ -1,3 +1,32 @@
+## [1.8.1](https://github.com/DEgITx/rats-search/compare/v1.8.0...v1.8.1) (2021-09-22)
+
+
+### Bug Fixes
+
+* **windows:** missed library [#154](https://github.com/DEgITx/rats-search/issues/154) ([b23b9c7](https://github.com/DEgITx/rats-search/commit/b23b9c7c139e56503e8ebcf9078541f829ed740c))
+
+# [1.8.0](https://github.com/DEgITx/rats-search/compare/v1.7.1...v1.8.0) (2021-09-12)
+
+
+### Bug Fixes
+
+* **db:** converting db to version 8 ([c19a95d](https://github.com/DEgITx/rats-search/commit/c19a95dc1c2e12eed1bfa79fc4d0b4d7605a28ec))
+* **db:** moving content type to uint values ([f4b7a8d](https://github.com/DEgITx/rats-search/commit/f4b7a8d57766a65e1d33196086159b1ab5152b88))
+* **docker:** moved to 16 version ([1089fa3](https://github.com/DEgITx/rats-search/commit/1089fa347e969c7c914cb6f51ff258c7cff4105e))
+* **linux:** add execute right to searchd.v2 [#152](https://github.com/DEgITx/rats-search/issues/152) ([0bc35c5](https://github.com/DEgITx/rats-search/commit/0bc35c53916d0796c133f235050512d8b9d542b8))
+* **linux:** fix convertation of db under linux system [#152](https://github.com/DEgITx/rats-search/issues/152) ([ea01858](https://github.com/DEgITx/rats-search/commit/ea0185874678f8244b7d981354853d94a450212e))
+
+
+### Features
+
+* **log:** using tagslog ([750dbfd](https://github.com/DEgITx/rats-search/commit/750dbfd477396f4316ec4970eef32262fd16c1b4))
+* **server:** missing rats.log functionality restored [#145](https://github.com/DEgITx/rats-search/issues/145) ([d5243ff](https://github.com/DEgITx/rats-search/commit/d5243ff88ff2e41c984a5fd48cd64767cbdb1e90))
+
+
+### Performance Improvements
+
+* **db:** optimize some tables to stored_only_fields to recrudesce memory usage of big databases [#152](https://github.com/DEgITx/rats-search/issues/152) ([762b0d1](https://github.com/DEgITx/rats-search/commit/762b0d163bb2b9a4f4410d8d7740b9c497b34017))
+
 ## [1.7.1](https://github.com/DEgITx/rats-search/compare/v1.7.0...v1.7.1) (2021-07-12)
 
 
