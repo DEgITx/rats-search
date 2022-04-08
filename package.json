@@ -128,7 +128,7 @@
     "material-ui": "^0.20.2",
     "mime": "^3.0.0",
     "mkdirp": "^1.0.4",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "mysql": "^2.18.1",
     "nat-upnp": "^1.1.1",
     "node-fetch": "^2.6.1",
