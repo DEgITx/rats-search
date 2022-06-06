@@ -370,19 +370,6 @@ module.exports = async ({
 					})
 				}
 				getTorrentMetadata();
-
-				// double check torrent magnet
-				let secondTry = false;
-				const doubleCheckTimeout = setTimeout(() => {
-					secondTry = true;
-					logT('search', 'second try search by dht')
-					torrentClient.getMetadata(text, (torrent) => {
-						logT('search', 'dht search found something')
-						searchList.push(baseRowData(torrent));
-						callback(searchList);
-					})
-				}, 8000) 
-
 			}
 			else
 			{
