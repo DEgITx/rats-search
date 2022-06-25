@@ -52,7 +52,7 @@ By default we recomended using desktop version of application. [<b>Download and 
 Clone repository, then make sure that you have Node.js and NPM (with Node.js) installed in your system, then install all needed packages:
 
 ```bash
-npm install
+npm install --force
 ```
 and start master develop branch version:
 ```bash
@@ -65,7 +65,7 @@ Beside default desktop cross-platform client, also exist separated webUI that ca
 Clone repository, then make sure that you have Node.js and NPM (with Node.js) installed in your system, then:
 
 ```bash
-npm install
+npm install --force
 ```
 
 Then compile web version:
