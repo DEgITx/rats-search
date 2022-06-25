@@ -41,7 +41,7 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
           architecture: ${{ matrix.architecture }}
-      - run: npm install
+      - run: npm install --force
       - run: npm run postinstall
       - run: npm run prebuild
       - run: npm run buildweb
