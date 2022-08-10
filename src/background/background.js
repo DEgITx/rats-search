@@ -93,6 +93,7 @@ logT('system', 'Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB'
 logT('system', 'Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
 logT('system', 'NodeJS:', process.version)
 logT('system', 'Desktop server')
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
 
 if(portative)
 	logT('system', 'portative compability')
