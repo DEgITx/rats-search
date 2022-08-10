@@ -27,6 +27,7 @@ logT('system', 'Total memory:', (os.totalmem() / (1024 * 1024)).toFixed(2), 'MB'
 logT('system', 'Free memory:', (os.freemem() / (1024 * 1024)).toFixed(2), 'MB')
 logT('system', 'NodeJS:', process.version)
 logT('system', 'Web server')
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
 
 // handle promise rejections
 process.on('unhandledRejection', r => logTE('system', 'Rejection:', r));
