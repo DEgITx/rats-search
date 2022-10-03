@@ -61,9 +61,6 @@ const writeSphinxConfig = async (rootPath, dbPath, params = {}) => {
     rt_attr_json = info
     
 	stored_only_fields = ipv4
-
-    ngram_len = 1
-    ngram_chars = U+3000..U+2FA1F
   }
 
   index files
@@ -112,11 +109,9 @@ const writeSphinxConfig = async (rootPath, dbPath, params = {}) => {
   {
     listen      = 127.0.0.1:${appConfig.sphinx.interfacePort}
     listen      = 127.0.0.1:${appConfig.sphinx.port}:mysql41
-    max_children    = 30
     seamless_rotate   = 1
     preopen_indexes   = 1
     unlink_old    = 1
-    workers     = threads # for RT to work
     pid_file    = ${rootPath}/searchd.pid
     log     = ${rootPath}/searchd.log
     query_log   = ${rootPath}/query.log
