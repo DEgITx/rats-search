@@ -1,3 +1,22 @@
+# [1.9.0](https://github.com/DEgITx/rats-search/compare/v1.8.1...v1.9.0) (2022-08-24)
+
+
+### Bug Fixes
+
+* **build:** build only x64 packages for linux ([c05a04e](https://github.com/DEgITx/rats-search/commit/c05a04ea289ccaaa4e57607b4d622005eec4cd4c))
+* **ci:** restore installation on ci ([58c7d4c](https://github.com/DEgITx/rats-search/commit/58c7d4c9d7efc5d3e7985bed8462b705c8402931))
+* **ssl:** ignore cert to fix blob loads ([a502a7a](https://github.com/DEgITx/rats-search/commit/a502a7a0e58fca1364d4fccd4d5e558c25c52546))
+* **torrent:** fix search by magnet ([4d2561e](https://github.com/DEgITx/rats-search/commit/4d2561e23f577e7510fe2573ae605ea14169ba99))
+
+
+### Features
+
+* **core:** update ([06297d2](https://github.com/DEgITx/rats-search/commit/06297d2be3b955b311208be6438590b126272bde))
+* **core:** update deps ([6e160f7](https://github.com/DEgITx/rats-search/commit/6e160f7f3d75d7a75fbf0500857f6d96fa224c16))
+* **core:** update electron ([a280db3](https://github.com/DEgITx/rats-search/commit/a280db32d63d6007ac370014b7ddcf36c5e63a90))
+* **core:** upgrade to electron 16 ([edfc925](https://github.com/DEgITx/rats-search/commit/edfc925583dcf5a05f56678960154e8b7e6f7193))
+* **core:** upgrade to electron 17 ([94fa41a](https://github.com/DEgITx/rats-search/commit/94fa41a7ec147b4b3a1b2350eb816550eb12dbca))
+
 ## [1.8.1](https://github.com/DEgITx/rats-search/compare/v1.8.0...v1.8.1) (2021-09-22)
 
 
