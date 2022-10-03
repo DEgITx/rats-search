@@ -136,13 +136,19 @@ const expand = (sphinx) => {
 			{
 				for(const k in sphinxIndex)
 				{
+					// sphinx index can output as lower case like feedIndex -> feedindex, so don't dublicate index
+					// in this case
+					let k_index = k;
+					const lowerK = k.toLowerCase();
+					if (typeof values[lowerK] != 'undefined')
+						k_index = lowerK;
 					if(typeof sphinxIndex[k] === 'string')
 					{
-						values[k] = values[sphinxIndex[k]]
+						values[k_index] = values[sphinxIndex[k]]
 					} 
 					else if (typeof sphinxIndex[k] === 'function')
 					{
-						values[k] = sphinxIndex[k](values)
+						values[k_index] = sphinxIndex[k](values)
 					}
 				}
 			}
