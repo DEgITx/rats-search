@@ -90,6 +90,20 @@
     },
     "mac": {
       "artifactName": "${name}-${version}-mac.${ext}",
+      "target": [
+        {
+          "target": "default",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "default",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
       "extraFiles": [
         {
           "from": "./imports/darwin",
