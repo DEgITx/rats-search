@@ -3,9 +3,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 WORKDIR /home/node/app
 COPY --chown=node:node . .
+RUN sudo npm install -g npm
 USER node
 
-RUN sudo npm install -g npm
 RUN npm install --force
 RUN ls -la
 RUN npm run buildweb
