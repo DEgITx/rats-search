@@ -107,10 +107,6 @@ Now you can check the and open http://localhost:8095/ in browser
 
 [**Support Rats Search development on OpenCollective**](https://opencollective.com/RatsSearch)
 
-[**Support Rats Search via PayPal**](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=vasiliy.kosyanchuk@gmail.com&lc=US&item_name=Rats+Search+Development+Support&no_note=0&cn=&currency_code=USD&bn=PP-DonationsBF:btn_donateCC_LG.gif:NonHosted)
-
-**Support Rats Search via Yoo.Money**: 410012059502693
-
 ## Contacts / Support
 
 - Twitter: [@RatsSearch](https://twitter.com/RatsSearch)
