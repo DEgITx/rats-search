@@ -86,6 +86,23 @@ Now you can get access to web interface on 8095 port: http://localhost:8095
 
 [More about server compatibility and known issues](docs/SERVER_COMPATIBILITY.md)
 
+## Docker image
+
+You can simply run docker image with prepared server version. Just download last sources:
+
+```bash
+git clone https://github.com/DEgITx/rats-search.git
+```
+
+And build docker image & run:
+
+```bash
+docker build -t rats-search:latest rats-search
+docker run -p 8095:8095 rats-search:latest
+```
+
+Now you can check the and open http://localhost:8095/ in browser
+
 ## Donation
 
 [**Support Rats Search development on OpenCollective**](https://opencollective.com/RatsSearch)
