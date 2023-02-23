@@ -7,7 +7,10 @@ module.exports = (app) => {
 	}
 
 	if (process.arch === 'arm' || process.arch === 'arm64') {
-		return `imports/${process.arch}/${app}`
+		if (process.platform === 'darwin')
+			return `imports/darwin/arm64/${app}`
+		else
+			return `imports/${process.arch}/${app}`
 	}
 
 	if (/^win/.test(process.platform) && fs.existsSync(`./${app}.exe`)) {
@@ -48,6 +51,18 @@ module.exports = (app) => {
 		}
 	} catch (e) {}
 
+	try {
+		if (process.platform === 'darwin' && process.arch === 'arm64' && fs.existsSync(fs.realpathSync(path.join(__dirname, '/../../../MacOS/arm64')) + `/${app}`)) {
+			return fs.realpathSync(path.join(__dirname, '/../../../MacOS/arm64')) + `/${app}`
+		}
+	} catch (e) {}
+
+	try {
+		if (process.platform === 'darwin' && fs.existsSync(fs.realpathSync(path.join(__dirname, '/../../../MacOS/x64')) + `/${app}`)) {
+			return fs.realpathSync(path.join(__dirname, '/../../../MacOS/x64')) + `/${app}`
+		}
+	} catch (e) {}
+
 	if (/^win/.test(process.platform) && fs.existsSync(`imports/win/${app}.exe`)) {
 		return `imports/win/${app}.exe`
 	}
@@ -64,8 +79,8 @@ module.exports = (app) => {
 		return `imports/linux/${process.arch}/${app}`
 	}
 
-	if (process.platform === 'darwin' && fs.existsSync(`imports/darwin/${app}`)) {
-		return `imports/darwin/${app}`
+	if (process.platform === 'darwin' && fs.existsSync(`imports/darwin/x64/${app}`)) {
+		return `imports/darwin/x64/${app}`
 	}
 
 	return `${app}`
