@@ -162,7 +162,7 @@
     "chai": "^4.3.6",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.1",
-    "electron": "22.2.0",
+    "electron": "23.1.1",
     "electron-builder": "23.6.0",
     "eslint": "^8.17.0",
     "eslint-plugin-react": "^7.30.0",
