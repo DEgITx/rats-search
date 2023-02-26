@@ -1,3 +1,26 @@
+# [1.10.0](https://github.com/DEgITx/rats-search/compare/v1.9.0...v1.10.0) (2023-02-26)
+
+
+### Bug Fixes
+
+* **db:** fix replace values func with new manticore ([7279ade](https://github.com/DEgITx/rats-search/commit/7279ade6dfe0001ff12824a7e9997e4c6a09b532))
+* **docker:** fix build ([4340763](https://github.com/DEgITx/rats-search/commit/43407631dc0886f96d39db691282820e0cf70a72))
+* **docker:** fixes ([1feab1c](https://github.com/DEgITx/rats-search/commit/1feab1c42e79617abd46ea3f57e187e02558b6cb))
+* **docker:** more fixes ([bd40cb5](https://github.com/DEgITx/rats-search/commit/bd40cb55abca9246c5355a67a2842a8f28db1945))
+* **docker:** update install command ([61ae1b8](https://github.com/DEgITx/rats-search/commit/61ae1b812402f35285cc25518439a88a9c900cf4))
+
+
+### Features
+
+* **core:** update libs ([581aed4](https://github.com/DEgITx/rats-search/commit/581aed4e4ace59cc31d94bdfb0367bd7a4871203))
+* **core:** update libs ([0d70850](https://github.com/DEgITx/rats-search/commit/0d708501d6ed31e1d7be5e750184a8625e8da8dd))
+* **db:** changed config for manticore 5 support [#176](https://github.com/DEgITx/rats-search/issues/176) ([2b3676d](https://github.com/DEgITx/rats-search/commit/2b3676db37f34e7d459cb119f83852112a97932d))
+* **db:** update to manticore 6.0.2 ([c24ac47](https://github.com/DEgITx/rats-search/commit/c24ac471917c4b241f9aa288a5fb26a8f697eb2e))
+* **linux:** manticore5 ([4a2bcc7](https://github.com/DEgITx/rats-search/commit/4a2bcc726665f5026ae6be1653c3cec1853dfd32))
+* **macos:** manticore5 for macos ([46fa48a](https://github.com/DEgITx/rats-search/commit/46fa48ab998598be3a56e328124c735eb4a766df))
+* **macos:** support of arm64 manticore ([50d05ec](https://github.com/DEgITx/rats-search/commit/50d05ecce5d6e6657705855cbeb8a75e3c0436f6))
+* **win:** switch to manticore 5.0.2 ([c7ba49a](https://github.com/DEgITx/rats-search/commit/c7ba49a362e90d3380b02fd29cb9c84dd8b75b9c))
+
 # [1.9.0](https://github.com/DEgITx/rats-search/compare/v1.8.1...v1.9.0) (2022-08-24)
 
 
