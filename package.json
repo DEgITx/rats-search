@@ -145,7 +145,7 @@
     "react-minimal-pie-chart": "^8.2.0",
     "simple-encryptor": "github:DEgITx/node-simple-encryptor",
     "stun": "1.1.0",
-    "tagslog": "^1.1.5",
+    "tagslog": "^1.1.6",
     "webtorrent": "github:DEgITx/webtorrent"
   },
   "devDependencies": {
