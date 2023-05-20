@@ -33,6 +33,7 @@ jobs:
       - name: Setup xvfb (Linux)
         if: runner.os == 'Linux'
         run: |
+          sudo apt-get update
           sudo apt-get install -y xvfb g++-multilib
           sudo /usr/bin/Xvfb $DISPLAY -screen 0 1280x1024x24 &
       - name: Prepare python3.10
