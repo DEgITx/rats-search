@@ -645,6 +645,7 @@ module.exports = function (send, recive, dataDirectory, version, env)
 					addFilesToDatabase()
 				}
 
+				delete torrent.nameindex;
 				torrent.nameIndex = buildTorrentIndex(torrent)
 
 				sphinxSingle.insertValues('torrents', torrent, function(err, result) {
