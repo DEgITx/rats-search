@@ -11,6 +11,7 @@ const entryFilePath = tempDir.path("testsInit.js");
 
 const testsImports = testsDir
   .find({ matching: process.env.TEST ? `${process.env.TEST}.test.js` : "*.test.js" })
+  .filter(test => (process.env.ALL || !test.includes('optional')))
   .reduce((fileContent, path) => {
     const normalizedPath = path.replace(/\\/g, "/");
     return `${fileContent}require("../tests/${normalizedPath}");\n`;
