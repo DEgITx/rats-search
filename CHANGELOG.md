@@ -1,3 +1,17 @@
+# [1.11.0](https://github.com/DEgITx/rats-search/compare/v1.10.0...v1.11.0) (2023-05-21)
+
+
+### Bug Fixes
+
+* **ci:** fix linux build ([2c58fa6](https://github.com/DEgITx/rats-search/commit/2c58fa6fadecfe42c97c79f58ca5d10c3e4cdbf5))
+* **torrent:** fix adding torrent for new manticore version (duplicate field) ([34dca0d](https://github.com/DEgITx/rats-search/commit/34dca0dc5c7493938dd0fb2351351c8eca9c69e6)), closes [#184](https://github.com/DEgITx/rats-search/issues/184)
+
+
+### Features
+
+* **core:** update deps ([96779af](https://github.com/DEgITx/rats-search/commit/96779af979c96b83435b0783a04e325d1d9a72fc))
+* **log:** improve logging format ([45959df](https://github.com/DEgITx/rats-search/commit/45959df561770b643462c2b059776e8d55fce087))
+
 # [1.10.0](https://github.com/DEgITx/rats-search/compare/v1.9.0...v1.10.0) (2023-02-26)
 
 
