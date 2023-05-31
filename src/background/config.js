@@ -1,5 +1,6 @@
 const { app } = require('electron')
 const os = require('os')
+const _ = require('lodash')
 
 let config = {
 	indexer: true,
@@ -24,6 +25,7 @@ let config = {
 	trayOnClose: false,
 	trayOnMinimize: true,
 	startMinimized: false,
+	darkMode: false,
 
 	sitemapMaxSize: 25000,
 
@@ -93,8 +95,10 @@ const configProxy = new Proxy(config, {
 			target['p2pReplicationServer'] = true
 		if(prop == 'p2pReplicationServer' && !value)
 			target['p2pReplication'] = false
-            
 
+		if (!_.isEqual(target[prop],value)) {
+			logT('config', prop, '=', value)
+		}
 		target[prop] = value
         
 		if(!fs.existsSync(configPath))
