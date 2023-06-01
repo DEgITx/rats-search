@@ -619,6 +619,9 @@ module.exports = async ({
 		if(upnp)
 			upnp.ratsUnmap()
 
+		if (config.darkMode != options.darkMode)
+			send('changeDarkMode', options.darkMode)
+
 		for(const option in options)
 		{
 			if(option in config)

@@ -270,3 +270,20 @@ body::-webkit-scrollbar-thumb {
 	height: 26px;
 	margin-right: 8px;
 }
+
+div.darkMode {
+	background-color: #1e1e1e;
+	color: #fcfcfc;
+}
+
+div.darkMode .torrentName {
+	color: #fcfcfc !important;
+}
+
+div.darkMode .torrentSize div {
+	color: #f7f7f7 !important;
+}
+
+div.darkMode .info-table {
+	color: #f7f7f7 !important;
+}

@@ -197,6 +197,7 @@
         "You can extend your collected search DB with your own .torrent files. Just drag and drop them into the Rats window (or folder with them). They will immediately appear on activity tab.": "您可以使用自己的.torrent文件擴展收集的搜索數據庫。 只需將它們拖放到Rats窗口（或帶有它們的文件夾）即可。 它們將立即顯示在活動選項卡上。",
         "File": "文件",
         "Folder": "文件夾",
-        "Generate": "產生"
+        "Generate": "產生",
+        "Dark mode theme": "Dark mode theme"
     }
 }

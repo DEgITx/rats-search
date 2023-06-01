@@ -149,6 +149,7 @@ class App extends Component {
 		super(props)
 		window.torrentSocket.emit('config', (config) => {
 			window.initConfig = config
+			window.darkMode = config.darkMode;
 			changeLanguage(config.language, () => {
 				if(appReady)
 					this.forceUpdate()
@@ -189,6 +190,12 @@ class App extends Component {
 
 		window.torrentSocket.on('changeLanguage', (lang) => {
 			changeLanguage(lang, () => this.forceUpdate())
+		})
+
+		window.torrentSocket.on('changeDarkMode', (darkMode) => {
+			console.log('changed darkMode to ' + darkMode)
+			window.darkMode = darkMode;
+			this.forceUpdate()
 		})
 
 		const processTorrents = async (files) => {
@@ -233,7 +240,7 @@ class App extends Component {
 
 		return (
 			<MuiThemeProvider>
-				<div>
+				<div className={window.darkMode ? 'darkMode' : ''}>
 					{
 						checkNotModal
                         &&

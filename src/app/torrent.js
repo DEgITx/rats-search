@@ -326,7 +326,7 @@ export default class Torrent extends Component {
                             	{torrent.info.name}
                             </div>
   							}
-  							<div className='row w100p inline'>
+  							<div className='row w100p inline torrentSize'>
   								<div style={{color: torrent.contentCategory != 'xxx' ? (torrent.peer ? '#5252d1' : 'black') : (torrent.peer ? '#9083e2' : 'grey')}}>
   									{
   										formatBytes(torrent.size, 1) + ' (' + torrent.files + ' files)'

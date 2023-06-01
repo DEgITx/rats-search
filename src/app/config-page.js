@@ -206,6 +206,16 @@ export default class ConfigPage extends Page {
 								}}
 							/>
 
+							<Toggle
+								style={{marginTop: '10px'}}
+								label={__('Dark mode theme')}
+								toggled={this.options.darkMode}
+								onToggle={(e, checked) => {
+									this.options.darkMode = checked
+									this.forceUpdate()
+								}}
+							/>
+
 						</div>
 					</Tab>
 					<Tab value='p2p' label={__("P2P settings")} icon={<SvgIcon viewBox="0 0 47 47">
