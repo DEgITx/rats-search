@@ -192,10 +192,12 @@ class App extends Component {
 			changeLanguage(lang, () => this.forceUpdate())
 		})
 
-		window.torrentSocket.on('changeDarkMode', (darkMode) => {
-			console.log('changed darkMode to ' + darkMode)
-			window.darkMode = darkMode;
-			this.forceUpdate()
+		window.torrentSocket.on('configChanged', ({darkMode}) => {
+			if (typeof darkMode != 'undefined') {
+				console.log('changed darkMode to ' + darkMode)
+				window.darkMode = darkMode;
+				this.forceUpdate()
+			}
 		})
 
 		const processTorrents = async (files) => {

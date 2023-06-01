@@ -619,9 +619,6 @@ module.exports = async ({
 		if(upnp)
 			upnp.ratsUnmap()
 
-		if (config.darkMode != options.darkMode)
-			send('changeDarkMode', options.darkMode)
-
 		for(const option in options)
 		{
 			if(option in config)
@@ -639,6 +636,11 @@ module.exports = async ({
 		{
 			spider.announceHashes = []
 		}
+
+		const copyConfig = Object.assign({}, config);
+		delete copyConfig['load'];
+		delete copyConfig['reload'];
+		send('configChanged', copyConfig)
         
 		if(typeof callback === 'function')
 			callback(true)
