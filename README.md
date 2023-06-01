@@ -91,7 +91,7 @@ Now you can get access to web interface on 8095 port: http://localhost:8095
 You can simply run docker image with prepared server version. Just download last sources:
 
 ```bash
-git clone https://github.com/DEgITx/rats-search.git
+git clone --recurse-submodules https://github.com/DEgITx/rats-search.git
 ```
 
 And build docker image & run:

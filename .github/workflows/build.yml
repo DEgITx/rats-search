@@ -41,7 +41,10 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - uses: actions/checkout@v2
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Setup node
         uses: actions/setup-node@v2
         with:
