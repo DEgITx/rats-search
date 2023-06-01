@@ -49,7 +49,12 @@ We are welcome any contributing: bug fixes, improvements, code refactoring and o
 By default we recomended using desktop version of application. [<b>Download and install most recent one</b>](https://github.com/DEgITx/rats-search/releases) for Windows, MacOS, Linux. 
 
 ### Start desktop client from master branch
-Clone repository, then make sure that you have Node.js and NPM (with Node.js) installed in your system, then install all needed packages:
+Clone repository with submodules:
+```bash
+git clone --recurse-submodules https://github.com/DEgITx/rats-search.git
+```
+
+Then make sure that you have Node.js and NPM (with Node.js) installed in your system, then install all needed packages:
 
 ```bash
 npm install --force
