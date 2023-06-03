@@ -263,6 +263,12 @@ module.exports = async (callback, dataDirectory, onClose, params = {}) => {
 			{
 				needConvertation = true;
 			}
+
+			let manticoreVersion;
+			if (!sphinx.version && (manticoreVersion = /Manticore ([0-9\.]+)/.exec(data))) {
+				sphinx.version = manticoreVersion[1];
+				logT('sphinx', 'sphinx version', sphinx.version);
+			}
 	
 			if(windowsEncodingFix && data.includes('failed to parse config file'))
 			{

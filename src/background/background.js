@@ -300,7 +300,7 @@ app.on("ready", async () => {
 					}
 					callback.apply(null, arg)
 				})
-			}, app.getPath("userData"), app.getVersion(), env.name)
+			}, app.getPath("userData"), app.getVersion(), env.name, sphinx)
 
 			// load page only after init app
 			spider.initialized.then(() => {

@@ -61,7 +61,7 @@ const start = async () =>
 		dbPatcher(() => {
 			spider = new spiderCall((...data) => io.sockets.emit(...data), (message, callback) => {
 				socketMessages[message] = callback
-			}, path.resolve(packageJson.serverDataDirectory), packageJson.version, 'production')
+			}, path.resolve(packageJson.serverDataDirectory), packageJson.version, 'production', sphinx)
 		}, null, sphinx)
 	}, path.resolve(packageJson.serverDataDirectory), () => {}))
 }

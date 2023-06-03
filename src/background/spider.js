@@ -39,7 +39,7 @@ const mime = require('mime');
 //server.listen(config.httpPort);
 //console.log('Listening web server on', config.httpPort, 'port')
 
-module.exports = function (send, recive, dataDirectory, version, env)
+module.exports = function (send, recive, dataDirectory, version, env, {version: manticoreVersion})
 {
 	this.initialized = (async () =>
 	{
@@ -134,6 +134,8 @@ module.exports = function (send, recive, dataDirectory, version, env)
 			p2p.info.files = 0;
 			p2p.info.filesSize = 0;
 		}
+
+		p2p.info.manticoreVersion = manticoreVersion;
 
 		if(filesInfo && filesInfo[0])
 		{
