@@ -1,0 +1,19 @@
+build_macos_arm64_task:
+  name: Build macOS arm64.
+
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-monterey-xcode
+
+  env:
+    DISPLAY: :0
+
+  install_pre_requirements_script:
+    - brew install node
+    - git submodule update --init --recursive
+
+  node_modules_cache:
+    folder: node_modules
+    populate_script: npm install --force
+
+  test_script: 
+    - npm test
