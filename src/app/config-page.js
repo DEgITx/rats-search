@@ -30,7 +30,7 @@ export default class ConfigPage extends Page {
 		}));
 	}
 	saveSettings() {
-		window.torrentSocket.emit('setConfig', this.options)
+		window.torrentSocket.emit('setConfig', {options: this.options})
 		this.settingsSavedMessage = true
 		this.forceUpdate()
 		setTimeout(() => {

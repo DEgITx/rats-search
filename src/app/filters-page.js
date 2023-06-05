@@ -73,7 +73,7 @@ export default class ConfigPage extends Page {
 		else
 			this.options.filters.contentType = this.contentType
 
-		window.torrentSocket.emit('setConfig', this.options)
+		window.torrentSocket.emit('setConfig', {options: this.options})
 		this.settingsSavedMessage = true
 		this.forceUpdate()
 		setTimeout(() => {
@@ -266,7 +266,7 @@ export default class ConfigPage extends Page {
 						<RaisedButton label={__('Check torrents')} primary={true} onClick={() => {
 							this.toRemoveProbably = null
 							this.toRemove = null
-							window.torrentSocket.emit('removeTorrents', true, window.customLoader((toRemove) => {
+							window.torrentSocket.emit('removeTorrents', {checkOnly: true}, window.customLoader((toRemove) => {
 								this.toRemoveProbably = toRemove
 								this.forceUpdate()
 							}));
@@ -274,7 +274,7 @@ export default class ConfigPage extends Page {
 						<RaisedButton label={__('Clean torrents')} secondary={true} onClick={() => {
 							this.toRemoveProbably = null
 							this.toRemove = null
-							window.torrentSocket.emit('removeTorrents', false, window.customLoader((toRemove) => {
+							window.torrentSocket.emit('removeTorrents', {checkOnly: false}, window.customLoader((toRemove) => {
 								this.toRemove = toRemove
 								this.forceUpdate()
 							}));

@@ -416,7 +416,7 @@ export default class Torrent extends Component {
                               		}} onClick={(e) => {
                               			e.preventDefault();
                               			e.stopPropagation();
-                              			window.torrentSocket.emit('downloadUpdate', torrent.hash, {pause: 'switch'})
+                              			window.torrentSocket.emit('downloadUpdate', {hash: torrent.hash, options: {pause: 'switch'}})
                               		}} viewBox="0 0 438.536 438.536">
                               			<g>
                               				<path d="M164.453,0H18.276C13.324,0,9.041,1.807,5.425,5.424C1.808,9.04,0.001,13.322,0.001,18.271v401.991
@@ -443,7 +443,7 @@ export default class Torrent extends Component {
                               		}} onClick={(e) => {
                               			e.preventDefault();
                               			e.stopPropagation();
-                              			window.torrentSocket.emit('downloadUpdate', torrent.hash, {removeOnDone: 'switch'})
+                              			window.torrentSocket.emit('downloadUpdate', {hash: torrent.hash, options: {removeOnDone: 'switch'}})
                               		}} viewBox="0 0 512 512">
                               			<g>
                               				<path d="M456.313,85.333h-55.527C386.809,36.16,341.594,0,288,0s-98.809,36.16-112.785,85.333h-69.441l-3.482-11.938
@@ -515,7 +515,7 @@ export default class Torrent extends Component {
   										<div className="overlay-loader" onClick={(e) => {
   											e.preventDefault();
   											e.stopPropagation();
-  											window.torrentSocket.emit('downloadCancel', torrent.hash)
+  											window.torrentSocket.emit('downloadCancel', {hash: torrent.hash})
   										}}>
   											<div className="loader">
   												<div></div>
@@ -541,7 +541,7 @@ export default class Torrent extends Component {
   													e.preventDefault();
   													e.stopPropagation();
 
-  													window.torrentSocket.emit('downloadCancel', torrent.hash)
+  													window.torrentSocket.emit('downloadCancel', {hash: torrent.hash})
   												}} viewBox="0 0 18 18"><path d="M9 1C4.58 1 1 4.58 1 9s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm4 10.87L11.87 13 9 10.13 6.13 13 5 11.87 7.87 9 5 6.13 6.13 5 9 7.87 11.87 5 13 6.13 10.13 9 13 11.87z"/></svg>
   											</a>
   										</ToolTip>
@@ -558,7 +558,7 @@ export default class Torrent extends Component {
                                             			e.preventDefault();
                                             			e.stopPropagation();
 
-                                            			window.torrentSocket.emit('downloadCancel', torrent.hash)
+                                            			window.torrentSocket.emit('downloadCancel', {hash: torrent.hash})
                                             		}} viewBox="0 0 18 18"><path d="M9 1C4.58 1 1 4.58 1 9s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm4 10.87L11.87 13 9 10.13 6.13 13 5 11.87 7.87 9 5 6.13 6.13 5 9 7.87 11.87 5 13 6.13 10.13 9 13 11.87z"/></svg>
                                             	</a>
                                             </ToolTip>

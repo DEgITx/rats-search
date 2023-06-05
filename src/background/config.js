@@ -13,6 +13,7 @@ let config = {
 	peerId: undefined, 
 	language: 'en',
 	trackers: true,
+	restApi: false,
     
 	p2p: true,
 	p2pConnections: 10,

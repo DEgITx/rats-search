@@ -39,9 +39,10 @@ export default class TopPage extends Page {
 		this.firstUpdate = false
 		time = time ? time : this.state.time
 		const page = (this.topTorrents[type] && this.topTorrents[type][time] && this.topTorrents[type][time].page) || 0
-		window.torrentSocket.emit('topTorrents', 
-			type == 'main' ? null : type, 
-			{index: page * 20, limit: 20, time},
+		window.torrentSocket.emit('topTorrents', {
+				type: (type == 'main' ? null : type), 
+				navigation: {index: page * 20, limit: 20, time}
+			},
 			window.customLoader((torrents) => {
 				this.mergeTorrents(torrents, type, time)
 				this.topTorrents[type][time].page = page + 1

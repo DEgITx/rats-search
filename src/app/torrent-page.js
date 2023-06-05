@@ -114,7 +114,7 @@ const treeToTorrentFiles = (tree, torrent, toggles) => {
 							e.stopPropagation()
 							let toggleValues = {}
 							newToggles.forEach(({downloadIndex}) => toggleValues[downloadIndex] = checked)
-							window.torrentSocket.emit('downloadSelectFiles', torrent, toggleValues)
+							window.torrentSocket.emit('downloadSelectFiles', {hash: torrent.hash, files: toggleValues})
 						}}
 					/>
 					:
@@ -258,7 +258,7 @@ export default class TorrentPage extends Page {
   	});
   };
   getTorrentInfo() {
-  	window.torrentSocket.emit('torrent', this.props.hash, {files: true, peer: this.props.peer}, window.customLoader((data) => {
+  	window.torrentSocket.emit('torrent', {hash: this.props.hash, options: {files: true, peer: this.props.peer}}, window.customLoader((data) => {
   		if(data) {
   			this.torrent = data
   			this.setTitle(this.torrent.name + ' - Rats On The Boat');
@@ -270,7 +270,7 @@ export default class TorrentPage extends Page {
 
   			// Получаем более новую статистику пира
   			if((Date.now() / 1000) - this.torrent.trackersChecked > 10 * 60) {
-  				window.torrentSocket.emit('checkTrackers', this.torrent.hash);
+  				window.torrentSocket.emit('checkTrackers', {hash: this.torrent.hash});
   			}
   		}
   	}, () => {
@@ -391,7 +391,7 @@ export default class TorrentPage extends Page {
   	this.setState({
   		voting: true
   	});
-  	window.torrentSocket.emit('vote', this.torrent.hash, !!good, window.customLoader((success) => {
+  	window.torrentSocket.emit('vote', {hash: this.torrent.hash, isGood: !!good}, window.customLoader((success) => {
   		this.setState({
   			voted: true,
   			voting: false
@@ -531,7 +531,7 @@ export default class TorrentPage extends Page {
                       	/>
                       	<FlatButton
                       		onClick={() => {
-                      			window.torrentSocket.emit('downloadCancel', this.torrent.hash)
+                      			window.torrentSocket.emit('downloadCancel', {hash: this.torrent.hash})
                       		}}
                       		label={__('Cancel download')}
                       		secondary={true}

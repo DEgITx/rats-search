@@ -803,7 +803,7 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
 			client._download(peer, infoHash)
 		}
 
-		recive('dropTorrents', (pathTorrents) => {
+		recive('dropTorrents', ({pathTorrents}) => {
 			logT('drop', 'drop torrents and replicate from original torrent files')
 			const addTorrents = (torrents) => {
 				torrents.map(({data, path}) => { 

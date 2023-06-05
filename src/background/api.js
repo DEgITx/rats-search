@@ -125,7 +125,7 @@ module.exports = async ({
 		})
 	});
 
-	const onTorrent = (hash, options, callback) => {
+	const onTorrent = ({hash, options}, callback) => {
 		if(hash.length != 40)
 			return;
 
@@ -381,7 +381,7 @@ module.exports = async ({
 		});
 	}
 
-	recive('searchTorrent', mergeTorrentsWithDownloadsFn((text, navigation, callback, id) => {
+	recive('searchTorrent', mergeTorrentsWithDownloadsFn(({text, navigation}, callback, id) => {
 		searchTorrentCall(text, navigation, callback)
 		p2p.emit('searchTorrent', {text, navigation}, (remote, socketObject) => {
 			logT('search', 'remote search results', remote && remote.length)
@@ -473,7 +473,7 @@ module.exports = async ({
 		});
 	}
 
-	recive('searchFiles', mergeTorrentsWithDownloadsFn((text, navigation, callback, id) => {
+	recive('searchFiles', mergeTorrentsWithDownloadsFn(({text, navigation}, callback, id) => {
 		searchFilesCall(text, navigation, callback)
 		p2p.emit('searchFiles', {text, navigation}, (remote, socketObject) => {
 			logT('search', 'remote search files results', remote && remote.length)
@@ -494,7 +494,7 @@ module.exports = async ({
 		searchFilesCall(text, navigation, (data) => callback(data))
 	})
 
-	recive('checkTrackers', function(hash)
+	recive('checkTrackers', function({hash})
 	{
 		if(hash.length != 40)
 			return;
@@ -550,7 +550,7 @@ module.exports = async ({
 		});
 	}
 
-	recive('topTorrents', mergeTorrentsWithDownloadsFn((type, navigation, callback) =>
+	recive('topTorrents', mergeTorrentsWithDownloadsFn(({type, navigation}, callback) =>
 	{
 		topTorrentsCall(type, navigation, callback)
 		p2p.emit('topTorrents', {type, navigation}, (remote, socketObject) => {
@@ -596,7 +596,7 @@ module.exports = async ({
 		callback(config)
 	});
 
-	recive('setConfig', (options, callback) =>
+	recive('setConfig', ({options}, callback) =>
 	{
 		if(typeof options !== 'object')
 			return;
@@ -815,9 +815,9 @@ module.exports = async ({
 		return torrent
 	}
 
-	recive('download', torrentClient._add);
+	recive('download', ({torrent, savePath}, callback) => torrentClient._add(torrent, savePath, callback));
 
-	recive('downloadUpdate', (hash, options) =>
+	recive('downloadUpdate', ({hash, options}) =>
 	{
 		const id = torrentClientHashMap[hash]
 		if(!id)
@@ -852,7 +852,7 @@ module.exports = async ({
 		})
 	})
 
-	recive('downloadCancel', (hash, callback) =>
+	recive('downloadCancel', ({hash}, callback) =>
 	{
 		const id = torrentClientHashMap[hash]
 		if(!id)
@@ -880,7 +880,7 @@ module.exports = async ({
 		})
 	})
 
-	recive('downloadSelectFiles', ({hash}, files, callback) =>
+	recive('downloadSelectFiles', ({hash, files}, callback) =>
 	{
 		logT('downloader', 'call update selection', hash, files.length)
 		const id = torrentClientHashMap[hash]
@@ -920,7 +920,7 @@ module.exports = async ({
 	})
 
 	let removeProtect = false
-	recive('removeTorrents', (checkOnly = true, callback) =>
+	recive('removeTorrents', ({checkOnly}, callback) =>
 	{
 		if(removeProtect)
 			return
@@ -981,7 +981,7 @@ module.exports = async ({
 		return {good, bad, selfVote}
 	}
 
-	recive('vote', async (hash, isGood, callback) =>
+	recive('vote', async ({hash, isGood}, callback) =>
 	{
 		if(hash.length != 40)
 			return;
@@ -1060,7 +1060,7 @@ module.exports = async ({
 		});
 	})
 
-	const feedCall = (index, callback) =>
+	const feedCall = ({index}, callback) =>
 	{
 		callback(feed.feed.slice(index || 0, (index || 0) + 20));
 	}

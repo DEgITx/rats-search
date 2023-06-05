@@ -28,7 +28,7 @@ export default class RecentTorrents extends AutoScrollable {
 		this.loadMoreFeed();
 	}
 	loadMoreFeed() {
-		window.torrentSocket.emit('feed', this.torrents.length, window.customLoader((data) => {
+		window.torrentSocket.emit('feed', {index: this.torrents.length}, window.customLoader((data) => {
 			if(data) {
 				this.torrents = this.torrents.concat(data);
 				this.forceUpdate();

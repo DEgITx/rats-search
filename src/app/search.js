@@ -60,7 +60,7 @@ class Search extends Component {
 		if(this.state.advancedSearch && this.advanced)
 			searchTorrentsParams = Object.assign(searchTorrentsParams, this.advanced);
 
-		this.searchTorrentId = window.torrentSocket.emit('searchTorrent', oldSearch ? this.currentSearch : this.searchValue, searchTorrentsParams, window.customLoader((torrents) => {
+		this.searchTorrentId = window.torrentSocket.emit('searchTorrent', {text: oldSearch ? this.currentSearch : this.searchValue, navigation: searchTorrentsParams}, window.customLoader((torrents) => {
 			if(torrents) {
 				this.searchTorrents = torrents;
 				if(torrents.length != this.searchLimit)
@@ -86,7 +86,7 @@ class Search extends Component {
 		if(this.state.advancedSearch && this.advanced)
 			searchFilesParams = Object.assign(searchFilesParams, this.advanced);
     
-		this.searchFilesId = window.torrentSocket.emit('searchFiles', oldSearch ? this.currentSearch : this.searchValue, searchFilesParams, window.customLoader((torrents) => {
+		this.searchFilesId = window.torrentSocket.emit('searchFiles', {text: oldSearch ? this.currentSearch : this.searchValue, navigation: searchFilesParams}, window.customLoader((torrents) => {
 			if(torrents) {
 				this.searchFiles = torrents;
 				let files = 0;
@@ -113,13 +113,13 @@ class Search extends Component {
 		this.setState({moreTorrentsIndicator: true});
 		this.onSearchUpdate('indicator')
 
-		this.searchTorrentId = window.torrentSocket.emit('searchTorrent', this.currentSearch, {
+		this.searchTorrentId = window.torrentSocket.emit('searchTorrent', {text: this.currentSearch, navigation: {
 			index: this.searchTorrents.length,
 			limit: this.searchLimit, 
 			safeSearch: !this.notSafeSearch,
 			orderBy: this.state.orderBy,
 			orderDesc: this.state.orderDesc,
-		}, window.customLoader((torrents) => {
+		}}, window.customLoader((torrents) => {
 			if(torrents) {
 				this.searchTorrents = this.searchTorrents.concat(torrents);
 				if(torrents.length != this.searchLimit)
@@ -149,13 +149,13 @@ class Search extends Component {
 		this.setState({moreFilesIndicator: true});
 		this.onSearchUpdate('indicator')
 
-		this.searchFilesId = window.torrentSocket.emit('searchFiles', this.currentSearch, {
+		this.searchFilesId = window.torrentSocket.emit('searchFiles', {text: this.currentSearch, navigation: {
 			index: index,
 			limit: this.searchLimit, 
 			safeSearch: !this.notSafeSearch,
 			orderBy: this.state.orderBy,
 			orderDesc: this.state.orderDesc,
-		}, window.customLoader((torrents) => {
+		}}, window.customLoader((torrents) => {
 			if(torrents) {
 				this.searchFiles = this.searchFiles.concat(torrents);
 

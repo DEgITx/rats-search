@@ -214,7 +214,7 @@ class App extends Component {
 					reader.readAsArrayBuffer(file);
 				})
 			}));
-			torrentSocket.emit('dropTorrents', files);
+			torrentSocket.emit('dropTorrents', {pathTorrents: files});
 		}
 
 		document.addEventListener('dragover', (event) => {

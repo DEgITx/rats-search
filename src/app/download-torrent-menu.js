@@ -12,7 +12,7 @@ export default (props) => {
 			e.stopPropagation();
 		}} menu={[
 			{name: __('Download'), click: () => {
-				window.torrentSocket.emit('download', props.torrent, null, (added) => {
+				window.torrentSocket.emit('download', {torrent: props.torrent, savePath: null}, (added) => {
 					if(props.onAdded)
 						props.onAdded(added)
 				})
@@ -65,7 +65,7 @@ export default (props) => {
 					{
 						path = testPath;
 					}
-					window.torrentSocket.emit('download', props.torrent, path[0], (added) => {
+					window.torrentSocket.emit('download', {torrent: props.torrent, savePath: path[0]}, (added) => {
 						if(props.onAdded)
 							props.onAdded(added)
 					})  
