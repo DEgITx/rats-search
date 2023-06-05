@@ -216,6 +216,16 @@ export default class ConfigPage extends Page {
 								}}
 							/>
 
+							<Toggle
+								style={{marginTop: '10px'}}
+								label={__('REST API support')}
+								toggled={this.options.restApi}
+								onToggle={(e, checked) => {
+									this.options.restApi = checked
+									this.forceUpdate()
+								}}
+							/>
+
 						</div>
 					</Tab>
 					<Tab value='p2p' label={__("P2P settings")} icon={<SvgIcon viewBox="0 0 47 47">

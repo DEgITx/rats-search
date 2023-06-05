@@ -198,6 +198,7 @@
         "File": "File",
         "Folder": "Folder",
         "Generate": "Generate",
-        "Dark mode theme": "Dark mode theme"
+        "Dark mode theme": "Dark mode theme",
+        "REST API support": "REST API support"
     }
 }

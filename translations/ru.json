@@ -198,6 +198,7 @@
         "File": "Файл",
         "Folder": "Папка",
         "Generate": "Сгенерировать",
-        "Dark mode theme": "Темная тема"
+        "Dark mode theme": "Темная тема",
+        "REST API support": "REST API support"
     }
 }
