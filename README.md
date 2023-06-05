@@ -30,6 +30,7 @@ BitTorrent search program for desktop and web. Collect and navigate over base of
 * Drag and drop torrents (expand local search database with specific torrents)
 * Descriptions association from trackers
 * Torrent generation and automatic adding to search DB
+* WebSockets & REST API for server/search engine. You can made search request and create your own UI client.
 
 ## Architecture
 ![Basic Architecture](docs/img/ratsarch.png)
