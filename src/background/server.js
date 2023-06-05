@@ -42,6 +42,9 @@ if(majorVersion < 8)
 
 app.use(express.static('web'));
 
+appConfig.restApi = true;
+logT('rest', 'REST API', (appConfig.restApi ? 'enabled' : 'disabled'));
+
 const socketMessages = {}
 
 io.on('connection', (socket) =>
@@ -61,6 +64,30 @@ const start = async () =>
 		dbPatcher(() => {
 			spider = new spiderCall((...data) => io.sockets.emit(...data), (message, callback) => {
 				socketMessages[message] = callback
+				if (appConfig.restApi) {
+					app.get('/api/' + message, (req, res) => {
+						try {
+							const uniqueId = Math.random().toString(16).slice(2) + '_' + (new Date()).getTime();
+							logT('rest', 'request', uniqueId, message, req.query);
+							let args = req.query;
+							if (args && Object.keys(args).length > 0) {
+								args = Object.assign({}, args);
+								for (const key in args) {
+									if (typeof args[key] == "string" && args[key].length >= 2 && args[key][0] == '{' && args[key][args[key].length - 1] == '}') {
+										args[key] = JSON.parse(args[key])
+									}
+								}
+							}
+							callback(args, (...data) => {
+								logT('rest', 'responce', uniqueId);
+								res.send({id: uniqueId, responce: data})
+							}, uniqueId)
+						} catch (e) {
+							logTE('rest', 'not json request', message, req.query);
+						}
+						
+					})
+				}
 			}, path.resolve(packageJson.serverDataDirectory), packageJson.version, 'production', sphinx)
 		}, null, sphinx)
 	}, path.resolve(packageJson.serverDataDirectory), () => {}))
