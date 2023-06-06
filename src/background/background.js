@@ -102,6 +102,11 @@ if(portative)
 process.on('unhandledRejection', r => logTE('system', 'Rejection:', r));
 process.on('uncaughtException', (err, origin) => logTE('system', 'Exception:', err, 'Origin:', origin));
 
+if (env.name !== "production" && (!fs.existsSync(__dirname + '/../imports') || fs.readdirSync(__dirname + '/../imports').length == 0)) {
+	logTE('system', 'You are not clonned submodules correctly, please use git clone --recurse-submodules https://github.com/DEgITx/rats-search.git');
+	process.exit(1);
+}
+
 const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
 	logT('app', 'closed because of second application')

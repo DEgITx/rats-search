@@ -40,6 +40,11 @@ if(majorVersion < 8)
 	process.exit(1);
 }
 
+if (!fs.existsSync(__dirname + '/../../imports') || fs.readdirSync(__dirname + '/../../imports').length == 0) {
+	logTE('system', 'You are not clonned submodules correctly, please use git clone --recurse-submodules https://github.com/DEgITx/rats-search.git');
+	process.exit(1);
+}
+
 app.use(express.static('web'));
 
 appConfig.restApi = true;
