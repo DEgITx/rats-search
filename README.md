@@ -30,7 +30,7 @@ BitTorrent search program for desktop and web. Collect and navigate over base of
 * Drag and drop torrents (expand local search database with specific torrents)
 * Descriptions association from trackers
 * Torrent generation and automatic adding to search DB
-* WebSockets & REST API for server/search engine. You can made search request and create your own UI client.
+* [WebSockets & REST API for server/search engine. You can made search request and create your own UI client.](docs/API.md)
 
 ## Architecture
 ![Basic Architecture](docs/img/ratsarch.png)
@@ -91,6 +91,8 @@ Now you can get access to web interface on 8095 port: http://localhost:8095
 [More about configuration](docs/SERVER.md)
 
 [More about server compatibility and known issues](docs/SERVER_COMPATIBILITY.md)
+
+[API usage implementation for clients](docs/API.md)
 
 ## Docker image
 
