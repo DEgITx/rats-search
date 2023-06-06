@@ -58,11 +58,32 @@ io.on('connection', (socket) =>
 	}
 })
 
+let responceRestQueue = [];
+
+if (appConfig.restApi) {
+	app.get('/api/queue', (req, res) => {
+		const uniqueId = Math.random().toString(16).slice(2) + '_' + (new Date()).getTime();
+		logT('rest', 'queue responce', uniqueId, 'size', responceRestQueue.length);
+		res.send({id: uniqueId, queue: responceRestQueue})
+		// clear queue after the read of json queue
+		responceRestQueue = [];
+	});
+}
+
 const start = async () => 
 {
 	({ sphinx } = await startSphinx(() => {
 		dbPatcher(() => {
-			spider = new spiderCall((...data) => io.sockets.emit(...data), (message, callback) => {
+			spider = new spiderCall((...data) => { 
+				if (appConfig.restApi) {
+					if (responceRestQueue.length < 1000) {
+						responceRestQueue.push(data);
+					} else {
+						logTE('rest', 'max 1000 queue records, please use /api/queue to clean records')
+					}
+				}
+				return io.sockets.emit(...data) 
+			}, (message, callback) => {
 				socketMessages[message] = callback
 				if (appConfig.restApi) {
 					app.get('/api/' + message, (req, res) => {
