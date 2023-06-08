@@ -9,6 +9,7 @@ build_macos_arm64_task:
 
   install_pre_requirements_script:
     - brew install node
+    - rm -fr package-lock.json
     - git submodule update --init --recursive
 
   node_modules_cache:
