@@ -114,7 +114,7 @@ https://localhost:8095/api/checkTrackers?hash=29ebe63feb8be91b6dcff02bacc562d9a9
 
 endpoint (GET REQUEST):
 ```
-https://localhost:8095/api/topTorrents?type=video&navigation={"hours":"week"}
+https://localhost:8095/api/topTorrents?type=video&navigation={"time":"week"}
 ```
 
 | Field | Type | Optional | Default Value | Description |
