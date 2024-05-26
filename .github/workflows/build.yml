@@ -12,8 +12,8 @@ jobs:
           - macos-latest
           - windows-latest
         node_version:
-          - 14
           - 16
+          - 20
         architecture:
           - x64
 #          - arm64   precompiled bits may not allow for this
