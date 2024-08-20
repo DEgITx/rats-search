@@ -12,3 +12,11 @@ Start as root to update glibc to 2.7:
 ```console
 wget https://gist.githubusercontent.com/harv/f86690fcad94f655906ee9e37c85b174/raw/2cfcc7922b0c2f391afb957fd209a1f1f2f9f659/glibc-2.17_centos6.sh && chmod +x glibc-2.17_centos6.sh && ./glibc-2.17_centos6.sh
 ```
+
+## Arch linux
+
+sphinx requires openssl-1.1 which is not installed by default on minimal arch installs
+
+```console
+pacman -S openssl-1.1
+```
