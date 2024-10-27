@@ -16,14 +16,15 @@ jobs:
           - 20
         architecture:
           - x64
-          - arm64   # precompiled bits may not allow for this
-        include:
-          - os: windows-latest
-            node_version: 15
-            architecture: arm64
-          - os: macos-latest
-            node_version: 15
-            architecture: arm64
+#          - arm64   # precompiled bits may not allow for this
+        # an extra windows-x86 run:
+#        include:
+#          - os: windows-latest
+#            node_version: 15
+#            architecture: arm64
+#          - os: macos-latest
+#            node_version: 15
+#            architecture: arm64
 
     name: Node ${{ matrix.node_version }} - ${{ matrix.architecture }} on ${{ matrix.os }}
     env:
@@ -130,7 +131,7 @@ jobs:
         run: |
           echo "Deploying release..."
           npx semantic-release || {
-            echo "Release deployment failed!"
+            echo "Build failed!"
             echo "::error ::Release deployment failed"
             exit 1
           }
