@@ -13,7 +13,7 @@ jobs:
           - windows-latest
         node_version:
           - 16
-          - 20
+          - 22
         architecture:
           - x64
 #          - arm64   precompiled bits may not allow for this
