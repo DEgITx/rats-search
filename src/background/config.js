@@ -33,7 +33,6 @@ let config = {
 	sphinx: {
 		host     : '127.0.0.1',
 		port     : 9306,
-		interfacePort: 9312,
 		connectionLimit: 10
 	},
 

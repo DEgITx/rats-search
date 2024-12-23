@@ -29,7 +29,6 @@ const findGoodPort = async (port, host) => {
 
 const writeSphinxConfig = async (rootPath, dbPath, params = {}) => {
 	appConfig.sphinx.port = await findGoodPort(appConfig.sphinx.port)
-	appConfig.sphinx.interfacePort = await findGoodPort(appConfig.sphinx.interfacePort)
 	appConfig.sphinx = appConfig.sphinx
 
 	let generateConfig = () => (`
@@ -107,7 +106,6 @@ const writeSphinxConfig = async (rootPath, dbPath, params = {}) => {
 
   searchd
   {
-    listen      = 127.0.0.1:${appConfig.sphinx.interfacePort}
     listen      = 127.0.0.1:${appConfig.sphinx.port}:mysql41
     seamless_rotate   = 1
     preopen_indexes   = 1
