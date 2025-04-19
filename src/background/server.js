@@ -148,3 +148,7 @@ process.on("SIGINT", () => {
 process.on("SIGTERM", () => {
 	process.emit("SIGINT");
 });
+
+process.on('exit', (code) => {
+	logT('system', `rats exit, thanks for using rats ;) code: ${code}`);
+});

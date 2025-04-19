@@ -400,3 +400,8 @@ rl.on("SIGINT", function () {
 process.on("SIGINT", () => {
 	stop()
 });
+
+// Add a listener for when the Node process is truly exiting
+process.on('exit', (code) => {
+	logT('system', `rats exit, thanks for using rats ;) code: ${code}`);
+});
