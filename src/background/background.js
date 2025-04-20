@@ -100,7 +100,8 @@ if(portative)
 
 // handle promise rejections
 process.on('unhandledRejection', r => logTE('system', 'Rejection:', r));
-process.on('uncaughtException', (err, origin) => logTE('system', 'Exception:', err, 'Origin:', origin));
+// On test environment uncaughtException is have recusive calling problem with stdout
+process.on('uncaughtException', (err, origin) => env.name !== 'test' && logTE('system', 'Exception:', err, 'Origin:', origin));
 
 if (env.name !== "production" && (!fs.existsSync(__dirname + '/../imports') || fs.readdirSync(__dirname + '/../imports').length == 0)) {
 	logTE('system', 'You are not clonned submodules correctly, please use git clone --recurse-submodules https://github.com/DEgITx/rats-search.git');
