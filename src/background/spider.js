@@ -79,7 +79,8 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
 			'query.log',
 			'sphinx.conf'
 		]
-		p2p.listen()
+		// Start p2p
+		await p2p.listen()
 		const p2pStore = new P2PStore(p2p, sphinx)
 
 		const udpTrackers = [

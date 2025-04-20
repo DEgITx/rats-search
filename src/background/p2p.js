@@ -1,833 +1,875 @@
-const shuffle = require('./shuffle')
 const config = require('./config');
-const net = require('net')
-const JsonSocket = require('json-socket')
+const shuffle = require('./shuffle');
 const os = require('os');
-const isPortReachable = require('./isPortReachable')
+const fs = require('fs');
+const ph = require('path');
 const EventEmitter = require('events');
-const _ = require('lodash')
-const fs = require('fs')
-const ph = require('path')
-const directoryFilesRecursive = require('./directoryFilesRecursive')
-const {promisify} = require('util');
-const mkdirp = require('mkdirp')
-const deleteFolderRecursive = require('./deleteFolderRecursive')
+const _ = require('lodash');
+const mkdirp = require('mkdirp');
 const compareVersions = require('compare-versions');
-const portCheck = require('./portCheck')
 
-const findGoodPort = async (port, host) => {
-	while (!(await portCheck(port, host))) {
-		port++
-	}
-	return port
-}
+const { createLibp2p } = require('libp2p');
+const { tcp } = require('@libp2p/tcp');
+const { mplex } = require('@libp2p/mplex');
+const { noise } = require('@chainsafe/libp2p-noise');
+const { mdns } = require('@libp2p/mdns');
+const { bootstrap } = require('@libp2p/bootstrap');
+const { floodsub } = require('@libp2p/floodsub');
+const { ping } = require('@libp2p/ping');
+const { webSockets } = require('@libp2p/websockets');
+const { multiaddr } = require('@multiformats/multiaddr');
+const { fromString: uint8ArrayFromString } = require('uint8arrays/from-string');
+const { toString: uint8ArrayToString } = require('uint8arrays/to-string');
 
-class p2p {
-	constructor(send = () => {})
-	{
-		this.minClientVersion = '1.1.0'
-		this.minServerVersion = '1.1.0'
+const directoryFilesRecursive = require('./directoryFilesRecursive');
+const deleteFolderRecursive = require('./deleteFolderRecursive');
 
-		this.events = new EventEmitter
-		this.peers = []
-		this.clients = []
-		this.ignoreAddresses = ['127.0.0.1']
-		this.messageHandlers = {}
-		this.externalPeers = []
-		this.size = 0
-		this.p2pStatus = 0
-		this.version = '0'
-		this.info = {}
-		this.filesRequests = {}
-		this.filesBlacklist = []
-		if(!config.peerId)
-		{
-			logT('p2p', 'generate peerId')
-			config.peerId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+class P2P {
+	/**
+	 * Create a P2P network instance
+	 * @param {Function} send - Function to send messages to UI
+	 */
+	constructor(send = () => {}) {
+		this.minClientVersion = '1.1.0';
+		this.version = '2';
+
+		this.events = new EventEmitter();
+		this.peers = new Map();
+		this.ignoreAddresses = ['127.0.0.1'];
+		this.externalPeers = [];
+		this.size = 0;
+		this.p2pStatus = 0;
+		this.info = {};
+		this.filesRequests = {};
+		this.filesBlacklist = [];
+		
+		// Generate peer ID if not already in config
+		if(!config.peerId) {
+			logT('p2p', 'generate peerId');
+			config.peerId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 		}
 		this.peerId = config.peerId;
 
-		this.send = send
-		this.tcpServer = net.createServer();
-		this.tcpServer.maxConnections = config.p2pConnections * 2;
-
-		this.relay = {server: false, client: false}
-		this.relaysList = [];
+		this.send = send;
 		this.selfAddress = null;
-		this.relayServers = {};
-		this.relayServersLimit = 8;
-		// <-> server commination for relays
-		this.relaySocket = null;
+		this.closing = false;
 
-		// define some help info
+		// Define help info with getters to ensure values are always current
 		Object.defineProperty(this.info, 'maxPeersConnections', { 
 			enumerable: true,
-			get: () => this.tcpServer.maxConnections
+			get: () => config.p2pConnections * 2
 		});
+		
 		Object.defineProperty(this.info, 'peersConnections', { 
 			enumerable: true,
-			get: () => this.clients.length
+			get: () => this.size
 		});
 
-		this.tcpServer.on('connection', (socket) => {
-			if(!config.p2p)
-			{
-				logT('p2p', 'ignore incoming p2p connection because of p2p disabled')
-				socket.destroy()
-				return
-			}
+		this.topicHandlers = new Map();
+		this.responseHandlers = new Map();
+		this.initPromise = this.init();
+	}
 
-			this.tcpServer.getConnections((err,con) => {
-				logT('p2p', 'server connected', con, 'max', this.tcpServer.maxConnections)
-			})
-			socket = new JsonSocket(socket);
-			this.clients.push(socket)
-			socket.on('close', () => {
-				this.clients.splice(this.clients.indexOf(socket), 1);
-			});
-			socket.on('error', (err) => {})
-			socket.on('message', (message) => {    
-				if(message.type && this.messageHandlers[message.type])
-				{
-					// responce only to rats messages
-					if(message.type != 'protocol' && !socket.rats)
-						return
-
-					this.messageHandlers[message.type](message.data, (data) => {
-						socket.sendMessage({
-							id: message.id,
-							data
-						});
-					}, socket, {
-						version: message.version,
-						info: message.info
+	/**
+	 * Initialize the P2P node
+	 * @returns {Promise<P2P>} This instance
+	 */
+	async init() {
+		try {
+			// Create and configure libp2p node
+			this.node = await createLibp2p({
+				addresses: {
+					listen: [
+						`/ip4/0.0.0.0/tcp/${config.spiderPort}`,
+						`/ip4/0.0.0.0/tcp/${config.spiderPort + 1}/ws`
+					]
+				},
+				transports: [
+					tcp(),
+					webSockets()
+				],
+				streamMuxers: [mplex()],
+				connectionEncryption: [noise()],
+				peerDiscovery: [
+					mdns({
+						interval: 20000
+					}),
+					bootstrap({
+						list: [
+							// Default bootstrap nodes
+							'/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN',
+							'/dnsaddr/bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa'
+						],
+						interval: 60000
+					})
+				],
+				pubsub: floodsub(),
+				services: {
+					ping: ping({
+						protocolPrefix: 'rats'
 					})
 				}
 			});
-			socket.protocolTimeout = setTimeout(() => socket._socket.destroy(), 7000)
-		})
-		// check protocol
-		this.on('protocol', (data, callback, socketObject) => {
-			if(!data || data.protocol != 'rats')
-				return
 
-			if(compareVersions(data.version, this.minServerVersion) < 0) {
-				logTE('p2p', `ignore peer because of version ${data.version} < ${this.minServerVersion}`);
-				return;
+			// Set up event listeners
+			this.setupEventListeners();
+			
+			// Subscribe to topics
+			this.setupTopicHandlers();
+			
+			// Ignore local addresses
+			this.ignoreLocalAddresses();
+			
+			// Start the node
+			await this.node.start();
+			logT('p2p', 'libp2p node started successfully');
+			
+			return this;
+		} catch (err) {
+			logTE('p2p', 'Failed to initialize libp2p node:', err);
+			throw err;
+		}
+	}
+
+	/**
+	 * Set up event listeners for the libp2p node
+	 */
+	setupEventListeners() {
+		// Peer discovery event
+		this.node.addEventListener('peer:discovery', (evt) => {
+			const peer = evt.detail;
+			logT('p2p', 'Discovered peer:', peer.id.toString());
+			this.attemptConnection(peer);
+		});
+
+		// Peer connection event
+		this.node.addEventListener('peer:connect', (evt) => {
+			const peerId = evt.detail.toString();
+			logT('p2p', 'Connected to peer:', peerId);
+			
+			if (!this.peers.has(peerId)) {
+				const multiaddrs = this.node.getMultiaddrs(peerId).map(addr => addr.toString());
+				
+				this.peers.set(peerId, {
+					id: peerId,
+					connected: true,
+					version: null,
+					info: null,
+					addresses: multiaddrs,
+					connectedAt: Date.now()
+				});
+				
+				this.size++;
+				
+				// Check protocol compatibility
+				this.sendProtocolCheck(peerId);
+				
+				// Update status
+				if (this.p2pStatus === 0) {
+					this.p2pStatus = 2;
+					this.send('p2pStatus', this.p2pStatus);
+				}
+				
+				this.events.emit('peer', { id: peerId });
 			}
+		});
 
-			if(data.peerId === this.peerId) {
-				logT('p2p', 'try connection to myself, ignore', this.peerId)
-				return;
-			}
-
-			for(const peer of this.clients) {
-				if(peer.peerId === data.peerId) {
-					// already connected from different interface
-					logT('p2p', 'server peer', data.peerId, 'already connected from different address', '( check:', peer.files === data.files && peer.torrents === data.torrents, ')');
-					return;
+		// Peer disconnection event
+		this.node.addEventListener('peer:disconnect', (evt) => {
+			const peerId = evt.detail.toString();
+			if (this.peers.has(peerId)) {
+				logT('p2p', 'Disconnected from peer:', peerId);
+				const peer = this.peers.get(peerId);
+				this.peers.delete(peerId);
+				this.size--;
+				
+				this.send('peer', {
+					size: this.size,
+					torrents: peer.info ? peer.info.torrents || 0 : 0
+				});
+				
+				// Try to reconnect after delay if not closing
+				if (!this.closing) {
+					setTimeout(() => {
+						this.attemptConnection({ id: peerId });
+					}, 5000);
 				}
 			}
+		});
 
-			// protocol ok
-			clearTimeout(socketObject.protocolTimeout)
-			const { _socket: socket } = socketObject
-			socketObject.rats = true
-			socketObject.peerId = data.peerId
-			socketObject.relay = data.relay
+		// PubSub message event
+		this.node.pubsub.addEventListener('message', this.handlePubSubMessage.bind(this));
+	}
 
-			callback({
-				protocol: 'rats',
-				version: this.version,
-				peerId: this.peerId,
-				relay: this.relay,
-				relays: this.relays(data.relays),
-				info: this.info,
-				peers: this.addresses(this.recommendedPeersList())
-			})
-
-			// try to connect back
-			if(socket.remoteFamily == 'IPv4')
-			{
-				this.add({
-					address: socket.remoteAddress,
-					port: data.port ? data.port : socket.remotePort
-				})
+	/**
+	 * Handle incoming pubsub messages
+	 * @param {Event} evt - Message event
+	 */
+	handlePubSubMessage(evt) {
+		try {
+			const { data, topic, from } = evt.detail;
+			const message = JSON.parse(uint8ArrayToString(data));
+			
+			// Check if this is a response to a request
+			if (message.id && message.isResponse && this.responseHandlers.has(message.id)) {
+				const handler = this.responseHandlers.get(message.id);
+				handler(message, from);
+				
+				// Remove one-time handlers
+				if (!handler.permanent) {
+					this.responseHandlers.delete(message.id);
+				}
+				return;
 			}
-
-			// add some other peers
-			if(data.peers && data.peers.length > 0)
-			{
-				data.peers.forEach(peer => this.add(peer))
+			
+			// Handle topic-specific messages
+			if (this.topicHandlers.has(topic)) {
+				const handler = this.topicHandlers.get(topic);
+				
+				// For request-response pattern, include the ability to reply
+				const respond = (responseData) => {
+					this.sendToPeer(from, topic, {
+						...responseData,
+						id: message.id,
+						isResponse: true
+					});
+				};
+				
+				handler(message, from, respond);
 			}
+		} catch (err) {
+			logTE('p2p', 'Error handling pubsub message:', err);
+		}
+	}
 
-			// someone connected to our server, make sure that status updated properly
-			if (this.p2pStatus === 0) {
-				// switch to direct status, otherwise it's relay
-				this.p2pStatus = 2
-				this.relay.client = false;
-				this.send('p2pStatus', this.p2pStatus)
+	/**
+	 * Set up handlers for specific topics
+	 */
+	setupTopicHandlers() {
+		// Protocol message handler
+		this.registerTopicHandler('rats:protocol', async (data, from, respond) => {
+			if (!data || data.protocol !== 'rats') return;
+			
+			if (compareVersions(data.version, this.minClientVersion) < 0) {
+				logTE('p2p', `Ignore peer because of version ${data.version} < ${this.minClientVersion}`);
+				return;
 			}
-		})
+			
+			if (data.peerId === this.peerId) {
+				logT('p2p', 'Try connection to myself, ignore', this.peerId);
+				return;
+			}
+			
+			// Update peer information
+			if (this.peers.has(from)) {
+				const peer = this.peers.get(from);
+				peer.version = data.version;
+				peer.peerId = data.peerId;
+				peer.info = data.info;
+				peer.port = data.port;
+				
+				// Send response
+				respond({
+					protocol: 'rats',
+					version: this.version,
+					peerId: this.peerId,
+					info: this.info,
+					peers: this.addresses(this.recommendedPeersList())
+				});
+				
+				// Add other peers
+				if (data.peers && Array.isArray(data.peers) && data.peers.length > 0) {
+					data.peers.forEach(peer => this.add(peer));
+				}
+			}
+		});
 
-		// new peer with peer exchange
-		this.on('peer', (peer) => {
-			logT('p2p', 'got peer exchange', peer)
-			this.add(peer)
-		})
+		// Peer exchange handler
+		this.registerTopicHandler('rats:peer', (peer) => {
+			logT('p2p', 'Got peer exchange', peer);
+			this.add(peer);
+		});
 
-		// ignore local addresses
+		// File transfer handler
+		this.registerTopicHandler('rats:file', async ({ path, id, chunk, done }, from, respond) => {
+			try {
+				if (!this.dataDirectory) {
+					logTE('transfer', 'No data directory');
+					respond({ id, error: 'no_data_directory' });
+					return;
+				}
+				
+				const filePath = ph.resolve(this.dataDirectory + '/' + path);
+				if (!filePath.includes(this.dataDirectory) || filePath === this.dataDirectory) {
+					logTE('transfer', 'File get must be from data dir');
+					respond({ id, error: 'security_violation' });
+					return;
+				}
+				
+				if (!fs.existsSync(filePath)) {
+					logT('transfer', 'No such file or directory', filePath);
+					respond({ id, error: 'not_found' });
+					return;
+				}
+				
+				// Check blacklist
+				for (const blackWord of this.filesBlacklist) {
+					if (filePath.includes(blackWord)) {
+						logTE('transfer', 'File in blackwords', filePath, blackWord);
+						respond({ id, error: 'blacklisted' });
+						return;
+					}
+				}
+				
+				// Handle directory listing
+				if (fs.lstatSync(filePath).isDirectory()) {
+					const filesList = directoryFilesRecursive(filePath)
+						.map(file => ph.relative(this.dataDirectory, file).replace(/\\/g, '/'));
+					respond({ id, filesList });
+					return;
+				}
+				
+				// If this is a request for file content
+				if (chunk) {
+					this.streamFileToRequester(filePath, path, id, respond);
+				}
+			} catch (err) {
+				logTE('transfer', 'Error processing file request:', err);
+				respond({ id, error: err.message });
+			}
+		});
+	}
+
+	/**
+	 * Stream a file to the requester
+	 * @param {string} filePath - Path to the file
+	 * @param {string} path - Relative path for logging
+	 * @param {string} id - Request ID
+	 * @param {Function} respond - Response function
+	 */
+	streamFileToRequester(filePath, path, id, respond) {
+		logT('transfer', 'Server transfer file', path);
+		let readable = new fs.ReadStream(filePath);
+		
+		readable.on('data', (chunk) => {
+			respond({ id, data: chunk });
+		});
+		
+		readable.on('end', () => {
+			logT('transfer', 'Server finish transfer file', path);
+			respond({ id, done: true });
+			readable = null;
+		});
+		
+		readable.on('error', (err) => {
+			logTE('transfer', 'Error reading file', err);
+			respond({ id, error: err.message });
+			readable = null;
+		});
+	}
+
+	/**
+	 * Ignore local network interfaces
+	 */
+	ignoreLocalAddresses() {
 		const ifaces = os.networkInterfaces();
 		Object.keys(ifaces).forEach((ifname) => {
-			let alias = 0;
 			ifaces[ifname].forEach((iface) => {
 				if ('IPv4' !== iface.family || iface.internal !== false) {
 					return;
 				}
-
-				if (alias >= 1) {
-					// nothing
-				} else {
-					logT('p2p', 'ignore local address', iface.address);
-					this.ignore(iface.address)
-				}
-				++alias;
+				
+				logT('p2p', 'Ignore local address', iface.address);
+				this.ignore(iface.address);
 			});
 		});
-
-		this.on('file', ({path}, callback) => {
-			if(!this.dataDirectory)
-			{
-				logTE('transfer', 'no data directory')
-				return
-			}
-
-			const filePath = ph.resolve(this.dataDirectory + '/' + path)
-			if(!filePath.includes(this.dataDirectory) || filePath == this.dataDirectory)
-			{
-				logTE('transfer', 'file get must be from data dir')
-				return
-			}
-
-			if(!fs.existsSync(filePath))
-			{
-				logT('transfer', 'no such file or directory', filePath)
-				return
-			}
-
-			for(const blackWord of this.filesBlacklist)
-			{
-				if(filePath.includes(blackWord))
-				{
-					logTE('transfer', 'file in blackwords', filePath, blackWord)
-					return
-				}
-			}
-
-			if(fs.lstatSync(filePath).isDirectory())
-			{
-				const filesList = directoryFilesRecursive(filePath).map(file => ph.relative(this.dataDirectory, file).replace(/\\/g, '/'))
-				callback({filesList})
-				return
-			}
-
-			let readable = new fs.ReadStream(filePath)
-			logT('transfer', 'server transfer file', path)
-			readable.on('data', (chunk) => {
-				callback({data: chunk})
-			});
-			readable.on('end', () => {
-				logT('transfer', 'server finish transfer file', path)
-				callback(undefined)
-				readable = null
-			});
-		})
-
-		this.on('relay', async (nil, callback, remote) => {
-			if(this.relay.server && remote.relay) {
-				// update status, because client ask for relay
-				remote.relay.client = true
-				if(!this.relayServers[remote.peerId] && Object.keys(this.relayServers).length < this.relayServersLimit) {
-					let relayPort;
-					const server = net.createServer();
-					this.relayServers[remote.peerId] = server;
-					let relay;
-					const peers = {}
-					const establishConnectionTimeout = setTimeout(() => {
-						logTE('relay', `not recived relay income connection, timeout`);
-						server.close();
-						delete this.relayServers[remote.peerId]
-					}, 8000)
-					server.on('connection', (peer) => {
-						logT('relay', `new relay connection`);
-						peer = new JsonSocket(peer);
-						peer._id = Math.random().toString(36).substring(2, 15)
-						peers[peer._id] = peer
-						peer.on('message', (data) => {
-							if (!relay && data && remote.peerId == data.peerId) {
-								relay = peer
-								logT('relay', `reply root pear fouded, current openned relays ${Object.keys(this.relayServers).length}`);
-								if (this.selfAddress) {
-									logT('relay', `exchange ${remote.peerId} relay to other peers`);
-									this.emit('peer', {port: relayPort, address: this.selfAddress})
-								}
-								clearTimeout(establishConnectionTimeout);
-								return;
-							}
-							if (relay) {
-								if(peer === relay && data.id && peers[data.id]) {
-									//logT('relay', `server message to pear ${data.id}`);
-									peers[data.id].sendMessage(data.data)
-								} else {
-									//logT('relay', `server message to relay ${peer._id}`);
-									relay.sendMessage({id: peer._id, data});
-								}
-							}
-						});
-						peer.on('close', () => {
-							if(peer == relay) {
-								logT('relay', `relay client disconnected`);
-								relay = null
-								server.close();
-								delete this.relayServers[remote.peerId]
-							} else if(relay) {
-								logT('relay', `relay peer disconnected`);
-								relay.sendMessage({id: peer._id, close: true});
-							}
-							if(peer._id && peers[peer._id])
-								delete peers[peer._id]
-						});
-						peer.on('error', (err) => {
-							logTE('relay', `relay server peer error ${err}`);
-						})
-					});
-					relayPort = await findGoodPort(Math.floor(Math.random() * 50000) + 10000, '0.0.0.0')
-					server.listen(relayPort, '0.0.0.0');
-					logT('relay', `establish new relay server on port`, relayPort);
-					callback({port: relayPort})
-				}
-			}
-		})
 	}
 
-	listen() {
-		logT('p2p', 'listen p2p on', config.spiderPort, 'port')
-		this.tcpServer.listen(config.spiderPort, '0.0.0.0');
+	/**
+	 * Start listening on configured ports
+	 * @returns {Promise<void>}
+	 */
+	async listen() {
+		await this.initPromise;
+		logT('p2p', 'P2P listening on ports', config.spiderPort, 'and', config.spiderPort + 1);
 	}
 
-	relays(relaysList = []) {
-		relaysList = relaysList || []
-		const myRelays = this.addresses(this.peersList().filter(peer => peer.relay && peer.relay.server)) || []
-		this.relaysList = myRelays.concat(this.relaysList).concat(this.addresses(relaysList)).slice(0, 3)
-		return this.relaysList
-	}
-
-	checkPortAndRedirect(address, port) {
-		this.selfAddress = address;
-		isPortReachable(port, {host: address}).then(async (isAvailable) => {
-			if(this.closing)
-				return // responce can be very late, and can start after closing of program, this will break on linux
-
-			if(isAvailable)
-			{   
-				logT('relay', 'tcp p2p port is reachable - all ok')
-				const server = net.createServer();
-				const randomPort = await findGoodPort(Math.floor(Math.random() * 50000) + 10000, '0.0.0.0')
-				server.listen(randomPort, '0.0.0.0');
-				isPortReachable(randomPort, {host: address}).then(async (isAvailable) => {
-					if(isAvailable) {
-						logT('relay', 'relay server port check success - can be using as relay')
-						this.relay.server = true;
-					} else {
-						logT('relay', 'relay server port check failes - not using as relay')
-					}
-					server.close();
-				})
-				this.p2pStatus = 2
-				this.send('p2pStatus', this.p2pStatus)
-			}
-			else
-			{
-				logT('relay', 'tcp p2p port is unreachable')
-				if(this.p2pStatus === 0)
-				{
-					logT('relay', 'using relay client')
-					this.relay.client = true;
-					// try reconnect to new relay server
-					let candidatePeer = this.peersList().filter(peer => peer.relay && peer.relay.server)
-					if(candidatePeer && candidatePeer.length > 0) {
-						logT('relay', 'reconnect to new relay, because no relays connection before check');
-						this.connectToRelay(candidatePeer[0])
-					}
-					this.p2pStatus = 0
-					this.send('p2pStatus', this.p2pStatus)
-				}
-				else
-				{
-					this.send('p2pStatus', this.p2pStatus)
-				}
-			}
-		})
-	}
-
-	close()
-	{
-		this.closing = true
-		// close server
-		const promise = new Promise(resolve => this.tcpServer.close(resolve))
-		for (const client in this.clients) {
-			this.clients[client]._socket.destroy();
+	/**
+	 * Close the P2P connection
+	 * @returns {Promise<boolean>} True when closed
+	 */
+	async close() {
+		this.closing = true;
+		// Stop libp2p node
+		if (this.node) {
+			await this.node.stop();
+			logT('p2p', 'libp2p node stopped');
 		}
-		this.peers = []
-		return promise
+		this.peers.clear();
+		this.size = 0;
+		this.responseHandlers.clear();
+		return true;
 	}
 
+	/**
+	 * Register a topic handler
+	 * @param {string} topic - Topic to subscribe to
+	 * @param {Function} handler - Message handler function
+	 */
+	registerTopicHandler(topic, handler) {
+		if (!this.topicHandlers.has(topic)) {
+			this.node.pubsub.subscribe(topic);
+			logT('p2p', 'Subscribed to topic', topic);
+		}
+		this.topicHandlers.set(topic, handler);
+	}
+
+	/**
+	 * Add a peer by address
+	 * @param {Object} address - Peer address info
+	 * @param {boolean} force - Force connection even if max peers reached
+	 * @returns {Promise<void>}
+	 */
+	async add(address, force = false) {
+		if (!config.p2p) {
+			return;
+		}
+
+		if (this.size > config.p2pConnections && !force) {
+			return;
+		}
+
+		if (address.port <= 1 || address.port > 65535) {
+			return;
+		}
+
+		// Check ignore list
+		if (this.isAddressIgnored(address)) {
+			return;
+		}
+		
+		// Check if we're already connected to this address
+		if (this.isAlreadyConnected(address)) {
+			return;
+		}
+
+		try {
+			// Build multiaddress
+			const ma = multiaddr(`/ip4/${address.address}/tcp/${address.port}`);
+			await this.node.dial(ma);
+			logT('p2p', 'Successfully dialed peer at', address.address + ':' + address.port);
+		} catch (err) {
+			logTE('p2p', 'Failed to connect to peer at', address.address + ':' + address.port, err.message);
+		}
+	}
+
+	/**
+	 * Check if an address is in the ignore list
+	 * @param {Object} address - Address to check 
+	 * @returns {boolean} Whether address is ignored
+	 */
+	isAddressIgnored(address) {
+		for (const ignoreAddress of this.ignoreAddresses) {
+			if (typeof ignoreAddress === 'object') {
+				if (ignoreAddress.address === address.address && ignoreAddress.port === address.port) {
+					return true;
+				}
+			} else {
+				if (ignoreAddress === address.address) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Check if we're already connected to this address
+	 * @param {Object} address - Address to check
+	 * @returns {boolean} Whether already connected
+	 */
+	isAlreadyConnected(address) {
+		for (const [, peer] of this.peers.entries()) {
+			if (peer.addresses && peer.addresses.some(addr => {
+				return addr.includes(address.address) && addr.includes(address.port.toString());
+			})) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Attempt connection to a discovered peer
+	 * @param {Object} peer - Peer to connect to
+	 * @returns {Promise<void>}
+	 */
+	async attemptConnection(peer) {
+		if (this.size > config.p2pConnections || this.closing) {
+			return;
+		}
+		
+		try {
+			await this.node.dial(peer.id);
+		} catch (err) {
+			logTE('p2p', 'Failed to connect to discovered peer', peer.id.toString(), err.message);
+		}
+	}
+
+	/**
+	 * Send protocol check to peer
+	 * @param {string} peerId - ID of the peer
+	 */
+	sendProtocolCheck(peerId) {
+		this.sendToPeer(peerId, 'rats:protocol', {
+			protocol: 'rats',
+			port: config.spiderPort,
+			version: this.version,
+			peerId: this.peerId,
+			info: this.info,
+			peers: this.addresses(this.recommendedPeersList()).concat(this.externalPeers)
+		});
+	}
+
+	/**
+	 * Send message to specific peer or topic
+	 * @param {string} peerId - ID of the peer
+	 * @param {string} topic - Topic to publish to
+	 * @param {Object} data - Data to send
+	 */
+	sendToPeer(peerId, topic, data) {
+		try {
+			const message = uint8ArrayFromString(JSON.stringify(data));
+			this.node.pubsub.publish(topic, message);
+		} catch (err) {
+			logTE('p2p', 'Error sending message to peer', peerId, err);
+		}
+	}
+
+	/**
+	 * Emit message to all peers with request-response pattern
+	 * @param {string} type - Message type
+	 * @param {Object} data - Message data
+	 * @param {Function} callback - Response callback
+	 * @param {boolean} permanent - Keep handler after response
+	 * @returns {Function} Function to unregister the callback
+	 */
+	emit(type, data, callback, permanent = false) {
+		if (!this.node || !this.node.pubsub) {
+			logTE('p2p', 'Node not initialized yet');
+			return () => {};
+		}
+		
+		// Map old message types to topics
+		const topicMapping = {
+			'protocol': 'rats:protocol',
+			'peer': 'rats:peer',
+			'file': 'rats:file'
+		};
+		
+		const topic = topicMapping[type] || `rats:${type}`;
+		
+		try {
+			// Generate a random ID for tracking responses
+			const id = Math.random().toString(36).substring(5);
+			
+			// If callback provided, set up a response handler
+			if (callback) {
+				const handler = (message, from) => {
+					callback(message, null, { id: from });
+				};
+				
+				// Mark if the handler is permanent
+				handler.permanent = permanent;
+				this.responseHandlers.set(id, handler);
+			}
+			
+			// Add ID to data
+			const messageData = { ...data, id };
+			
+			// Publish to the topic
+			const message = uint8ArrayFromString(JSON.stringify(messageData));
+			this.node.pubsub.publish(topic, message);
+			
+			// Return a function to unregister the callback
+			return () => {
+				if (callback) {
+					this.responseHandlers.delete(id);
+				}
+			};
+		} catch (err) {
+			logTE('p2p', 'Error emitting message', err);
+			return () => {};
+		}
+	}
+
+	/**
+	 * Register a handler for a topic (legacy API compatibility)
+	 * @param {string} type - Message type
+	 * @param {Function} callback - Message handler
+	 */
 	on(type, callback) {
-		this.messageHandlers[type] = callback
+		const topicMapping = {
+			'protocol': 'rats:protocol',
+			'peer': 'rats:peer',
+			'file': 'rats:file'
+		};
+		
+		const topic = topicMapping[type] || `rats:${type}`;
+		
+		this.registerTopicHandler(topic, (data, from, respond) => {
+			callback(data, (responseData) => {
+				respond(responseData);
+			}, { peerId: from }, {
+				version: data.version,
+				info: data.info
+			});
+		});
 	}
 
-	add(address, force = false) {
-		const { peers } = this
-
-		if(!config.p2p)
-			return
-
-		if(this.size > config.p2pConnections && !force)
-			return;
-
-		if(address.port <= 1 || address.port > 65535)
-			return;
-
-		// check ignore
-		for(const ignoreAddress of this.ignoreAddresses)
-		{
-			if(typeof ignoreAddress === 'object')
-			{
-				if(ignoreAddress.address === address.address && ignoreAddress.port === address.port)
-					return
-			}
-			else
-			{
-				if(ignoreAddress === address.address)
-					return
-			}
+	/**
+	 * Download file using p2p
+	 * @param {string} path - File path
+	 * @param {string} targetPath - Target path
+	 * @param {string} remotePeer - Peer to download from
+	 * @param {boolean} parent - Parent directory transfer
+	 * @returns {Promise<boolean|Function>} Success or rename callback
+	 */
+	async file(path, targetPath, remotePeer, parent) {
+		if (!this.dataDirectory) {
+			logTE('transfer', 'No data directory');
+			return false;
 		}
 
-		for(let peer of peers)
-		{
-			if(peer.address === address.address && peer.port === address.port) {
-				return;
-			}
+		if (this.filesRequests[path]) {
+			logT('transfer', 'Already downloading', path, 'return downloading request');
+			return this.filesRequests[path];
 		}
-		this.connect(address)
-	}
 
-	recommendedPeersList()
-	{
-		const fullList = this.peersList()
-		if(fullList.length === 0)
-			return [] // no list
+		logT('transfer', 'File request', path);
+		const promise = new Promise(async (resolve) => {
+			const realPath = (targetPath || path).replace(/\\/g, '/');
+			const filePath = this.dataDirectory + '/' + realPath;
+			const tmpPath = this.dataDirectory + '/' + realPath.split('/').map(p => p + '.tmp').join('/');
 
-		let peers = shuffle(fullList).slice(0, 4) // get 4 random peers from full peers list
-		// add 2 bigest peers
-		peers = peers.concat( _.orderBy(fullList, peer => peer.info && peer.info.torrents, 'desc').slice(0, 2) )
-		// add 2 small load peers
-		peers = peers.concat( _.orderBy(fullList, 
-			peer => peer.info && peer.info.maxPeersConnections && peer.info.peersConnections && (peer.info.maxPeersConnections - peer.info.peersConnections), 'desc').slice(0, 2) )
-
-		return _.uniq(peers)
-	}
-
-	connectToRelay(relayPeer, tryes = 3)
-	{
-		if(this.relay.client && relayPeer.relay.server && !this.relaySocket) {
-			relayPeer.emit('relay', {}, ({port} = {}) => {
-				if(!port) {
-					logTE('relay', 'no port in relay request responce');
+			// Create temporary directory and file for downloading
+			await mkdirp(ph.dirname(tmpPath));
+			let fileStream;
+			if (!fs.existsSync(tmpPath) || !fs.lstatSync(tmpPath).isDirectory()) {
+				fileStream = fs.createWriteStream(tmpPath);
+			}
+            
+			let peer = null;
+			let firstTransfer = false;
+			
+			// Generate a unique ID for this file transfer
+			const transferId = Math.random().toString(36).substring(2, 15);
+			
+			// Set up a handler for file responses
+			const fileResponseHandler = async (message, from) => {
+				if (peer && from !== peer) {
+					logT('transfer', 'Ignore other peers response', from);
 					return;
 				}
-                
-				logT('relay', 'try connecting to new relay', relayPeer.peerId)
-				let peers = {}
-				this.relaySocket = new JsonSocket(new net.Socket());
-				this.relaySocket.connect(port, relayPeer.address, () => {
-					logT('relay', 'connected to relay', relayPeer.peerId);
-					this.relaySocket.sendMessage({peerId: this.peerId})
-					this.p2pStatus = 1
-					this.send('p2pStatus', this.p2pStatus)
-					tryes = 3; // restore tryies bebause we connected
-				});
-    
-				this.relaySocket.on('message', (data) => {
-					if(!data.id)
-						return
-                    
-					if(!peers[data.id]) {
-						if(data.close)
-							return
-    
-						peers[data.id] = new JsonSocket(new net.Socket());
-						peers[data.id].on('message', (toPeer) => {
-							//logT('relay', 'client message to relay', data.id);
-							this.relaySocket.sendMessage({id: data.id, data: toPeer})
-						})
-						peers[data.id].connect(config.spiderPort, '0.0.0.0', () => {
-							//logT('relay', 'client message to my server', data.id);
-							peers[data.id].sendMessage(data.data)
+
+				// Handle file transfer completion
+				if (message.done) {
+					logT('transfer', 'Closing transferring file stream', path);
+					this.responseHandlers.delete(transferId);
+					
+					if (fileStream) {
+						fileStream.end();
+					}
+					
+					if (firstTransfer) {
+						const renameCallback = async () => {
+							await mkdirp(ph.dirname(filePath));
+							fs.renameSync(tmpPath, filePath);
+						};
+						
+						if (parent) {
+							resolve(renameCallback);
+						} else {
+							await renameCallback();
+							resolve(true);
+						}
+					}
+					return;
+				}
+
+				// Handle file list response (directory)
+				if (message.filesList) {
+					logT('transfer', 'Got folder content', message.filesList);
+					this.responseHandlers.delete(transferId);
+					
+					const transferFiles = () => {
+						Promise.all(message.filesList.map(file => this.file(file, null, from, true))).then(async (files) => {
+							// Files transfers complete, now move them from tmp dir
+							Promise.all(files.map((renameCallback) => renameCallback())).then(() => {
+								deleteFolderRecursive(tmpPath);
+								logT('transfer', 'Finish transfer all files from folder');
+								resolve();
+							});
+						});
+					};
+					
+					if (fileStream) {
+						fileStream.end(null, null, () => {
+							fs.unlinkSync(tmpPath);
+							transferFiles();
 						});
 					} else {
-						if(data.close) {
-							peers[data.id].destroy();
-							delete peers[data.id];
-							logT('relay', 'peer disconnected');
-							return
-						}
-    
-						//logT('relay', 'client message to my server', data.id);
-						peers[data.id].sendMessage(data.data)
+						transferFiles();
 					}
-				});
-    
-				this.relaySocket.on('close', () => {
-					logT('relay', 'relay client closed because server exit');
-					for(const id in peers) {
-						peers[id].destroy();
-					}
-					peers = null
-					this.relaySocket = null
-					this.p2pStatus = 0
-					this.send('p2pStatus', this.p2pStatus)
-					// try reconnect to new relay server
-					let candidatePeer = this.peersList().filter(peer => peer.relay && peer.relay.server && peer != relayPeer)
-					if(candidatePeer && candidatePeer.length > 0 && tryes > 0) {
-						logT('relay', 'reconnect to new relay, because old closed');
-						this.connectToRelay(candidatePeer[0], --tryes)
-					}
-				}); 
-
-				this.relaySocket.on('error', (err) => {
-					logT('relay', 'error during relay connection:', err);
-				})
-			})
-		}
-	}
-
-	connect(address)
-	{
-		this.peers.push(address)
-		const rawSocket = new net.Socket();
-		const socket = new JsonSocket(rawSocket); //Decorate a standard net.Socket with JsonSocket
-		socket.on('connect', () => { //Don't send until we're connected
-			const callbacks = {}
-			const callbacksPermanent = {}
-			socket.on('message', (message) => {
-				if(message.id && callbacks[message.id])
-				{
-					callbacks[message.id](message.data, socket, address);
-					if(!callbacksPermanent[message.id])
-						delete callbacks[message.id];
-				}
-			});
-            
-			const emit = (type, data, callback, callbackPermanent) => {
-				const id = Math.random().toString(36).substring(5)
-				if(callback)
-					callbacks[id] = callback;
-				if(callback && callbackPermanent)
-					callbacksPermanent[id] = true // dont delete callback on message
-				socket.sendMessage({
-					id,
-					type,
-					data
-				});
-
-				return () => delete callbacks[id];
-			}
-
-			// check protocol
-			const protocolTimeout = setTimeout(() => rawSocket.destroy(), 7000)
-			emit('protocol', {
-				protocol: 'rats',
-				port: config.spiderPort,
-				version: this.version,
-				peerId: this.peerId,
-				relay: this.relay,
-				relays: this.relays(),
-				info: this.info,
-				peers: this.addresses(this.recommendedPeersList()).concat(this.externalPeers) // also add external peers
-			}, (data) => {
-				if(!data || data.protocol != 'rats')
-					return
-
-				// can be added to ignore list while connecting
-				if(this.ignoreAddresses.includes(address.address))
-					return;
-
-				if(compareVersions(data.version, this.minClientVersion) < 0) {
-					logTE('p2p', `ignore client peer because of version ${data.version} < ${this.minClientVersion}`)
-					rawSocket.destroy()
 					return;
 				}
 
-				// ignore myself check
-				if(data.peerId === this.peerId) {
-					logT('p2p', 'try connection to myself, ignore', this.peerId)
-					rawSocket.destroy()
+				// Handle error response
+				if (message.error) {
+					logTE('transfer', 'Error on file transfer', path, message.error);
+					this.responseHandlers.delete(transferId);
+					
+					if (fileStream) {
+						fileStream.end();
+					}
+					
+					resolve(false);
 					return;
 				}
 
-				for(let peer of this.peers) {
-					if(peer.peerId === data.peerId) {
-						// already connected from different interface
-						logT('p2p', 'peer', data.peerId, 'already connected from different address', '( check:', peer.files === data.files && peer.torrents === data.torrents, ')');
-						rawSocket.destroy()
-						return;
-					}
+				if (!fileStream) {
+					logTE('transfer', 'Error on file transfer', path, 'cant create description');
+					this.responseHandlers.delete(transferId);
+					resolve(false);
+					return;
 				}
 
-				// success
-				clearTimeout(protocolTimeout)
-
-				// send some peers with pears exchange
-				this.emit('peer', address)
-
-				// add to peers
-				address.emit = emit
-				address.disconnect = () => rawSocket.destroy()
-				this.size++;
-				//extra info
-				address.version = data.version
-				address.peerId = data.peerId
-				address.relay = data.relay
-				address.info = data.info
-				this.send('peer', {
-					size: this.size,
-					torrents: data.info ? data.info.torrents || 0 : 0
-				})
-				this.events.emit('peer', address)
-				logT('p2p', 'new peer', address) 
-
-				// add some other peers
-				if(data.peers && data.peers.length > 0)
-				{
-					data.peers.forEach(peer => this.add(peer))
+				if (!message.data) {
+					logTE('transfer', 'Error on file transfer', path);
+					this.responseHandlers.delete(transferId);
+					fileStream.end();
+					resolve(false);
+					return;
 				}
 
-				if(data.relays && Array.isArray(data.relays) && data.relays.length > 0)
-				{
-					// keep relays list updated
-					this.relays(data.relays);
-					// add replays if needed
-					if(this.relay.client && !this.relaySocket)
-					{
-						data.relays.forEach(peer => this.add(peer, true))
-					}
+				// Make sure no other peer will receive data
+				peer = from;
+				if (!firstTransfer) {
+					firstTransfer = true;
+					logT('transfer', 'Got peer for transfer, start transferring file', path, 'from peer', from);
 				}
                 
-
-				// try connect to relay if needed
-				this.connectToRelay(address)
-			})
+				// Write data to file
+				fileStream.write(Buffer.from(message.data));
+			};
+			
+			// Register the file response handler
+			fileResponseHandler.permanent = true;
+			this.responseHandlers.set(transferId, fileResponseHandler);
+			
+			// Send the file request
+			this.sendToPeer(remotePeer || null, 'rats:file', { 
+				path, 
+				id: transferId,
+				chunk: true 
+			});
 		});
 
-		socket.on('close', () => {
-			const index = this.peers.indexOf(address);
-			if(index >= 0)
-			{
-				if(this.peers[index].emit) // only autorized peers
-				{
-					this.size--;
-					this.send('peer', {
-						size: this.size,
-						torrents: this.peers[index].info ? this.peers[index].info.torrents || 0 : 0
-					})
-					// trying reconnect once
-					setTimeout(() => this.add(this.addr(address)), 5000)
-				}
-				this.peers.splice(index, 1);
-
-				logT('p2p', 'close peer connection', address)
-			}
-		})
-        
-		socket.on('error', (err) => {})
-
-		socket.connect(address.port, address.address);
-	}
-
-	emit(type, data, callback, callbackPermanent)
-	{
-		const callbacks = []
-		for(const peer of this.peers)
-		{
-			if(peer.emit)
-				callbacks.push(peer.emit(type, data, callback, callbackPermanent))
-		}
-		return () => callbacks.forEach(callback => callback())
-	}
-
-	file(path, targetPath, remotePeer, parent)
-	{
-		if(!this.dataDirectory)
-		{
-			logTE('transfer', 'no data directory')
-			return
-		}
-
-		if(this.filesRequests[path])
-		{
-			logT('transfer', 'already downloading', path, 'return downloading request')
-			return this.filesRequests[path]
-		}
-
-		logT('transfer', 'get file request', path)
-		const promise = new Promise(async (resolve) =>
-		{
-			const realPath = (targetPath || path).replace(/\\/g, '/')
-			const filePath = this.dataDirectory + '/' + realPath
-			const tmpPath = this.dataDirectory + '/' + realPath.split('/').map(p => p + '.tmp').join('/')
-
-			// create temporary directory and file for downloading
-			await mkdirp(ph.dirname(tmpPath))
-			let fileStream
-			if(!fs.existsSync(tmpPath) || !fs.lstatSync(tmpPath).isDirectory())
-				fileStream = fs.createWriteStream(tmpPath)
-            
-			let peer = null
-			let firstTransfer = false
-			let deleteCallback = (remotePeer || this).emit('file', {path}, async (chunk, nil, addr) => {
-				if(peer && addr !== peer)
-				{
-					logT('transfer', 'ignore other peers responce', addr.peerId)
-					return
-				}
-
-				if(!chunk)
-				{
-					logT('transfer', 'closing transfering file stream', path)
-					deleteCallback()
-					if(fileStream)
-						fileStream.end()
-					if(firstTransfer) // данные передало до этого, значит файл целый
-					{
-						const renameCallback = async () => {
-							await mkdirp(ph.dirname(filePath))
-							fs.renameSync(tmpPath, filePath)
-						}
-						if(parent)
-						{
-							resolve(renameCallback)
-						}
-						else
-						{
-							await renameCallback()
-							resolve(true)
-						}
-					}
-					return
-				}
-
-				const {data, filesList} = chunk
-
-				if(filesList)
-				{
-					logT('transfer', 'get folder content', filesList)
-					deleteCallback()
-					const transferFiles = () => {
-						Promise.all(filesList.map(file => this.file(file, null, addr, true))).then(async (files) => {
-							// files transfers, now move it from tmp dir
-							Promise.all(files.map((renameCallback) => renameCallback())).then(() => {
-								deleteFolderRecursive(tmpPath)
-								logT('transfer', 'finish transfer all files from folder')
-								resolve()
-							})
-						})
-					}
-					if(fileStream)
-						fileStream.end(null, null, () => {
-							fs.unlinkSync(tmpPath)
-							transferFiles() 
-						})
-					else
-						transferFiles()
-                    
-					return
-				}
-
-				if(!fileStream)
-				{
-					logTE('transfer', 'error on file transfer', path, 'cant create description')
-					deleteCallback()
-					resolve(false)
-					return
-				}
-
-				if(!data || data.type !== 'Buffer')
-				{
-					logTE('transfer', 'error on file transfer', path)
-					deleteCallback()
-					fileStream.end()
-					resolve(false)
-					return
-				}
-
-				// make sure no othe peer will recive data
-				peer = addr
-				if(!firstTransfer)
-				{
-					firstTransfer = true
-					logT('transfer', 'got peer for tranfer, start transfering file', path, 'from peer', addr.peerId)
-				}
-                
-				const buffer = Buffer.from(data.data)
-				fileStream.write(buffer)
-			}, true) // dont clear callback
-		})
-
-		this.filesRequests[path] = promise
+		this.filesRequests[path] = promise;
 		promise.then(() => {
-			delete this.filesRequests[path]
-		})
+			delete this.filesRequests[path];
+		});
 
-		return promise
+		return promise;
 	}
 
-	peersList()
-	{
-		return this.peers.filter(peer => !!peer.emit)
+	/**
+	 * Get list of connected peers
+	 * @returns {Array} List of connected peers
+	 */
+	peersList() {
+		return Array.from(this.peers.values())
+			.filter(peer => peer.connected);
 	}
 
-	addresses(peers)
-	{
-		if(!peers || !Array.isArray(peers))
-			return
-		return peers.map(peer => ({address: peer.address, port: peer.port}))
+	/**
+	 * Get recommended list of peers to share
+	 * @returns {Array} Recommended peers list
+	 */
+	recommendedPeersList() {
+		const fullList = this.peersList();
+		if (fullList.length === 0) {
+			return []; // no list
+		}
+
+		// Get 4 random peers from full peers list
+		let peers = shuffle(fullList).slice(0, 4);
+		
+		// Add 2 peers with highest torrents count 
+		peers = peers.concat(
+			_.orderBy(fullList, peer => peer.info && peer.info.torrents, 'desc').slice(0, 2)
+		);
+		
+		// Add 2 peers with most available connections
+		peers = peers.concat(
+			_.orderBy(fullList, 
+				peer => peer.info && peer.info.maxPeersConnections && peer.info.peersConnections && 
+					(peer.info.maxPeersConnections - peer.info.peersConnections), 
+				'desc'
+			).slice(0, 2)
+		);
+
+		return _.uniq(peers);
 	}
 
-	addr(peer)
-	{
-		return {address: peer.address, port: peer.port}
+	/**
+	 * Get addresses of peers for sharing
+	 * @param {Array} peers - List of peers
+	 * @returns {Array} Addresses of peers
+	 */
+	addresses(peers) {
+		if (!peers || !Array.isArray(peers)) {
+			return [];
+		}
+		
+		return peers
+			.filter(peer => peer.addresses && peer.addresses.length > 0)
+			.map(peer => {
+				// Extract IP and port from multiaddr string
+				const addr = peer.addresses[0];
+				const ipMatch = addr.match(/\/ip4\/([^/]+)/);
+				const tcpMatch = addr.match(/\/tcp\/(\d+)/);
+				
+				if (ipMatch && tcpMatch) {
+					return {
+						address: ipMatch[1],
+						port: parseInt(tcpMatch[1], 10)
+					};
+				}
+				return null;
+			})
+			.filter(Boolean);
 	}
 
-	find(peer)
-	{
-		return this.peersList().find((localPeer) => {
-			return localPeer.address === peer.address
-		})
-	}
-
-	ignore(address)
-	{
-		this.ignoreAddresses.push(address)
-		// close all connected peers (if they connected already)
-		this.peers.forEach(peer => {
-			if(peer.address !== address)
-				return
-
-			if(peer.disconnect)
-				peer.disconnect()
-		})
+	/**
+	 * Ignore an address (prevent connections)
+	 * @param {string} address - Address to ignore
+	 */
+	ignore(address) {
+		if (this.ignoreAddresses.includes(address)) return;
+		
+		this.ignoreAddresses.push(address);
+		
+		// Close all connected peers with this address
+		for (const [peerId, peer] of this.peers.entries()) {
+			if (peer.addresses && peer.addresses.some(addr => addr.includes(`/ip4/${address}/`))) {
+				logT('p2p', 'Disconnecting ignored peer with address', address);
+				this.node.hangUp(peerId).catch(err => {
+					logTE('p2p', 'Error hanging up connection to peer', peerId, err);
+				});
+			}
+		}
 	}
 }
 
-module.exports = p2p
+module.exports = P2P;
