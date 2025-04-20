@@ -17,7 +17,34 @@ module.exports = env => {
       __dirname: false,
       __filename: false
     },
-    externals: [nodeExternals()],
+    externals: [nodeExternals({
+      allowlist: [
+        // Use regex patterns to match multiple libraries with similar patterns
+        /^libp2p/,
+        /^@libp2p/,
+        /^@chainsafe/,
+        /^multiformats/,
+        /^@multiformats/,
+        /^uint8arrays/,
+        /^@uint8arrays/,
+        /^uint8arraylist/,
+        /^@uint8arraylist/,
+        /^uint8-varint/,
+        /^@uint8-varint/,
+        /^datastore-core/,
+        // Match common libp2p related packages
+        /^(it-|p-|interface-|protons-|progress-events|weald|mortice|race-|any-signal|.*-stream|.*-to-it|get-iterator|yocto-queue)/,
+        // Include specific remaining packages
+        /^websocket-stream/,
+        /^ws$/,
+        /^@ws/,
+        /^bufferutil/,
+        /^utf-8-validate/,
+        /^wherearewe/,
+        /^eventemitter3/,
+        /^is-loopback-addr/
+      ]
+    })],
     resolve: {
       extensions: ['.js', '.jsx', '.json'],
       alias: {

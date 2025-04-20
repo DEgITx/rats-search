@@ -58,9 +58,8 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
 		let sphinx = await pool();
 
 		// initialize p2p
-		const p2p = new P2PServer(send)
+		const p2p = new P2PServer()
 		p2p.version = version
-		p2p.encryptor = encryptor
 		p2p.dataDirectory = dataDirectory // make file transfer work
 		p2p.filesBlacklist = [
 			'rats.json',
@@ -79,7 +78,29 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
 			'query.log',
 			'sphinx.conf'
 		]
-		p2p.listen()
+		let p2pStatus = 0;
+		p2p.events.on('peer', ({peer, size}) => {
+			send('peer', {
+				torrents: peer.info ? peer.info.torrents || 0 : 0,
+				size: size
+			})
+			if (p2pStatus != 2) {
+				p2pStatus = 2;
+				send('p2pStatus', p2pStatus);
+			}
+		})
+		p2p.events.on('peerDisconnect', ({peer, size}) => {
+			send('peer', {
+				torrents: peer.info ? peer.info.torrents || 0 : 0,
+				size: size
+			})
+			if (p2pStatus != 0) {
+				p2pStatus = 0;
+				send('p2pStatus', p2pStatus);
+			}
+		})
+		// Start p2p
+		await p2p.listen()
 		const p2pStore = new P2PStore(p2p, sphinx)
 
 		const udpTrackers = [
@@ -342,9 +363,9 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
 					if(!connected)
 						return
 
-					loadBootstrapPeers('https://api.myjson.com/bins/1e5rmh')
-					loadBootstrapPeers('https://jsonblob.com/api/jsonBlob/4d22c8ba-5046-11eb-b13f-81fd0496c154')
-					loadBootstrapPeers('https://getpantry.cloud/apiv1/pantry/2f760eeb-2e76-4ea0-804b-6032223086e1/basket/testBasket')  
+					// loadBootstrapPeers('https://api.myjson.com/bins/1e5rmh')
+					// loadBootstrapPeers('https://jsonblob.com/api/jsonBlob/4d22c8ba-5046-11eb-b13f-81fd0496c154')
+					// loadBootstrapPeers('https://getpantry.cloud/apiv1/pantry/2f760eeb-2e76-4ea0-804b-6032223086e1/basket/testBasket')  
 				})
 			}
 
@@ -847,9 +868,6 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
     
 				logT('stun', 'p2p stun ignore my address', address)
 				p2p.ignore(address)
-
-				// check port avalibility
-				p2p.checkPortAndRedirect(address, config.spiderPort)
 			})
 			stunServer.send(stunRequest, 19302, 'stun.l.google.com')    
 		})
@@ -916,10 +934,6 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
 				p2p.ignore(ip)
 			});
 		}
-
-		spider.on('peer', (IPs) => {
-			IPs.forEach(ip => p2p.add(ip))
-		})
 
 		// feed
 		const feed = new Feed({sphinx})
@@ -1058,8 +1072,7 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
 						})
 						req.end(JSON.stringify({
 							bootstrap: peersEncripted,
-							bootstrapMap: encryptor.encrypt(bootstrapMap),
-							relays: encryptor.encrypt(p2p.relays())
+							bootstrapMap: encryptor.encrypt(bootstrapMap)
 						}))
 						timeout = setTimeout(() => {
 							logTE('close', 'abort by time', host)
@@ -1067,17 +1080,15 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
 						}, 4000)
 					})
 
-					await Promise.all([
-						saveBootstrapPeers('api.myjson.com', '/bins/1e5rmh'),
-						saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/4d22c8ba-5046-11eb-b13f-81fd0496c154'),
-						saveBootstrapPeers('getpantry.cloud', '/apiv1/pantry/2f760eeb-2e76-4ea0-804b-6032223086e1/basket/testBasket')
-					])
+					// await Promise.all([
+					// 	saveBootstrapPeers('api.myjson.com', '/bins/1e5rmh'),
+					// 	saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/4d22c8ba-5046-11eb-b13f-81fd0496c154'),
+					// 	saveBootstrapPeers('getpantry.cloud', '/apiv1/pantry/2f760eeb-2e76-4ea0-804b-6032223086e1/basket/testBasket')
+					// ])
 				}
 			}
 
 			logT('close', 'closing p2p...')
-			// don't listen spider peer appears
-			spider.removeAllListeners('peer')
 			await p2p.close()
 
 			// don't listen complete torrent responses

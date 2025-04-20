@@ -575,8 +575,8 @@ module.exports = async ({
 			return;
 
 		callback({
-			size: p2p.size,
-			torrents: p2p.peersList().reduce((prev, peer) => prev + (peer.info ? peer.info.torrents || 0 : 0), 0)
+			size: p2p.peersProtocolSize,
+			torrents: p2p.protocolPeersList().reduce((prev, peer) => prev + (peer.info ? peer.info.torrents || 0 : 0), 0)
 		})
 	});
 

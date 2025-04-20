@@ -17,7 +17,6 @@ node.exe
 /database
 
 # ignore everything in 'app' folder what had been generated from 'src' folder
-/app/app.js
-/app/background.js
+/app/*.js
 /app/**/*.map
 
