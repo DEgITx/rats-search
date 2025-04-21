@@ -1,4 +1,4 @@
-import __ from '../../app/translation'
+import __ from '../../app/translation.js'
 
 export const editMenuTemplateFunc = () => ({
 	label: __("Edit"),

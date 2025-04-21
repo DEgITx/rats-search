@@ -23,7 +23,7 @@ const ContentTypesColors = {
 	'disc': '#1ee381'
 }
 
-const niceTypeColor = (type) => ContentTypesColors[type];
+export const niceTypeColor = (type) => ContentTypesColors[type];
 
 const ExtesionBase = {
 	webm: ContentTypes.VIDEO,
@@ -254,8 +254,7 @@ const ContentCategoryProp = 'contentCategory';
 
 import { XXX_BLOCK_WORDS, XXX_VERY_BAD_WORDS } from './bad-words.js';
 
-// блокируем порнографию
-const blockBadName = (torrent, name) => {
+export const blockBadName = (torrent, name) => {
 	let splitName = name.split(/[`~!@#$%^&*()\]\[{}.,+?/\\;:\-_' "|]/);
 	splitName.some((word) => {
 		if (XXX_VERY_BAD_WORDS.some(function(v) { return word == v; })) {
@@ -268,7 +267,7 @@ const blockBadName = (torrent, name) => {
 	})
 }
 
-const detectSubCategory = (torrent, files, typesPriority, contentType) => {
+export const detectSubCategory = (torrent, files, typesPriority, contentType) => {
 	let name = torrent.name.toLowerCase()
 
 	// блокируем порнографию
@@ -292,7 +291,7 @@ const detectSubCategory = (torrent, files, typesPriority, contentType) => {
 	}
 }
 
-const fileTypeDetect = (file) => {
+export const fileTypeDetect = (file) => {
 	let name = file.path.split('/').pop();
 	let extension = name.split('.').pop();
 	if(name.length == 0)
@@ -304,7 +303,7 @@ const fileTypeDetect = (file) => {
 	return ExtesionBase[extension];
 }
 
-const torrentTypeDetect = (torrent, files) => {
+export const torrentTypeDetect = (torrent, files) => {
 	let typesPriority = {};
 
 	for(let i = 0; i < files.length; i++) {
@@ -327,11 +326,6 @@ const torrentTypeDetect = (torrent, files) => {
 	detectSubCategory(torrent, files, typesPriority, torrent[ContentTypeProp]);
 	return typesPriority;
 }
-export {
-	torrentTypeDetect, 
-	fileTypeDetect, 
-	niceTypeColor,
-};
 
 export const torrentTypeId = (type) => {
 	const id = Object.values(ContentTypes).indexOf(type);

@@ -1,6 +1,10 @@
-const { app } = require('electron')
-const os = require('os')
-const _ = require('lodash')
+import { app } from 'electron'
+import os from 'os'
+import _ from 'lodash'
+import fs from 'fs'
+import debug from 'debug'
+
+const debugLog = debug('config')
 
 let config = {
 	indexer: true,
@@ -75,9 +79,6 @@ let config = {
 	feedDate: 0,
 }
 
-const fs = require('fs');
-const debug = require('debug')('config')
-
 let configPath = 'rats.json'
 if(app && app.getPath("userData") && app.getPath("userData").length > 0)
 {
@@ -108,16 +109,16 @@ const configProxy = new Proxy(config, {
 		let obj = JSON.parse(data)
 		obj[prop] = value;
 		fs.writeFileSync(configPath, JSON.stringify(obj, null, 4), 'utf8');
-		debug('saving rats.json:', prop, '=', value)
+		debugLog('saving rats.json:', prop, '=', value)
 		return true
 	}
 })
 
 config.load = () => {
-	debug('loading configuration', configPath)
+	debugLog('loading configuration', configPath)
 	if(fs.existsSync(configPath))
 	{
-		debug('finded configuration', configPath)
+		debugLog('finded configuration', configPath)
 		const data = fs.readFileSync(configPath, 'utf8')
 		const obj = JSON.parse(data);
 		for(let prop in obj) 
@@ -134,7 +135,7 @@ config.load = () => {
 			{
 				config[prop] = obj[prop]
 			}
-			debug('rats.json:', prop, '=', obj[prop])
+			debugLog('rats.json:', prop, '=', obj[prop])
 		}
 	}
 	return configProxy
@@ -145,4 +146,4 @@ config.reload = (path) => {
 	return config.load()
 }
 
-module.exports = configProxy.load()
+export default configProxy.load()

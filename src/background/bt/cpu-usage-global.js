@@ -1,4 +1,4 @@
-var os = require("os");
+import os from "os";
 
 //Create function to get CPU information
 function cpuAverage() {
@@ -48,4 +48,4 @@ const cpuTimer = setInterval(function() {
 
 cpuTimer.unref()
 
-module.exports = () => percentageCPU
+export default () => percentageCPU

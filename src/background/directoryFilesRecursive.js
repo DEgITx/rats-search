@@ -1,4 +1,4 @@
-const fs = require('fs')
+import fs from 'fs';
 
 function directoryFilesRecursive (directory, filesList = []) {
 	let files;
@@ -21,4 +21,4 @@ function directoryFilesRecursive (directory, filesList = []) {
 	return filesList
 }
 
-module.exports = directoryFilesRecursive
+export default directoryFilesRecursive;

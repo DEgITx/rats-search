@@ -1,6 +1,6 @@
-const parseTorrentFiles = require('./parsetTorrentFiles')
+import parseTorrentFiles from './parsetTorrentFiles.js';
 
-module.exports = async (sphinx, hash, torrent) => {
+export default async (sphinx, hash, torrent) => {
 	torrent = (torrent && [torrent]) || await sphinx.query(`SELECT * FROM torrents WHERE hash = '${hash}'`)
 	if(torrent && torrent.length > 0)
 	{

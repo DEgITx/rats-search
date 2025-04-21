@@ -7,22 +7,35 @@ import path from "path";
 import url from "url";
 import os from 'os';
 import { app, Menu, ipcMain, Tray, dialog, shell } from "electron";
-import createWindow from "./helpers/window";
-import { autoUpdater } from 'electron-updater'
+import createWindow from "./helpers/window.js";
+import { autoUpdater } from 'electron-updater';
+import util from 'util';
+import fs from 'fs';
+import electronContextMenu from 'electron-context-menu';
+import log from 'electron-log';
+import remoteMain from '@electron/remote/main';
+import readline from 'readline';
+import tagslog from 'tagslog';
 
-import { devMenuTemplate } from "./menu/dev_menu_template";
-import { editMenuTemplateFunc } from "./menu/edit_menu_template";
-import { settingsMenuTemplateFunc } from "./menu/config_menu_template";
-import { aboutMenuTemplateFunc } from "./menu/about_menu_template";
-import { manageMenuTemplateFunc } from "./menu/manage_menu_template";
+import { devMenuTemplate } from "./menu/dev_menu_template.js";
+import { editMenuTemplateFunc } from "./menu/edit_menu_template.js";
+import { settingsMenuTemplateFunc } from "./menu/config_menu_template.js";
+import { aboutMenuTemplateFunc } from "./menu/about_menu_template.js";
+import { manageMenuTemplateFunc } from "./menu/manage_menu_template.js";
 
 // Special module holding environment variables which you declared
 // in config/env_xxx.json file.
 import env from "env";
-import fs from 'fs';
+
+import appConfig from './config.js';
+import spiderCall from './spider.js';
+import dbPatcher from './dbPatcher.js';
+import startSphinx from './sphinx.js';
+import checkInternet from './checkInternet.js';
+import { changeLanguage } from '../app/translation.js';
 
 // plugins and dev tool
-require('electron-context-menu')({})
+electronContextMenu({});
 
 // Save userData in separate folders for each environment.
 // Thanks to this you can use production and development versions of the app
@@ -42,13 +55,6 @@ if(env.name === "production") {
 }
 
 const resourcesPath = env.name === "production" ? process.resourcesPath : 'resources'
-
-const appConfig = require('./config')
-const spiderCall = require('./spider')
-const dbPatcher = require('./dbPatcher')
-const startSphinx = require('./sphinx')
-const checkInternet = require('./checkInternet')
-const { changeLanguage } = require('../app/translation')
 
 let mainWindow = undefined
 let sphinx = undefined
@@ -71,12 +77,11 @@ const setApplicationMenu = () => {
 	Menu.setApplicationMenu(Menu.buildFromTemplate(menus));
 };
 
-const util = require('util');
 if (!fs.existsSync(app.getPath("userData"))){
 	fs.mkdirSync(app.getPath("userData"));
 }
 
-require('tagslog')({
+tagslog({
 	logFile: app.getPath("userData") + '/rats.log',
 	stdout: (log) => process.stdout.write(log + '\n'),
 	overrideConsole: true
@@ -125,7 +130,6 @@ if (!gotTheLock) {
 }
 
 // log autoupdate
-const log = require('electron-log')
 log.transports.file.level = false;
 log.transports.console.level = false;
 log.transports.console = function(msg) {
@@ -154,7 +158,7 @@ autoUpdater.on('update-downloaded', () => {
 
 let tray = undefined
 
-require('@electron/remote/main').initialize();
+remoteMain.initialize();
 
 app.on("ready", async () => {
 	let rootPath;
@@ -233,7 +237,7 @@ app.on("ready", async () => {
 			tray.setContextMenu(contextMenu)
 			tray.setToolTip('Rats on The Boat search')
 
-			require("@electron/remote/main").enable(mainWindow.webContents);
+			remoteMain.enable(mainWindow.webContents);
 
 			mainWindow.webContents.on('will-navigate', (e, url) => { 
 				e.preventDefault() 

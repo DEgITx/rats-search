@@ -1,15 +1,15 @@
-const ipaddr = require('ipaddr.js');
-const forBigTable = require('./forBigTable')
-const compareVersions = require('compare-versions');
-const getTorrent = require('./getTorrent')
-const _ = require('lodash')
-const asyncForEach = require('./asyncForEach')
-const cpuUsage = require('./bt/cpu-usage-global')
-const magnetParse = require('./magnetParse')
-const parseTorrentFiles = require('./parsetTorrentFiles')
-const {torrentTypeId, torrentIdToType, torrentCategoryId, torrentIdToCategory} = require('../app/content');
+import ipaddr from 'ipaddr.js';
+import forBigTable from './forBigTable.js';
+import compareVersions from 'compare-versions';
+import getTorrent from './getTorrent.js';
+import _ from 'lodash';
+import asyncForEach from './asyncForEach.js';
+import cpuUsage from './bt/cpu-usage-global.js';
+import magnetParse from './magnetParse.js';
+import parseTorrentFiles from './parsetTorrentFiles.js';
+import {torrentTypeId, torrentIdToType, torrentCategoryId, torrentIdToCategory} from '../app/content.js';
 
-module.exports = async ({
+export default async ({
 	sphinx,
 	sphinxSingle,
 	send,

@@ -12,9 +12,9 @@ import Toggle from 'material-ui/Toggle';
 import FileFolder from 'material-ui/svg-icons/file/folder';
 import NoImage from './images/no-image-icon.png'
 
-var moment = require('moment');
+import moment from 'moment';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
-let rating = require('./rating.js');
+import rating from './rating.js';
 import LinearProgress from './LinearProgress.js';
 import FlatButton from 'material-ui/FlatButton';
 import {fileTypeDetect} from './content.js'

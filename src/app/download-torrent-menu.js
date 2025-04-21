@@ -1,9 +1,10 @@
 import React from 'react';
 import ContextMenu from './context-menu.js'
+import { dialog } from '@electron/remote';
 
-let dialog
+let electronDialog;
 if(typeof WEB === 'undefined')
-	dialog = require('@electron/remote').dialog
+	electronDialog = dialog;
 
 export default (props) => {
 	return (
@@ -41,7 +42,7 @@ export default (props) => {
 			</svg>
 			},
 			{name: __('Download to') + '...', click: async () => {
-				if(dialog)
+				if(electronDialog)
 				{
 					// Path using in testing
 					let testPath = window.downloadFolderTest;
@@ -55,7 +56,7 @@ export default (props) => {
 
 					if (!testPath)
 					{
-						path = (await dialog.showOpenDialog({
+						path = (await electronDialog.showOpenDialog({
 							properties: ['openDirectory']
 						})).filePaths;
 						if(!path || path.length < 1)

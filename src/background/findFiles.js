@@ -1,3 +1,3 @@
-const glob = require("glob")
+import glob from "glob";
 
-module.exports = (path) => new Promise((resolve) => glob(path, (error, files) => resolve(files)))
+export default (path) => new Promise((resolve) => glob(path, (error, files) => resolve(files)));

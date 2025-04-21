@@ -1,4 +1,4 @@
-module.exports = (filesData) => {
+export default (filesData) => {
 	if(Array.isArray(filesData))
 		filesData = filesData[0]
 

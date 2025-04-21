@@ -1,45 +1,48 @@
-const config = require('./config');
-const client = new (require('./bt/client'))
-const spider = new (require('./bt/spider'))(client)
-const fs = require('fs');
-const parseTorrent = require('parse-torrent')
-const {single, pool} = require('./mysql')
-const getPeersStatisticUDP = require('./bt/udp-tracker-request')
-const crypto = require('crypto')
-const EventEmitter = require('events');
-const P2PServer = require('./p2p')
-const P2PStore = require('./store')
-const stun = require('stun')
-const natUpnp = require('nat-upnp');
-const http = require('https')
-const API = require('./api')
-const Feed = require('./feed')
-//var sm = require('sitemap');
-//var phantomjs = require('phantomjs-prebuilt')
-//const disk = require('diskusage');
-const encryptor = require('simple-encryptor')('rats-on-the-boat-enc-v0');
-const os = require('os');
+import config from './config.js';
+import Client from './bt/client.js';
+const client = new Client();
+import Spider from './bt/spider.js';
+const spider = new Spider(client);
+import fs from 'fs';
+import parseTorrent from 'parse-torrent';
+import {single, pool} from './mysql.js';
+import getPeersStatisticUDP from './bt/udp-tracker-request.js';
+import crypto from 'crypto';
+import { EventEmitter } from 'events';
+import P2PServer from './p2p.js';
+import P2PStore from './store.js';
+import stun from 'stun';
+import natUpnp from 'nat-upnp';
+import http from 'https';
+import API from './api.js';
+import Feed from './feed.js';
+//import sm from 'sitemap';
+//import phantomjs from 'phantomjs-prebuilt';
+//import disk from 'diskusage';
+import simpleEncryptor from 'simple-encryptor';
+const encryptor = simpleEncryptor('rats-on-the-boat-enc-v0');
+import os from 'os';
 let rootPath = os.platform() === 'win32' ? 'c:' : '/';
 
-const _debug = require('debug')
+import _debug from 'debug';
 const cleanupDebug = _debug('main:cleanup');
 const balanceDebug = _debug('main:balance');
 const quotaDebug = _debug('main:quota');
 
-const checkInternet = require('./checkInternet')
+import checkInternet from './checkInternet.js';
 
-const {torrentTypeDetect, torrentTypeId, torrentIdToType, torrentCategoryId, torrentIdToCategory} = require('../app/content');
+import {torrentTypeDetect, torrentTypeId, torrentIdToType, torrentCategoryId, torrentIdToCategory} from '../app/content.js';
 
-const torrentClient = require('./torrentClient')
-const directoryFilesRecursive = require('./directoryFilesRecursive')
-const _ = require('lodash')
-const mime = require('mime');
+import torrentClient from './torrentClient.js';
+import directoryFilesRecursive from './directoryFilesRecursive.js';
+import _ from 'lodash';
+import mime from 'mime';
 
 // Start server
 //server.listen(config.httpPort);
 //console.log('Listening web server on', config.httpPort, 'port')
 
-module.exports = function (send, recive, dataDirectory, version, env, {version: manticoreVersion})
+export default function (send, recive, dataDirectory, version, env, {version: manticoreVersion})
 {
 	this.initialized = (async () =>
 	{
@@ -163,15 +166,18 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
 
 				this.trackers = []
 				if(process.versions.electron) {
-					let strategies = require.context('./strategies', false, /\.js$/);
-					strategies.keys().forEach(strategie => {
-						this.trackers.push(new (strategies(strategie))(args))
-						logT('tracker', 'loaded strategie', strategie)
+					const strategiesContext = import.meta.glob('./strategies/*.js');
+					Object.keys(strategiesContext).forEach(async (strategyPath) => {
+						const strategy = await strategiesContext[strategyPath]();
+						this.trackers.push(new strategy.default(args))
+						logT('tracker', 'loaded strategie', strategyPath)
 					})
 				} else {
 					fs.readdirSync(__dirname + '/strategies').forEach((strategie) => {
-						this.trackers.push(new (require('./strategies/' + strategie))(args))
-						logT('tracker', 'loaded strategie', strategie)
+						import(`./strategies/${strategie}`).then(module => {
+							this.trackers.push(new module.default(args))
+							logT('tracker', 'loaded strategie', strategie)
+						})
 					})
 				}
 			}

@@ -1,9 +1,9 @@
 // https://github.com/sindresorhus/is-port-reachable
 // Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
 
-const net = require('net');
+import net from 'net';
 
-module.exports = (port, opts) => {
+export default (port, opts) => {
 	opts = Object.assign({timeout: 3000}, opts);
 
 	return new Promise((resolve => {

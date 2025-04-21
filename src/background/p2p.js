@@ -1,19 +1,19 @@
-const shuffle = require('./shuffle')
-const config = require('./config');
-const net = require('net')
-const JsonSocket = require('json-socket')
-const os = require('os');
-const isPortReachable = require('./isPortReachable')
-const EventEmitter = require('events');
-const _ = require('lodash')
-const fs = require('fs')
-const ph = require('path')
-const directoryFilesRecursive = require('./directoryFilesRecursive')
-const {promisify} = require('util');
-const mkdirp = require('mkdirp')
-const deleteFolderRecursive = require('./deleteFolderRecursive')
-const compareVersions = require('compare-versions');
-const portCheck = require('./portCheck')
+import shuffle from './shuffle.js';
+import config from './config.js';
+import net from 'net';
+import JsonSocket from 'json-socket';
+import os from 'os';
+import isPortReachable from './isPortReachable.js';
+import { EventEmitter } from 'events';
+import _ from 'lodash';
+import fs from 'fs';
+import ph from 'path';
+import directoryFilesRecursive from './directoryFilesRecursive.js';
+import { promisify } from 'util';
+import mkdirp from 'mkdirp';
+import deleteFolderRecursive from './deleteFolderRecursive.js';
+import compareVersions from 'compare-versions';
+import portCheck from './portCheck.js';
 
 const findGoodPort = async (port, host) => {
 	while (!(await portCheck(port, host))) {
@@ -830,4 +830,4 @@ class p2p {
 	}
 }
 
-module.exports = p2p
+export default p2p

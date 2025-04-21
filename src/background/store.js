@@ -1,8 +1,8 @@
-const objectHash = require('object-hash');
-const EventEmitter = require('events');
-const forBigTable = require('./forBigTable')
+import objectHash from 'object-hash';
+import EventEmitter from 'events';
+import forBigTable from './forBigTable.js';
 
-module.exports = class P2PStore extends EventEmitter {
+export default class P2PStore extends EventEmitter {
 	constructor(p2p, sphinx)
 	{
 		super()

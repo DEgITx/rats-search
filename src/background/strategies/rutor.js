@@ -1,14 +1,14 @@
+import fetch from 'node-fetch'
+import cheerio from 'cheerio'
+import {promisify} from 'util';
+import fs from 'fs'
+import mkdirp from 'mkdirp'
+import magnetParse from '../magnetParse.js'
 
-const fetch = require('node-fetch')
-const cheerio = require('cheerio')
-const {promisify} = require('util');
-const fs = require('fs')
 const fileRead = promisify(fs.readFile)
 const exist = promisify(fs.exists)
-const magnetParse = require('../magnetParse')
-const mkdirp = require('mkdirp')
 
-module.exports = class Rutor
+export default class Rutor
 {
 	constructor(props)
 	{

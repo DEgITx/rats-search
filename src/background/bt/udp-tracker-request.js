@@ -1,15 +1,17 @@
-const dgram = require('dgram');
-const server = dgram.createSocket("udp4")
-const config = require('../config');
-const debug = require('debug')('peers-scrape');
+import dgram from 'dgram';
+import config from '../config.js';
+import debug from 'debug';
 
-const ACTION_CONNECT = 0
-const ACTION_ANNOUNCE = 1
-const ACTION_SCRAPE = 2
-const ACTION_ERROR = 3
+const server = dgram.createSocket("udp4");
+const debugLog = debug('peers-scrape');
 
-const connectionIdHigh = 0x417
-const connectionIdLow = 0x27101980
+const ACTION_CONNECT = 0;
+const ACTION_ANNOUNCE = 1;
+const ACTION_SCRAPE = 2;
+const ACTION_ERROR = 3;
+
+const connectionIdHigh = 0x417;
+const connectionIdLow = 0x27101980;
 const requests = {};
 
 let message = function (buf, host, port) {
@@ -21,12 +23,10 @@ let message = function (buf, host, port) {
 };
 
 let connectTracker = function(connection) {
-	debug('start screape connection');
-	let buffer = new Buffer(16);
+	debugLog('start screape connection');
+	let buffer = Buffer.alloc(16);
 
 	const transactionId = Math.floor((Math.random() * 100000) + 1);
-
-	buffer.fill(0);
 
 	buffer.writeUInt32BE(connectionIdHigh, 0);
 	buffer.writeUInt32BE(connectionIdLow, 4);
@@ -50,12 +50,10 @@ let scrapeTorrent = function (connectionIdHigh, connectionIdLow, transactionId) 
 		return;
 
 	if(!connection.hash || connection.hash.length != 40)
-		return
+		return;
 
-	debug('start scrape');
-	let buffer = new Buffer(56)
-
-	buffer.fill(0);
+	debugLog('start scrape');
+	let buffer = Buffer.alloc(56);
 
 	buffer.writeUInt32BE(connectionIdHigh, 0);
 	buffer.writeUInt32BE(connectionIdLow, 4);
@@ -69,12 +67,12 @@ let scrapeTorrent = function (connectionIdHigh, connectionIdLow, transactionId) 
 		message(buffer, connection.host, connection.port);
 	} catch(error)
 	{
-		logT('udp-tracker', 'ERROR on scrape', error)
+		logT('udp-tracker', 'ERROR on scrape', error);
 	}
 };
 
 server.on("message", function (msg, rinfo) {
-	let buffer = new Buffer(msg)
+	let buffer = Buffer.from(msg);
 
 	const action = buffer.readUInt32BE(0, 4);
 	const transactionId = buffer.readUInt32BE(4, 4);
@@ -82,11 +80,11 @@ server.on("message", function (msg, rinfo) {
 	if(!(transactionId in requests))
 		return;
 
-	debug("returned action: " + action);
-	debug("returned transactionId: " + transactionId);
+	debugLog("returned action: " + action);
+	debugLog("returned transactionId: " + transactionId);
 
 	if (action === ACTION_CONNECT) {
-		debug("connect response");
+		debugLog("connect response");
 
 		let connectionIdHigh = buffer.readUInt32BE(8, 4);
 		let connectionIdLow = buffer.readUInt32BE(12, 4);
@@ -94,7 +92,7 @@ server.on("message", function (msg, rinfo) {
 		scrapeTorrent(connectionIdHigh, connectionIdLow, transactionId);
 
 	} else if (action === ACTION_SCRAPE) {
-		debug("scrape response");
+		debugLog("scrape response");
 
 		let seeders = buffer.readUInt32BE(8, 4);
 		let completed = buffer.readUInt32BE(12, 4);
@@ -108,7 +106,7 @@ server.on("message", function (msg, rinfo) {
 			seeders,
 			completed,
 			leechers
-		})
+		});
 		delete requests[transactionId];
 	} else if (action === ACTION_ERROR) {
 		delete requests[transactionId];
@@ -119,9 +117,9 @@ server.on("message", function (msg, rinfo) {
 let getPeersStatistic = (host, port, hash, callback) => {
 	let connection = {
 		host, port, hash, callback, date: new Date()
-	}
+	};
 	connectTracker(connection);
-}
+};
 
 server.on("listening", function () {
 	var address = server.address();
@@ -130,7 +128,7 @@ server.on("listening", function () {
 
 server.bind(config.udpTrackersPort);
 
-module.exports = getPeersStatistic;
+export default getPeersStatistic;
 
 //getPeersStatistic('tracker.glotorrents.com', 6969, "d096ff66557a5ea7030680967610e38b37434ea8", (data) => {
 //    console.log(data)

@@ -1,7 +1,7 @@
 import { app, BrowserWindow, shell } from "electron";
 import path from "path";
 import url from "url";
-import __ from '../../app/translation'
+import __ from '../../app/translation.js'
 
 export const manageMenuTemplateFunc = () => ({
 	label: __("Manage"),

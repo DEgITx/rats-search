@@ -9,9 +9,11 @@ import {Tabs, Tab} from 'material-ui/Tabs';
 import SvgIcon from 'material-ui/SvgIcon';
 
 import fs from 'fs'
-let dialog
+import { dialog } from '@electron/remote';
+
+let electronDialog;
 if(typeof WEB === 'undefined')
-	dialog = require('@electron/remote').dialog
+	electronDialog = dialog;
 
 export default class ConfigPage extends Page {
 	constructor(props) {
@@ -140,9 +142,9 @@ export default class ConfigPage extends Page {
 									}}
 								/>
 								<RaisedButton style={{marginLeft: 20}} label={__('Browse')} primary={true} onClick={() => {
-									if(!dialog)
+									if(!electronDialog)
 										return
-									const dir = dialog.showOpenDialogSync({properties: ['openDirectory']})[0]
+									const dir = electronDialog.showOpenDialogSync({properties: ['openDirectory']})[0]
 									if(dir)
 									{
 										this.options.dbPath = dir
@@ -165,9 +167,9 @@ export default class ConfigPage extends Page {
 									}}
 								/>
 								<RaisedButton style={{marginLeft: 20}} label={__('Browse')} primary={true} onClick={() => {
-									if(!dialog)
+									if(!electronDialog)
 										return
-									const dir = dialog.showOpenDialogSync({properties: ['openDirectory']})[0]
+									const dir = electronDialog.showOpenDialogSync({properties: ['openDirectory']})[0]
 									if(dir)
 									{
 										this.options.client.downloadPath = dir

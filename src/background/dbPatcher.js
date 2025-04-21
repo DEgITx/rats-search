@@ -1,20 +1,20 @@
-const {single} = require('./mysql')
-const forBigTable  = require('./forBigTable')
-const { BrowserWindow }  = require("electron");
-const url  = require('url')
-const path  = require('path')
-const fs  = require('fs')
-const glob = require("glob")
-const asyncForEach = require('./asyncForEach')
+import {single} from './mysql.js';
+import forBigTable from './forBigTable.js';
+import { BrowserWindow } from "electron";
+import url from 'url';
+import path from 'path';
+import fs from 'fs';
+import glob from "glob";
+import asyncForEach from './asyncForEach.js';
 
-const {torrentTypeDetect, torrentTypeId, torrentIdToType, torrentCategoryId, torrentIdToCategory} = require('../app/content');
-const startSphinx = require('./sphinx')
+import {torrentTypeDetect, torrentTypeId, torrentIdToType, torrentCategoryId, torrentIdToCategory} from '../app/content.js';
+import startSphinx from './sphinx.js';
 
 
 const currentVersion = 8
 
 
-module.exports = async (callback, mainWindow, sphinxApp) => {
+export default async (callback, mainWindow, sphinxApp) => {
 	let sphinx = await single().waitConnection()
 
 	const setVersion = async (version) => {

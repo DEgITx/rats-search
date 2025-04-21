@@ -1,5 +1,5 @@
-const config = require('./webpack.config.production');
-const webpack = require('webpack');
+import config from './webpack.config.production.js';
+import webpack from 'webpack';
 
 let compiler = webpack(config);
 compiler.run((err, stats) => {

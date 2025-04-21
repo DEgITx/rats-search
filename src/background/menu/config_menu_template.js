@@ -1,7 +1,7 @@
 import { app, BrowserWindow } from "electron";
 import fs from 'fs'
 import path from 'path'
-import __, { translationsDir } from '../../app/translation'
+import __, { translationsDir } from '../../app/translation.js'
 
 export const settingsMenuTemplateFunc = (config, onLanguageChange) => ({
 	label: __("Settings"),

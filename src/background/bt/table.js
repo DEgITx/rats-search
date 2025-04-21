@@ -1,6 +1,6 @@
 'use strict'
 
-const crypto = require('crypto')
+import crypto from 'crypto';
 
 class Node {
 	static generateID() {
@@ -78,4 +78,4 @@ class Table{
 	}
 }
 
-module.exports = {Table, Node}
+export { Table, Node }

@@ -1,4 +1,4 @@
-module.exports = (magnet) => {
+export default (magnet) => {
 	const match = /magnet:\?xt=urn:btih:([0-9a-f]+)/i.exec(magnet)
 	if(!match)
 		return

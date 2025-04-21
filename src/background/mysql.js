@@ -1,5 +1,5 @@
-const mysql = require('mysql');
-const config = require('./config');
+import mysql from 'mysql';
+import config from './config.js';
 
 const expand = (sphinx) => {
 	const queryOriginal = sphinx.query.bind(sphinx)
@@ -356,4 +356,4 @@ const single = (callback) => {
 	return start()
 }
 
-module.exports = {pool, single}
+export { expand, pool, single };

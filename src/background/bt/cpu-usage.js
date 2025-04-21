@@ -19,7 +19,7 @@ const cpuTimer = setInterval(() => {
 
 cpuTimer.unref()
 
-module.exports = () => {
+export default () => {
 	function secNSec2ms (secNSec) {
 		return secNSec[0] * 1000 + secNSec[1] / 1000000
 	}

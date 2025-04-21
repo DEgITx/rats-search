@@ -1,7 +1,7 @@
-const path = require('path')
-const fs = require('fs')
+import path from 'path'
+import fs from 'fs'
 
-module.exports = (app) => {
+export default (app) => {
 	if (fs.existsSync(`./${app}`)) {
 		return `./${app}`
 	}

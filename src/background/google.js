@@ -1,6 +1,6 @@
-const google = require('google')
+import google from 'google';
 
-module.exports = (search) => new Promise((resolve) => {
+export default (search) => new Promise((resolve) => {
 	google(search, (err, res) => {
 		resolve(res.links)
 	})

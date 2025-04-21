@@ -1,35 +1,40 @@
-const path = require("path");
-let env
-try{
-	env = require("env");
-} catch(e){}
-const appPath = require('./electronAppPath')
-const fs = require('fs')
-const iconv = require('iconv-lite')
-const { spawn, exec } = require('child_process')
-const appConfig = require('./config')
-const findFiles = require('./findFiles')
-const _ = require('lodash')
-const isRunning = require('is-running')
-const portCheck = require('./portCheck')
-const detectOnebyteEncoding = require('detect-onebyte-encoding')
-const isOneByteEncoding = require('./detectOneByte')
-const {promisify} = require('util');
-const mkdirp = require('mkdirp')
-const mysql = require('./mysql')
-const asyncWait = require('./asyncWait')
+import path from "path";
+import fs from 'fs';
+import iconv from 'iconv-lite';
+import { spawn, exec } from 'child_process';
+import { promisify } from 'util';
+import mkdirp from 'mkdirp';
+import _ from 'lodash';
+import isRunning from 'is-running';
+
+import appPath from './electronAppPath.js';
+import appConfig from './config.js';
+import findFiles from './findFiles.js';
+import portCheck from './portCheck.js';
+import detectOnebyteEncoding from 'detect-onebyte-encoding';
+import isOneByteEncoding from './detectOneByte.js';
+import * as mysql from './mysql.js';
+import asyncWait from './asyncWait.js';
+
+// Try to import env, but it's optional
+let env;
+try {
+	env = await import("env").then(module => module.default || module);
+} catch(e){
+	logT('sphinx', 'env module not found, using default environment');
+}
 
 const findGoodPort = async (port, host) => {
 	while (!(await portCheck(port, host))) {
-		port++
-		logT('sphinx', 'port is busy, listen on', port)
+		port++;
+		logT('sphinx', 'port is busy, listen on', port);
 	}
-	return port
-}
+	return port;
+};
 
 const writeSphinxConfig = async (rootPath, dbPath, params = {}) => {
-	appConfig.sphinx.port = await findGoodPort(appConfig.sphinx.port)
-	appConfig.sphinx = appConfig.sphinx
+	appConfig.sphinx.port = await findGoodPort(appConfig.sphinx.port);
+	appConfig.sphinx = appConfig.sphinx;
 
 	let generateConfig = () => (`
   index torrents
@@ -117,31 +122,31 @@ const writeSphinxConfig = async (rootPath, dbPath, params = {}) => {
   }
   `);
 
-  	let config = generateConfig()
+  	let config = generateConfig();
 
 	// fix db path under windows platform (one-byte path)
 	let windowsEncodingFix = false;
 	if(/^win/.test(process.platform) && (!isOneByteEncoding(dbPath) || !isOneByteEncoding(rootPath)))
 	{
-		logT('sphinx', 'detected non-one byte encoding, trying to fix config for db path', dbPath, params.noWindowsReEncoding)
-		let encoding = detectOnebyteEncoding(rootPath + dbPath)
+		logT('sphinx', 'detected non-one byte encoding, trying to fix config for db path', dbPath, params.noWindowsReEncoding);
+		let encoding = detectOnebyteEncoding(rootPath + dbPath);
 		if (encoding !== 'utf8' && !params.noWindowsReEncoding) {
-			config = iconv.encode(config, encoding)
-			logT('sphinx', 'config encoded to', encoding)
-			windowsEncodingFix = true
+			config = iconv.encode(config, encoding);
+			logT('sphinx', 'config encoded to', encoding);
+			windowsEncodingFix = true;
 		} else {
-			logT('sphinx', 'config encoded with utf8, moving config to some root directory')
+			logT('sphinx', 'config encoded with utf8, moving config to some root directory');
 			while(!isOneByteEncoding(dbPath) || !(fs.statSync(dbPath).mode & 0x92))
-				dbPath = path.dirname(dbPath)
+				dbPath = path.dirname(dbPath);
 			while(!isOneByteEncoding(rootPath) || !(fs.statSync(rootPath).mode & 0x92))
-				rootPath = path.dirname(rootPath)
-			dbPath += "/RatsConfig"
-			rootPath += "/RatsConfig"
-			await mkdirp(dbPath)
-			await mkdirp(rootPath)
-			logT('sphinx', 'changed root directory', rootPath)
-			logT('sphinx', 'changed db directory', dbPath)
-			config = generateConfig()
+				rootPath = path.dirname(rootPath);
+			dbPath += "/RatsConfig";
+			rootPath += "/RatsConfig";
+			await mkdirp(dbPath);
+			await mkdirp(rootPath);
+			logT('sphinx', 'changed root directory', rootPath);
+			logT('sphinx', 'changed db directory', dbPath);
+			config = generateConfig();
 		}
 	}
 
@@ -170,24 +175,24 @@ const writeSphinxConfig = async (rootPath, dbPath, params = {}) => {
 	// clean query.log because it too large and don't consist any good info
 	if(fs.existsSync(`${rootPath}/query.log`))
 	{
-		fs.unlinkSync(`${rootPath}/query.log`)
+		fs.unlinkSync(`${rootPath}/query.log`);
 	}
 
-	let isInitDb = false
+	let isInitDb = false;
 
 	if (!fs.existsSync(`${dbPath}/database`)){
 		fs.mkdirSync(`${dbPath}/database`);
-		isInitDb = true
+		isInitDb = true;
 	}
 
-	fs.writeFileSync(`${rootPath}/sphinx.conf`, config)
-	logT('sphinx', `writed sphinx config to ${rootPath}`)
-	logT('sphinx', 'db path:', dbPath)
+	fs.writeFileSync(`${rootPath}/sphinx.conf`, config);
+	logT('sphinx', `writed sphinx config to ${rootPath}`);
+	logT('sphinx', 'db path:', dbPath);
 
-	return {isInitDb, rootPath, dbPath, windowsEncodingFix}
-}
+	return {isInitDb, rootPath, dbPath, windowsEncodingFix};
+};
 
-module.exports = async (callback, dataDirectory, onClose, params = {}) => {
+export default async (callback, dataDirectory, onClose, params = {}) => {
 	const start = async (callback) => {
 
 		const sphinxPath = path.resolve(appPath('searchd'))

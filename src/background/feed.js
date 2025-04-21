@@ -1,7 +1,7 @@
-const config = require('./config');
-const rating = require('../app/rating');
+import config from './config.js';
+import rating from '../app/rating.js';
 
-module.exports = class Feed {
+export default class Feed {
 	constructor({sphinx})
 	{
 		this.feed = []

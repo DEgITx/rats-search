@@ -1,7 +1,8 @@
 import { app, BrowserWindow, shell } from "electron";
 import path from "path";
 import url from "url";
-import __ from '../../app/translation'
+import __ from '../../app/translation.js'
+import remoteMain from '@electron/remote/main';
 
 export const aboutMenuTemplateFunc = () => ({
 	label: __("About"),
@@ -25,7 +26,7 @@ export const aboutMenuTemplateFunc = () => ({
 					protocol: "file:",
 					slashes: true
 				}))
-				require("@electron/remote/main").enable(win.webContents);
+				remoteMain.enable(win.webContents);
 				win.webContents.on('did-finish-load', () => {
 					logT('changelog', "finish load page, open changlog")
 					setTimeout(() => win.send('url', '/changelog'), 0)

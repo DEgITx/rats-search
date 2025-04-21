@@ -1,13 +1,15 @@
 'use strict'
 
-const Emiter = require('events')
-var util = require('util');
-var net = require('net');
+import Emiter from 'events';
+import util from 'util';
+import net from 'net';
 
-var PeerQueue = require('./peer-queue');
-var Wire = require('./wire');
-const debug = require('debug')('downloader');
-const config = require('../config')
+import PeerQueue from './peer-queue.js';
+import Wire from './wire.js';
+import debug from 'debug';
+import config from '../config.js';
+
+const debugLog = debug('downloader');
 
 class Client extends Emiter
 {
@@ -15,8 +17,8 @@ class Client extends Emiter
 		super();
 		this.timeout = config.downloader.timeout;
 		this.maxConnections = config.downloader.maxConnections;
-		debug('timeout', this.timeout)
-		debug('maxConnections', this.maxConnections)
+		debugLog('timeout', this.timeout)
+		debugLog('maxConnections', this.maxConnections)
 		this.activeConnections = 0;
 		this.peers = new PeerQueue(this.maxConnections);
 		this.on('download', this._download);
@@ -44,7 +46,7 @@ class Client extends Emiter
 
 	_download(rinfo, infohash)
 	{
-		debug('start download', infohash.toString('hex'), 'connections', this.activeConnections);
+		debugLog('start download', infohash.toString('hex'), 'connections', this.activeConnections);
 		this.activeConnections++;
 
 		// move host -> address
@@ -64,7 +66,7 @@ class Client extends Emiter
 
 			wire.on('metadata', (metadata, infoHash) => {
 				successful = true;
-				debug('successfuly downloader', infoHash, rinfo);
+				debugLog('successfuly downloader', infoHash, rinfo);
 				this.emit('complete', metadata, infoHash, rinfo);
 				socket.destroy();
 			});
@@ -102,4 +104,4 @@ class Client extends Emiter
 	}
 }
 
-module.exports = Client;
+export default Client;

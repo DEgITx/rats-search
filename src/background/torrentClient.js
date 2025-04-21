@@ -1,5 +1,5 @@
-const WebTorrent = require('webtorrent')
-const fs = require('fs')
+import WebTorrent from 'webtorrent'
+import fs from 'fs'
 
 const torrentClient = new WebTorrent({webSeeds: false})
 torrentClient.saveSession = (sessionFile) => {
@@ -91,4 +91,4 @@ torrentClient.getMetadata = (hash, callback) => {
 	metaHashes[hash] = callback
 }
 
-module.exports = torrentClient
+export default torrentClient

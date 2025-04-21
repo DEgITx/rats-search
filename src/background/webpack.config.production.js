@@ -1,11 +1,11 @@
-const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
-const glob = require('glob')
-const path = require('path')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
+import webpack from 'webpack';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import SWPrecacheWebpackPlugin from 'sw-precache-webpack-plugin';
+import glob from 'glob';
+import path from 'path';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 
-module.exports = {
+export default {
 	mode: 'development',
 	//mode: 'production',
 	entry: path.resolve("src/app/index.js"),

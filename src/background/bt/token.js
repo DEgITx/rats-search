@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = class {
+export default class Token {
 	constructor() {
 		this.generate()
 		const it = setInterval(() => this.generate(), 60000 * 15)
@@ -12,6 +12,6 @@ module.exports = class {
 	}
 
 	generate() {
-		this.token = new Buffer([parseInt(Math.random() * 200), parseInt(Math.random() * 200)])
+		this.token = Buffer.from([parseInt(Math.random() * 200), parseInt(Math.random() * 200)])
 	}
 }

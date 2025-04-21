@@ -1,21 +1,21 @@
 'use strict';
 
-var stream = require('stream');
-var crypto = require('crypto');
-var util = require('util');
+import stream from 'stream';
+import crypto from 'crypto';
+import util from 'util';
 
-var BitField = require('bitfield');
-var bencode = require('bencode');
+import BitField from 'bitfield';
+import bencode from 'bencode';
 
-var {Node} = require('./table');
+import { Node } from './table.js';
 
-var BT_RESERVED = new Buffer([0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x01]);
-var BT_PROTOCOL = new Buffer('BitTorrent protocol');
-var PIECE_LENGTH = Math.pow(2, 14);
-var MAX_METADATA_SIZE = 10000000;
-var BITFIELD_GROW = 1000;
-var EXT_HANDSHAKE_ID = 0;
-var BT_MSG_ID = 20;
+const BT_RESERVED = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x01]);
+const BT_PROTOCOL = Buffer.from('BitTorrent protocol');
+const PIECE_LENGTH = Math.pow(2, 14);
+const MAX_METADATA_SIZE = 10000000;
+const BITFIELD_GROW = 1000;
+const EXT_HANDSHAKE_ID = 0;
+const BT_MSG_ID = 20;
 
 var Wire = function(infohash) {
 	stream.Duplex.call(this);
@@ -244,4 +244,4 @@ Wire.prototype._read = function() {
 	// do nothing
 };
 
-module.exports = Wire;
+export default Wire;

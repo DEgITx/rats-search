@@ -1,8 +1,7 @@
+import fetch from 'node-fetch'
+import cheerio from 'cheerio'
 
-const fetch = require('node-fetch')
-const cheerio = require('cheerio')
-
-module.exports = class Stragegie
+export default class Stragegie
 {
 	get name() { return '1337x' }
 

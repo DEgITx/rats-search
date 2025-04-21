@@ -1,12 +1,12 @@
 'use strict'
 
-const dgram = require('dgram')
-const Emiter = require('events')
-const bencode = require('bencode')
-const {Table, Node} = require('./table')
-const Token = require('./token')
-const config = require('../config')
-const fs = require('fs')
+import dgram from 'dgram'
+import Emiter from 'events'
+import bencode from 'bencode'
+import {Table, Node} from './table.js'
+import Token from './token.js'
+import config from '../config.js'
+import fs from 'fs'
 
 const bootstraps = [{
 	address: 'router.bittorrent.com',
@@ -317,4 +317,4 @@ class Spider extends Emiter {
 	}
 }
 
-module.exports = Spider
+export default Spider

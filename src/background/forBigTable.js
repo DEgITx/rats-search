@@ -1,4 +1,4 @@
-module.exports = (sphinx, table, callback, doneCallback, max = 1000, where = '', intermediateCallback = null) => new Promise((done) => {
+export default (sphinx, table, callback, doneCallback, max = 1000, where = '', intermediateCallback = null) => new Promise((done) => {
 	const checker = async (index = 0) => {
 		const finish = () => {
 			if(doneCallback)
