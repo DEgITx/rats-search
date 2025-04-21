@@ -848,9 +848,6 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
     
 				logT('stun', 'p2p stun ignore my address', address)
 				p2p.ignore(address)
-
-				// check port avalibility
-				p2p.checkPortAndRedirect(address, config.spiderPort)
 			})
 			stunServer.send(stunRequest, 19302, 'stun.l.google.com')    
 		})

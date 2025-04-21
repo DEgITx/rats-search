@@ -576,7 +576,7 @@ class P2P {
 	 * @returns {Function} Function to unregister the callback
 	 */
 	emit(type, data, callback, permanent = false) {
-		if (!this.node || !this.node.pubsub) {
+		if (!this.node || !this.node.services.pubsub) {
 			logTE('p2p', 'Node not initialized yet');
 			return () => {};
 		}
@@ -608,6 +608,8 @@ class P2P {
 			// Add ID to data
 			const messageData = { ...data, id };
 			
+			logT('p2p', 'Emit message to topic', topic, 'with data', messageData);
+
 			// Publish to the topic
 			const message = Buffer.from(JSON.stringify(messageData));
 			this.node.services.pubsub.publish(topic, message);
