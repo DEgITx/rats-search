@@ -113,6 +113,7 @@
     "@chainsafe/libp2p-noise": "^16.1.2",
     "@electron/remote": "^2.1.2",
     "@libp2p/bootstrap": "^11.0.35",
+    "@libp2p/identify": "^3.0.29",
     "@libp2p/mdns": "^11.0.35",
     "@libp2p/mplex": "^11.0.35",
     "@libp2p/ping": "^2.0.29",

@@ -74,7 +74,8 @@ class P2P {
 				{ gossipsub }, 
 				{ ping }, 
 				{ webSockets }, 
-				{ multiaddr }
+				{ multiaddr },
+				{ identify }
 			] = await Promise.all([
 				import('libp2p'),
 				import('@libp2p/tcp'),
@@ -85,7 +86,8 @@ class P2P {
 				import('@chainsafe/libp2p-gossipsub'),
 				import('@libp2p/ping'),
 				import('@libp2p/websockets'),
-				import('@multiformats/multiaddr')
+				import('@multiformats/multiaddr'),
+				import('@libp2p/identify')
 			]);
 			
 			// Store multiaddr for later use
@@ -118,14 +120,15 @@ class P2P {
 						interval: 60000
 					})
 				],
-				pubsub: gossipsub({
-					allowPublishToZeroPeers: true,
-					emitSelf: false
-				}),
 				services: {
+					identify: identify(),
 					ping: ping({
 						protocolPrefix: 'rats'
-					})
+					}),
+					pubsub: gossipsub({
+						allowPublishToZeroPeers: true,
+						emitSelf: false
+					}),
 				}
 			});
 
@@ -216,7 +219,7 @@ class P2P {
 		});
 
 		// PubSub message event
-		this.node.pubsub.addEventListener('message', this.handlePubSubMessage.bind(this));
+		this.node.services.pubsub.addEventListener('message', this.handlePubSubMessage.bind(this));
 	}
 
 	/**
@@ -436,7 +439,7 @@ class P2P {
 	 */
 	registerTopicHandler(topic, handler) {
 		if (!this.topicHandlers.has(topic)) {
-			this.node.pubsub.subscribe(topic);
+			this.node.services.pubsub.subscribe(topic);
 			logT('p2p', 'Subscribed to topic', topic);
 		}
 		this.topicHandlers.set(topic, handler);
@@ -558,7 +561,7 @@ class P2P {
 	sendToPeer(peerId, topic, data) {
 		try {
 			const message = Buffer.from(JSON.stringify(data));
-			this.node.pubsub.publish(topic, message);
+			this.node.services.pubsub.publish(topic, message);
 		} catch (err) {
 			logTE('p2p', 'Error sending message to peer', peerId, err);
 		}
@@ -607,7 +610,7 @@ class P2P {
 			
 			// Publish to the topic
 			const message = Buffer.from(JSON.stringify(messageData));
-			this.node.pubsub.publish(topic, message);
+			this.node.services.pubsub.publish(topic, message);
 			
 			// Return a function to unregister the callback
 			return () => {
