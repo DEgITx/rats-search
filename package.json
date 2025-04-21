@@ -13,6 +13,7 @@
     "url": "https://github.com/DEgITx/rats-search.git"
   },
   "serverDataDirectory": "./",
+  "type": "module",
   "build": {
     "appId": "com.ratsontheboat.search",
     "files": [
@@ -102,7 +103,7 @@
     "postinstall": "electron-builder install-app-deps",
     "pretest": "webpack --config=build/webpack.app.config.js --env=test --no-stats && webpack --config=build/webpack.tests.config.js --env=test --no-stats",
     "test": "mocha temp/tests.js --require @babel/core/lib --require source-map-support/register",
-    "start": "node build/start.js",
+    "start": "node build/start.cjs",
     "prebuild": "webpack --config=build/webpack.app.config.js --env=production",
     "build": "electron-builder",
     "server": "node src/background/server.js",

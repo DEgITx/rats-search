@@ -1,6 +1,6 @@
 const { merge } = require("webpack-merge");
 const jetpack = require("fs-jetpack");
-const base = require("./webpack.base.config");
+const base = require("./webpack.base.config.cjs");
 
 // Test files are scattered through the whole project. Here we're searching
 // for them and generating entry file for webpack.
