@@ -119,8 +119,8 @@ class P2P {
 						protocolPrefix: 'rats'
 					}),
 					pubsub: gossipsub({
-						allowPublishToZeroPeers: true,
-						emitSelf: true
+						allowPublishToZeroPeers: false,
+						emitSelf: false
 					}),
 				}
 			});
@@ -559,7 +559,7 @@ class P2P {
 	 * @param {Object} data - Data to send
 	 * @returns {boolean} Success status
 	 */
-	sendToPeer(peerId, topic, data) {
+	async sendToPeer(peerId, topic, data) {
 		try {
 			// Ensure node and pubsub service are available
 			if (!this.node || !this.node.services.pubsub) {
@@ -571,7 +571,7 @@ class P2P {
 			const message = Buffer.from(JSON.stringify(data));
 			
 			// Publish to the topic (reaches all peers subscribed to the topic)
-			this.node.services.pubsub.publish(topic, message);
+			await this.node.services.pubsub.publish(topic, message);
 			
 			// Log success with appropriate detail level
 			if (peerId) {
@@ -583,7 +583,7 @@ class P2P {
 			return true;
 		} catch (err) {
 			const peerInfo = peerId ? `peer ${peerId}` : 'topic broadcast';
-			logTE('p2p', `Error sending message to ${peerInfo}`, err);
+			logTW('p2p', `Error sending message to ${peerInfo}`, err);
 			return false;
 		}
 	}
@@ -596,7 +596,7 @@ class P2P {
 	 * @param {boolean} permanent - Keep handler after response
 	 * @returns {Function} Function to unregister the callback
 	 */
-	emit(type, data, callback, permanent = false) {
+	async emit(type, data, callback, permanent = false) {
 		if (!this.node || !this.node.services.pubsub) {
 			logTE('p2p', 'Node not initialized yet');
 			return () => {};
@@ -630,7 +630,7 @@ class P2P {
 			const messageData = { ...data, id };
 			
 			// Use sendToPeer method to send to all peers
-			if (!this.sendToPeer(null, topic, messageData)) {
+			if (!(await this.sendToPeer(null, topic, messageData))) {
 				// If sending failed, clean up handler
 				this.responseHandlers.delete(id);
 			}
