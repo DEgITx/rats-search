@@ -30,13 +30,6 @@ class P2P {
 		this.filesRequests = {};
 		this.filesBlacklist = [];
 		
-		// Generate peer ID if not already in config
-		if(!config.peerId) {
-			logT('p2p', 'generate peerId');
-			config.peerId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-		}
-		this.peerId = config.peerId;
-
 		this.send = send;
 		this.selfAddress = null;
 		this.closing = false;
@@ -127,11 +120,15 @@ class P2P {
 					}),
 					pubsub: gossipsub({
 						allowPublishToZeroPeers: true,
-						emitSelf: false
+						emitSelf: true
 					}),
 				}
 			});
 
+			// Store the node's PeerId for use in the RATS protocol
+			this.peerId = this.node.peerId.toString();
+			logT('p2p', 'Using libp2p node PeerId:', this.peerId);
+			
 			// Set up event listeners
 			this.setupEventListeners();
 			
@@ -276,16 +273,16 @@ class P2P {
 				return;
 			}
 			
-			if (data.peerId === this.peerId) {
-				logT('p2p', 'Try connection to myself, ignore', this.peerId);
+			if (from === this.peerId) {
+				logT('p2p', 'Try connection to myself, ignore', from);
 				return;
 			}
 			
 			// Update peer information
 			if (this.peers.has(from)) {
 				const peer = this.peers.get(from);
+				peer.protocol = data.protocol;
 				peer.version = data.version;
-				peer.peerId = data.peerId;
 				peer.info = data.info;
 				peer.port = data.port;
 				
@@ -293,7 +290,6 @@ class P2P {
 				respond({
 					protocol: 'rats',
 					version: this.version,
-					peerId: this.peerId,
 					info: this.info,
 					peers: this.addresses(this.recommendedPeersList())
 				});
@@ -447,17 +443,17 @@ class P2P {
 
 	/**
 	 * Add a peer by address
-	 * @param {Object} address - Peer address info
+	 * @param {Object} peer - Peer address info
 	 * @param {boolean} force - Force connection even if max peers reached
 	 * @returns {Promise<void>}
 	 */
-	async add(address, force = false) {
+	async add(peer, force = false) {
 		if (!config.p2p) {
 			return;
 		}
 
-		if (!address.address || !address.port) {
-			logTW('p2p', 'Invalid address', address);
+		if (!peer.address || !peer.port || !peer.id) {
+			logTW('p2p', 'Invalid peer', peer);
 			return;
 		}
 
@@ -465,27 +461,27 @@ class P2P {
 			return;
 		}
 
-		if (address.port <= 1 || address.port > 65535) {
+		if (peer.port <= 1 || peer.port > 65535) {
 			return;
 		}
 
 		// Check ignore list
-		if (this.isAddressIgnored(address)) {
+		if (this.isAddressIgnored(peer)) {
 			return;
 		}
 		
 		// Check if we're already connected to this address
-		if (this.isAlreadyConnected(address)) {
+		if (this.isAlreadyConnected(peer)) {
 			return;
 		}
 
 		try {
-			// Build multiaddress
-			const ma = this.multiaddr(`/ip4/${address.address}/tcp/${address.port}`);
+			// Build multiaddress using just id
+			const ma = this.multiaddr(`/ip4/${peer.address}/tcp/${peer.port}/p2p/${peer.id}`);
 			await this.node.dial(ma);
-			logT('p2p', 'Successfully dialed peer at', address.address + ':' + address.port);
+			logT('p2p', 'Successfully dialed peer at', peer.address + ':' + peer.port);
 		} catch (err) {
-			logTE('p2p', 'Failed to connect to peer at', address.address + ':' + address.port, err.message);
+			logTE('p2p', 'Failed to connect to peer at', peer.address + ':' + peer.port, err.message);
 		}
 	}
 
@@ -551,7 +547,6 @@ class P2P {
 			protocol: 'rats',
 			port: config.spiderPort,
 			version: this.version,
-			peerId: this.peerId,
 			info: this.info,
 			peers: this.addresses(this.recommendedPeersList()).concat(this.externalPeers)
 		});
@@ -892,7 +887,8 @@ class P2P {
 				if (ipMatch && tcpMatch) {
 					return {
 						address: ipMatch[1],
-						port: parseInt(tcpMatch[1], 10)
+						port: parseInt(tcpMatch[1], 10),
+						id: peer.id // Use id consistently
 					};
 				}
 				return null;
