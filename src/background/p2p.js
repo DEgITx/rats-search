@@ -8,16 +8,7 @@ const _ = require('lodash');
 const mkdirp = require('mkdirp');
 const compareVersions = require('compare-versions');
 
-const { createLibp2p } = require('libp2p');
-const { tcp } = require('@libp2p/tcp');
-const { mplex } = require('@libp2p/mplex');
-const { noise } = require('@chainsafe/libp2p-noise');
-const { mdns } = require('@libp2p/mdns');
-const { bootstrap } = require('@libp2p/bootstrap');
-const { floodsub } = require('@libp2p/floodsub');
-const { ping } = require('@libp2p/ping');
-const { webSockets } = require('@libp2p/websockets');
-const { multiaddr } = require('@multiformats/multiaddr');
+// Remove static imports of libp2p libraries
 const { fromString: uint8ArrayFromString } = require('uint8arrays/from-string');
 const { toString: uint8ArrayToString } = require('uint8arrays/to-string');
 
@@ -76,6 +67,34 @@ class P2P {
 	 */
 	async init() {
 		try {
+			// Dynamically import libp2p modules
+			const [
+				{ createLibp2p }, 
+				{ tcp }, 
+				{ mplex }, 
+				{ noise }, 
+				{ mdns }, 
+				{ bootstrap }, 
+				{ floodsub }, 
+				{ ping }, 
+				{ webSockets }, 
+				{ multiaddr }
+			] = await Promise.all([
+				import('libp2p'),
+				import('@libp2p/tcp'),
+				import('@libp2p/mplex'),
+				import('@chainsafe/libp2p-noise'),
+				import('@libp2p/mdns'),
+				import('@libp2p/bootstrap'),
+				import('@libp2p/floodsub'),
+				import('@libp2p/ping'),
+				import('@libp2p/websockets'),
+				import('@multiformats/multiaddr')
+			]);
+			
+			// Store multiaddr for later use
+			this.multiaddr = multiaddr;
+			
 			// Create and configure libp2p node
 			this.node = await createLibp2p({
 				addresses: {
@@ -455,7 +474,7 @@ class P2P {
 
 		try {
 			// Build multiaddress
-			const ma = multiaddr(`/ip4/${address.address}/tcp/${address.port}`);
+			const ma = this.multiaddr(`/ip4/${address.address}/tcp/${address.port}`);
 			await this.node.dial(ma);
 			logT('p2p', 'Successfully dialed peer at', address.address + ':' + address.port);
 		} catch (err) {
