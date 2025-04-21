@@ -44,6 +44,14 @@ module.exports = env => {
       ]
     },
     plugins: [
-    ]
+    ],
+    experiments: {
+      outputModule: true
+    },
+    output: {
+      module: true,
+      libraryTarget: 'module',
+      chunkFormat: 'module'
+    }
   };
 };

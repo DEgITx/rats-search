@@ -10,7 +10,9 @@ module.exports = env => {
     },
     output: {
       filename: "[name].js",
-      path: path.resolve(__dirname, "../app")
+      path: path.resolve(__dirname, "../app"),
+      module: true,
+      chunkFormat: 'module'
     }
   });
 };
