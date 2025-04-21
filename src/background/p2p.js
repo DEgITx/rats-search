@@ -71,7 +71,7 @@ class P2P {
 				{ noise }, 
 				{ mdns }, 
 				{ bootstrap }, 
-				{ floodsub }, 
+				{ gossipsub }, 
 				{ ping }, 
 				{ webSockets }, 
 				{ multiaddr }
@@ -82,7 +82,7 @@ class P2P {
 				import('@chainsafe/libp2p-noise'),
 				import('@libp2p/mdns'),
 				import('@libp2p/bootstrap'),
-				import('@libp2p/floodsub'),
+				import('@chainsafe/libp2p-gossipsub'),
 				import('@libp2p/ping'),
 				import('@libp2p/websockets'),
 				import('@multiformats/multiaddr')
@@ -95,8 +95,8 @@ class P2P {
 			this.node = await createLibp2p({
 				addresses: {
 					listen: [
-						`/ip4/0.0.0.0/tcp/${config.spiderPort}`,
-						`/ip4/0.0.0.0/tcp/${config.spiderPort + 1}/ws`
+						`/ip4/0.0.0.0/tcp/${5000}`,
+						`/ip4/0.0.0.0/tcp/${5001}/ws`
 					]
 				},
 				transports: [
@@ -118,7 +118,10 @@ class P2P {
 						interval: 60000
 					})
 				],
-				pubsub: floodsub(),
+				pubsub: gossipsub({
+					allowPublishToZeroPeers: true,
+					emitSelf: false
+				}),
 				services: {
 					ping: ping({
 						protocolPrefix: 'rats'
