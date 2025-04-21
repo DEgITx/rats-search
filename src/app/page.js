@@ -1,5 +1,5 @@
 import React from 'react';
-import Component from './component'
+import Component from './component.js'
 
 export default class Page extends Component {
 	setTitle(title) {

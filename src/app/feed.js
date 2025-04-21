@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import AutoScrollable from './auto-scrollable'
-import TorrentLine from './torrent'
+import AutoScrollable from './auto-scrollable.js'
+import TorrentLine from './torrent.js'
 import {List} from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import Subheader from 'material-ui/Subheader';

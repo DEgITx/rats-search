@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { listenSwipe, removeSwipeListener } from './touch'
+import { listenSwipe, removeSwipeListener } from './touch.js'
 
 export default class BTComponent extends Component {
 	componentDidMount() {

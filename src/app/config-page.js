@@ -1,5 +1,5 @@
 import React from 'react';
-import Page from './page';
+import Page from './page.js';
 
 import Toggle from 'material-ui/Toggle';
 import RaisedButton from 'material-ui/RaisedButton';

@@ -253,7 +253,8 @@ const XXX_VERY_BAD_WORDS = [
 	'10yo', '11yo', '12yo', '13yo', '14yo', '15yo', '16yo'
 ]
 
-module.exports = {
+export {
 	XXX_BLOCK_WORDS,
 	XXX_VERY_BAD_WORDS
 };
+

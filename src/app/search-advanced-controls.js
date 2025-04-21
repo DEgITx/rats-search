@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
-import InputSize from './input-size';
-import FilesFilterInput from './input-files-filter';
+import InputSize from './input-size.js';
+import FilesFilterInput from './input-files-filter.js';
 
 export default class AdvancedSearchControl extends Component {
 	constructor(props)

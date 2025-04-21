@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 
-import TorrentLine from './torrent'
+import TorrentLine from './torrent.js'
 import {List, ListItem} from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
-import LinearProgress from './LinearProgress';
+import LinearProgress from './LinearProgress.js';
 
 export default class SearchResults extends Component {
 	render() {

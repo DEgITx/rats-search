@@ -252,10 +252,7 @@ const ExtesionBase = {
 const ContentTypeProp = 'contentType';
 const ContentCategoryProp = 'contentCategory';
 
-const {
-	XXX_BLOCK_WORDS,
-	XXX_VERY_BAD_WORDS
-} = require('./bad-words');
+import { XXX_BLOCK_WORDS, XXX_VERY_BAD_WORDS } from './bad-words.js';
 
 // блокируем порнографию
 const blockBadName = (torrent, name) => {
@@ -330,19 +327,22 @@ const torrentTypeDetect = (torrent, files) => {
 	detectSubCategory(torrent, files, typesPriority, torrent[ContentTypeProp]);
 	return typesPriority;
 }
-
-module.exports = {
+export {
 	torrentTypeDetect, 
 	fileTypeDetect, 
 	niceTypeColor,
-	torrentTypeId: (type) => {
-		const id = Object.values(ContentTypes).indexOf(type);
-		return id == -1 ? 0 : id + 1;
-	},
-	torrentIdToType: (id) => Object.values(ContentTypes)[id - 1],
-	torrentCategoryId: (type) => {
-		 const id = Object.values(ContentCategories).indexOf(type);
-		 return id == -1 ? 0 : id + 1;
-	},
-	torrentIdToCategory: (id) => Object.values(ContentCategories)[id - 1],
 };
+
+export const torrentTypeId = (type) => {
+	const id = Object.values(ContentTypes).indexOf(type);
+	return id == -1 ? 0 : id + 1;
+};
+
+export const torrentIdToType = (id) => Object.values(ContentTypes)[id - 1];
+
+export const torrentCategoryId = (type) => {
+	const id = Object.values(ContentCategories).indexOf(type);
+	return id == -1 ? 0 : id + 1;
+};
+
+export const torrentIdToCategory = (id) => Object.values(ContentCategories)[id - 1];

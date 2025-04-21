@@ -1,93 +1,97 @@
 import React, { Component } from 'react';
 import './app.css';
-import './router';
+import './router.js';
 import PagesPie from './pages-pie.js';
 //import registerServiceWorker from './registerServiceWorker';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import __, { changeLanguage } from './translation'
+import __, { changeLanguage } from './translation.js'
 
-import {Header} from './header'
-import Footer from './footer'
+import {Header} from './header.js'
+import Footer from './footer.js'
 
 window.__ = __
 
 
 if(typeof WEB !== 'undefined')
 {
-	const io = require("socket.io-client");
-	window.torrentSocket = io(document.location.protocol + '//' + document.location.hostname + (process.env.NODE_ENV === 'production' ? '/' : ':8095/'));
-	const emit = window.torrentSocket.emit.bind(window.torrentSocket);
-	window.torrentSocket.emit = (...data) => {
-		let id;
-		if(typeof data[data.length - 1] === 'function')
-		{
-			id = Math.random().toString(36).substring(5)
+	import("socket.io-client").then(io => {
+		window.torrentSocket = io.default(document.location.protocol + '//' + document.location.hostname + (process.env.NODE_ENV === 'production' ? '/' : ':8095/'));
+		const emit = window.torrentSocket.emit.bind(window.torrentSocket);
+		window.torrentSocket.emit = (...data) => {
+			let id;
+			if(typeof data[data.length - 1] === 'function')
+			{
+				id = Math.random().toString(36).substring(5)
+			}
+			data.splice(1,0,id);
+			emit(...data)
+			return id
 		}
-		data.splice(1,0,id);
-		emit(...data)
-		return id
-	}
+	});
 }
 else
 {
-	const { ipcRenderer } = require('electron');
-	const remote = require('@electron/remote')
-	window.currentWindow = remote.getCurrentWindow()
-
-	window.torrentSocket = {}
-	window.torrentSocket.callbacks = {}
-	window.torrentSocket.listeners = {}
-	window.torrentSocket.on = (name, func) => {
-		const id = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2)
-		const newListener = (event, ...data) => {
-			func(...data)
-		}
-		window.torrentSocket.listeners[id] = newListener
-		func._eventId = id
-
-		ipcRenderer.on(name, newListener);
-	}
-	window.torrentSocket.off = (name, func) => {
-		if(!func)
-			ipcRenderer.removeAllListeners(name);
-		else
-		{
-			const realListener = window.torrentSocket.listeners[func._eventId]
-			if(realListener)
-			{
-				ipcRenderer.removeListener(name, realListener);
-				delete window.torrentSocket.listeners[func._eventId]
+	Promise.all([
+		import('electron'),
+		import('@electron/remote')
+	]).then(([electron, remote]) => {
+		const { ipcRenderer } = electron;
+		window.currentWindow = remote.getCurrentWindow();
+		
+		window.torrentSocket = {}
+		window.torrentSocket.callbacks = {}
+		window.torrentSocket.listeners = {}
+		window.torrentSocket.on = (name, func) => {
+			const id = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2)
+			const newListener = (event, ...data) => {
+				func(...data)
 			}
-			delete func._eventId
+			window.torrentSocket.listeners[id] = newListener
+			func._eventId = id
+
+			ipcRenderer.on(name, newListener);
 		}
-	}
-	window.torrentSocket.emit = (name, ...data) => {
-		let id;
-		if(typeof data[data.length - 1] === 'function')
-		{
-			id = Math.random().toString(36).substring(5)
-			window.torrentSocket.callbacks[id] = data[data.length - 1];
-			data[data.length - 1] = {callback: id}
-		}
-		ipcRenderer.send(name, data)
-		return id
-	}
-	ipcRenderer.on('callback', (event, id, data) => {
-		const callback = window.torrentSocket.callbacks[id]
-		if(callback) {
-			if(data)
-				callback(JSON.parse(data))
+		window.torrentSocket.off = (name, func) => {
+			if(!func)
+				ipcRenderer.removeAllListeners(name);
 			else
-				callback(data)
+			{
+				const realListener = window.torrentSocket.listeners[func._eventId]
+				if(realListener)
+				{
+					ipcRenderer.removeListener(name, realListener);
+					delete window.torrentSocket.listeners[func._eventId]
+				}
+				delete func._eventId
+			}
 		}
-		delete window.torrentSocket.callbacks[id]
-	});
+		window.torrentSocket.emit = (name, ...data) => {
+			let id;
+			if(typeof data[data.length - 1] === 'function')
+			{
+				id = Math.random().toString(36).substring(5)
+				window.torrentSocket.callbacks[id] = data[data.length - 1];
+				data[data.length - 1] = {callback: id}
+			}
+			ipcRenderer.send(name, data)
+			return id
+		}
+		ipcRenderer.on('callback', (event, id, data) => {
+			const callback = window.torrentSocket.callbacks[id]
+			if(callback) {
+				if(data)
+					callback(JSON.parse(data))
+				else
+					callback(data)
+			}
+			delete window.torrentSocket.callbacks[id]
+		});
 
-	ipcRenderer.on('url', (event, url) => {
-		console.log('url', url)
-		router(url)    
+		ipcRenderer.on('url', (event, url) => {
+			console.log('url', url)
+			router(url)    
+		});
 	});
-
 }
 
 //registerServiceWorker();

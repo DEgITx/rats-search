@@ -14,4 +14,4 @@ function rating(good, bad){
 	}
 }
 
-module.exports = rating;
+export default rating;

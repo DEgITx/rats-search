@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import singleton from './singleton'
+import singleton from './singleton.js'
 
 class PagesPie extends Component {
     pie = [];

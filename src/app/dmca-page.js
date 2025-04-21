@@ -1,5 +1,5 @@
 import React from 'react';
-import Page from './page';
+import Page from './page.js';
 
 import AppBar from 'material-ui/AppBar';
 import IconButton from 'material-ui/IconButton';

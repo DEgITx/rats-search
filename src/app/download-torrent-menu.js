@@ -1,5 +1,5 @@
 import React from 'react';
-import ContextMenu from './context-menu'
+import ContextMenu from './context-menu.js'
 
 let dialog
 if(typeof WEB === 'undefined')

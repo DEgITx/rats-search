@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 
-import AdvancedSearch from './search-advanced-controls'
-import TorrentsStatistic from './torrent-statistic'
-import Tooltip from './tooltip'
+import AdvancedSearch from './search-advanced-controls.js'
+import TorrentsStatistic from './torrent-statistic.js'
+import Tooltip from './tooltip.js'
 
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -15,7 +15,7 @@ import AddIcon from 'material-ui/svg-icons/content/add';
 import RemoveIcon from 'material-ui/svg-icons/content/remove';
 
 import _ from 'lodash'
-import singleton from './singleton';
+import singleton from './singleton.js';
 
 class Search extends Component {
 	constructor(props)

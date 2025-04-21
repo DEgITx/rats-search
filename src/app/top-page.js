@@ -1,12 +1,12 @@
 import React from 'react';
-import Page from './page';
+import Page from './page.js';
 
-import TorrentLine from './torrent'
+import TorrentLine from './torrent.js'
 import {List, ListItem} from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import Subheader from 'material-ui/Subheader';
 import RaisedButton from 'material-ui/RaisedButton';
-import LinearProgress from './LinearProgress';
+import LinearProgress from './LinearProgress.js';
 
 import {Tabs, Tab} from 'material-ui/Tabs';
 import _ from 'lodash'

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import InputRange from 'react-input-range';
 import './input-range.css';
-import formatBytes from './format-bytes'
+import formatBytes from './format-bytes.js'
 
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';

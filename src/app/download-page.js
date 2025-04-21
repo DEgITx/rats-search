@@ -1,7 +1,7 @@
 import React from 'react';
-import Page from './page';
+import Page from './page.js';
 
-import TorrentLine from './torrent'
+import TorrentLine from './torrent.js'
 import {List} from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import RaisedButton from 'material-ui/RaisedButton';

@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
-import formatBytes from './format-bytes'
+import formatBytes from './format-bytes.js'
 import {ListItem} from 'material-ui/List';
 import Divider from 'material-ui/Divider';
-import ToolTip from './tooltip';
+import ToolTip from './tooltip.js';
 
 import PagesPie from './pages-pie.js';
-import TorrentPage from './torrent-page'
+import TorrentPage from './torrent-page.js'
 
-import LinearProgress from './LinearProgress';
-let rating = require('./rating');
-import scrollBack from './remember-scroll'
-import TrackersImages from './trackers-images'
-import DownloadTorrentMenu from './download-torrent-menu'
+import LinearProgress from './LinearProgress.js';
+import rating from './rating.js';
+import scrollBack from './remember-scroll.js'
+import TrackersImages from './trackers-images.js'
+import DownloadTorrentMenu from './download-torrent-menu.js'
 
 const contentIcon = (type, category, fill = 'grey') => {
 	if(category == 'xxx')
@@ -388,7 +388,7 @@ export default class Torrent extends Component {
                                     		mode="determinate" 
                                     		value={this.state.downloadProgress && (this.state.downloadProgress.progress ? this.state.downloadProgress.progress : 0) * 100}
                                     	/>
-                                    	<div className='pad0-75 progressDownloading' style={{marginLeft: 20}} style={{color: 'rgb(0, 188, 212)'}}>{this.state.downloadProgress && (this.state.downloadProgress.progress * 100).toFixed(1)}%</div>
+                                    	<div className='pad0-75 progressDownloading' style={{marginLeft: 20, color: 'rgb(0, 188, 212)'}}>{this.state.downloadProgress && (this.state.downloadProgress.progress * 100).toFixed(1)}%</div>
                                     	{
                                     		this.state.downloadProgress.progress !== 1
                                             &&
@@ -575,8 +575,8 @@ export default class Torrent extends Component {
   								}} viewBox="0 0 24 24">
   									<path d="M15.82 10.736l-5.451 6.717c-.561.691-1.214 1.042-1.94 1.042-1.144 
                   0-2.327-.899-2.753-2.091-.214-.6-.386-1.76.865-2.784 3.417-2.794 6.716-5.446 
-                  6.716-5.446l-3.363-4.174s-4.532 3.657-6.771 5.487c-2.581 2.108-3.123 4.468-3.123 
-                  6.075 0 4.416 4.014 8.438 8.42 8.438 1.604 0 3.963-.543 6.084-3.128 1.835-2.237 
+                  6.716-5.446l-3.363-4.174s-4.532 3.657-6.771 5.487c-2.581 2.108-3.123 4.468-3.123 6.075 
+                  0 4.416 4.014 8.438 8.42 8.438 1.604 0 3.963-.543 6.084-3.128 1.835-2.237 
                   5.496-6.773 5.496-6.773l-4.18-3.363zm-2.604 9.079c-1.353 1.647-3.01 2.519-4.796 
                   2.519-3.471 0-6.753-3.291-6.753-6.771 0-1.789.867-3.443 2.51-4.785 1.206-.986 
                   2.885-2.348 4.18-3.398l1.247 1.599c-1.074.87-2.507 2.033-4.118 3.352-1.471 

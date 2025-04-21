@@ -1,6 +1,6 @@
 import React from 'react';
-import Page from './page';
-import formatBytes from './format-bytes'
+import Page from './page.js';
+import formatBytes from './format-bytes.js'
 
 import {List, ListItem} from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
@@ -14,14 +14,14 @@ import NoImage from './images/no-image-icon.png'
 
 var moment = require('moment');
 import RefreshIndicator from 'material-ui/RefreshIndicator';
-let rating = require('./rating');
-import LinearProgress from './LinearProgress';
+let rating = require('./rating.js');
+import LinearProgress from './LinearProgress.js';
 import FlatButton from 'material-ui/FlatButton';
-import {fileTypeDetect} from './content'
-import {contentIcon} from './torrent'
-import TrackersImages from './trackers-images'
-import DownloadTorrentMenu from './download-torrent-menu'
-import {torrentTypeDetect, niceTypeColor} from './content';
+import {fileTypeDetect} from './content.js'
+import {contentIcon} from './torrent.js'
+import TrackersImages from './trackers-images.js'
+import DownloadTorrentMenu from './download-torrent-menu.js'
+import {torrentTypeDetect, niceTypeColor} from './content.js';
 import { PieChart } from 'react-minimal-pie-chart';
 
 let parseDescriptionText = (text) => {

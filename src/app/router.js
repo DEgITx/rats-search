@@ -3,7 +3,7 @@ import PagesPie from './pages-pie.js';
 
 import FeedPage from './feed-page.js'
 import SearchPage from './search-page.js'
-import ActivityPage from './activity-page'
+import ActivityPage from './activity-page.js'
 import TorrentPage from './torrent-page.js'
 import DMCAPage from './dmca-page.js'
 import ConfigPage from './config-page.js'

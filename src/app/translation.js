@@ -1,6 +1,6 @@
-const fs = require('fs')
-const env = typeof WEB !== 'undefined' ? false : require('env')
-let dictionary = {}
+import fs from 'fs';
+const env = typeof WEB !== 'undefined' ? false : await import('env').then(module => module.default || module);
+let dictionary = {};
 
 const translationsDir = () => {
 	if(env.name == 'production')
@@ -37,23 +37,23 @@ const changeLanguage = (lang, callback) => {
 	})
 }
 
-export { changeLanguage, translationsDir }
+export { changeLanguage, translationsDir };
 
-export default (word) => {
-	const translation = dictionary[word]
+export default function __(word) {
+	const translation = dictionary[word];
 	if(translation === undefined)
 	{
 		if(fs && env && env.name === "development")
 		{
-			dictionary[word] = word
+			dictionary[word] = word;
 			fs.readdirSync('translations').forEach(translation => {
-				console.log('update translation in file', translation)
-				const translationJson = JSON.parse(fs.readFileSync(`translations/${translation}`, 'utf8'))
-				translationJson.translations[word] = word
+				console.log('update translation in file', translation);
+				const translationJson = JSON.parse(fs.readFileSync(`translations/${translation}`, 'utf8'));
+				translationJson.translations[word] = word;
 				fs.writeFileSync(`translations/${translation}`, JSON.stringify(translationJson, null, 4), 'utf8');
-			})
+			});
 		}
-		return word
+		return word;
 	}
-	return translation
+	return translation;
 }

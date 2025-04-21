@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import formatBytes from './format-bytes'
+import formatBytes from './format-bytes.js'
 
 export default class TorrentsStatistic extends Component {
 	constructor(props)

@@ -1,9 +1,9 @@
 import React from 'react';
-import Page from './page';
+import Page from './page.js';
 
-import Feed from './feed';
+import Feed from './feed.js';
 
-import DBExtendHint from './db-extend-hint'
+import DBExtendHint from './db-extend-hint.js'
 
 export default class FeedPage extends Page {
 	constructor(props) {

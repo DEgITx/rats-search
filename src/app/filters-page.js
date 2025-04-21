@@ -1,5 +1,5 @@
 import React from 'react';
-import Page from './page';
+import Page from './page.js';
 
 import Toggle from 'material-ui/Toggle';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -7,7 +7,7 @@ import TextField from 'material-ui/TextField'
 import Slider from 'material-ui/Slider'
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
-import InputSize from './input-size';
+import InputSize from './input-size.js';
 import Checkbox from 'material-ui/Checkbox';
 
 export default class ConfigPage extends Page {

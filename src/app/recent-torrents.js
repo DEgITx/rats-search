@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import TorrentLine from './torrent'
+import TorrentLine from './torrent.js'
 import {List} from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import Subheader from 'material-ui/Subheader';

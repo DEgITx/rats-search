@@ -2,17 +2,26 @@ import React from 'react';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import Background from './images/pirate-mod.jpg'
 import RaisedButton from 'material-ui/RaisedButton';
-import Search from './search'
-import Tooltip from './tooltip'
-import ContextMenu from './context-menu'
+import Search from './search.js'
+import Tooltip from './tooltip.js'
+import ContextMenu from './context-menu.js'
 
 let createTorrent;
-if(typeof WEB === 'undefined')
-	createTorrent = require('create-torrent')
+if(typeof WEB === 'undefined') {
+	// Use dynamic import for create-torrent
+	import('create-torrent').then(module => {
+		createTorrent = module.default || module;
+	});
+}
 import fs from 'fs'
-let dialog
-if(typeof WEB === 'undefined')
-	dialog = require('@electron/remote').dialog
+let dialog;
+if(typeof WEB === 'undefined') {
+	// Use dynamic import for electron/remote
+	import('@electron/remote').then(module => {
+		dialog = module.dialog;
+	});
+}
+
 class Header extends React.Component {
 	constructor(props)
 	{
@@ -67,7 +76,7 @@ class Header extends React.Component {
 					console.log('generated torrent size', torrent.length)
 					let savePath = dialog.showSaveDialogSync({title: 'Save generated torrent file', defaultPath: 'generated', filters: [
 						{ name: 'Torrent files', extensions: ['torrent'] },
-					  ]});
+					]});
 					if(savePath) {
 						fs.writeFileSync(savePath, torrent)
 						console.log('saved', torrent.length, 'to', savePath)

@@ -1,7 +1,7 @@
 import React from 'react';
-import Page from './page';
+import Page from './page.js';
 
-import RecentTorrents from './recent-torrents'
+import RecentTorrents from './recent-torrents.js'
 
 export default class ActivityPage extends Page {
 	constructor(props) {

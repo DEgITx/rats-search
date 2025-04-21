@@ -1,5 +1,5 @@
 import React from 'react';
-import Page from './page';
+import Page from './page.js';
 import ReactMarkdown from 'react-markdown'
 import fs from 'fs'
 

@@ -1,8 +1,8 @@
 import React from 'react';
-import Page from './page';
+import Page from './page.js';
 
-import SearchResults from './search-results'
-import Search from './search'
+import SearchResults from './search-results.js'
+import Search from './search.js'
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 
