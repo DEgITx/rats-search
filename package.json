@@ -106,7 +106,9 @@
     "prebuild": "webpack --config=build/webpack.app.config.js --env=production",
     "build": "electron-builder",
     "server": "node src/background/server.js",
-    "buildweb": "node src/background/webpack.js"
+    "buildweb": "node src/background/webpack.js",
+    "lint": "eslint --ext .js,.jsx src/",
+    "lint:fix": "eslint --ext .js,.jsx src/ --fix"
   },
   "dependencies": {
     "@electron/remote": "^2.1.2",
@@ -150,6 +152,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.18.9",
+    "@babel/eslint-parser": "^7.22.15",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/preset-env": "^7.18.9",
     "@babel/preset-react": "^7.18.6",
@@ -157,7 +160,6 @@
     "@semantic-release/exec": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/npm": "^9.0.0",
-    "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.5",
     "chai": "^4.3.6",
     "copy-webpack-plugin": "^11.0.0",

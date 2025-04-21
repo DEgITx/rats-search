@@ -6,8 +6,12 @@ module.exports = env => {
     env = 'test'
   else if(env && env.production)
     env = 'production'
+  
+  const isDevelopment = env !== 'production' && env !== 'test';
+  const isProduction = env === 'production';
+  
   return {
-    mode: env == 'test' ? 'production' : (env || 'development'),
+    mode: env === 'test' ? 'production' : (env || 'development'),
     target: "node",
     node: {
       __dirname: false,
@@ -15,15 +19,17 @@ module.exports = env => {
     },
     externals: [nodeExternals()],
     resolve: {
+      extensions: ['.js', '.jsx', '.json'],
       alias: {
-        env: path.resolve(__dirname, `../config/env_${env}.json`)
+        env: path.resolve(__dirname, `../config/env_${env}.json`),
+        '@': path.resolve(__dirname, '../src')
       }
     },
     devtool: "source-map",
     module: {
       rules: [
         {
-          test: /\.js$/,
+          test: /\.jsx?$/,
           exclude: /node_modules/,
           use: ["babel-loader"]
         },
@@ -33,7 +39,7 @@ module.exports = env => {
         },
         {
           test: /\.(?:ico|gif|png|jpg|jpeg|webp)$/,
-          use: ['url-loader']
+          type: 'asset'
         }
       ]
     },
