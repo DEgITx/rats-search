@@ -618,7 +618,7 @@ class P2P {
 			// If callback provided, set up a response handler
 			if (callback) {
 				const handler = (message, from) => {
-					callback(message, null, { id: from });
+					callback(message, null, this.peers.get(from));
 				};
 				
 				// Mark if the handler is permanent
@@ -664,10 +664,7 @@ class P2P {
 		this.registerTopicHandler(topic, (data, from, respond) => {
 			callback(data, (responseData) => {
 				respond(responseData);
-			}, { peerId: from }, {
-				version: data.version,
-				info: data.info
-			});
+			}, this.peers.get(from));
 		});
 	}
 
