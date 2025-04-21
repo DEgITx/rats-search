@@ -456,6 +456,11 @@ class P2P {
 			return;
 		}
 
+		if (!address.address || !address.port) {
+			logTW('p2p', 'Invalid address', address);
+			return;
+		}
+
 		if (this.size > config.p2pConnections && !force) {
 			return;
 		}
@@ -554,16 +559,37 @@ class P2P {
 
 	/**
 	 * Send message to specific peer or topic
-	 * @param {string} peerId - ID of the peer
+	 * @param {string} peerId - ID of the peer (null for broadcast)
 	 * @param {string} topic - Topic to publish to
 	 * @param {Object} data - Data to send
+	 * @returns {boolean} Success status
 	 */
 	sendToPeer(peerId, topic, data) {
 		try {
+			// Ensure node and pubsub service are available
+			if (!this.node || !this.node.services.pubsub) {
+				logTE('p2p', 'Cannot send message - node not initialized');
+				return false;
+			}
+
+			// Serialize message once
 			const message = Buffer.from(JSON.stringify(data));
+			
+			// Publish to the topic (reaches all peers subscribed to the topic)
 			this.node.services.pubsub.publish(topic, message);
+			
+			// Log success with appropriate detail level
+			if (peerId) {
+				logT('p2p', `Sent message to peer ${peerId} on topic ${topic}`);
+			} else {
+				logT('p2p', `Broadcast message to topic ${topic}`);
+			}
+			
+			return true;
 		} catch (err) {
-			logTE('p2p', 'Error sending message to peer', peerId, err);
+			const peerInfo = peerId ? `peer ${peerId}` : 'topic broadcast';
+			logTE('p2p', `Error sending message to ${peerInfo}`, err);
+			return false;
 		}
 	}
 
@@ -608,11 +634,11 @@ class P2P {
 			// Add ID to data
 			const messageData = { ...data, id };
 			
-			logT('p2p', 'Emit message to topic', topic, 'with data', messageData);
-
-			// Publish to the topic
-			const message = Buffer.from(JSON.stringify(messageData));
-			this.node.services.pubsub.publish(topic, message);
+			// Use sendToPeer method to send to all peers
+			if (!this.sendToPeer(null, topic, messageData)) {
+				// If sending failed, clean up handler
+				this.responseHandlers.delete(id);
+			}
 			
 			// Return a function to unregister the callback
 			return () => {
