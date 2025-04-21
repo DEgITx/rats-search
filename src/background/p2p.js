@@ -8,10 +8,6 @@ const _ = require('lodash');
 const mkdirp = require('mkdirp');
 const compareVersions = require('compare-versions');
 
-// Remove static imports of libp2p libraries
-const { fromString: uint8ArrayFromString } = require('uint8arrays/from-string');
-const { toString: uint8ArrayToString } = require('uint8arrays/to-string');
-
 const directoryFilesRecursive = require('./directoryFilesRecursive');
 const deleteFolderRecursive = require('./deleteFolderRecursive');
 
@@ -227,7 +223,7 @@ class P2P {
 	handlePubSubMessage(evt) {
 		try {
 			const { data, topic, from } = evt.detail;
-			const message = JSON.parse(uint8ArrayToString(data));
+			const message = JSON.parse(Buffer.from(data).toString());
 			
 			// Check if this is a response to a request
 			if (message.id && message.isResponse && this.responseHandlers.has(message.id)) {
@@ -558,7 +554,7 @@ class P2P {
 	 */
 	sendToPeer(peerId, topic, data) {
 		try {
-			const message = uint8ArrayFromString(JSON.stringify(data));
+			const message = Buffer.from(JSON.stringify(data));
 			this.node.pubsub.publish(topic, message);
 		} catch (err) {
 			logTE('p2p', 'Error sending message to peer', peerId, err);
@@ -607,7 +603,7 @@ class P2P {
 			const messageData = { ...data, id };
 			
 			// Publish to the topic
-			const message = uint8ArrayFromString(JSON.stringify(messageData));
+			const message = Buffer.from(JSON.stringify(messageData));
 			this.node.pubsub.publish(topic, message);
 			
 			// Return a function to unregister the callback
