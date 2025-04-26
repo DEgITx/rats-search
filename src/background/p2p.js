@@ -157,7 +157,7 @@ class P2P {
 		this.node.addEventListener('peer:discovery', (evt) => {
 			const peer = evt.detail;
 			logT('p2p', 'Discovered peer:', peer.id.toString());
-			this.attemptConnection(peer);
+			this._attemptConnection(peer);
 		});
 
 		// Peer connection event
@@ -209,7 +209,7 @@ class P2P {
 				// Try to reconnect after delay if not closing
 				if (!this.closing) {
 					setTimeout(() => {
-						this.attemptConnection({ id: peerId });
+						this._attemptConnection({ id: peerId });
 					}, 5000);
 				}
 			}
@@ -441,6 +441,37 @@ class P2P {
 		this.topicHandlers.set(topic, handler);
 	}
 
+
+	/**
+	 * Attempt connection to a discovered peer
+	 * @param {Object} peer - Peer to connect to
+	 * @returns {Promise<void>}
+	 */
+	async _attemptConnection(peer) {
+		if ((this.size > config.p2pConnections && !peer.force) || this.closing) {
+			return;
+		}
+		
+		let address = null;
+		// Build multiaddress using just id
+		if (peer.address && peer.port && peer.id) {
+			address = this.multiaddr(`/ip4/${peer.address}/tcp/${peer.port}/p2p/${peer.id}`);
+		} else if (peer.id) {
+			address = peer.id;
+		} else {
+			logTE('p2p', 'Invalid peer', peer);
+			return;
+		}
+
+		logT('p2p', 'Attempt connection to', address);
+
+		try {
+			await this.node.dial(address);
+		} catch (err) {
+			logTE('p2p', 'Failed to connect to discovered peer', address, err.message);
+		}
+	}
+
 	/**
 	 * Add a peer by address
 	 * @param {Object} peer - Peer address info
@@ -454,10 +485,6 @@ class P2P {
 
 		if (!peer.address || !peer.port || !peer.id) {
 			logTW('p2p', 'Invalid peer', peer);
-			return;
-		}
-
-		if (this.size > config.p2pConnections && !force) {
 			return;
 		}
 
@@ -476,12 +503,10 @@ class P2P {
 		}
 
 		try {
-			// Build multiaddress using just id
-			const ma = this.multiaddr(`/ip4/${peer.address}/tcp/${peer.port}/p2p/${peer.id}`);
-			await this.node.dial(ma);
-			logT('p2p', 'Successfully dialed peer at', peer.address + ':' + peer.port);
+			await this._attemptConnection(peer);
+			logT('p2p', 'Successfully dialed peer at', address);
 		} catch (err) {
-			logTE('p2p', 'Failed to connect to peer at', peer.address + ':' + peer.port, err.message);
+			logTE('p2p', 'Failed to connect to peer at', address, err.message);
 		}
 	}
 
@@ -519,23 +544,6 @@ class P2P {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Attempt connection to a discovered peer
-	 * @param {Object} peer - Peer to connect to
-	 * @returns {Promise<void>}
-	 */
-	async attemptConnection(peer) {
-		if (this.size > config.p2pConnections || this.closing) {
-			return;
-		}
-		
-		try {
-			await this.node.dial(peer.id);
-		} catch (err) {
-			logTE('p2p', 'Failed to connect to discovered peer', peer.id.toString(), err.message);
-		}
 	}
 
 	/**
