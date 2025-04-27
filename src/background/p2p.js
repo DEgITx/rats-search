@@ -239,7 +239,12 @@ class P2P {
 			
 			// Handle topic-specific messages
 			if (this.topicHandlers.has(topic)) {
-				const handler = this.topicHandlers.get(topic);
+				const handlerConfig = this.topicHandlers.get(topic);
+				
+				// Skip if pubsub is disabled for this handler
+				if (!handlerConfig.pubsub) {
+					return;
+				}
 				
 				// For request-response pattern, include the ability to reply
 				const respond = (responseData) => {
@@ -250,7 +255,7 @@ class P2P {
 					});
 				};
 				
-				handler(message, from, respond);
+				handlerConfig.handler(message, from, respond);
 			}
 		} catch (err) {
 			logTE('p2p', 'Error handling pubsub message:', err);
@@ -296,13 +301,13 @@ class P2P {
 					data.peers.forEach(peer => this.add(peer));
 				}
 			}
-		});
+		}, { direct: true });
 
 		// Peer exchange handler
 		this.registerTopicHandler('rats:peer', (peer) => {
 			logT('p2p', 'Got peer exchange', peer);
 			this.add(peer);
-		});
+		}, { direct: true });
 
 		// File transfer handler
 		this.registerTopicHandler('rats:file', async ({ path, id, chunk, done }, from, respond) => {
@@ -351,7 +356,7 @@ class P2P {
 				logTE('transfer', 'Error processing file request:', err);
 				respond({ id, error: err.message });
 			}
-		});
+		}, { direct: true });
 	}
 
 	/**
@@ -412,15 +417,85 @@ class P2P {
 	 * Register a topic handler
 	 * @param {string} topic - Topic to subscribe to
 	 * @param {Function} handler - Message handler function
+	 * @param {Object} options - Handler options
+	 * @param {boolean} options.pubsub - Enable pubsub for this topic (default: true)
+	 * @param {boolean} options.direct - Enable direct dial for this topic (default: true)
 	 */
-	registerTopicHandler(topic, handler) {
-		if (!this.topicHandlers.has(topic)) {
+	registerTopicHandler(topic, handler, options = {}) {
+		// Default to enabling both communication methods
+		const { pubsub = true, direct = true } = options;
+		
+		// Subscribe to pubsub topic if enabled
+		if (pubsub && !this.topicHandlers.has(topic)) {
 			this.node.services.pubsub.subscribe(topic);
-			logT('p2p', 'Subscribed to topic', topic);
+			logT('p2p', 'Subscribed to pubsub topic', topic);
 		}
-		this.topicHandlers.set(topic, handler);
+		
+		// Store the handler with its communication preferences
+		const handlerConfig = {
+			handler,
+			pubsub,
+			direct
+		};
+		this.topicHandlers.set(topic, handlerConfig);
+		
+		// Register protocol handler for direct communication if enabled
+		if (direct) {
+			this.node.handle(topic, async ({ stream, connection }) => {
+				try {
+					// Get the peer ID
+					const peerId = connection.remotePeer.toString();
+					
+					// Read the data from the stream
+					const chunks = [];
+					for await (const chunk of stream.source) {
+						chunks.push(chunk);
+					}
+					
+					// Parse the message
+					const data = JSON.parse(Buffer.concat(chunks).toString());
+					
+					// Create respond function for request-response pattern
+					const respond = async (responseData) => {
+						try {
+							// Send response back through the same connection
+							const message = Buffer.from(JSON.stringify({
+								...responseData,
+								id: data.id,
+								isResponse: true
+							}));
+							
+							// Open a new stream for the response
+							const responseStream = await this.node.dialProtocol(peerId, topic);
+							await responseStream.sink([message]);
+							await responseStream.close();
+						} catch (err) {
+							logTE('p2p', 'Error sending direct response', err);
+						}
+					};
+					
+					// Handle request-response pattern
+					if (data.id && data.isResponse && this.responseHandlers.has(data.id)) {
+						const responseHandler = this.responseHandlers.get(data.id);
+						responseHandler(data, peerId);
+						
+						// Remove one-time handlers
+						if (!responseHandler.permanent) {
+							this.responseHandlers.delete(data.id);
+						}
+					} else {
+						// Call the registered handler
+						handlerConfig.handler(data, peerId, respond);
+					}
+				} catch (err) {
+					logTE('p2p', 'Error handling direct message', err);
+				} finally {
+					await stream.close();
+				}
+			});
+			logT('p2p', 'Registered direct protocol handler for', topic);
+		}
 	}
-
 
 	/**
 	 * Attempt connection to a discovered peer
