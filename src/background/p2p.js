@@ -792,8 +792,7 @@ class P2P {
 	 * @returns {Array} List of connected peers
 	 */
 	peersList() {
-		return Array.from(this.peers.values())
-			.filter(peer => peer.connected);
+		return Array.from(this.peers.values());
 	}
 
 	/**
@@ -837,23 +836,28 @@ class P2P {
 		}
 		
 		return peers
-			.filter(peer => peer.addresses && peer.addresses.length > 0)
+			.filter(peer => peer.id)
 			.map(peer => {
-				// Extract IP and port from multiaddr string
-				const addr = peer.addresses[0];
-				const ipMatch = addr.match(/\/ip4\/([^/]+)/);
-				const tcpMatch = addr.match(/\/tcp\/(\d+)/);
+				// Start with the basic peer object containing the ID
+				const result = {
+					id: peer.id
+				};
 				
-				if (ipMatch && tcpMatch) {
-					return {
-						address: ipMatch[1],
-						port: parseInt(tcpMatch[1], 10),
-						id: peer.id // Use id consistently
-					};
+				// Only add address and port if addresses are available
+				if (peer.addresses && peer.addresses.length > 0) {
+					// Extract IP and port from multiaddr string
+					const addr = peer.addresses[0];
+					const ipMatch = addr.match(/\/ip4\/([^/]+)/);
+					const tcpMatch = addr.match(/\/tcp\/(\d+)/);
+					
+					if (ipMatch && tcpMatch) {
+						result.address = ipMatch[1];
+						result.port = parseInt(tcpMatch[1], 10);
+					}
 				}
-				return null;
-			})
-			.filter(Boolean);
+				
+				return result;
+			});
 	}
 
 	/**
