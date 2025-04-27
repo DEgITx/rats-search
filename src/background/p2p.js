@@ -135,9 +135,6 @@ class P2P {
 			// Subscribe to topics
 			this.setupTopicHandlers();
 			
-			// Ignore local addresses
-			this.ignoreLocalAddresses();
-			
 			// Start the node
 			await this.node.start();
 			logT('p2p', 'libp2p node started successfully');
@@ -382,23 +379,6 @@ class P2P {
 			logTE('transfer', 'Error reading file', err);
 			respond({ id, error: err.message });
 			readable = null;
-		});
-	}
-
-	/**
-	 * Ignore local network interfaces
-	 */
-	ignoreLocalAddresses() {
-		const ifaces = os.networkInterfaces();
-		Object.keys(ifaces).forEach((ifname) => {
-			ifaces[ifname].forEach((iface) => {
-				if ('IPv4' !== iface.family || iface.internal !== false) {
-					return;
-				}
-				
-				logT('p2p', 'Ignore local address', iface.address);
-				this.ignore(iface.address);
-			});
 		});
 	}
 
