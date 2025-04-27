@@ -524,8 +524,8 @@ class P2P {
 	 */
 	async sendToPeer(peerId, topic, data) {
 		try {
-			// Ensure node and pubsub service are available
-			if (!this.node || !this.node.services.pubsub) {
+			// Ensure node is available
+			if (!this.node) {
 				logTE('p2p', 'Cannot send message - node not initialized');
 				return false;
 			}
@@ -533,17 +533,30 @@ class P2P {
 			// Serialize message once
 			const message = Buffer.from(JSON.stringify(data));
 			
-			// Publish to the topic (reaches all peers subscribed to the topic)
-			await this.node.services.pubsub.publish(topic, message);
-			
-			// Log success with appropriate detail level
 			if (peerId) {
-				logT('p2p', `Sent message to peer ${peerId} on topic ${topic}`);
+				// For specific peer, use direct dial
+				try {
+					const stream = await this.node.dialProtocol(peerId, topic);
+					await stream.sink([message]);
+					await stream.close();
+					logT('p2p', `Sent direct message to peer ${peerId} on topic ${topic}`);
+					return true;
+				} catch (err) {
+					logTW('p2p', `Error dialing peer ${peerId}`, err);
+					return false;
+				}
 			} else {
+				// For broadcast, use pubsub
+				if (!this.node.services.pubsub) {
+					logTE('p2p', 'Cannot broadcast - pubsub not available');
+					return false;
+				}
+				
+				await this.node.services.pubsub.publish(topic, message);
 				logT('p2p', `Broadcast message to topic ${topic}`);
+				return true;
 			}
-			
-			return true;
+
 		} catch (err) {
 			const peerInfo = peerId ? `peer ${peerId}` : 'topic broadcast';
 			logTW('p2p', `Error sending message to ${peerInfo}`, err);
