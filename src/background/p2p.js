@@ -99,7 +99,7 @@ class P2P {
 					webSockets()
 				],
 				streamMuxers: [mplex()],
-				connectionEncryption: [noise()],
+				connectionEncrypters: [noise()],
 				peerDiscovery: [
 					mdns({
 						interval: 20000
