@@ -468,7 +468,7 @@ class P2P {
 		try {
 			await this.node.dial(address);
 		} catch (err) {
-			logTE('p2p', 'Failed to connect to discovered peer', address, err.message);
+			logTE('p2p', 'Failed to connect to discovered peer', address, err.message, peer);
 		}
 	}
 
@@ -483,15 +483,6 @@ class P2P {
 			return;
 		}
 
-		if (!peer.address || !peer.port || !peer.id) {
-			logTW('p2p', 'Invalid peer', peer);
-			return;
-		}
-
-		if (peer.port <= 1 || peer.port > 65535) {
-			return;
-		}
-
 		// Check ignore list
 		if (this.isAddressIgnored(peer)) {
 			return;
@@ -502,48 +493,37 @@ class P2P {
 			return;
 		}
 
+		// Set force flag if provided
+		if (force) {
+			peer.force = true;
+		}
+
 		try {
 			await this._attemptConnection(peer);
-			logT('p2p', 'Successfully dialed peer at', address);
+			logT('p2p', 'Successfully dialed peer at', `${peer.address}:${peer.port}`);
 		} catch (err) {
-			logTE('p2p', 'Failed to connect to peer at', address, err.message);
+			logTE('p2p', 'Failed to connect to peer at', `${peer.address}:${peer.port}`, err.message);
 		}
 	}
 
 	/**
-	 * Check if an address is in the ignore list
-	 * @param {Object} address - Address to check 
-	 * @returns {boolean} Whether address is ignored
+	 * Check if a peer is in the ignore list
+	 * @param {Object} peer - Peer to check 
+	 * @returns {boolean} Whether peer is ignored
 	 */
-	isAddressIgnored(address) {
-		for (const ignoreAddress of this.ignoreAddresses) {
-			if (typeof ignoreAddress === 'object') {
-				if (ignoreAddress.address === address.address && ignoreAddress.port === address.port) {
-					return true;
-				}
-			} else {
-				if (ignoreAddress === address.address) {
-					return true;
-				}
-			}
-		}
-		return false;
+	isAddressIgnored(peer) {
+		// Only check if peer ID is in ignore list
+		return this.ignoreAddresses.includes(peer.id);
 	}
 
 	/**
-	 * Check if we're already connected to this address
-	 * @param {Object} address - Address to check
+	 * Check if we're already connected to this peer
+	 * @param {Object} peer - Peer to check
 	 * @returns {boolean} Whether already connected
 	 */
-	isAlreadyConnected(address) {
-		for (const [, peer] of this.peers.entries()) {
-			if (peer.addresses && peer.addresses.some(addr => {
-				return addr.includes(address.address) && addr.includes(address.port.toString());
-			})) {
-				return true;
-			}
-		}
-		return false;
+	isAlreadyConnected(peer) {
+		// Only check by ID
+		return this.peers.has(peer.id);
 	}
 
 	/**
@@ -902,23 +882,40 @@ class P2P {
 	}
 
 	/**
-	 * Ignore an address (prevent connections)
-	 * @param {string} address - Address to ignore
+	 * Ignore a peer (prevent connections)
+	 * @param {string|Object} peerOrId - Peer object or ID string to ignore
 	 */
-	ignore(address) {
-		if (this.ignoreAddresses.includes(address)) return;
+	ignore(peerOrId) {
+		// Extract peer ID from argument
+		const peerId = typeof peerOrId === 'string' ? peerOrId : (peerOrId && peerOrId.id);
 		
-		this.ignoreAddresses.push(address);
+		if (!peerId) {
+			logTW('p2p', 'Attempted to ignore invalid peer', peerOrId);
+			return;
+		}
 		
-		// Close all connected peers with this address
-		for (const [peerId, peer] of this.peers.entries()) {
-			if (peer.addresses && peer.addresses.some(addr => addr.includes(`/ip4/${address}/`))) {
-				logT('p2p', 'Disconnecting ignored peer with address', address);
-				this.node.hangUp(peerId).catch(err => {
-					logTE('p2p', 'Error hanging up connection to peer', peerId, err);
-				});
+		// Add peer ID to ignore list if not already there
+		if (!this.ignoreAddresses.includes(peerId)) {
+			logT('p2p', 'Adding peer to ignore list', peerId);
+			this.ignoreAddresses.push(peerId);
+			
+			// Disconnect directly if we're connected to this peer ID
+			if (this.peers.has(peerId)) {
+				this._disconnectPeer(peerId);
 			}
 		}
+	}
+	
+	/**
+	 * Disconnect from a peer
+	 * @param {string} peerId - ID of the peer to disconnect
+	 * @private
+	 */
+	_disconnectPeer(peerId) {
+		logT('p2p', 'Disconnecting peer', peerId);
+		this.node.hangUp(peerId).catch(err => {
+			logTE('p2p', 'Error hanging up connection to peer', peerId, err);
+		});
 	}
 }
 
