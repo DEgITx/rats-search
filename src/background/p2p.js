@@ -287,6 +287,8 @@ class P2P {
 				peer.version = data.version;
 				peer.info = data.info;
 				peer.port = data.port;
+
+				logT('p2p', 'Rats peer connected', peer);
 				
 				// Send response
 				respond({
@@ -453,7 +455,7 @@ class P2P {
 					// Read the data from the stream
 					const chunks = [];
 					for await (const chunk of stream.source) {
-						chunks.push(chunk);
+						chunks.push(chunk.subarray());
 					}
 					
 					// Parse the message
