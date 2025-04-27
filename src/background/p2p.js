@@ -22,7 +22,7 @@ class P2P {
 
 		this.events = new EventEmitter();
 		this.peers = new Map();
-		this.ignoreAddresses = ['127.0.0.1'];
+		this.ignoreAddresses = [];
 		this.externalPeers = [];
 		this.size = 0;
 		this.p2pStatus = 0;
