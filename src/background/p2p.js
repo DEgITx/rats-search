@@ -187,6 +187,14 @@ class P2P {
 				}
 				
 				this.events.emit('peer', { id: peerId });
+				
+				// Set a timeout to disconnect if protocol not verified
+				setTimeout(() => {
+					if (this.peers.has(peerId) && this.peers.get(peerId).protocolName !== this.protocolName) {
+						logTW('p2p', 'Protocol not verified within timeout, disconnecting peer:', peerId);
+						this._disconnectPeer(peerId);
+					}
+				}, 10000); // 10 second timeout for protocol verification
 			}
 		});
 
@@ -212,6 +220,16 @@ class P2P {
 		try {
 			const { data, topic, from } = evt.detail;
 			const message = JSON.parse(Buffer.from(data).toString());
+			
+			// Check if this is an init message or if the peer is verified
+			const isInitMessage = topic === `${this.protocol}/init`;
+			const isPeerVerified = !this.peers.has(from) || this.peers.get(from).protocolName === this.protocolName;
+			
+			// Only process message if it's an init message or the peer is verified
+			if (!isInitMessage && !isPeerVerified) {
+				logT('p2p', `Ignoring message from unverified peer ${from} on topic ${topic}`);
+				return;
+			}
 			
 			// Check if this is a response to a request
 			if (message.id && message.isResponse && this.responseHandlers.has(message.id)) {
@@ -256,10 +274,19 @@ class P2P {
 	_setupTopicHandlers() {
 		// Protocol message handler
 		this.registerTopicHandler(`${this.protocol}/init`, async (data, from, respond) => {
-			if (!data || data.protocolName !== this.protocolName) return;
+			if (!data || data.protocolName !== this.protocolName) {
+				logTE('p2p', `Ignoring peer with incorrect protocol name: ${data?.protocolName}`);
+				if (this.peers.has(from)) {
+					this._disconnectPeer(from);
+				}
+				return;
+			}
 			
 			if (compareVersions(data.protocolVersion, this.protocolVersion) < 0) {
-				logTE('p2p', `Ignore peer because of protocol version ${data.protocolVersion} < ${this.protocolVersion}`);
+				logTE('p2p', `Ignoring peer because of protocol version ${data.protocolVersion} < ${this.protocolVersion}`);
+				if (this.peers.has(from)) {
+					this._disconnectPeer(from);
+				}
 				return;
 			}
 			
@@ -440,6 +467,11 @@ class P2P {
 				try {
 					// Get the peer ID
 					const peerId = connection.remotePeer.toString();
+
+					if (this.peers.has(peerId) && this.peers.get(peerId).protocolName !== this.protocolName) {
+						logTW('p2p', `Ignoring message from unverified peer ${peerId} on topic ${topic}`);
+						return;
+					}
 					
 					// Read the data from the stream
 					const chunks = [];
@@ -597,6 +629,15 @@ class P2P {
 			// Ensure node is available
 			if (!this.node) {
 				logTE('p2p', 'Cannot send message - node not initialized');
+				return false;
+			}
+
+			// For specific peer, check protocol verification except for init messages
+			if (peerId && 
+				topic !== `${this.protocol}/init` && 
+				this.peers.has(peerId) && 
+				this.peers.get(peerId).protocolName !== this.protocolName) {
+				logTW('p2p', `Cannot send message to unverified peer ${peerId} on topic ${topic}`);
 				return false;
 			}
 
