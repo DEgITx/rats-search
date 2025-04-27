@@ -418,12 +418,16 @@ class P2P {
 	 * @param {string} topic - Topic to subscribe to
 	 * @param {Function} handler - Message handler function
 	 * @param {Object} options - Handler options
-	 * @param {boolean} options.pubsub - Enable pubsub for this topic (default: true)
-	 * @param {boolean} options.direct - Enable direct dial for this topic (default: true)
+	 * @param {boolean} options.pubsub - Enable pubsub for this topic (default: true when both are disabled)
+	 * @param {boolean} options.direct - Enable direct dial for this topic (default: true when both are disabled)
 	 */
 	registerTopicHandler(topic, handler, options = {}) {
 		// Default to enabling both communication methods
-		const { pubsub = true, direct = true } = options;
+		let { pubsub = false, direct = false } = options;
+		if (!pubsub && !direct) {
+			pubsub = true;
+			direct = true;
+		}
 		
 		// Subscribe to pubsub topic if enabled
 		if (pubsub && !this.topicHandlers.has(topic)) {
