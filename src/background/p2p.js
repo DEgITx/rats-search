@@ -18,7 +18,8 @@ class P2P {
 	 */
 	constructor(send = () => {}) {
 		this.minClientVersion = '1.1.0';
-		this.version = '2';
+		this.protocolVersion = '2.0.0';
+		this.protocolName = 'rats';
 
 		this.events = new EventEmitter();
 		this.peers = new Map();
@@ -85,6 +86,9 @@ class P2P {
 			
 			// Store multiaddr for later use
 			this.multiaddr = multiaddr;
+
+			// Create protocol string
+			this.protocol = `/${this.protocolName}/${this.protocolVersion}`;
 			
 			// Create and configure libp2p node
 			this.node = await createLibp2p({
@@ -267,8 +271,8 @@ class P2P {
 	 */
 	_setupTopicHandlers() {
 		// Protocol message handler
-		this.registerTopicHandler('rats:protocol', async (data, from, respond) => {
-			if (!data || data.protocol !== 'rats') return;
+		this.registerTopicHandler(`${this.protocol}/init`, async (data, from, respond) => {
+			if (!data || data.protocol !== this.protocolName) return;
 			
 			if (compareVersions(data.version, this.minClientVersion) < 0) {
 				logTE('p2p', `Ignore peer because of version ${data.version} < ${this.minClientVersion}`);
@@ -288,11 +292,11 @@ class P2P {
 				peer.info = data.info;
 				peer.port = data.port;
 
-				logT('p2p', 'Rats peer connected', peer);
+				logT('p2p', `${this.protocolName} peer connected`, peer);
 				
 				// Send response
 				respond({
-					protocol: 'rats',
+					protocol: this.protocolName,
 					version: this.version,
 					info: this.info,
 					peers: this.addresses(this.recommendedPeersList())
@@ -306,13 +310,13 @@ class P2P {
 		}, { direct: true });
 
 		// Peer exchange handler
-		this.registerTopicHandler('rats:peer', (peer) => {
+		this.registerTopicHandler(`${this.protocol}/peer`, (peer) => {
 			logT('p2p', 'Got peer exchange', peer);
 			this.add(peer);
 		}, { direct: true });
 
 		// File transfer handler
-		this.registerTopicHandler('rats:file', async ({ path, id, chunk, done }, from, respond) => {
+		this.registerTopicHandler(`${this.protocol}/file`, async ({ path, id, chunk, done }, from, respond) => {
 			try {
 				if (!this.dataDirectory) {
 					logTE('transfer', 'No data directory');
@@ -587,8 +591,8 @@ class P2P {
 	 * @param {string} peerId - ID of the peer
 	 */
 	sendProtocolCheck(peerId) {
-		this.sendToPeer(peerId, 'rats:protocol', {
-			protocol: 'rats',
+		this.sendToPeer(peerId, `${this.protocol}/init`, {
+			protocol: this.protocolName,
 			port: config.spiderPort,
 			version: this.version,
 			info: this.info,
@@ -661,12 +665,12 @@ class P2P {
 		
 		// Map old message types to topics
 		const topicMapping = {
-			'protocol': 'rats:protocol',
-			'peer': 'rats:peer',
-			'file': 'rats:file'
+			'init': `${this.protocol}/init`,
+			'peer': `${this.protocol}/peer`,
+			'file': `${this.protocol}/file`
 		};
 		
-		const topic = topicMapping[type] || `rats:${type}`;
+		const topic = topicMapping[type] || `${this.protocol}/${type}`;
 		
 		try {
 			// Generate a random ID for tracking responses
@@ -711,12 +715,12 @@ class P2P {
 	 */
 	on(type, callback) {
 		const topicMapping = {
-			'protocol': 'rats:protocol',
-			'peer': 'rats:peer',
-			'file': 'rats:file'
+			'init': `${this.protocol}/init`,
+			'peer': `${this.protocol}/peer`,
+			'file': `${this.protocol}/file`
 		};
 		
-		const topic = topicMapping[type] || `rats:${type}`;
+		const topic = topicMapping[type] || `${this.protocol}/${type}`;
 		
 		this.registerTopicHandler(topic, (data, from, respond) => {
 			callback(data, (responseData) => {
@@ -939,7 +943,7 @@ class P2P {
 				this.responseHandlers.set(transferId, fileResponseHandler);
 				
 				// Send the file request
-				this.sendToPeer(remotePeer || null, 'rats:file', { 
+				this.sendToPeer(remotePeer || null, `${this.protocol}/file`, { 
 					path, 
 					id: transferId,
 					chunk: true 
