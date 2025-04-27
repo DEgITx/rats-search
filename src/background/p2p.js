@@ -478,12 +478,7 @@ class P2P {
 			peer.force = true;
 		}
 
-		try {
-			await this._attemptConnection(peer);
-			logT('p2p', 'Successfully dialed peer at', `${peer.address}:${peer.port}`);
-		} catch (err) {
-			logTE('p2p', 'Failed to connect to peer at', `${peer.address}:${peer.port}`, err.message);
-		}
+		await this._attemptConnection(peer);
 	}
 
 	/**
