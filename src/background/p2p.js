@@ -130,10 +130,10 @@ class P2P {
 			logT('p2p', 'Using libp2p node PeerId:', this.peerId);
 			
 			// Set up event listeners
-			this.setupEventListeners();
+			this._setupEventListeners();
 			
 			// Subscribe to topics
-			this.setupTopicHandlers();
+			this._setupTopicHandlers();
 			
 			// Start the node
 			await this.node.start();
@@ -149,7 +149,7 @@ class P2P {
 	/**
 	 * Set up event listeners for the libp2p node
 	 */
-	setupEventListeners() {
+	_setupEventListeners() {
 		// Peer discovery event
 		this.node.addEventListener('peer:discovery', (evt) => {
 			const peer = evt.detail;
@@ -213,14 +213,14 @@ class P2P {
 		});
 
 		// PubSub message event
-		this.node.services.pubsub.addEventListener('message', this.handlePubSubMessage.bind(this));
+		this.node.services.pubsub.addEventListener('message', this._handlePubSubMessage.bind(this));
 	}
 
 	/**
 	 * Handle incoming pubsub messages
 	 * @param {Event} evt - Message event
 	 */
-	handlePubSubMessage(evt) {
+	_handlePubSubMessage(evt) {
 		try {
 			const { data, topic, from } = evt.detail;
 			const message = JSON.parse(Buffer.from(data).toString());
@@ -265,7 +265,7 @@ class P2P {
 	/**
 	 * Set up handlers for specific topics
 	 */
-	setupTopicHandlers() {
+	_setupTopicHandlers() {
 		// Protocol message handler
 		this.registerTopicHandler('rats:protocol', async (data, from, respond) => {
 			if (!data || data.protocol !== 'rats') return;
@@ -350,7 +350,7 @@ class P2P {
 				
 				// If this is a request for file content
 				if (chunk) {
-					this.streamFileToRequester(filePath, path, id, respond);
+					this._streamFileToRequester(filePath, path, id, respond);
 				}
 			} catch (err) {
 				logTE('transfer', 'Error processing file request:', err);
@@ -366,7 +366,7 @@ class P2P {
 	 * @param {string} id - Request ID
 	 * @param {Function} respond - Response function
 	 */
-	streamFileToRequester(filePath, path, id, respond) {
+	_streamFileToRequester(filePath, path, id, respond) {
 		logT('transfer', 'Server transfer file', path);
 		let readable = new fs.ReadStream(filePath);
 		
@@ -539,12 +539,12 @@ class P2P {
 		}
 
 		// Check ignore list
-		if (this.isAddressIgnored(peer)) {
+		if (this._isAddressIgnored(peer)) {
 			return;
 		}
 		
 		// Check if we're already connected to this address
-		if (this.isAlreadyConnected(peer)) {
+		if (this._isAlreadyConnected(peer)) {
 			return;
 		}
 
@@ -561,7 +561,7 @@ class P2P {
 	 * @param {Object} peer - Peer to check 
 	 * @returns {boolean} Whether peer is ignored
 	 */
-	isAddressIgnored(peer) {
+	_isAddressIgnored(peer) {
 		// Only check if peer ID is in ignore list
 		return this.ignoreAddresses.includes(peer.id);
 	}
@@ -571,7 +571,7 @@ class P2P {
 	 * @param {Object} peer - Peer to check
 	 * @returns {boolean} Whether already connected
 	 */
-	isAlreadyConnected(peer) {
+	_isAlreadyConnected(peer) {
 		// Only check by ID
 		return this.peers.has(peer.id);
 	}
