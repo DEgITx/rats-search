@@ -171,9 +171,6 @@ class P2P {
 				
 				this.peers.set(peerId, {
 					id: peerId,
-					connected: true,
-					version: null,
-					info: null,
 					addresses: multiaddrs,
 					connectedAt: Date.now()
 				});
@@ -198,21 +195,8 @@ class P2P {
 			const peerId = evt.detail.toString();
 			if (this.peers.has(peerId)) {
 				logT('p2p', 'Disconnected from peer:', peerId);
-				const peer = this.peers.get(peerId);
 				this.peers.delete(peerId);
 				this.size--;
-				
-				this.send('peer', {
-					size: this.size,
-					torrents: peer.info ? peer.info.torrents || 0 : 0
-				});
-				
-				// Try to reconnect after delay if not closing
-				if (!this.closing) {
-					setTimeout(() => {
-						this._attemptConnection({ id: peerId });
-					}, 5000);
-				}
 			}
 		});
 
@@ -272,10 +256,10 @@ class P2P {
 	_setupTopicHandlers() {
 		// Protocol message handler
 		this.registerTopicHandler(`${this.protocol}/init`, async (data, from, respond) => {
-			if (!data || data.protocol !== this.protocolName) return;
+			if (!data || data.protocolName !== this.protocolName) return;
 			
-			if (compareVersions(data.version, this.minClientVersion) < 0) {
-				logTE('p2p', `Ignore peer because of version ${data.version} < ${this.minClientVersion}`);
+			if (compareVersions(data.protocolVersion, this.protocolVersion) < 0) {
+				logTE('p2p', `Ignore peer because of protocol version ${data.protocolVersion} < ${this.protocolVersion}`);
 				return;
 			}
 			
@@ -287,16 +271,17 @@ class P2P {
 			// Update peer information
 			if (this.peers.has(from)) {
 				const peer = this.peers.get(from);
-				peer.protocol = data.protocol;
+				peer.protocolName = data.protocolName;
+				peer.protocolVersion = data.protocolVersion;
 				peer.version = data.version;
 				peer.info = data.info;
-				peer.port = data.port;
 
 				logT('p2p', `${this.protocolName} peer connected`, peer);
 				
 				// Send response
 				respond({
-					protocol: this.protocolName,
+					protocolName: this.protocolName,
+					protocolVersion: this.protocolVersion,
 					version: this.version,
 					info: this.info,
 					peers: this.addresses(this.recommendedPeersList())
@@ -592,8 +577,8 @@ class P2P {
 	 */
 	sendProtocolCheck(peerId) {
 		this.sendToPeer(peerId, `${this.protocol}/init`, {
-			protocol: this.protocolName,
-			port: config.spiderPort,
+			protocolName: this.protocolName,
+			protocolVersion: this.protocolVersion,
 			version: this.version,
 			info: this.info,
 			peers: this.addresses(this.recommendedPeersList()).concat(this.externalPeers)
