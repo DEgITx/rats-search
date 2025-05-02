@@ -213,6 +213,15 @@ class P2P {
 			await this.node.start();
 			logT('p2p', 'libp2p node started successfully');
 			
+			// test
+			setTimeout(() => {
+				this.add({
+					id: '12D3KooWEtimiSnXThfMsPrc5e8NG28bMQ4vmYpo39wLyGYF3ycb',
+					address: '167.71.11.56',
+					port: 5000,
+				});
+			}, 10000);
+
 			return this;
 		} catch (err) {
 			logTE('p2p', 'Failed to initialize libp2p node:', err);
