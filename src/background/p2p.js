@@ -237,7 +237,9 @@ class P2P {
 		const peerId = peer.toString();
 		
 		try {
+			// initiate protocol stream
 			const { stream } = await this.node.dialProtocol(peer, this.protocol);
+			stream.close();
 
 			logT('p2p', 'Connected to peer:', peerId);
 
@@ -246,9 +248,9 @@ class P2P {
 				
 				this.peers.set(peerId, {
 					id: peerId,
+					peer: peer,
 					addresses: multiaddrs,
 					connectedAt: Date.now(),
-					stream,
 				});
 				
 				this.size++;
@@ -288,11 +290,6 @@ class P2P {
 
 		if (this.peers.has(peerId)) {
 			logT('p2p', 'Disconnected from peer:', peerId);
-			if (this.peers.get(peerId).stream) {
-				this.peers.get(peerId).stream.close().catch(err => {
-					logTE('p2p', 'Error closing peer stream', err);
-				});
-			}
 			this.peers.delete(peerId);
 			this.size--;
 		}
@@ -330,13 +327,16 @@ class P2P {
 	 * @param {string} peerId - ID of the peer
 	 * @returns {Promise<Stream>} - Protocol stream
 	 */
-	async _getOrEstablishProtocolStream(peerId) {
+	async _sendProtocolStreamData(peerId, data) {
 		if (!this.peers.has(peerId.toString())) {
 			logTE('p2p', 'Peer not found for stream', peerId);
 			return null;
 		}
 
-		return this.peers.get(peerId.toString()).stream;
+		const peer = this.peers.get(peerId.toString()).peer;
+		const { stream } = await this.node.dialProtocol(peer, this.protocol);
+		stream.sink([data]);
+		stream.close();
 	}
 
 	/**
@@ -388,7 +388,7 @@ class P2P {
 					const responseBuffer = Buffer.from(JSON.stringify(response));
 					
 					// Send response
-					(await this._getOrEstablishProtocolStream(peerId)).sink([responseBuffer]);
+					await this._sendProtocolStreamData(peerId, responseBuffer);
 					logT('p2p', `Sent direct response to ${peerId} for topic ${topic}`);
 				} catch (err) {
 					logTE('p2p', 'Error sending direct response', err);
@@ -679,66 +679,6 @@ class P2P {
 			direct
 		};
 		this.topicHandlers.set(topic, handlerConfig);
-		
-		// Register protocol handler for direct communication if enabled
-		if (direct) {
-			this.node.handle(topic, async ({ stream, connection }) => {
-				try {
-					// Get the peer ID
-					const peerId = connection.remotePeer.toString();
-
-					if (this.peers.has(peerId) && this.peers.get(peerId).protocolName !== this.protocolName) {
-						logTW('p2p', `Ignoring message from unverified peer ${peerId} on topic ${topic}`);
-						return;
-					}
-					
-					// Read the data from the stream
-					const chunks = [];
-					for await (const chunk of stream.source) {
-						chunks.push(chunk.subarray());
-					}
-					
-					// Parse the message
-					const data = JSON.parse(Buffer.concat(chunks).toString());
-					
-					// Create respond function for request-response pattern
-					const respond = async (responseData) => {
-						try {
-							// Send response back through the same connection
-							const message = Buffer.from(JSON.stringify({
-								...responseData,
-								id: data.id,
-								isResponse: true
-							}));
-							
-							// Open a new stream for the response
-							(await this._getOrEstablishProtocolStream(peerId)).sink([message]);
-						} catch (err) {
-							logTE('p2p', 'Error sending direct response', err);
-						}
-					};
-					
-					// Handle request-response pattern
-					if (data.id && data.isResponse && this.responseHandlers.has(data.id)) {
-						const responseHandler = this.responseHandlers.get(data.id);
-						responseHandler(data, peerId);
-						
-						// Remove one-time handlers
-						if (!responseHandler.permanent) {
-							this.responseHandlers.delete(data.id);
-						}
-					} else {
-						// Call the registered handler
-						handlerConfig.handler(data, peerId, respond);
-					}
-				} catch (err) {
-					logTE('p2p', 'Error handling direct message', err);
-				} finally {
-					await stream.close();
-				}
-			});
-			logT('p2p', 'Registered direct protocol handler for', topic);
-		}
 	}
 
 	/**
@@ -867,7 +807,7 @@ class P2P {
 			if (peerId) {
 				// For specific peer, use direct dial
 				try {
-					(await this._getOrEstablishProtocolStream(peerId)).sink([message]);
+					await this._sendProtocolStreamData(peerId, message);
 					logT('p2p', `Sent direct message to peer ${peerId} on topic ${topic}`);
 					return true;
 				} catch (err) {
