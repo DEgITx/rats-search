@@ -70,7 +70,7 @@ class P2P {
 				{ webSockets }, 
 				{ multiaddr },
 				{ identify },
-				{ kadDHT }
+				{ kadDHT, removePrivateAddressesMapper }
 			] = await Promise.all([
 				import('libp2p'),
 				import('@libp2p/tcp'),
@@ -132,7 +132,11 @@ class P2P {
 					dht: kadDHT({
 						protocol: '/rats/kad/1.0.0',
 						clientMode: false, // Run as a full DHT node
-					})
+					}),
+					aminoDHT: kadDHT({
+						protocol: '/ipfs/kad/1.0.0',
+						peerInfoMapper: removePrivateAddressesMapper
+					}),
 				}
 			});
 
