@@ -111,12 +111,12 @@
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "^14.1.1",
     "@chainsafe/libp2p-noise": "^16.1.2",
+    "@chainsafe/libp2p-yamux": "^7.0.1",
     "@electron/remote": "^2.1.2",
     "@libp2p/bootstrap": "^11.0.35",
     "@libp2p/identify": "^3.0.29",
     "@libp2p/kad-dht": "^15.0.2",
     "@libp2p/mdns": "^11.0.35",
-    "@libp2p/mplex": "^11.0.35",
     "@libp2p/ping": "^2.0.29",
     "@libp2p/tcp": "^10.1.10",
     "@libp2p/webrtc": "^5.2.12",

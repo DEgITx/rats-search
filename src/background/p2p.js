@@ -61,7 +61,7 @@ class P2P {
 			const [
 				{ createLibp2p }, 
 				{ tcp }, 
-				{ mplex }, 
+				{ yamux }, 
 				{ noise }, 
 				{ mdns }, 
 				{ bootstrap }, 
@@ -74,7 +74,7 @@ class P2P {
 			] = await Promise.all([
 				import('libp2p'),
 				import('@libp2p/tcp'),
-				import('@libp2p/mplex'),
+				import('@chainsafe/libp2p-yamux'),
 				import('@chainsafe/libp2p-noise'),
 				import('@libp2p/mdns'),
 				import('@libp2p/bootstrap'),
@@ -104,7 +104,7 @@ class P2P {
 					tcp(),
 					webSockets()
 				],
-				streamMuxers: [mplex()],
+				streamMuxers: [yamux()],
 				connectionEncrypters: [noise()],
 				peerDiscovery: [
 					mdns({
@@ -130,7 +130,6 @@ class P2P {
 						emitSelf: false
 					}),
 					dht: kadDHT({
-						protocol: '/rats/kad/1.0.0',
 						clientMode: false, // Run as a full DHT node
 					})
 				}
