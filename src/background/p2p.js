@@ -34,6 +34,7 @@ class P2P {
 		this.send = send;
 		this.selfAddress = null;
 		this.closing = false;
+		this.persistentPeerIdPath = 'peer-id.json';
 
 		// Define help info with getters to ensure values are always current
 		Object.defineProperty(this.info, 'maxPeersConnections', { 
@@ -49,6 +50,59 @@ class P2P {
 		this.topicHandlers = new Map();
 		this.responseHandlers = new Map();
 		this.initPromise = this.init();
+	}
+
+	/**
+	 * Load or generate a persistent peer ID
+	 * @returns {Promise<Object>} Private key for libp2p
+	 */
+	async _loadOrGeneratePeerId() {
+		try {
+			const { generateKeyPair, privateKeyFromProtobuf, privateKeyToProtobuf } = await import('@libp2p/crypto/keys');
+			
+			// Check if key file exists
+			if (fs.existsSync(this.persistentPeerIdPath)) {
+				try {
+					// Load existing key
+					const keyData = JSON.parse(fs.readFileSync(this.persistentPeerIdPath, 'utf8'));
+					if (keyData && keyData.privateKey) {
+						// Convert base64 string back to Uint8Array
+						const privateKeyBytes = Buffer.from(keyData.privateKey, 'base64');
+						// Deserialize the private key from protobuf format
+						const privateKey = privateKeyFromProtobuf(privateKeyBytes);
+						logT('p2p', 'Loaded persistent private key');
+						return privateKey;
+					}
+					throw new Error('Invalid key data in file');
+				} catch (err) {
+					logTE('p2p', 'Error loading private key, will generate new one:', err);
+				}
+			}
+			
+			// Generate new Ed25519 key pair
+			logT('p2p', 'Generating new Ed25519 key pair...');
+			const keyPair = await generateKeyPair('Ed25519');
+			
+			// Serialize the private key to protobuf format
+			const privateKeyProtobuf = privateKeyToProtobuf(keyPair);
+			
+			// Save private key to file
+			const keyData = {
+				privateKey: Buffer.from(privateKeyProtobuf).toString('base64'),
+				type: 'Ed25519'
+			};
+			
+			fs.writeFileSync(
+				this.persistentPeerIdPath, 
+				JSON.stringify(keyData, null, 2)
+			);
+			
+			logT('p2p', 'Generated and saved new private key');
+			return keyPair;
+		} catch (err) {
+			logTE('p2p', 'Failed to load or generate private key:', err);
+			throw err;
+		}
 	}
 
 	/**
@@ -92,8 +146,13 @@ class P2P {
 			// Create protocol string
 			this.protocol = `/${this.protocolName}/${this.protocolVersion}`;
 			
+			// Load or generate persistent peer ID
+			let peerId;
+			peerId = await this._loadOrGeneratePeerId();
+			
 			// Create and configure libp2p node
 			this.node = await createLibp2p({
+				privateKey: peerId,
 				addresses: {
 					listen: [
 						`/ip4/0.0.0.0/tcp/${5000}`,
