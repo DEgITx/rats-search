@@ -69,7 +69,8 @@ class P2P {
 				{ ping }, 
 				{ webSockets }, 
 				{ multiaddr },
-				{ identify }
+				{ identify },
+				{ kadDHT }
 			] = await Promise.all([
 				import('libp2p'),
 				import('@libp2p/tcp'),
@@ -81,7 +82,8 @@ class P2P {
 				import('@libp2p/ping'),
 				import('@libp2p/websockets'),
 				import('@multiformats/multiaddr'),
-				import('@libp2p/identify')
+				import('@libp2p/identify'),
+				import('@libp2p/kad-dht')
 			]);
 			
 			// Store multiaddr for later use
@@ -127,6 +129,10 @@ class P2P {
 						allowPublishToZeroPeers: false,
 						emitSelf: false
 					}),
+					dht: kadDHT({
+						protocol: '/rats/kad/1.0.0',
+						clientMode: false, // Run as a full DHT node
+					})
 				}
 			});
 
