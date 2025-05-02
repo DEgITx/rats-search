@@ -231,50 +231,61 @@ class P2P {
 
 	/**
 	 * Handle peer connection
-	 * @param {string} peerId - Peer ID
-	 * @param {Stream} stream - Protocol stream
+	 * @param {Object} peer - Peer object
 	 */
-	async _onConnect(peerId, stream) {
-		logT('p2p', 'Connection to peer:', peerId);
+	async _onConnect(peer) {
+		const peerId = peer.toString();
+		
+		try {
+			const { stream } = await this.node.dialProtocol(peer, this.protocol);
 
-		if (!this.peers.has(peerId)) {
-			const multiaddrs = this.node.getMultiaddrs(peerId).map(addr => addr.toString());
-			
-			this.peers.set(peerId, {
-				id: peerId,
-				addresses: multiaddrs,
-				connectedAt: Date.now(),
-				stream,
-			});
-			
-			this.size++;
+			logT('p2p', 'Connected to peer:', peerId);
 
-			// Check protocol compatibility
-			this.sendProtocolCheck(peerId);
-			
-			// Update status
-			if (this.p2pStatus === 0) {
-				this.p2pStatus = 2;
-				this.send('p2pStatus', this.p2pStatus);
-			}
-			
-			this.events.emit('peer', { id: peerId });
-			
-			// Set a timeout to disconnect if protocol not verified
-			setTimeout(() => {
-				if (this.peers.has(peerId) && this.peers.get(peerId).protocolName !== this.protocolName) {
-					logTW('p2p', 'Protocol not verified within timeout, disconnecting peer:', peerId);
-					this._disconnectPeer(peerId);
+			if (!this.peers.has(peerId)) {
+				const multiaddrs = this.node.getMultiaddrs(peerId).map(addr => addr.toString());
+				
+				this.peers.set(peerId, {
+					id: peerId,
+					addresses: multiaddrs,
+					connectedAt: Date.now(),
+					stream,
+				});
+				
+				this.size++;
+
+				// Check protocol compatibility
+				this.sendProtocolCheck(peerId);
+				
+				// Update status
+				if (this.p2pStatus === 0) {
+					this.p2pStatus = 2;
+					this.send('p2pStatus', this.p2pStatus);
 				}
-			}, 10000); // 10 second timeout for protocol verification
+				
+				this.events.emit('peer', { id: peerId });
+				
+				// Set a timeout to disconnect if protocol not verified
+				setTimeout(() => {
+					if (this.peers.has(peerId) && this.peers.get(peerId).protocolName !== this.protocolName) {
+						logTW('p2p', 'Protocol not verified within timeout, disconnecting peer:', peerId);
+						this._disconnectPeer(peerId);
+					}
+				}, 10000); // 10 second timeout for protocol verification
+			}
+		} catch (err) {
+			logTE('p2p', `Failed to dial protocol to peer ${peerId}:`, err.message);
+			// If we couldn't establish a protocol stream, disconnect the peer
+			this._disconnectPeer(peerId);
 		}
 	}
 
 	/**
 	 * Handle peer disconnection
-	 * @param {string} peerId - Peer ID
+	 * @param {Object} peer - Peer object
 	 */
-	_onDisconnect(peerId) {
+	_onDisconnect(peer) {
+		const peerId = peer.toString();
+
 		if (this.peers.has(peerId)) {
 			logT('p2p', 'Disconnected from peer:', peerId);
 			if (this.peers.get(peerId).stream) {
@@ -300,13 +311,14 @@ class P2P {
 
 		// Peer connection event
 		this.node.addEventListener('peer:connect', async (evt) => {
-			const peerId = evt.detail.toString();
-			logT('p2p', 'Established connection to peer successfully:', peerId);
+			const peer = evt.detail;
+			this._onConnect(peer);
 		});
 
 		// Peer disconnection event
 		this.node.addEventListener('peer:disconnect', (evt) => {
-			this._onDisconnect(evt.detail.toString());
+			const peer = evt.detail;
+			this._onDisconnect(peer);
 		});
 
 		// PubSub message event
@@ -753,12 +765,7 @@ class P2P {
 		logT('p2p', 'Attempt connection to', address);
 
 		try {
-			await this.node.dialProtocol(address, this.protocol).then((stream) => {
-				logT('p2p', 'Established protocol stream to', address);
-				this._onConnect(peer.id.toString(), stream);
-			}).catch((err) => {
-				logTE('p2p', 'Failed to establish protocol stream to discovered peer', address, err.message, peer);
-			});
+			await this.node.dial(address);
 		} catch (err) {
 			logTE('p2p', 'Failed to connect to discovered peer', address, err.message, peer);
 		}
