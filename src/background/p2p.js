@@ -401,7 +401,7 @@ class P2P {
 				responseHandler(message.data || message, peerId);
 				
 				// Remove one-time handlers
-				if (!handler.permanent) {
+				if (!responseHandler.permanent) {
 					this.responseHandlers.delete(message.id);
 				}
 				return;
