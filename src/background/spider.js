@@ -1056,8 +1056,7 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
 						})
 						req.end(JSON.stringify({
 							bootstrap: peersEncripted,
-							bootstrapMap: encryptor.encrypt(bootstrapMap),
-							relays: encryptor.encrypt(p2p.relays())
+							bootstrapMap: encryptor.encrypt(bootstrapMap)
 						}))
 						timeout = setTimeout(() => {
 							logTE('close', 'abort by time', host)
