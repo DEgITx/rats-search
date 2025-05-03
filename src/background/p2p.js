@@ -397,8 +397,8 @@ class P2P {
 			
 			// Check if this is a response to a request
 			if (message.id && message.isResponse && this.responseHandlers.has(message.id)) {
-				const handler = this.responseHandlers.get(message.id);
-				handler(message.data || message, peerId);
+				const responseHandler = this.responseHandlers.get(message.id);
+				responseHandler(message.data || message, peerId);
 				
 				// Remove one-time handlers
 				if (!handler.permanent) {
@@ -409,10 +409,10 @@ class P2P {
 			
 			// Handle topic-specific messages
 			if (this.topicHandlers.has(topic)) {
-				const handlerConfig = this.topicHandlers.get(topic);
+				const topicHandler = this.topicHandlers.get(topic).handler;
 				
 				// For request-response pattern, include the ability to reply
-				handlerConfig.handler(message.data || message, peerId, respond);
+				topicHandler(message.data || message, peerId, respond);
 			} else {
 				logTW('p2p', `No handler for topic ${topic}`);
 			}
@@ -518,20 +518,7 @@ class P2P {
 				peer.info = data.info;
 
 				// Create a peer object without stream for logging
-				const peerForLog = {
-					...peer,
-					stream: undefined
-				};
-				logT('p2p', `${this.protocolName} peer connected`, peerForLog);
-				
-				// Send response
-				respond({
-					protocolName: this.protocolName,
-					protocolVersion: this.protocolVersion,
-					version: this.version,
-					info: this.info,
-					peers: this.addresses(this.recommendedPeersList())
-				});
+				logT('p2p', `${this.protocolName} peer connected`, peer);
 				
 				// Add other peers
 				if (data.peers && Array.isArray(data.peers) && data.peers.length > 0) {
