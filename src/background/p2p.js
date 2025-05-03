@@ -372,6 +372,8 @@ class P2P {
 				logTW('p2p', `Ignoring message from unverified peer ${peerId} on topic ${topic}`);
 				return;
 			}
+
+			const messageData = message.data || message;
 			
 			// Create respond function for request-response pattern
 			const respond = async (responseData) => {
@@ -398,7 +400,7 @@ class P2P {
 			// Check if this is a response to a request
 			if (message.id && message.isResponse && this.responseHandlers.has(message.id)) {
 				const responseHandler = this.responseHandlers.get(message.id);
-				responseHandler(message.data || message, peerId);
+				responseHandler(messageData, peerId);
 				
 				// Remove one-time handlers
 				if (!responseHandler.permanent) {
@@ -412,7 +414,7 @@ class P2P {
 				const topicHandler = this.topicHandlers.get(topic).handler;
 				
 				// For request-response pattern, include the ability to reply
-				topicHandler(message.data || message, peerId, respond);
+				topicHandler(messageData, peerId, respond);
 			} else {
 				logTW('p2p', `No handler for topic ${topic}`);
 			}
@@ -442,10 +444,12 @@ class P2P {
 				return;
 			}
 			
+			const messageData = message.data || message;
+
 			// Check if this is a response to a request
 			if (message.id && message.isResponse && this.responseHandlers.has(message.id)) {
 				const handler = this.responseHandlers.get(message.id);
-				handler(message, from);
+				handler(messageData, from);
 				
 				// Remove one-time handlers
 				if (!handler.permanent) {
@@ -472,7 +476,7 @@ class P2P {
 					});
 				};
 				
-				handlerConfig.handler(message, from, respond);
+				handlerConfig.handler(messageData, from, respond);
 			}
 		} catch (err) {
 			logTE('p2p', 'Error handling pubsub message:', err);
@@ -859,7 +863,7 @@ class P2P {
 			}
 			
 			// Add ID to data
-			const messageData = { ...data, id };
+			const messageData = { data, id };
 			
 			// Use sendToPeer method to send to all peers
 			if (!(await this.sendToPeer(null, topic, messageData))) {
