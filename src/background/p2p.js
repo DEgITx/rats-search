@@ -238,7 +238,7 @@ class P2P {
 		
 		try {
 			// initiate protocol stream
-			const { stream } = await this.node.dialProtocol(peer, this.protocol);
+			const stream = await this.node.dialProtocol(peer, this.protocol);
 			stream.close();
 
 			logT('p2p', 'Connected to peer:', peerId);
@@ -334,7 +334,7 @@ class P2P {
 		}
 
 		const peer = this.peers.get(peerId.toString()).peer;
-		const { stream } = await this.node.dialProtocol(peer, this.protocol);
+		const stream = await this.node.dialProtocol(peer, this.protocol);
 		stream.sink([data]);
 		stream.close();
 	}
