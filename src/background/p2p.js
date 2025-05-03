@@ -237,10 +237,6 @@ class P2P {
 		const peerId = peer.toString();
 		
 		try {
-			// initiate protocol stream
-			const stream = await this.node.dialProtocol(peer, this.protocol);
-			await stream.close();
-
 			logT('p2p', 'Connected to peer:', peerId);
 
 			if (!this.peers.has(peerId)) {
@@ -256,7 +252,11 @@ class P2P {
 				this.size++;
 
 				// Check protocol compatibility
-				this.sendProtocolCheck(peerId);
+				if (!await this.sendProtocolCheck(peerId)) {
+					logT('p2p', 'Protocol not verified with dial protocol, disconnecting peer:', peerId);
+					this._disconnectPeer(peerId);
+					return;
+				}
 				
 				// Update status
 				if (this.p2pStatus === 0) {
@@ -751,8 +751,8 @@ class P2P {
 	 * Send protocol check to peer
 	 * @param {string} peerId - ID of the peer
 	 */
-	sendProtocolCheck(peerId) {
-		this.sendToPeer(peerId, `${this.protocol}/init`, {
+	async sendProtocolCheck(peerId) {
+		return await this.sendToPeer(peerId, `${this.protocol}/init`, {
 			protocolName: this.protocolName,
 			protocolVersion: this.protocolVersion,
 			version: this.version,
