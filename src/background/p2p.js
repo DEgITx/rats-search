@@ -213,14 +213,8 @@ class P2P {
 			await this.node.start();
 			logT('p2p', 'libp2p node started successfully');
 			
-			// test
-			setTimeout(() => {
-				this.add({
-					id: '12D3KooWEtimiSnXThfMsPrc5e8NG28bMQ4vmYpo39wLyGYF3ycb',
-					address: '167.71.11.56',
-					port: 5000,
-				});
-			}, 10000);
+			// Start DHT peer discovery
+			this._startDhtDiscovery();
 
 			return this;
 		} catch (err) {
@@ -1261,6 +1255,116 @@ class P2P {
 			logTE('p2p', 'Error hanging up connection to peer', peerId, err);
 		});
 	}
+
+	/**
+	 * Start DHT-based peer discovery
+	 */
+	async _startDhtDiscovery() {
+		try {
+			if (!this.node || !this.node.services.dht) {
+				logTW('p2p', 'DHT service not available for peer discovery');
+				return;
+			}
+
+			logT('p2p', 'Starting DHT-based peer discovery');
+
+			// Function to discover peers periodically
+			const discoverPeers = async () => {
+				if (this.closing) return;
+				
+				try {
+						// Import CID from multiformats for proper routing key format
+						const { CID } = await import('multiformats/cid');
+						const { sha256 } = await import('multiformats/hashes/sha2');
+						
+						// Create a hash of our protocol identifier
+						const routingKeyText = `/rats/${this.protocolVersion}`;
+						const routingKeyBytes = new TextEncoder().encode(routingKeyText);
+						const hash = await sha256.digest(routingKeyBytes);
+						
+						// Create a CID from the hash (using raw codec 0x55)
+						const routingKey = CID.create(1, 0x55, hash);
+						
+						logT('p2p', 'Using DHT routing key:', routingKey.toString());
+
+						// First, provide our own content to the DHT
+						this.node.contentRouting.provide(routingKey);
+						logT('p2p', 'Provided our presence to the DHT with CID:', routingKey.toString());
+						
+						// Then find other providers
+						logT('p2p', 'Querying DHT for peers with CID:', routingKey.toString());
+						
+						// Find providers for our protocol
+						for await (const provider of this.node.contentRouting.findProviders(routingKey)) {
+							const providerId = provider.id.toString();
+							
+							// Skip if it's us
+							if (providerId === this.peerId) {
+								continue;
+							}
+							
+							logT('p2p', 'Found provider in DHT:', providerId);
+							this.add(provider);
+						}
+				} catch (err) {
+					logTE('p2p', 'Error during DHT peer discovery:', err);
+				}
+				
+				// Schedule next discovery attempt
+				setTimeout(discoverPeers, 60000); // Run every minute
+			};
+			
+			// Start the discovery process
+			setTimeout(discoverPeers, 10000); // Start after 10 seconds to allow initial connections
+		} catch (err) {
+			logTE('p2p', 'Failed to start DHT discovery:', err);
+		}
+	}
+	
+	/**
+	 * Find random peers using DHT
+	 */
+	/*
+	async findRandomPeers() {
+		try {
+			logT('p2p', 'Searching for random peers using DHT');
+			
+			// Get random DHT key to query
+			const randomKey = `/rats/peer/${Math.random().toString(36).substr(2, 9)}`;
+			
+			// Use DHT to find closest peers
+			const closestPeersGenerator = this.node.services.dht.getClosestPeers(randomKey);
+			
+			let count = 0;
+			for await (const peer of closestPeersGenerator) {
+				const peerId = peer.toString();
+				
+				// Skip ourselves
+				if (peerId === this.peerId) {
+					continue;
+				}
+				
+				logT('p2p', 'Found random peer via DHT:', peerId);
+				
+				// Try to connect to this peer
+				this.add({
+					id: peerId
+				});
+				
+				count++;
+				
+				// Limit to 5 peers per query
+				if (count >= 5) {
+					break;
+				}
+			}
+			
+			logT('p2p', `Found ${count} random peers via DHT`);
+		} catch (err) {
+			logTE('p2p', 'Error finding random peers via DHT:', err);
+		}
+	}
+	*/
 }
 
 module.exports = P2P;
