@@ -380,7 +380,7 @@ class P2P {
 				try {
 					// Create response message
 					const response = {
-						...responseData,
+						data: responseData,
 						id: message.id,
 						isResponse: true,
 						topic
@@ -470,7 +470,7 @@ class P2P {
 				// For request-response pattern, include the ability to reply
 				const respond = (responseData) => {
 					this.sendToPeer(from, topic, {
-						...responseData,
+						data: responseData,
 						id: message.id,
 						isResponse: true
 					});
