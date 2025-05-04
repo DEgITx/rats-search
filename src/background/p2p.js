@@ -209,8 +209,16 @@ class P2P {
 			await this.node.start();
 			logT('p2p', 'libp2p node started successfully');
 			
+			setTimeout(() => {
+				this.add({
+						id: '12D3KooWEtimiSnXThfMsPrc5e8NG28bMQ4vmYpo39wLyGYF3ycb',
+						address: '167.71.11.56',
+						port: 5000,
+				});
+			}, 10000);
+
 			// Start DHT peer discovery
-			this._startDhtDiscovery();
+			// this._startDhtDiscovery();
 
 			return this;
 		} catch (err) {
