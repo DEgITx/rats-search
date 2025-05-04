@@ -192,10 +192,6 @@ class P2P {
 						protocol: '/rats/kad/1.0.0',
 						clientMode: false, // Run as a full DHT node
 					}),
-					aminoDHT: kadDHT({
-						protocol: '/ipfs/kad/1.0.0',
-						peerInfoMapper: removePrivateAddressesMapper
-					}),
 				}
 			});
 
