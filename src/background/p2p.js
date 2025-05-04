@@ -181,21 +181,19 @@ class P2P {
 				],
 				services: {
 					identify: identify(),
-					ping: ping({
-						protocolPrefix: 'rats'
-					}),
+					ping: ping(),
 					pubsub: gossipsub({
 						allowPublishToZeroPeers: false,
 						emitSelf: false
 					}),
 					dht: kadDHT({
-						protocol: '/rats/kad/1.0.0',
+						// protocol: '/rats/kad/1.0.0',
 						clientMode: false, // Run as a full DHT node
 					}),
-					aminoDHT: kadDHT({
-						protocol: '/ipfs/kad/1.0.0',
-						peerInfoMapper: removePrivateAddressesMapper
-					}),
+					// aminoDHT: kadDHT({
+					// 	protocol: '/ipfs/kad/1.0.0',
+					// 	peerInfoMapper: removePrivateAddressesMapper
+					// }),
 				}
 			});
 
@@ -221,8 +219,12 @@ class P2P {
 			// 	});
 			// }, 10000);
 
+			setInterval(() => {
+				this.printPeerStats();
+			}, 10000);
+
 			// Start DHT peer discovery
-			this._startDhtDiscovery();
+			//this._startDhtDiscovery();
 
 			return this;
 		} catch (err) {
@@ -239,7 +241,7 @@ class P2P {
 		const peerId = peer.toString();
 		
 		try {
-			logT('p2p', 'Connected to peer:', peerId);
+			logT('p2p', 'Connected to peer:', peerId, 'peers:', this.size + 1);
 
 			if (!this.peers.has(peerId)) {
 				const multiaddrs = this.node.getMultiaddrs(peerId).map(addr => addr.toString());
@@ -257,6 +259,8 @@ class P2P {
 				if (!await this.sendProtocolCheck(peerId)) {
 					logT('p2p', 'Non-protocol peer, use for discovery');
 					return;
+				} else {
+					logT('p2p', 'Protocol peer, use for protocol');
 				}
 				
 				// Update status
@@ -289,8 +293,9 @@ class P2P {
 	_onDisconnect(peer) {
 		const peerId = peer.toString();
 
+		logT('p2p', 'Disconnected from peer:', peerId, 'peers:', this.size - 1);
+
 		if (this.peers.has(peerId)) {
-			logT('p2p', 'Disconnected from peer:', peerId);
 			this.peers.delete(peerId);
 			this.size--;
 		}
@@ -763,7 +768,7 @@ class P2P {
 			version: this.version,
 			info: this.info,
 			peers: this.addresses(this.recommendedPeersList()).concat(this.externalPeers)
-		});
+		}, { silent: true });
 	}
 
 	/**
@@ -773,7 +778,7 @@ class P2P {
 	 * @param {Object} data - Data to send
 	 * @returns {boolean} Success status
 	 */
-	async sendToPeer(peerId, topic, data) {
+	async sendToPeer(peerId, topic, data, options = {}) {
 		try {
 			// Ensure node is available
 			if (!this.node) {
@@ -803,7 +808,9 @@ class P2P {
 					logT('p2p', `Sent direct message to peer ${peerId} on topic ${topic}`);
 					return true;
 				} catch (err) {
-					logTW('p2p', `Error dialing peer ${peerId}`, err);
+					if (!options.silent) {
+						logTW('p2p', `Error dialing peer ${peerId}`, err);
+					}
 					return false;
 				}
 			} else {
@@ -1154,6 +1161,62 @@ class P2P {
 	}
 
 	/**
+	 * Print peer stats to console
+	 * Shows total peer count and connection duration for each peer in a readable format
+	 */
+	printPeerStats() {
+		const now = Date.now();
+		
+		console.log(`\n===== P2P Network Stats =====`);
+		console.log(`Total peers connected: ${this.size}`);
+		
+		if (this.size === 0) {
+			console.log('No peers currently connected');
+			console.log(`============================\n`);
+			return;
+		}
+		
+		console.log('\nPeer Details:');
+		console.log('-------------------------------------------------');
+		console.log('| Peer ID                                 | Connected For      | Protocol   |');
+		console.log('-------------------------------------------------');
+		
+		// Helper to format duration in a readable way
+		const formatDuration = (ms) => {
+			const seconds = Math.floor(ms / 1000);
+			const minutes = Math.floor(seconds / 60);
+			const hours = Math.floor(minutes / 60);
+			const days = Math.floor(hours / 24);
+			
+			if (days > 0) {
+				return `${days}d ${hours % 24}h`;
+			} else if (hours > 0) {
+				return `${hours}h ${minutes % 60}m`;
+			} else if (minutes > 0) {
+				return `${minutes}m ${seconds % 60}s`;
+			} else {
+				return `${seconds}s`;
+			}
+		};
+		
+		// Sort peers by connection time (oldest first)
+		const sortedPeers = Array.from(this.peers.values())
+			.sort((a, b) => a.connectedAt - b.connectedAt);
+		
+		// Print each peer's details
+		for (const peer of sortedPeers) {
+			const peerId = peer.id.substring(0, 36) + (peer.id.length > 36 ? '...' : '');
+			const duration = formatDuration(now - peer.connectedAt);
+			const protocol = peer.protocolName || 'Unknown';
+			
+			console.log(`| ${peerId.padEnd(39)} | ${duration.padEnd(17)} | ${protocol.padEnd(10)} |`);
+		}
+		
+		console.log('-------------------------------------------------');
+		console.log(`============================\n`);
+	}
+
+	/**
 	 * Get list of connected peers
 	 * @returns {Array} List of connected peers
 	 */
@@ -1295,7 +1358,7 @@ class P2P {
 						logT('p2p', 'Using DHT routing key:', routingKey.toString());
 
 						// First, provide our own content to the DHT
-						this.node.contentRouting.provide(routingKey);
+						await this.node.contentRouting.provide(routingKey);
 						logT('p2p', 'Provided our presence to the DHT with CID:', routingKey.toString());
 						
 						// Then find other providers

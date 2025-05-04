@@ -343,9 +343,9 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
 					if(!connected)
 						return
 
-					loadBootstrapPeers('https://api.myjson.com/bins/1e5rmh')
-					loadBootstrapPeers('https://jsonblob.com/api/jsonBlob/4d22c8ba-5046-11eb-b13f-81fd0496c154')
-					loadBootstrapPeers('https://getpantry.cloud/apiv1/pantry/2f760eeb-2e76-4ea0-804b-6032223086e1/basket/testBasket')  
+					// loadBootstrapPeers('https://api.myjson.com/bins/1e5rmh')
+					// loadBootstrapPeers('https://jsonblob.com/api/jsonBlob/4d22c8ba-5046-11eb-b13f-81fd0496c154')
+					// loadBootstrapPeers('https://getpantry.cloud/apiv1/pantry/2f760eeb-2e76-4ea0-804b-6032223086e1/basket/testBasket')  
 				})
 			}
 
@@ -1064,11 +1064,11 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
 						}, 4000)
 					})
 
-					await Promise.all([
-						saveBootstrapPeers('api.myjson.com', '/bins/1e5rmh'),
-						saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/4d22c8ba-5046-11eb-b13f-81fd0496c154'),
-						saveBootstrapPeers('getpantry.cloud', '/apiv1/pantry/2f760eeb-2e76-4ea0-804b-6032223086e1/basket/testBasket')
-					])
+					// await Promise.all([
+					// 	saveBootstrapPeers('api.myjson.com', '/bins/1e5rmh'),
+					// 	saveBootstrapPeers('jsonblob.com', '/api/jsonBlob/4d22c8ba-5046-11eb-b13f-81fd0496c154'),
+					// 	saveBootstrapPeers('getpantry.cloud', '/apiv1/pantry/2f760eeb-2e76-4ea0-804b-6032223086e1/basket/testBasket')
+					// ])
 				}
 			}
 
