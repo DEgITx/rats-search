@@ -685,6 +685,7 @@ class P2P {
 	 */
 	async _attemptConnection(peer) {
 		if ((this.size > config.p2pConnections && !peer.force) || this.closing) {
+			logTW('p2p', 'Not connecting to peer', peer, 'because of max peers reached or closing');
 			return;
 		}
 		
