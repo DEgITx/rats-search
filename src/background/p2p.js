@@ -219,9 +219,17 @@ class P2P {
 			// 	});
 			// }, 10000);
 
-			setInterval(() => {
+			// Set up intervals and store their IDs for cleanup
+			this.intervals = {};
+			
+			this.intervals.stats = setInterval(() => {
 				this.printPeerStats();
 			}, 10000);
+
+			// Add peer pool management
+			this.intervals.peerPool = setInterval(() => {
+				this._managePeerPool();
+			}, 30000);
 
 			// Start DHT peer discovery
 			this._startDhtDiscovery();
@@ -636,11 +644,29 @@ class P2P {
 	 */
 	async close() {
 		this.closing = true;
+		
+		// Clear all intervals
+		if (this.intervals) {
+			Object.values(this.intervals).forEach(interval => {
+				clearInterval(interval);
+			});
+			this.intervals = {};
+			logT('p2p', 'Cleared all intervals');
+		}
+		
+		// Stop DHT discovery timers
+		if (this.dhtTimers) {
+			this.dhtTimers.forEach(timer => clearTimeout(timer));
+			this.dhtTimers = [];
+			logT('p2p', 'Cleared all DHT timers');
+		}
+		
 		// Stop libp2p node
 		if (this.node) {
 			await this.node.stop();
 			logT('p2p', 'libp2p node stopped');
 		}
+		
 		this.peers.clear();
 		this.size = 0;
 		this.responseHandlers.clear();
@@ -684,8 +710,25 @@ class P2P {
 	 * @returns {Promise<void>}
 	 */
 	async _attemptConnection(peer) {
-		if ((this.size > config.p2pConnections && !peer.force) || this.closing) {
-			logTW('p2p', 'Not connecting to peer', peer, 'because of max peers reached or closing');
+		// Prioritize connections to protocol peers or forced connections
+		const protocolPeers = this.protocolPeersList();
+		const nonProtocolPeers = this.nonProtocolPeersList();
+		
+		// If we're at or near capacity, check if this is worth connecting to
+		if (this.size >= config.p2pConnections && !peer.force) {
+			// If this is a new peer (not yet categorized), allow connection if we have room
+			// for more protocol peers (we have too many non-protocol peers)
+			if (nonProtocolPeers.length > protocolPeers.length * 0.5) {
+				// Continue with connection attempt - we have too many non-protocol peers
+				logT('p2p', 'Allowing potential protocol peer connection despite high peer count');
+			} else {
+				logTW('p2p', 'Not connecting to peer', peer, 'because of max peers reached');
+				return;
+			}
+		}
+		
+		if (this.closing) {
+			logTW('p2p', 'Not connecting to peer', peer, 'because node is closing');
 			return;
 		}
 		
@@ -1168,8 +1211,13 @@ class P2P {
 	printPeerStats() {
 		const now = Date.now();
 		
+		const protocolPeers = this.protocolPeersList();
+		const nonProtocolPeers = this.nonProtocolPeersList();
+		
 		console.log(`\n===== P2P Network Stats =====`);
 		console.log(`Total peers connected: ${this.size}`);
+		console.log(`Protocol peers: ${protocolPeers.length}`);
+		console.log(`Non-protocol peers: ${nonProtocolPeers.length}`);
 		
 		if (this.size === 0) {
 			console.log('No peers currently connected');
@@ -1208,7 +1256,7 @@ class P2P {
 		for (const peer of sortedPeers) {
 			const peerId = peer.id.substring(0, 36) + (peer.id.length > 36 ? '...' : '');
 			const duration = formatDuration(now - peer.connectedAt);
-			const protocol = peer.protocolName || 'Unknown';
+			const protocol = peer[this.protocolName] ? this.protocolName : 'Unknown';
 			
 			console.log(`| ${peerId.padEnd(39)} | ${duration.padEnd(17)} | ${protocol.padEnd(10)} |`);
 		}
@@ -1226,26 +1274,45 @@ class P2P {
 	}
 
 	/**
+	 * Get list of peers that have been verified for our protocol
+	 * @returns {Array} List of protocol peers
+	 */
+	protocolPeersList() {
+		return this.peersList().filter(peer => peer[this.protocolName] === true);
+	}
+
+	/**
+	 * Get list of peers that have not been verified for our protocol
+	 * @returns {Array} List of non-protocol peers
+	 */
+	nonProtocolPeersList() {
+		return this.peersList().filter(peer => peer[this.protocolName] !== true);
+	}
+
+	/**
 	 * Get recommended list of peers to share
 	 * @returns {Array} Recommended peers list
 	 */
 	recommendedPeersList() {
-		const fullList = this.peersList();
-		if (fullList.length === 0) {
+		// Get protocol peers since they're more reliable to share
+		const protocolPeers = this.protocolPeersList();
+		
+		// If we don't have any protocol peers, return empty list
+		if (protocolPeers.length === 0) {
 			return []; // no list
 		}
 
-		// Get 4 random peers from full peers list
-		let peers = shuffle(fullList).slice(0, 4);
+		// Get 4 random protocol peers
+		let peers = shuffle(protocolPeers).slice(0, 4);
 		
-		// Add 2 peers with highest torrents count 
+		// Add 2 protocol peers with highest torrents count 
 		peers = peers.concat(
-			_.orderBy(fullList, peer => peer.info && peer.info.torrents, 'desc').slice(0, 2)
+			_.orderBy(protocolPeers, peer => peer.info && peer.info.torrents, 'desc').slice(0, 2)
 		);
 		
-		// Add 2 peers with most available connections
+		// Add 2 protocol peers with most available connections
 		peers = peers.concat(
-			_.orderBy(fullList, 
+			_.orderBy(protocolPeers, 
 				peer => peer.info && peer.info.maxPeersConnections && peer.info.peersConnections && 
 					(peer.info.maxPeersConnections - peer.info.peersConnections), 
 				'desc'
@@ -1351,6 +1418,9 @@ class P2P {
 			// Create a CID from the hash (using raw codec 0x55)
 			const routingKey = CID.create(1, 0x55, hash);
 
+			// Initialize timers array for cleanup
+			this.dhtTimers = [];
+
 			const provideContent = async () => {
 				if (this.closing) return;
 
@@ -1362,7 +1432,10 @@ class P2P {
 					logTE('p2p-dht', 'Error providing content to DHT:', err);
 				}
 
-				setTimeout(provideContent, 1000);
+				if (!this.closing) {
+					const timer = setTimeout(provideContent, 60000); // Run every minute
+					this.dhtTimers.push(timer);
+				}
 			};
 
 			// Function to discover peers periodically
@@ -1370,32 +1443,74 @@ class P2P {
 				if (this.closing) return;
 				
 				try {		
-						// Then find other providers
-						logT('p2p-dht', 'Querying DHT for peers with CID:', routingKey.toString());
+					// Then find other providers
+					logT('p2p-dht', 'Querying DHT for peers with CID:', routingKey.toString());
+					
+					// Find providers for our protocol
+					for await (const provider of this.node.contentRouting.findProviders(routingKey)) {
+						const providerId = provider.id.toString();
 						
-						// Find providers for our protocol
-						for await (const provider of this.node.contentRouting.findProviders(routingKey)) {
-							const providerId = provider.id.toString();
-							
-							// Skip if it's us
-							if (providerId === this.peerId) {
-								continue;
-							}
-							
-							logT('p2p-dht', 'Found provider peer in DHT:', providerId);
-							this.add(provider);
+						// Skip if it's us
+						if (providerId === this.peerId) {
+							continue;
 						}
+						
+						logT('p2p-dht', 'Found provider peer in DHT:', providerId);
+						this.add(provider);
+					}
 				} catch (err) {
 					logTE('p2p-dht', 'Error during DHT peer discovery:', err);
 				}
 
-				setTimeout(discoverPeers, 10000);
+				if (!this.closing) {
+					const timer = setTimeout(discoverPeers, 120000); // Run every 2 minutes
+					this.dhtTimers.push(timer);
+				}
 			};
 			
-			//setTimeout(provideContent, 1000);
-			//setTimeout(discoverPeers, 1000);
+			// Start the DHT processes (uncomment when needed)
+			// const timer1 = setTimeout(provideContent, 1000);
+			// const timer2 = setTimeout(discoverPeers, 1000);
+			// this.dhtTimers.push(timer1, timer2);
 		} catch (err) {
 			logTE('p2p', 'Failed to start DHT discovery:', err);
+		}
+	}
+
+	/**
+	 * Perform periodic management of the peer pool
+	 * Ensures we maintain a healthy ratio of protocol to non-protocol peers
+	 */
+	async _managePeerPool() {
+		if (this.closing || this.size <= config.p2pConnections) {
+			return;
+		}
+		
+		const protocolPeers = this.protocolPeersList();
+		const nonProtocolPeers = this.nonProtocolPeersList();
+		
+		logT('p2p', `Peer pool: ${protocolPeers.length} protocol peers, ${nonProtocolPeers.length} non-protocol peers`);
+		
+		// If we have too many peers and a disproportionate number of non-protocol peers,
+		// disconnect from some non-protocol peers to make room for potential protocol peers
+		if (this.size > config.p2pConnections && 
+			nonProtocolPeers.length > (this.size * 0.3) && 
+			nonProtocolPeers.length > 3) {
+			
+			// Sort non-protocol peers by connection time (newest first)
+			const disconnectCandidates = _.orderBy(
+				nonProtocolPeers, 
+				peer => peer.connectedAt, 
+				'desc'
+			);
+			
+			// Disconnect from up to 2 non-protocol peers
+			const peersToDisconnect = disconnectCandidates.slice(0, 2);
+			
+			for (const peer of peersToDisconnect) {
+				logT('p2p', `Disconnecting non-protocol peer ${peer.id} to maintain peer pool health`);
+				this._disconnectPeer(peer.id);
+			}
 		}
 	}
 }
