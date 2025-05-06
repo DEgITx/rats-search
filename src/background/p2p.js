@@ -272,7 +272,7 @@ class P2P {
 				
 				// Set a timeout to disconnect if protocol not verified
 				setTimeout(() => {
-					if (this.peers.has(peerId) && this.peers.get(peerId).protocolName !== this.protocolName) {
+					if (this.peers.has(peerId) && !this.peers.get(peerId)[this.protocolName]) {
 						logTW('p2p', 'Protocol not verified within timeout, disconnecting peer:', peerId);
 						this._disconnectPeer(peerId);
 					}
@@ -373,7 +373,7 @@ class P2P {
 			const isInitTopic = topic === `${this.protocol}/init`;
 			
 			// For other topics, verify protocol compatibility
-			if (!isInitTopic && this.peers.has(peerId) && this.peers.get(peerId).protocolName !== this.protocolName) {
+			if (!isInitTopic && this.peers.has(peerId) && !this.peers.get(peerId)[this.protocolName]) {
 				logTW('p2p', `Ignoring message from unverified peer ${peerId} on topic ${topic}`);
 				return;
 			}
@@ -441,7 +441,7 @@ class P2P {
 			
 			// Check if this is an init message or if the peer is verified
 			const isInitMessage = topic === `${this.protocol}/init`;
-			const isPeerVerified = !this.peers.has(from) || this.peers.get(from).protocolName === this.protocolName;
+			const isPeerVerified = !this.peers.has(from) || this.peers.get(from)[this.protocolName];
 			
 			// Only process message if it's an init message or the peer is verified
 			if (!isInitMessage && !isPeerVerified) {
@@ -523,6 +523,7 @@ class P2P {
 				const peer = this.peers.get(from);
 				peer.protocolName = data.protocolName;
 				peer.protocolVersion = data.protocolVersion;
+				peer[data.protocolName] = true;
 				peer.version = data.version;
 				peer.info = data.info;
 
@@ -790,7 +791,7 @@ class P2P {
 			if (peerId && 
 				topic !== `${this.protocol}/init` && 
 				this.peers.has(peerId) && 
-				this.peers.get(peerId).protocolName !== this.protocolName) {
+				!this.peers.get(peerId)[this.protocolName]) {
 				logTW('p2p', `Cannot send message to unverified peer ${peerId} on topic ${topic}`);
 				return false;
 			}
@@ -1391,8 +1392,8 @@ class P2P {
 				setTimeout(discoverPeers, 10000);
 			};
 			
-			setTimeout(provideContent, 1000);
-			setTimeout(discoverPeers, 1000);
+			//setTimeout(provideContent, 1000);
+			//setTimeout(discoverPeers, 1000);
 		} catch (err) {
 			logTE('p2p', 'Failed to start DHT discovery:', err);
 		}
