@@ -249,9 +249,6 @@ class P2P {
 					],
 					appendAnnounce: _.uniq(listenAddresses)
 				},
-				connectionManager: {
-					maxConnections: this.maxSize,
-				},
 				transports: [
 					tcp(),
 					webSockets()
