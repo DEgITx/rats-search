@@ -728,15 +728,19 @@ class P2P {
 	/**
 	 * Attempt connection to a discovered peer
 	 * @param {Object} peer - Peer to connect to
+	 * @param {Object} options - Options
+	 * @param {boolean} options.protocol - Connect to protocol peer
 	 * @returns {Promise<void>}
 	 */
-	async _attemptConnection(peer) {
+	async _attemptConnection(peer, options = {}) {
 		if (this.closing) {
 			logTW('p2p', 'Not connecting to peer', peer, 'because node is closing');
 			return;
 		}
 
-		if (!await this._managePeerPool()) {
+		const isProtocolPeer = peer.protocol || options.protocol;
+
+		if (!await this._managePeerPool({ protocol: isProtocolPeer })) {
 			logTW('p2p', 'Not connecting to peer', peer, 'because of peer pool management');
 			return;
 		}
@@ -764,10 +768,11 @@ class P2P {
 	/**
 	 * Add a peer by address
 	 * @param {Object} peer - Peer address info
-	 * @param {boolean} force - Force connection even if max peers reached
+	 * @param {Object} options - Options
+	 * @param {boolean} options.protocol - Connect to protocol peer
 	 * @returns {Promise<void>}
 	 */
-	async add(peer, force = false) {
+	async add(peer, options = {}) {
 		if (!config.p2p) {
 			return;
 		}
@@ -782,12 +787,7 @@ class P2P {
 			return;
 		}
 
-		// Set force flag if provided
-		if (force) {
-			peer.force = true;
-		}
-
-		await this._attemptConnection(peer);
+		await this._attemptConnection(peer, options);
 	}
 
 	/**
@@ -1435,6 +1435,8 @@ class P2P {
 			const provideContent = async () => {
 				if (this.closing) return;
 
+				logT('p2p-dht', 'addr', this.node.getMultiaddrs());
+
 				try {
 					logT('p2p-dht', 'Providing content to DHT with CID:', routingKey.toString());
 					await this.node.contentRouting.provide(routingKey);
@@ -1467,7 +1469,7 @@ class P2P {
 						}
 						
 						logT('p2p-dht', 'Found provider peer in DHT:', providerId);
-						this.add(provider);
+						this.add(provider, { protocol: true }); // Add as protocol peer
 					}
 				} catch (err) {
 					logTE('p2p-dht', 'Error during DHT peer discovery:', err);
@@ -1493,7 +1495,7 @@ class P2P {
 	 * Ensures we maintain a healthy ratio of protocol to non-protocol peers
 	 * @returns {boolean} True if we should continue connection to peer
 	 */
-	async _managePeerPool() {
+	async _managePeerPool(options = {}) {
 		if (this.closing) {
 			return false;
 		}
@@ -1518,12 +1520,22 @@ class P2P {
 			}
 		}
 
-		const initialBoost = Math.max(0, 3 - protocolPeers.length);
-		if (this.size >= this.maxSize + (this.maxSize * initialBoost)) {
-			return false;
+		if (options.protocol) {
+			if (protocolPeers.length < this.maxSize) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			const initialBoost = Math.max(0, 3 - protocolPeers.length);
+			if (this.size >= this.maxSize + (this.maxSize * initialBoost)) {
+				return false;
+			} else {
+				return true;
+			}
 		}
 
-		return true;
+		return false;
 	}
 }
 
