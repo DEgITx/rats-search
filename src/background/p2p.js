@@ -44,6 +44,9 @@ class P2P {
 		this.closing = false;
 		this.persistentPeerIdPath = 'peer-id.json';
 
+		logT('p2p', 'Rats P2P initialized');
+		logT('p2p', 'peers maxSize', this.maxSize);
+
 		// Define help info with getters to ensure values are always current
 		Object.defineProperty(this.info, 'maxPeersConnections', { 
 			enumerable: true,
@@ -245,6 +248,9 @@ class P2P {
 						`/ip6/::/tcp/${5001}/ws`
 					],
 					appendAnnounce: _.uniq(listenAddresses)
+				},
+				connectionManager: {
+					maxConnections: this.maxSize,
 				},
 				transports: [
 					tcp(),
