@@ -21,11 +21,17 @@ class P2P {
 		this.protocolVersion = '2.0.0';
 		this.protocolName = 'rats';
 
-		this.events = new EventEmitter();
 		this.peers = new Map();
+		this.size = 0;
+		this.maxSize = config.p2pConnections;
+		this.peersProtocol = new Map();
+		this.peersProtocolSize = 0;
+		this.peersNonProtocol = new Map();
+		this.peersNonProtocolSize = 0;
+		
+		this.events = new EventEmitter();
 		this.ignoreAddresses = [];
 		this.externalPeers = [];
-		this.size = 0;
 		this.p2pStatus = 0;
 		this.info = {};
 		this.filesRequests = {};
@@ -39,12 +45,12 @@ class P2P {
 		// Define help info with getters to ensure values are always current
 		Object.defineProperty(this.info, 'maxPeersConnections', { 
 			enumerable: true,
-			get: () => config.p2pConnections * 2
+			get: () => this.maxSize,
 		});
 		
 		Object.defineProperty(this.info, 'peersConnections', { 
 			enumerable: true,
-			get: () => this.size
+			get: () => this.peersProtocolSize,
 		});
 
 		this.topicHandlers = new Map();
@@ -254,17 +260,19 @@ class P2P {
 			if (!this.peers.has(peerId)) {
 				const multiaddrs = this.node.getMultiaddrs(peerId).map(addr => addr.toString());
 				
-				this.peers.set(peerId, {
+				const peerObject = {
 					id: peerId,
 					peer: peer,
 					addresses: multiaddrs,
 					connectedAt: Date.now(),
-				});
-				
+				}
+				this.peers.set(peerId, peerObject);
 				this.size++;
 
 				// Check protocol compatibility
 				if (!await this.sendProtocolCheck(peerId)) {
+					this.peersNonProtocol.set(peerId, peerObject);
+					this.peersNonProtocolSize++;
 					return;
 				} else {
 					logT('p2p', 'Protocol peer, use for protocol');
@@ -305,6 +313,16 @@ class P2P {
 		if (this.peers.has(peerId)) {
 			this.peers.delete(peerId);
 			this.size--;
+		}
+
+		if (this.peersProtocol.has(peerId)) {
+			this.peersProtocol.delete(peerId);
+			this.peersProtocolSize--;
+		}
+
+		if (this.peersNonProtocol.has(peerId)) {
+			this.peersNonProtocol.delete(peerId);
+			this.peersNonProtocolSize--;
 		}
 	}
 
@@ -535,6 +553,9 @@ class P2P {
 				peer.version = data.version;
 				peer.info = data.info;
 
+				this.peersProtocol.set(from, peer);
+				this.peersProtocolSize++;
+
 				// Create a peer object without stream for logging
 				logT('p2p', `${this.protocolName} peer connected`, peer);
 				
@@ -710,25 +731,13 @@ class P2P {
 	 * @returns {Promise<void>}
 	 */
 	async _attemptConnection(peer) {
-		// Prioritize connections to protocol peers or forced connections
-		const protocolPeers = this.protocolPeersList();
-		const nonProtocolPeers = this.nonProtocolPeersList();
-		
-		// If we're at or near capacity, check if this is worth connecting to
-		if (this.size >= config.p2pConnections && !peer.force) {
-			// If this is a new peer (not yet categorized), allow connection if we have room
-			// for more protocol peers (we have too many non-protocol peers)
-			if (nonProtocolPeers.length > protocolPeers.length * 0.5) {
-				// Continue with connection attempt - we have too many non-protocol peers
-				logT('p2p', 'Allowing potential protocol peer connection despite high peer count');
-			} else {
-				logTW('p2p', 'Not connecting to peer', peer, 'because of max peers reached');
-				return;
-			}
-		}
-		
 		if (this.closing) {
 			logTW('p2p', 'Not connecting to peer', peer, 'because node is closing');
+			return;
+		}
+
+		if (!await this._managePeerPool()) {
+			logTW('p2p', 'Not connecting to peer', peer, 'because of peer pool management');
 			return;
 		}
 		
@@ -1278,7 +1287,7 @@ class P2P {
 	 * @returns {Array} List of protocol peers
 	 */
 	protocolPeersList() {
-		return this.peersList().filter(peer => peer[this.protocolName] === true);
+		return Array.from(this.peersProtocol.values());
 	}
 
 	/**
@@ -1286,7 +1295,7 @@ class P2P {
 	 * @returns {Array} List of non-protocol peers
 	 */
 	nonProtocolPeersList() {
-		return this.peersList().filter(peer => peer[this.protocolName] !== true);
+		return Array.from(this.peersNonProtocol.values());
 	}
 
 	/**
@@ -1387,11 +1396,13 @@ class P2P {
 	 * @param {string} peerId - ID of the peer to disconnect
 	 * @private
 	 */
-	_disconnectPeer(peerId) {
+	async _disconnectPeer(peerId) {
 		logT('p2p', 'Disconnecting peer', peerId);
-		this.node.hangUp(peerId).catch(err => {
+		try {
+			await this.node.hangUp(peerId);
+		} catch (err) {
 			logTE('p2p', 'Error hanging up connection to peer', peerId, err);
-		});
+		}
 	}
 
 	/**
@@ -1480,10 +1491,16 @@ class P2P {
 	/**
 	 * Perform periodic management of the peer pool
 	 * Ensures we maintain a healthy ratio of protocol to non-protocol peers
+	 * @returns {boolean} True if we should continue connection to peer
 	 */
 	async _managePeerPool() {
-		if (this.closing || this.size <= config.p2pConnections) {
-			return;
+		if (this.closing) {
+			return false;
+		}
+
+		// If we have no protocol peers, we keep all non-protocol peers to faster protocol peers discovery
+		if (this.peersProtocolSize == 0) {
+			return true;
 		}
 		
 		const protocolPeers = this.protocolPeersList();
@@ -1491,27 +1508,22 @@ class P2P {
 		
 		logT('p2p', `Peer pool: ${protocolPeers.length} protocol peers, ${nonProtocolPeers.length} non-protocol peers`);
 		
-		// If we have too many peers and a disproportionate number of non-protocol peers,
-		// disconnect from some non-protocol peers to make room for potential protocol peers
-		if (this.size > config.p2pConnections && 
-			nonProtocolPeers.length > (this.size * 0.3) && 
-			nonProtocolPeers.length > 3) {
-			
-			// Sort non-protocol peers by connection time (newest first)
-			const disconnectCandidates = _.orderBy(
-				nonProtocolPeers, 
-				peer => peer.connectedAt, 
-				'desc'
-			);
-			
-			// Disconnect from up to 2 non-protocol peers
-			const peersToDisconnect = disconnectCandidates.slice(0, 2);
-			
+		const roomSizeForNonProtocolPeers = Math.max(0, this.maxSize - protocolPeers.length);
+		const nonProtocolPeersToDisconnect = nonProtocolPeers.length - roomSizeForNonProtocolPeers;
+		if (nonProtocolPeersToDisconnect > 0) {
+			const peersToDisconnect = nonProtocolPeers.slice(0, nonProtocolPeersToDisconnect);
+			logT('p2p', `Disconnecting ${peersToDisconnect.length} non-protocol peers to maintain peer pool health`);
 			for (const peer of peersToDisconnect) {
-				logT('p2p', `Disconnecting non-protocol peer ${peer.id} to maintain peer pool health`);
-				this._disconnectPeer(peer.id);
+				await this._disconnectPeer(peer.id);
 			}
 		}
+
+		const initialBoost = Math.max(0, 3 - protocolPeers.length);
+		if (this.size >= this.maxSize + (this.maxSize * initialBoost)) {
+			return false;
+		}
+
+		return true;
 	}
 }
 
