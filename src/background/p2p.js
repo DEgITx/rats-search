@@ -1480,9 +1480,9 @@ class P2P {
 			};
 			
 			// Start the DHT processes (uncomment when needed)
-			// const timer1 = setTimeout(provideContent, 1000);
-			// const timer2 = setTimeout(discoverPeers, 1000);
-			// this.dhtTimers.push(timer1, timer2);
+			const timer1 = setTimeout(provideContent, 1000);
+			const timer2 = setTimeout(discoverPeers, 1000);
+			this.dhtTimers.push(timer1, timer2);
 		} catch (err) {
 			logTE('p2p', 'Failed to start DHT discovery:', err);
 		}
