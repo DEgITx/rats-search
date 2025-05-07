@@ -394,6 +394,7 @@ class P2P {
 		}
 
 		if (this.peersProtocol.has(peerId)) {
+			logT('p2p', 'Disconnected from protocol peer:', peerId, 'peers:', this.peersProtocolSize - 1);
 			this.peersProtocol.delete(peerId);
 			this.peersProtocolSize--;
 		}
