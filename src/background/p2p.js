@@ -7,6 +7,7 @@ const EventEmitter = require('events');
 const _ = require('lodash');
 const mkdirp = require('mkdirp');
 const compareVersions = require('compare-versions');
+const https = require('https');
 
 const directoryFilesRecursive = require('./directoryFilesRecursive');
 const deleteFolderRecursive = require('./deleteFolderRecursive');
@@ -32,6 +33,7 @@ class P2P {
 		this.events = new EventEmitter();
 		this.ignoreAddresses = [];
 		this.externalPeers = [];
+		this.externalAddresses = [];
 		this.p2pStatus = 0;
 		this.info = {};
 		this.filesRequests = {};
@@ -112,6 +114,76 @@ class P2P {
 	}
 
 	/**
+	 * Detect external IP address using external services
+	 * @returns {Promise<string|null>} The external IP address or null if not found
+	 */
+	async detectExternalIp() {
+		const services = [
+			'https://api.ipify.org',
+			'https://ifconfig.me/ip',
+			'https://icanhazip.com',
+			'https://ipecho.net/plain'
+		];
+
+		// Shuffle the services to distribute load
+		const shuffledServices = shuffle(services);
+		
+		// Try each service until one returns a valid IP
+		for (const service of shuffledServices) {
+			try {
+				logT('p2p', 'Attempting to detect external IP using', service);
+				const ip = await new Promise((resolve, reject) => {
+					https.get(service, (res) => {
+						let data = '';
+						res.on('data', (chunk) => data += chunk);
+						res.on('end', () => {
+							// Validate the IP address format
+							const ip = data.trim();
+							const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+							if (ipRegex.test(ip)) {
+								resolve(ip);
+							} else {
+								reject(new Error('Invalid IP format: ' + ip));
+							}
+						});
+					}).on('error', reject);
+				});
+				
+				logT('p2p', 'Detected external IP:', ip);
+				return ip;
+			} catch (err) {
+				logTW('p2p', 'Failed to detect external IP using', service, ':', err.message);
+			}
+		}
+		
+		logTW('p2p', 'Could not detect external IP from any service');
+		return null;
+	}
+
+	/**
+	 * Helper function to get all network interfaces
+		* @returns {string[]} Array of multiaddr strings
+		*/
+	async _getListenAddresses() {
+		const addresses = [];
+		
+		// Try to detect external IP addresses from network interfaces
+		const interfaces = os.networkInterfaces();
+		for (const name in interfaces) {
+			const networkInterface = interfaces[name];
+			for (const info of networkInterface) {
+				// Only include IPv4 addresses that aren't internal
+				if (info.family === 'IPv4' && !info.internal) {
+					addresses.push(`/ip4/${info.address}/tcp/${5000}`);
+					addresses.push(`/ip4/${info.address}/tcp/${5001}/ws`);
+				}
+			}
+		}
+		
+		return addresses;
+	}
+
+	/**
 	 * Initialize the P2P node
 	 * @returns {Promise<P2P>} This instance
 	 */
@@ -156,6 +228,10 @@ class P2P {
 			let peerId;
 			peerId = await this._loadOrGeneratePeerId();
 			
+			const listenAddresses = await this._getListenAddresses();
+
+			logT('p2p', 'adding listen addresses', listenAddresses);
+
 			// Create and configure libp2p node
 			this.node = await createLibp2p({
 				privateKey: peerId,
@@ -163,7 +239,8 @@ class P2P {
 					listen: [
 						`/ip4/0.0.0.0/tcp/${5000}`,
 						`/ip4/0.0.0.0/tcp/${5001}/ws`
-					]
+					],
+					appendAnnounce: listenAddresses
 				},
 				transports: [
 					tcp(),
@@ -193,7 +270,7 @@ class P2P {
 						emitSelf: false
 					}),
 					dht: kadDHT({
-						// protocol: '/rats/kad/1.0.0',
+						protocol: '/rats/kad/1.0.0',
 						clientMode: false, // Run as a full DHT node
 					}),
 					// aminoDHT: kadDHT({
@@ -216,14 +293,6 @@ class P2P {
 			// Start the node
 			await this.node.start();
 			logT('p2p', 'libp2p node started successfully');
-			
-			// setTimeout(() => {
-			// 	this.add({
-			// 			id: '12D3KooWEtimiSnXThfMsPrc5e8NG28bMQ4vmYpo39wLyGYF3ycb',
-			// 			address: '167.71.11.56',
-			// 			port: 5000,
-			// 	});
-			// }, 10000);
 
 			// Set up intervals and store their IDs for cleanup
 			this.intervals = {};
@@ -1416,6 +1485,9 @@ class P2P {
 			}
 
 			logT('p2p', 'Starting DHT-based peer discovery');
+			
+			// Log our multiaddresses
+			this.logMultiaddresses();
 
 			// Import CID from multiformats for proper routing key format
 			const { CID } = await import('multiformats/cid');
@@ -1482,9 +1554,9 @@ class P2P {
 			};
 			
 			// Start the DHT processes (uncomment when needed)
-			const timer1 = setTimeout(provideContent, 1000);
-			const timer2 = setTimeout(discoverPeers, 1000);
-			this.dhtTimers.push(timer1, timer2);
+			//const timer1 = setTimeout(provideContent, 1000);
+			//const timer2 = setTimeout(discoverPeers, 1000);
+			//this.dhtTimers.push(timer1, timer2);
 		} catch (err) {
 			logTE('p2p', 'Failed to start DHT discovery:', err);
 		}
