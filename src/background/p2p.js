@@ -167,15 +167,19 @@ class P2P {
 	async _getListenAddresses() {
 		const addresses = [];
 		
-		// Try to detect external IP addresses from network interfaces
+		// Try to detect IP addresses from network interfaces
 		const interfaces = os.networkInterfaces();
 		for (const name in interfaces) {
 			const networkInterface = interfaces[name];
 			for (const info of networkInterface) {
-				// Only include IPv4 addresses that aren't internal
+				// Include both IPv4 and IPv6 addresses that aren't internal
 				if (info.family === 'IPv4' && !info.internal) {
 					addresses.push(`/ip4/${info.address}/tcp/${5000}`);
 					addresses.push(`/ip4/${info.address}/tcp/${5001}/ws`);
+				} else if (info.family === 'IPv6' && !info.internal) {
+					// Add IPv6 addresses
+					addresses.push(`/ip6/${info.address}/tcp/${5000}`);
+					addresses.push(`/ip6/${info.address}/tcp/${5001}/ws`);
 				}
 			}
 		}
@@ -230,17 +234,17 @@ class P2P {
 			
 			const listenAddresses = await this._getListenAddresses();
 
-			logT('p2p', 'adding listen addresses', listenAddresses);
-
 			// Create and configure libp2p node
 			this.node = await createLibp2p({
 				privateKey: peerId,
 				addresses: {
 					listen: [
 						`/ip4/0.0.0.0/tcp/${5000}`,
-						`/ip4/0.0.0.0/tcp/${5001}/ws`
+						`/ip4/0.0.0.0/tcp/${5001}/ws`,
+						`/ip6/::/tcp/${5000}`,
+						`/ip6/::/tcp/${5001}/ws`
 					],
-					appendAnnounce: listenAddresses
+					appendAnnounce: _.uniq(listenAddresses)
 				},
 				transports: [
 					tcp(),
@@ -270,7 +274,7 @@ class P2P {
 						emitSelf: false
 					}),
 					dht: kadDHT({
-						protocol: '/rats/kad/1.0.0',
+						// protocol: '/rats/kad/1.0.0',
 						clientMode: false, // Run as a full DHT node
 					}),
 					// aminoDHT: kadDHT({
@@ -305,6 +309,8 @@ class P2P {
 			this.intervals.peerPool = setInterval(() => {
 				this._managePeerPool();
 			}, 30000);
+
+			logT('p2p', 'my multiaddresses', this.node.getMultiaddrs());
 
 			// Start DHT peer discovery
 			this._startDhtDiscovery();
@@ -1485,9 +1491,6 @@ class P2P {
 			}
 
 			logT('p2p', 'Starting DHT-based peer discovery');
-			
-			// Log our multiaddresses
-			this.logMultiaddresses();
 
 			// Import CID from multiformats for proper routing key format
 			const { CID } = await import('multiformats/cid');
@@ -1506,8 +1509,6 @@ class P2P {
 
 			const provideContent = async () => {
 				if (this.closing) return;
-
-				logT('p2p-dht', 'addr', this.node.getMultiaddrs());
 
 				try {
 					logT('p2p-dht', 'Providing content to DHT with CID:', routingKey.toString());
@@ -1554,9 +1555,9 @@ class P2P {
 			};
 			
 			// Start the DHT processes (uncomment when needed)
-			//const timer1 = setTimeout(provideContent, 1000);
-			//const timer2 = setTimeout(discoverPeers, 1000);
-			//this.dhtTimers.push(timer1, timer2);
+			const timer1 = setTimeout(provideContent, 1000);
+			const timer2 = setTimeout(discoverPeers, 1000);
+			this.dhtTimers.push(timer1, timer2);
 		} catch (err) {
 			logTE('p2p', 'Failed to start DHT discovery:', err);
 		}
