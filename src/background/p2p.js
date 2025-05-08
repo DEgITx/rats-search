@@ -1162,7 +1162,7 @@ class P2P {
 		// Check if already downloading
 		if (this.filesRequests[path]) {
 			logT('transfer', 'Already downloading', path, 'returning existing request');
-			return this.filesRequests[path];
+			return await this.filesRequests[path];
 		}
 
 		logT('transfer', 'New file request', path);
@@ -1182,7 +1182,10 @@ class P2P {
 				// Create temporary directory for downloading
 				await mkdirp(ph.dirname(tmpPath));
 				
-				// Only create file stream if target is not a directory
+				// Generate a unique ID for this file transfer
+				const transferId = Math.random().toString(36).substring(2, 15);
+				
+				// Set up file stream if not a directory
 				let fileStream = null;
 				if (!fs.existsSync(tmpPath) || !fs.lstatSync(tmpPath).isDirectory()) {
 					fileStream = fs.createWriteStream(tmpPath);
@@ -1191,18 +1194,6 @@ class P2P {
 				// Track transfer state
 				let peer = null;
 				let firstTransfer = false;
-				let isError = false;
-				
-				// Generate a unique ID for this file transfer
-				const transferId = Math.random().toString(36).substring(2, 15);
-				
-				// Set up cleanup function
-				const cleanup = () => {
-					this.responseHandlers.delete(transferId);
-					if (fileStream) {
-						fileStream.end();
-					}
-				};
 				
 				// Set up a handler for file responses
 				const fileResponseHandler = async (message, from) => {
@@ -1215,7 +1206,10 @@ class P2P {
 					// Handle file transfer completion
 					if (message.done) {
 						logT('transfer', 'Completed file transfer', path);
-						cleanup();
+						this.responseHandlers.delete(transferId);
+						if (fileStream) {
+							fileStream.end();
+						}
 						
 						if (firstTransfer) {
 							const renameCallback = async () => {
@@ -1223,19 +1217,14 @@ class P2P {
 									await mkdirp(ph.dirname(filePath));
 									fs.renameSync(tmpPath, filePath);
 									logT('transfer', 'Successfully moved file from tmp to destination', filePath);
+									return true;
 								} catch (err) {
 									logTE('transfer', 'Error moving file from tmp to destination', err);
 									return false;
 								}
-								return true;
 							};
 							
-							if (parent) {
-								resolve(renameCallback);
-							} else {
-								const success = await renameCallback();
-								resolve(success);
-							}
+							resolve(parent ? renameCallback : await renameCallback());
 						} else {
 							resolve(false);
 						}
@@ -1245,53 +1234,40 @@ class P2P {
 					// Handle file list response (directory)
 					if (message.filesList) {
 						logT('transfer', 'Received directory listing', message.filesList.length, 'files');
-						cleanup();
-						
-						const transferFiles = async () => {
-							try {
-								const transfers = await Promise.all(
-									message.filesList.map(file => this.file(file, null, from, true))
-								);
-								
-								// Process rename callbacks
-								const results = await Promise.all(
-									transfers.filter(Boolean).map(renameCallback => renameCallback())
-								);
-								
-								if (results.every(Boolean)) {
-									try {
-										if (fs.existsSync(tmpPath)) {
-											deleteFolderRecursive(tmpPath);
-										}
-										logT('transfer', 'Successfully transferred all files from directory', path);
-										resolve(true);
-									} catch (err) {
-										logTE('transfer', 'Error cleaning up temporary directory', err);
-										resolve(true); // Still consider success even if tmp cleanup fails
-									}
-								} else {
-									logTE('transfer', 'Some files failed to transfer');
-									resolve(false);
-								}
-							} catch (err) {
-								logTE('transfer', 'Error in directory transfer', err);
-								resolve(false);
-							}
-						};
-						
+						this.responseHandlers.delete(transferId);
 						if (fileStream) {
-							fileStream.end(null, null, async () => {
+							fileStream.end();
+						}
+						
+						try {
+							// Transfer all files in directory
+							const transfers = await Promise.all(
+								message.filesList.map(file => this.file(file, null, from, true))
+							);
+							
+							// Process rename callbacks
+							const results = await Promise.all(
+								transfers.filter(Boolean).map(renameCallback => renameCallback())
+							);
+							
+							if (results.every(Boolean)) {
 								try {
 									if (fs.existsSync(tmpPath)) {
-										fs.unlinkSync(tmpPath);
+										deleteFolderRecursive(tmpPath);
 									}
+									logT('transfer', 'Successfully transferred all files from directory', path);
+									resolve(true);
 								} catch (err) {
-									logTE('transfer', 'Error removing temporary file', err);
+									logTE('transfer', 'Error cleaning up temporary directory', err);
+									resolve(true); // Still consider success even if tmp cleanup fails
 								}
-								await transferFiles();
-							});
-						} else {
-							await transferFiles();
+							} else {
+								logTE('transfer', 'Some files failed to transfer');
+								resolve(false);
+							}
+						} catch (err) {
+							logTE('transfer', 'Error in directory transfer', err);
+							resolve(false);
 						}
 						return;
 					}
@@ -1299,27 +1275,21 @@ class P2P {
 					// Handle error response
 					if (message.error) {
 						logTE('transfer', 'Error from peer during file transfer', path, message.error);
-						cleanup();
-						isError = true;
+						this.responseHandlers.delete(transferId);
+						if (fileStream) {
+							fileStream.end();
+						}
 						resolve(false);
 						return;
 					}
 
-					// Validate we have a file stream
-					if (!fileStream) {
-						logTE('transfer', 'No file stream available for transfer', path);
-						cleanup();
-						isError = true;
-						resolve(false);
-						return;
-					}
-
-					// Validate we have data
-					if (!message.data) {
-						logTE('transfer', 'Received empty data chunk for transfer', path);
-						cleanup();
-						isError = true;
-						fileStream.end();
+					// Validate we have a file stream and data
+					if (!fileStream || !message.data) {
+						logTE('transfer', 'Invalid file transfer state', path);
+						this.responseHandlers.delete(transferId);
+						if (fileStream) {
+							fileStream.end();
+						}
 						resolve(false);
 						return;
 					}
@@ -1331,7 +1301,7 @@ class P2P {
 						logT('transfer', 'Starting file transfer', path, 'from peer', from);
 					}
 					
-					// Write data to file with proper error handling
+					// Write data to file
 					try {
 						const data = Buffer.from(message.data);
 						const success = fileStream.write(data);
@@ -1342,8 +1312,8 @@ class P2P {
 						}
 					} catch (err) {
 						logTE('transfer', 'Error writing to file stream', err);
-						cleanup();
-						isError = true;
+						this.responseHandlers.delete(transferId);
+						fileStream.end();
 						resolve(false);
 					}
 				};
@@ -1363,10 +1333,11 @@ class P2P {
 				setTimeout(() => {
 					if (this.responseHandlers.has(transferId)) {
 						logTE('transfer', 'File transfer timed out', path);
-						cleanup();
-						if (!isError) {
-							resolve(false);
+						this.responseHandlers.delete(transferId);
+						if (fileStream) {
+							fileStream.end();
 						}
+						resolve(false);
 					}
 				}, 30000); // 30-second timeout
 				
