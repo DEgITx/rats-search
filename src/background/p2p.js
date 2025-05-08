@@ -277,7 +277,7 @@ class P2P {
 						emitSelf: false
 					}),
 					dht: kadDHT({
-						protocol: '/rats/kad/1.0.0',
+						// protocol: '/rats/kad/1.0.0',
 						clientMode: false, // Run as a full DHT node
 					}),
 					// aminoDHT: kadDHT({
