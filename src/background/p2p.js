@@ -1553,7 +1553,9 @@ class P2P {
 	 * @private
 	 */
 	async _disconnectPeer(peerId) {
-		logT('p2p', 'Disconnecting peer', peerId);
+		if (this.debug) {
+			logT('p2p', 'Disconnecting peer', peerId);
+		}
 		try {
 			await this.node.hangUp(peerId);
 		} catch (err) {
@@ -1662,13 +1664,17 @@ class P2P {
 		const protocolPeers = this.protocolPeersList();
 		const nonProtocolPeers = this.nonProtocolPeersList();
 		
-		logT('p2p', `Peer pool: ${protocolPeers.length} protocol peers, ${nonProtocolPeers.length} non-protocol peers`);
+		if (this.debug) {
+			logT('p2p', `Peer pool: ${protocolPeers.length} protocol peers, ${nonProtocolPeers.length} non-protocol peers`);
+		}
 		
 		const roomSizeForNonProtocolPeers = Math.max(0, this.maxSize - protocolPeers.length);
 		const nonProtocolPeersToDisconnect = nonProtocolPeers.length - roomSizeForNonProtocolPeers;
 		if (nonProtocolPeersToDisconnect > 0) {
 			const peersToDisconnect = nonProtocolPeers.slice(0, nonProtocolPeersToDisconnect);
-			logT('p2p', `Disconnecting ${peersToDisconnect.length} non-protocol peers to maintain peer pool health`);
+			if (this.debug) {
+				logT('p2p', `Disconnecting ${peersToDisconnect.length} non-protocol peers to maintain peer pool health`);
+			}
 			for (const peer of peersToDisconnect) {
 				await this._disconnectPeer(peer.id);
 			}
