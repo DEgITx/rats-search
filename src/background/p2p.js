@@ -277,7 +277,7 @@ class P2P {
 						emitSelf: false
 					}),
 					dht: kadDHT({
-						// protocol: '/rats/kad/1.0.0',
+						protocol: '/rats/kad/1.0.0',
 						clientMode: false, // Run as a full DHT node
 					}),
 					// aminoDHT: kadDHT({
@@ -336,8 +336,18 @@ class P2P {
 			logT('p2p', 'Connected to peer:', peerId, 'peers:', this.size + 1);
 
 			if (!this.peers.has(peerId)) {
-				const multiaddrs = this.node.getMultiaddrs(peerId).map(addr => addr.toString());
-				
+				// Get multiaddrs from the peer connection, not from our node
+				const multiaddrs = [];
+				try {
+					// In newer libp2p versions, we need to get addresses from the peer connection
+					const peerInfo = await this.node.peerStore.get(peer);
+					if (peerInfo?.addresses) {
+						multiaddrs.push(...peerInfo.addresses.map(addr => addr.multiaddr.toString()));
+					}
+				} catch (err) {
+					logTW('p2p', 'Error getting peer multiaddrs:', err);
+				}
+
 				const peerObject = {
 					id: peerId,
 					peer: peer,
@@ -849,23 +859,53 @@ class P2P {
 			return;
 		}
 		
-		let address = null;
-		// Build multiaddress using just id
-		if (peer.address && peer.port && peer.id) {
-			address = this.multiaddr(`/ip4/${peer.address}/tcp/${peer.port}/p2p/${peer.id}`);
-		} else if (peer.id) {
-			address = peer.id;
-		} else {
-			logTE('p2p', 'Invalid peer', peer);
+		let dialTarget = null;
+		
+		// Handle different peer object formats
+		if (peer._peerId || peer.id) {
+			// Case 1: It's a libp2p peer object with _peerId
+			if (peer._peerId) {
+				dialTarget = peer;
+			} 
+			// Case 2: It's our own object format with id and possibly addresses
+			else if (peer.id) {
+				try {
+					// If peer.id is a string PeerId, use it directly
+					dialTarget = peer.id;
+					
+					// If we have addresses, create multiaddrs for dialing
+					if (peer.addresses && Array.isArray(peer.addresses) && peer.addresses.length > 0) {
+						// For peer objects with addresses array, create multiaddrs
+						const addresses = peer.addresses.map(addr => {
+							// If address is already a multiaddr, use it directly
+							if (typeof addr === 'object' && addr.bytes) return addr;
+							// Otherwise create a new multiaddr from string
+							return this.multiaddr(addr);
+						});
+						
+						// If there are addresses, use array of multiaddrs
+						if (addresses.length > 0) {
+							dialTarget = addresses;
+						}
+					}
+				} catch (err) {
+					logTE('p2p', 'Error creating multiaddr for peer', peer.id, err.message);
+				}
+			}
+		}
+
+		// If we couldn't create a valid dialTarget, log and return
+		if (!dialTarget) {
+			logTE('p2p', 'Could not create a valid dial target from peer', peer);
 			return;
 		}
 
-		logT('p2p', 'Attempt connection to', address);
+		logT('p2p', 'Attempt connection to', dialTarget);
 
 		try {
-			await this.node.dial(address);
+			await this.node.dial(dialTarget);
 		} catch (err) {
-			logTE('p2p', 'Failed to connect to discovered peer', address, err.message, peer);
+			logTE('p2p', 'Failed to connect to discovered peer', dialTarget, err.message, peer);
 		}
 	}
 
@@ -1447,27 +1487,10 @@ class P2P {
 		
 		return peers
 			.filter(peer => peer.id)
-			.map(peer => {
-				// Start with the basic peer object containing the ID
-				const result = {
-					id: peer.id
-				};
-				
-				// Only add address and port if addresses are available
-				if (peer.addresses && peer.addresses.length > 0) {
-					// Extract IP and port from multiaddr string
-					const addr = peer.addresses[0];
-					const ipMatch = addr.match(/\/ip4\/([^/]+)/);
-					const tcpMatch = addr.match(/\/tcp\/(\d+)/);
-					
-					if (ipMatch && tcpMatch) {
-						result.address = ipMatch[1];
-						result.port = parseInt(tcpMatch[1], 10);
-					}
-				}
-				
-				return result;
-			});
+			.map(peer => ({
+				id: peer.id,
+				addresses: peer.addresses
+			}));
 	}
 
 	/**
