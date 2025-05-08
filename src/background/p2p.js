@@ -461,8 +461,14 @@ class P2P {
 			
 			// Read the message from the stream
 			const chunks = [];
-			for await (const chunk of stream.source) {
-				chunks.push(chunk.subarray());
+			try {
+				for await (const chunk of stream.source) {
+					chunks.push(chunk.subarray());
+				}
+			} catch (err) {
+				logTE('p2p', `Error reading from stream from peer ${peerId}:`, err);
+				await stream.abort(err);
+				return;
 			}
 			
 			// Parse the message
@@ -761,13 +767,24 @@ class P2P {
 			logT('p2p', 'Cleared all DHT timers');
 		}
 		
-		// Stop libp2p node
-		if (this.node) {
-			logT('p2p', 'Stopping libp2p node');
-			await this.node.stop();
-			logT('p2p', 'libp2p node stopped');
+		// Close any open file transfers
+		for (const path in this.filesRequests) {
+			logT('p2p', `Cancelling file transfer for ${path}`);
+			delete this.filesRequests[path];
 		}
 		
+		// Stop libp2p node
+		if (this.node) {
+			try {
+				logT('p2p', 'Stopping libp2p node');
+				await this.node.stop();
+				logT('p2p', 'libp2p node stopped');
+			} catch (err) {
+				logTE('p2p', 'Error stopping libp2p node:', err);
+			}
+		}
+		
+		// Clear all maps and collections
 		this.peers.clear();
 		this.peersProtocol.clear();
 		this.peersNonProtocol.clear();
@@ -776,6 +793,7 @@ class P2P {
 		this.peersNonProtocolSize = 0;
 
 		this.responseHandlers.clear();
+		this.topicHandlers.clear();
 
 		return true;
 	}
