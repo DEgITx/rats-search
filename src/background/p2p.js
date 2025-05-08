@@ -840,6 +840,18 @@ class P2P {
 	}
 
 	/**
+	 * Check if a peer is a valid libp2p peer object
+	 * @param {Object} peer - Peer to check
+	 * @returns {boolean} Whether peer is a valid libp2p peer object
+	 */
+	isPeerId(peer) {
+		return peer !== null 
+		&& typeof peer === 'object' 
+		&& typeof peer.toString === 'function' 
+		&& typeof peer.toCID === 'function';
+	}
+
+	/**
 	 * Attempt connection to a discovered peer
 	 * @param {Object} peer - Peer to connect to
 	 * @param {Object} options - Options
@@ -852,6 +864,11 @@ class P2P {
 			return;
 		}
 
+		if (!peer) {
+			logTE('p2p', 'No peer provided for connection attempt');
+			return;
+		}
+
 		const isProtocolPeer = peer.protocol || options.protocol;
 
 		if (!await this._managePeerPool({ protocol: isProtocolPeer })) {
@@ -861,36 +878,33 @@ class P2P {
 		
 		let dialTarget = null;
 		
-		// Handle different peer object formats
-		if (peer._peerId || peer.id) {
-			// Case 1: It's a libp2p peer object with _peerId
-			if (peer._peerId) {
-				dialTarget = peer;
-			} 
-			// Case 2: It's our own object format with id and possibly addresses
-			else if (peer.id) {
-				try {
-					// If peer.id is a string PeerId, use it directly
-					dialTarget = peer.id;
+		// Case 1: It's a libp2p peer object with _peerId
+		if (this.isPeerId(peer)) {
+			dialTarget = peer;
+		} 
+		// Case 2: It's our own object format with id and possibly addresses
+		else if (peer.id) {
+			try {
+				// If peer.id is a string PeerId, use it directly
+				dialTarget = peer.id;
+				
+				// If we have addresses, create multiaddrs for dialing
+				if (peer.addresses && Array.isArray(peer.addresses) && peer.addresses.length > 0) {
+					// For peer objects with addresses array, create multiaddrs
+					const addresses = peer.addresses.map(addr => {
+						// If address is already a multiaddr, use it directly
+						if (typeof addr === 'object') return addr;
+						// Otherwise create a new multiaddr from string
+						return this.multiaddr(addr);
+					});
 					
-					// If we have addresses, create multiaddrs for dialing
-					if (peer.addresses && Array.isArray(peer.addresses) && peer.addresses.length > 0) {
-						// For peer objects with addresses array, create multiaddrs
-						const addresses = peer.addresses.map(addr => {
-							// If address is already a multiaddr, use it directly
-							if (typeof addr === 'object' && addr.bytes) return addr;
-							// Otherwise create a new multiaddr from string
-							return this.multiaddr(addr);
-						});
-						
-						// If there are addresses, use array of multiaddrs
-						if (addresses.length > 0) {
-							dialTarget = addresses;
-						}
+					// If there are addresses, use array of multiaddrs
+					if (addresses.length > 0) {
+						dialTarget = addresses;
 					}
-				} catch (err) {
-					logTE('p2p', 'Error creating multiaddr for peer', peer.id, err.message);
 				}
+			} catch (err) {
+				logTE('p2p', 'Error creating multiaddr for peer', peer.id, err.message);
 			}
 		}
 
