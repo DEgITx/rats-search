@@ -22,6 +22,8 @@ class P2P {
 		this.protocolVersion = '2.0.0';
 		this.protocolName = 'rats';
 
+		this.debug = false;
+
 		this.peers = new Map();
 		this.size = 0;
 		this.maxSize = config.p2pConnections;
@@ -333,7 +335,9 @@ class P2P {
 		const peerId = peer.toString();
 		
 		try {
-			logT('p2p', 'Connected to peer:', peerId, 'peers:', this.size + 1);
+			if (this.debug) {
+				logT('p2p', 'Connected to peer:', peerId, 'peers:', this.size + 1);
+			}
 
 			if (!this.peers.has(peerId)) {
 				// Get multiaddrs from the peer connection, not from our node
@@ -345,7 +349,9 @@ class P2P {
 						multiaddrs.push(...peerInfo.addresses.map(addr => addr.multiaddr.toString()));
 					}
 				} catch (err) {
-					logTW('p2p', 'Error getting peer multiaddrs:', err);
+					if (this.debug) {
+						logTW('p2p', 'Error getting peer multiaddrs:', err);
+					}
 				}
 
 				const peerObject = {
@@ -363,7 +369,7 @@ class P2P {
 					this.peersNonProtocolSize++;
 					return;
 				} else {
-					logT('p2p', 'Protocol peer, use for protocol');
+					logT('p2p', 'Connected to protocol peer:', peerId, 'peers:', this.size + 1);
 				}
 				
 				// Update status
@@ -396,7 +402,9 @@ class P2P {
 	_onDisconnect(peer) {
 		const peerId = peer.toString();
 
-		logT('p2p', 'Disconnected from peer:', peerId, 'peers:', this.size - 1);
+		if (this.debug) {
+			logT('p2p', 'Disconnected from peer:', peerId, 'peers:', this.size - 1);
+		}
 
 		if (this.peers.has(peerId)) {
 			this.peers.delete(peerId);
@@ -422,7 +430,9 @@ class P2P {
 		// Peer discovery event
 		this.node.addEventListener('peer:discovery', (evt) => {
 			const peer = evt.detail;
-			logT('p2p', 'Discovered peer:', peer.id.toString());
+			if (this.debug) {
+				logT('p2p', 'Discovered peer:', peer.id.toString());
+			}
 			this._attemptConnection(peer);
 		});
 
@@ -914,12 +924,16 @@ class P2P {
 			return;
 		}
 
-		logT('p2p', 'Attempt connection to', dialTarget);
+		if (this.debug) {
+			logT('p2p', 'Attempt connection to', dialTarget);
+		}
 
 		try {
 			await this.node.dial(dialTarget);
 		} catch (err) {
-			logTE('p2p', 'Failed to connect to discovered peer', dialTarget, err.message, peer);
+			if (this.debug) {
+				logTE('p2p', 'Failed to connect to discovered peer', dialTarget, err.message, peer);
+			}
 		}
 	}
 
