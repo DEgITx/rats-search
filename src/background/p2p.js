@@ -869,7 +869,7 @@ class P2P {
 			return;
 		}
 
-		const isProtocolPeer = peer.protocol || options.protocol;
+		const isProtocolPeer = peer.protocol || options.protocol || peer[this.protocolName];
 
 		if (!await this._managePeerPool({ protocol: isProtocolPeer })) {
 			logTW('p2p', 'Not connecting to peer', peer, 'because of peer pool management');
@@ -1503,7 +1503,8 @@ class P2P {
 			.filter(peer => peer.id)
 			.map(peer => ({
 				id: peer.id,
-				addresses: peer.addresses
+				addresses: peer.addresses,
+				[this.protocolName]: peer[this.protocolName],
 			}));
 	}
 
