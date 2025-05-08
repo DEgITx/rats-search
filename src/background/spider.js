@@ -458,7 +458,7 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
 			const nameRX = config.filters.namingRegExp && config.filters.namingRegExp.trim()
 			if(nameRX && nameRX.length > 0)
 			{
-				const rx = new RegExp(nameRX)
+				const rx = new RegExp(nameRX, 'i')
 				if(!config.filters.namingRegExpNegative && !rx.test(torrent.name))
 				{
 					logT('check', 'ignore', torrent.name, 'by naming rx')
