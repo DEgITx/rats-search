@@ -31,7 +31,7 @@ module.exports = class Rutor
 			if(this.p2p && !noCheck && !(await exist(fileName)))
 			{
 				logT('rutor', 'download hash database', file)
-				await this.p2p.file('rutor')
+				//await this.p2p.file('rutor')
 				logT('rutor', 'downloaded hash database', file)
 			}
 

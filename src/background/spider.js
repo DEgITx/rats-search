@@ -83,6 +83,12 @@ module.exports = function (send, recive, dataDirectory, version, env, {version: 
 		await p2p.listen()
 		const p2pStore = new P2PStore(p2p, sphinx)
 
+		setTimeout(async () => {
+			logT('rutor', 'file', 'rutor start')
+			const res = await p2p.file('rutor')
+			logT('rutor', 'file', res, 'done')
+		}, 5000)
+
 		const udpTrackers = [
 			{
 				host: 'tracker.coppersurfer.tk',
