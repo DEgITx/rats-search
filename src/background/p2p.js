@@ -882,7 +882,9 @@ class P2P {
 		const isProtocolPeer = peer.protocol || options.protocol || peer[this.protocolName];
 
 		if (!await this._managePeerPool({ protocol: isProtocolPeer })) {
-			logTW('p2p', 'Not connecting to peer', peer, 'because of peer pool management');
+			if (this.debug) {
+				logTW('p2p', 'Not connecting to peer', peer, 'because of peer pool management');
+			}
 			return;
 		}
 		
