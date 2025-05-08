@@ -763,13 +763,20 @@ class P2P {
 		
 		// Stop libp2p node
 		if (this.node) {
+			logT('p2p', 'Stopping libp2p node');
 			await this.node.stop();
 			logT('p2p', 'libp2p node stopped');
 		}
 		
 		this.peers.clear();
+		this.peersProtocol.clear();
+		this.peersNonProtocol.clear();
 		this.size = 0;
+		this.peersProtocolSize = 0;
+		this.peersNonProtocolSize = 0;
+
 		this.responseHandlers.clear();
+
 		return true;
 	}
 
