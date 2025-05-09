@@ -1357,7 +1357,55 @@ class P2P {
 		logT('transfer', 'New transfer request', normalizedPath);
 
 		// Create a promise to track the transfer
-		const promise = this._performFileTransfer(normalizedPath, targetPath, remotePeer, parent);
+		let promise;
+		
+		if (!remotePeer) {
+			// If no peer specified, try all protocol peers
+			promise = new Promise(async (resolve) => {
+				// Get all protocol peers
+				const protocolPeers = this.protocolPeersList();
+				
+				if (protocolPeers.length === 0) {
+					logTE('transfer', 'No protocol peers available for file transfer');
+					resolve(false);
+					return;
+				}
+				
+				// Shuffle peers to distribute load and avoid always using the same peer
+				const shuffledPeers = shuffle(protocolPeers);
+				logT('transfer', `Trying to download ${normalizedPath} from ${shuffledPeers.length} protocol peers`);
+				
+				// Try each peer until one succeeds
+				for (const peer of shuffledPeers) {
+					try {
+						const peerId = peer.id;
+						logT('transfer', `Attempting file transfer from peer ${peerId}`);
+						
+						// Attempt transfer with this peer
+						const result = await this._performFileTransfer(normalizedPath, targetPath, peerId, parent);
+						
+						// If successful, return the result
+						if (result) {
+							logT('transfer', `Successfully downloaded ${normalizedPath} from peer ${peerId}`);
+							resolve(result);
+							return;
+						}
+						
+						logT('transfer', `Failed to download ${normalizedPath} from peer ${peerId}, trying next peer`);
+					} catch (err) {
+						logTE('transfer', `Error downloading ${normalizedPath} from peer ${peer.id}:`, err);
+						// Continue with next peer
+					}
+				}
+				
+				// If we get here, all peers failed
+				logTE('transfer', `Failed to download ${normalizedPath} from any peer`);
+				resolve(false);
+			});
+		} else {
+			// Use specified peer
+			promise = this._performFileTransfer(normalizedPath, targetPath, remotePeer, parent);
+		}
 		
 		// Track the current request
 		this.filesRequests[normalizedPath] = promise;
