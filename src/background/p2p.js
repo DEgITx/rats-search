@@ -680,7 +680,7 @@ class P2P {
 	 */
 	async _readFirstChunk(source) {
 		for await (const chunk of source) {
-			return chunk;
+			return chunk.subarray();
 		}
 		return null;
 	}
