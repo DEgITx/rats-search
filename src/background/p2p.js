@@ -665,6 +665,8 @@ class P2P {
 					fileStream.destroy();
 				}
 			}
+		} finally {
+			await stream.close();
 		}
 	}
 	
@@ -777,7 +779,7 @@ class P2P {
 			});
 			
 			// Manual streaming implementation instead of using pipe
-			return new Promise((resolve, reject) => {
+			await new Promise((resolve, reject) => {
 				fileStream.on('data', async (chunk) => {
 					try {
 						// Pause reading from file until chunk is sent
