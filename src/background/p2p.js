@@ -571,8 +571,6 @@ class P2P {
 	 * @private
 	 */
 	async _handleFileStream({ stream, connection }) {
-		let fileStream = null;
-		
 		try {
 			const peerId = connection.remotePeer.toString();
 			logT('p2p', 'New file stream from peer', peerId);
@@ -659,11 +657,6 @@ class P2P {
 				await stream.abort(err);
 			} catch (closeErr) {
 				logTE('p2p', 'Error closing stream after error:', closeErr);
-			} finally {
-				// Ensure file stream is closed if there was an error
-				if (fileStream) {
-					fileStream.destroy();
-				}
 			}
 		} finally {
 			await stream.close();
@@ -714,7 +707,6 @@ class P2P {
 			files,
 			path
 		}))]);
-		await stream.close();
 	}
 	
 	/**
@@ -1558,7 +1550,7 @@ class P2P {
 				clearTimeout(transferTimeout);
 			}
 			if (stream) {
-				stream.destroy();
+				stream.close();
 			}
 		}
 	}
