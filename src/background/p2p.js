@@ -1543,7 +1543,6 @@ class P2P {
 					filePath,
 					tmpPath,
 					stream,
-					firstChunk,
 					metadata,
 					parent
 				);
@@ -1634,13 +1633,12 @@ class P2P {
 	 * @param {string} filePath - Final file path
 	 * @param {string} tmpPath - Temporary file path
 	 * @param {Object} stream - Stream connection to peer
-	 * @param {Buffer} firstChunk - First chunk from stream (metadata)
 	 * @param {Object} metadata - Parsed metadata
 	 * @param {boolean} parent - Whether this is a parent directory transfer
 	 * @returns {Promise<boolean|Function>} Success or rename callback
 	 * @private
 	 */
-	async _handleFileDownload(normalizedPath, filePath, tmpPath, stream, firstChunk, metadata, parent) {
+	async _handleFileDownload(normalizedPath, filePath, tmpPath, stream, metadata, parent) {
 		let fileStream = null;
 		
 		try {
@@ -1657,19 +1655,8 @@ class P2P {
 			// Log start of transfer
 			if (metadata.type === 'file') {
 				logT('transfer', `Starting file transfer (${expectedSize} bytes) for ${normalizedPath}`);
-			} else if (!metadata.type && metadata.error === undefined) {
-				// Raw file data in first chunk
-				const dataChunk = firstChunk;
-				bytesReceived += dataChunk.length;
-				dataReceived = true;
-				
-				// Write first chunk to file
-				const success = fileStream.write(dataChunk);
-				
-				// Handle backpressure
-				if (!success) {
-					await new Promise(resolve => fileStream.once('drain', resolve));
-				}
+			} else {
+				throw new Error('No metadata received for file');
 			}
 			
 			// Stream remaining data
