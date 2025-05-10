@@ -1443,6 +1443,7 @@ class P2P {
 			}
 
 			// Create temporary directory for downloading
+			logT('transfer', 'Creating temporary directory', ph.dirname(tmpPath), tmpPath);
 			await mkdirp(ph.dirname(tmpPath));
 			
 			// Connect to peer if specified, otherwise try to find peer with file
