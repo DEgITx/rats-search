@@ -211,8 +211,7 @@ class P2P {
 				{ webSockets }, 
 				{ multiaddr },
 				{ identify },
-				{ kadDHT, removePrivateAddressesMapper },
-				{ pipe }
+				{ kadDHT, removePrivateAddressesMapper }
 			] = await Promise.all([
 				import('libp2p'),
 				import('@libp2p/tcp'),
@@ -225,13 +224,12 @@ class P2P {
 				import('@libp2p/websockets'),
 				import('@multiformats/multiaddr'),
 				import('@libp2p/identify'),
-				import('@libp2p/kad-dht'),
-				import('it-pipe')
+				import('@libp2p/kad-dht')
 			]);
 			
 			// Store multiaddr and pipe for later use
 			this.multiaddr = multiaddr;
-			this.pipe = pipe;
+			// this.pipe = pipe;
 
 			// Create protocol string
 			this.protocol = `/${this.protocolName}/${this.protocolVersion}`;
@@ -778,9 +776,34 @@ class P2P {
 				}
 			});
 			
-			// Pipe the file stream to the connection with proper cleanup
-			await this.pipe(fileStream, stream.sink);
-			logT('p2p', 'Completed file stream transfer for', requestPath);
+			// Manual streaming implementation instead of using pipe
+			return new Promise((resolve, reject) => {
+				fileStream.on('data', async (chunk) => {
+					try {
+						// Pause reading from file until chunk is sent
+						fileStream.pause();
+						
+						// Send chunk to the sink
+						await stream.sink([chunk]);
+						
+						// Resume reading
+						fileStream.resume();
+					} catch (err) {
+						logTE('p2p', 'Error sending chunk:', err);
+						fileStream.destroy();
+						reject(err);
+					}
+				});
+				
+				fileStream.on('end', () => {
+					logT('p2p', 'Completed file stream transfer for', requestPath);
+					resolve();
+				});
+				
+				fileStream.on('error', (err) => {
+					reject(err);
+				});
+			});
 		} catch (err) {
 			logTE('p2p', 'Error streaming file:', err);
 			await stream.abort(err);
