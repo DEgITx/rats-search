@@ -629,7 +629,7 @@ class P2P {
 			
 			// Special handling for directory requests
 			const pathExists = fs.existsSync(filePath);
-			const isDirectoryRequest = fileInfo.isDirectory || (pathExists && fs.lstatSync(filePath).isDirectory());
+			const isDirectoryRequest = pathExists && fs.lstatSync(filePath).isDirectory();
 			
 			// Handle non-existent paths
 			if (!pathExists) {
@@ -651,12 +651,10 @@ class P2P {
 			// Handle directory request
 			if (isDirectoryRequest) {
 				await this._handleDirectoryRequest(stream, filePath, fileInfo.filename);
-				return;
+			} else {
+				// Regular file transfer
+				await this._handleFileRequest(stream, filePath, fileInfo.filename);
 			}
-			
-			// Regular file transfer
-			await this._handleFileRequest(stream, filePath, fileInfo.filename);
-			
 		} catch (err) {
 			logTE('p2p', 'Error in file stream handler:', err);
 			try {
@@ -1453,9 +1451,6 @@ class P2P {
 				return false;
 			}
 			
-			// Determine if this is likely a directory request
-			const isDirectoryRequest = normalizedPath.endsWith('/') || !ph.extname(normalizedPath);
-			
 			// Get peer object
 			const peerObj = this.peers.get(peerToUse)?.peer;
 			if (!peerObj) {
@@ -1478,7 +1473,6 @@ class P2P {
 			// Send the initial message with file info
 			const fileInfoMsg = {
 				filename: normalizedPath,
-				isDirectory: isDirectoryRequest
 			};
 			
 			// Convert to buffer and send
@@ -1495,7 +1489,7 @@ class P2P {
 			try {
 				metadata = JSON.parse(firstChunk.toString());
 			} catch (err) {
-				throw new Error('Invalid metadata response: ' + err.message);
+				throw new Error('Invalid metadata response: ' + err.message, firstChunk.toString());
 			}
 			
 			// Clear timeout since we got initial response
