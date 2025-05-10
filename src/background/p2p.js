@@ -678,7 +678,7 @@ class P2P {
 	 */
 	async _readFirstChunk(source) {
 		for await (const chunk of source) {
-			return chunk.subarray();
+			return Buffer.from(chunk.subarray());
 		}
 		return null;
 	}
