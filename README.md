@@ -1,6 +1,6 @@
-# Rats on The Boat - BitTorrent search engine
+# Rats on The Boat - BitTorrent Search Engine
 
-<p align="center"><a href="https://github.com/DEgiTx/rats-search"><img src="https://raw.githubusercontent.com/DEgITx/rats-search/master/resources/rat-logo.png"></a></p>
+<p align="center"><a href="https://github.com/DEgITx/rats-search"><img src="https://raw.githubusercontent.com/DEgITx/rats-search/master/resources/rat-logo.png"></a></p>
 
 [![CircleCI Build Status](https://circleci.com/gh/DEgITx/rats-search.png?style=shield)](https://circleci.com/gh/DEgITx/rats-search)
 [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/1eh0lug97fboscib?svg=true)](https://ci.appveyor.com/project/DEgITx/rats-search)
@@ -9,84 +9,84 @@
 [![Release](https://img.shields.io/github/release/DEgITx/rats-search.svg)](https://github.com/DEgITx/rats-search/releases)
 [![Documentation](https://img.shields.io/badge/docs-faq-brightgreen.svg)](https://github.com/DEgITx/rats-search/blob/master/docs/MANUAL.md)
 
-BitTorrent search program for desktop and web. Collect and navigate over base of torrents statistic, categories, and give easy access to it. Work over p2p network and support Windows, Linux, Mac OS platforms.
+A BitTorrent search program for desktop and web. It collects and allows navigation through torrent statistics, categories, and provides easy access to them. Works over a P2P network and supports Windows, Linux, and macOS platforms.
 
 ## Features
-* Works over p2p torrent network, doesn't require any trackers
-* Supports own p2p protocol for additional data transfer (like search between rats clients, descriptions/votes transfer, etc.)
+* Works over P2P torrent network, doesn't require any trackers
+* Supports its own P2P protocol for additional data transfer (search between Rats clients, descriptions/votes transfer, etc.)
 * Search over torrent collection
 * Torrent and files search
-* Search filters (size ranges, files, seeders etc...)
+* Search filters (size ranges, files, seeders, etc.)
 * Collection filters (regex filters, adult filters)
-* Trackers peers scan supported
+* Tracker peers scan support
 * Integrated torrent client
-* Collect only statistic information and don't save any torrents internal data
-* Supports torrents rating (voting)
-* P2P Search protocol. Search in other Rats clients.
+* Collects only statistical information and doesn't save any internal torrent data
+* Supports torrent rating (voting)
+* P2P Search protocol: Search in other Rats clients
 * Web version (web interface) for servers
-* Top list (mostly common and popular torrents)
+* Top list (most common and popular torrents)
 * Feed list (Rats clients activity feed)
 * Translations: English, Russian, Ukrainian, Chinese
 * Drag and drop torrents (expand local search database with specific torrents)
-* Descriptions association from trackers
-* Torrent generation and automatic adding to search DB
-* [WebSockets & REST API for server/search engine. You can made search request and create your own UI client.](docs/API.md)
+* Description association from trackers
+* Torrent generation and automatic adding to search database
+* [WebSockets & REST API for server/search engine. You can make search requests and create your own UI client.](docs/API.md)
 
 ## Architecture
 ![Basic Architecture](docs/img/ratsarch.png)
 
 ## Contributing
-We are welcome any contributing: bug fixes, improvements, code refactoring and other stuffs.
+We welcome all contributions: bug fixes, improvements, code refactoring, and other enhancements.
 
-[Translation guide](docs/TRANSLATION.md)
+[Translation Guide](docs/TRANSLATION.md)
 
-[Own strategy / Other tracker support](docs/TRACKERS.md)
+[Own Strategy / Other Tracker Support](docs/TRACKERS.md)
 
 ## Usage Manuals
 * [English](docs/USAGE.md)
 * [Russian](docs/USAGE.RU.md)
 
-## Download Desktop client
-By default we recomended using desktop version of application. [<b>Download and install most recent one</b>](https://github.com/DEgITx/rats-search/releases) for Windows, MacOS, Linux. 
+## Download Desktop Client
+We recommend using the desktop version of the application. [<b>Download and install the most recent version</b>](https://github.com/DEgITx/rats-search/releases) for Windows, macOS, or Linux.
 
-### Start desktop client from master branch
+### Start Desktop Client from Master Branch
 Clone repository with submodules:
 ```bash
 git clone --recurse-submodules https://github.com/DEgITx/rats-search.git
 ```
 
-Then make sure that you have Node.js and NPM (with Node.js) installed in your system, then install all needed packages:
+Make sure you have Node.js and NPM installed on your system, then install all required packages:
 
 ```bash
 npm install --force
 ```
-and start master develop branch version:
+Start the master development branch version:
 ```bash
 npm start
 ```
 
-## Server webUI version installation
-Beside default desktop cross-platform client, also exist separated webUI that can run from server independant as web-client + Node.JS server.
+## Server WebUI Version Installation
+Besides the default desktop cross-platform client, there's also a separate WebUI that can run from a server independently as a web-client + Node.js server.
 
-Clone repository, then make sure that you have Node.js and NPM (with Node.js) installed in your system, then:
+Clone the repository, make sure you have Node.js and NPM installed on your system, then:
 
 ```bash
 npm install --force
 ```
 
-Then compile web version:
+Compile the web version:
 
 ```bash
 npm run buildweb
 ```
 
-Finally start server application:
+Start the server application:
 
 ```bash
 npm run server
 ```
 
-Now you can get access to web interface on 8095 port: http://localhost:8095
+You can now access the web interface on port 8095: http://localhost:8095
 
 [More about configuration](docs/SERVER.md)
 
@@ -94,22 +94,22 @@ Now you can get access to web interface on 8095 port: http://localhost:8095
 
 [API usage implementation for clients](docs/API.md)
 
-## Docker image
+## Docker Image
 
-You can simply run docker image with prepared server version. Just download last sources:
+You can easily run a Docker image with the prepared server version. First, download the latest sources:
 
 ```bash
 git clone --recurse-submodules https://github.com/DEgITx/rats-search.git
 ```
 
-And build docker image & run:
+Build and run the Docker image:
 
 ```bash
 docker build -t rats-search:latest rats-search
 docker run -p 8095:8095 rats-search:latest
 ```
 
-Now you can check the and open http://localhost:8095/ in browser
+Now you can open http://localhost:8095/ in your browser
 
 ## Donation
 
@@ -125,4 +125,4 @@ Now you can check the and open http://localhost:8095/ in browser
 ![Main Window](docs/img/screen_1.png)
 
 ## License
-[MIT](https://github.com/DEgiTx/rats-search/blob/master/LICENSE)
+[MIT](https://github.com/DEgITx/rats-search/blob/master/LICENSE)
