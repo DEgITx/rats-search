@@ -189,16 +189,16 @@
         "Check torrent files intergrity": "检查种子文件的完整性",
         "Enable database torrents files intergrity check on adding each torrent. Disable this will free some cpu usage on adding operation.": "每个种子添加到数据库时都检查完整性，禁用这个可用减少一些CPU使用率。",
         "Download to": "下载到",
-        "Main settings": "Main settings",
-        "P2P settings": "P2P settings",
-        "Performance settings": "Performance settings",
-        "Start application minimized": "Start application minimized",
+        "Main settings": "主要设置",
+        "P2P settings": "P2P设置",
+        "Performance settings": "性能设置",
+        "Start application minimized": "启动应用程序时最小化",
         "Magnet": "磁鐵鍊接",
         "You can extend your collected search DB with your own .torrent files. Just drag and drop them into the Rats window (or folder with them). They will immediately appear on activity tab.": "您可以使用自己的.torrent文件擴展收集的搜索數據庫。 只需將它們拖放到Rats窗口（或帶有它們的文件夾）即可。 它們將立即顯示在活動選項卡上。",
         "File": "文件",
         "Folder": "文件夾",
         "Generate": "產生",
-        "Dark mode theme": "Dark mode theme",
-        "REST API support": "REST API support"
+        "Dark mode theme": "暗黑模式主題",
+        "REST API support": "REST API支持"
     }
 }
