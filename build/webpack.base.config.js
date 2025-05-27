@@ -42,7 +42,9 @@ module.exports = env => {
         /^utf-8-validate/,
         /^wherearewe/,
         /^eventemitter3/,
-        /^is-loopback-addr/
+        /^is-loopback-addr/,
+        /^is-plain-obj/,
+        /^@sindresorhus\/fnv1a/,
       ]
     })],
     resolve: {
