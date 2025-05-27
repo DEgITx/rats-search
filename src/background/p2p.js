@@ -2044,7 +2044,7 @@ class P2P {
 		} else {
 			// For non-protocol peers: accept if we're under the boosted limit
 			const boostedLimit = this.maxSize + (this.maxSize * initialBoost);
-			return this.size < boostedLimit ? stats : null;
+			return this.size < Math.min(boostedLimit, availableSpace) ? stats : null;
 		}
 	}
 
@@ -2073,17 +2073,17 @@ class P2P {
 	 */
 	async _manageNonProtocolPeers() {
 		// Calculate how many non-protocol peers to keep
-		const roomForNonProtocolPeers = Math.max(0, this.maxSize - this.peersProtocolSize);
-		const excessNonProtocolPeers = this.peersProtocolSize > 0 ? this.peersNonProtocolSize - roomForNonProtocolPeers : 0;
+		const roomForNonProtocolPeers = this.peersProtocolSize > 0 ? Math.max(0, this.maxSize - this.peersProtocolSize) : this.nodeMaxSize - this.maxSize;
+		const disconnectNonProtocolPeers = this.peersNonProtocolSize - roomForNonProtocolPeers;
 		
 		// If we have excess non-protocol peers, disconnect some
-		if (excessNonProtocolPeers > 0) {
+		if (disconnectNonProtocolPeers > 0) {
 			if (this.debug) {
-				logT('p2p', `Disconnecting ${excessNonProtocolPeers} non-protocol peers to maintain ratio`);
+				logT('p2p', `Disconnecting ${disconnectNonProtocolPeers} non-protocol peers to maintain ratio`);
 			}
 
 			const nonProtocolPeers = this.nonProtocolPeersList();
-			const peersToDisconnect = nonProtocolPeers.slice(0, excessNonProtocolPeers);
+			const peersToDisconnect = nonProtocolPeers.slice(0, disconnectNonProtocolPeers);
 			
 			for (const peer of peersToDisconnect) {
 				await this._disconnectPeer(peer.id);
