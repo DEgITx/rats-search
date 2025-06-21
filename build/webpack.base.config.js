@@ -45,6 +45,8 @@ module.exports = env => {
         /^is-loopback-addr/,
         /^is-plain-obj/,
         /^@sindresorhus\/fnv1a/,
+        /^abort-error/,
+        /^main-event/,
       ]
     })],
     resolve: {
