@@ -1459,6 +1459,11 @@ Do you want to install the update now?</source>
         <source>I Accept</source>
         <translation>Принимаю</translation>
     </message>
+    <message>
+        <location filename="src/ui/mainwindow.cpp" line="1181"/>
+        <source>Don't ask again</source>
+        <translation>Больше не спрашивать</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -2005,6 +2010,36 @@ Do you want to install the update now?</source>
         <source>Select Data Directory</source>
         <translation>Выберите каталог данных</translation>
     </message>
+    <message>
+        <location filename="src/ui/settingsdialog.cpp" line="192"/>
+        <source>Ask for confirmation before exiting</source>
+        <translation>Спрашивать подтверждение при выходе</translation>
+    </message>
+    <message>
+        <location filename="src/ui/settingsdialog.cpp" line="156"/>
+        <source>Default</source>
+        <translation>По умолчанию</translation>
+    </message>
+    <message>
+        <location filename="src/ui/settingsdialog.cpp" line="162"/>
+        <source>Font used throughout the interface</source>
+        <translation>Шрифт, используемый во всём интерфейсе</translation>
+    </message>
+    <message>
+        <location filename="src/ui/settingsdialog.cpp" line="163"/>
+        <source>Font:</source>
+        <translation>Шрифт:</translation>
+    </message>
+    <message>
+        <location filename="src/ui/settingsdialog.cpp" line="169"/>
+        <source>Size of the interface text relative to the default</source>
+        <translation>Размер текста интерфейса относительно стандартного</translation>
+    </message>
+    <message>
+        <location filename="src/ui/settingsdialog.cpp" line="170"/>
+        <source>Font size:</source>
+        <translation>Размер шрифта:</translation>
+    </message>
 </context>
 <context>
     <name>TopTorrentsWidget</name>
@@ -2491,5 +2526,260 @@ Do you want to install the update now?</source>
         <source>Updates not supported on this platform</source>
         <translation>Обновления не поддерживаются на этой платформе</translation>
     </message>
+</context>
+<context>
+	<name>WebUI</name>
+	<message>
+		<source>activity.waiting</source>
+		<translation>Ожидание новых торрентов...</translation>
+	</message>
+	<message>
+		<source>context.addToFav</source>
+		<translation>Добавить в избранное</translation>
+	</message>
+	<message>
+		<source>context.export</source>
+		<translation>Экспорт .torrent</translation>
+	</message>
+	<message>
+		<source>details.copy</source>
+		<translation>Копировать</translation>
+	</message>
+	<message>
+		<source>details.export</source>
+		<translation>Экспорт .torrent</translation>
+	</message>
+	<message>
+		<source>details.favorite</source>
+		<translation>Избранное</translation>
+	</message>
+	<message>
+		<source>details.favorited</source>
+		<translation>В избранном</translation>
+	</message>
+	<message>
+		<source>details.files</source>
+		<translation>Файлы</translation>
+	</message>
+	<message>
+		<source>downloads.noActive</source>
+		<translation>Нет активных загрузок</translation>
+	</message>
+	<message>
+		<source>favorites.empty</source>
+		<translation>Пока нет избранного. Нажмите звёздочку на торренте, чтобы добавить.</translation>
+	</message>
+	<message>
+		<source>footer.dhtNodes</source>
+		<translation>DHT узлов</translation>
+	</message>
+	<message>
+		<source>footer.files</source>
+		<translation>Файлов</translation>
+	</message>
+	<message>
+		<source>footer.peers</source>
+		<translation>Пиров</translation>
+	</message>
+	<message>
+		<source>footer.totalSize</source>
+		<translation>Общий размер</translation>
+	</message>
+	<message>
+		<source>footer.torrents</source>
+		<translation>Торрентов</translation>
+	</message>
+	<message>
+		<source>search.noResults</source>
+		<translation>Торренты не найдены для</translation>
+	</message>
+	<message>
+		<source>search.searching</source>
+		<translation>Поиск...</translation>
+	</message>
+	<message>
+		<source>settings.adultFilter</source>
+		<translation>Фильтр взрослого контента</translation>
+	</message>
+	<message>
+		<source>settings.autoCleanup</source>
+		<translation>Автоочистка старых торрентов</translation>
+	</message>
+	<message>
+		<source>settings.closeToTray</source>
+		<translation>Закрывать в трей</translation>
+	</message>
+	<message>
+		<source>settings.enableP2p</source>
+		<translation>Включить P2P</translation>
+	</message>
+	<message>
+		<source>settings.enableQuota</source>
+		<translation>Включить квоту диска</translation>
+	</message>
+	<message>
+		<source>settings.filters</source>
+		<translation>Фильтры</translation>
+	</message>
+	<message>
+		<source>settings.general</source>
+		<translation>Общие</translation>
+	</message>
+	<message>
+		<source>settings.indexer</source>
+		<translation>Индексатор</translation>
+	</message>
+	<message>
+		<source>settings.maxSize</source>
+		<translation>Макс размер (MB):</translation>
+	</message>
+	<message>
+		<source>settings.minSize</source>
+		<translation>Мин размер (MB):</translation>
+	</message>
+	<message>
+		<source>settings.network</source>
+		<translation>Сеть</translation>
+	</message>
+	<message>
+		<source>settings.nodesUsage</source>
+		<translation>Использование DHT узлов:</translation>
+	</message>
+	<message>
+		<source>settings.negativeRegex</source>
+		<translation>Негативный фильтр (отклонять совпадения)</translation>
+	</message>
+	<message>
+		<source>settings.packageLimit</source>
+		<translation>Лимит пакетов:</translation>
+	</message>
+	<message>
+		<source>settings.p2pReplication</source>
+		<translation>P2P репликация (клиент)</translation>
+	</message>
+	<message>
+		<source>settings.p2pReplicationServer</source>
+		<translation>P2P репликация (сервер)</translation>
+	</message>
+	<message>
+		<source>settings.regex</source>
+		<translation>Регулярка:</translation>
+	</message>
+	<message>
+		<source>settings.recheckFiles</source>
+		<translation>Перепроверять файлы при добавлении</translation>
+	</message>
+	<message>
+		<source>settings.saveBtn</source>
+		<translation>Сохранить настройки</translation>
+	</message>
+	<message>
+		<source>settings.sizeLimits</source>
+		<translation>Ограничения размера и файлов</translation>
+	</message>
+	<message>
+		<source>settings.spaceQuota</source>
+		<translation>Квота места</translation>
+	</message>
+	<message>
+		<source>settings.startup</source>
+		<translation>Запуск и система</translation>
+	</message>
+	<message>
+		<source>settings.storage</source>
+		<translation>Хранилище</translation>
+	</message>
+	<message>
+		<source>tabs.activity</source>
+		<translation>Активность</translation>
+	</message>
+	<message>
+		<source>tabs.favorites</source>
+		<translation>Избранное</translation>
+	</message>
+	<message>
+		<source>tabs.feed</source>
+		<translation>Лента</translation>
+	</message>
+	<message>
+		<source>tabs.top</source>
+		<translation>Топ</translation>
+	</message>
+	<message>
+		<source>toast.addedFav</source>
+		<translation>Добавлено в избранное</translation>
+	</message>
+	<message>
+		<source>toast.downloadStarted</source>
+		<translation>Загрузка началась</translation>
+	</message>
+	<message>
+		<source>toast.exported</source>
+		<translation>Торрент экспортирован</translation>
+	</message>
+	<message>
+		<source>toast.imported</source>
+		<translation>импортирован</translation>
+	</message>
+	<message>
+		<source>toast.settingsSaved</source>
+		<translation>Настройки сохранены</translation>
+	</message>
+	<message>
+		<source>toast.voteBad</source>
+		<translation>Голос против</translation>
+	</message>
+	<message>
+		<source>toast.voteGood</source>
+		<translation>Голос за</translation>
+	</message>
+	<message>
+		<source>Search for torrents...</source>
+		<translation>Поиск торрентов...</translation>
+	</message>
+	<message>
+		<source>Info Hash</source>
+		<translation>Инфо-хеш</translation>
+	</message>
+	<message>
+		<source>Copy Info Hash</source>
+		<translation>Копировать инфо-хеш</translation>
+	</message>
+	<message>
+		<source>Magnet link copied to clipboard</source>
+		<translation>Magnet-ссылка скопирована в буфер обмена</translation>
+	</message>
+	<message>
+		<source>Hash copied to clipboard</source>
+		<translation>Хеш скопирован в буфер обмена</translation>
+	</message>
+	<message>
+		<source>Walk interval:</source>
+		<translation>Интервал обхода:</translation>
+	</message>
+	<message>
+		<source>Start with system (autostart)</source>
+		<translation>Запускать вместе с системой (автозапуск)</translation>
+	</message>
+	<message>
+		<source>* Lower walk interval = faster indexing but higher CPU usage</source>
+		<translation>* Меньший интервал обхода = быстрее индексация, но выше нагрузка на CPU</translation>
+	</message>
+	<message>
+		<source>* 0 = Disabled (no limit)</source>
+		<translation>* 0 = выключено (без ограничения)</translation>
+	</message>
+	<message>
+		<source>Remove torrents that don't match the current filters</source>
+		<translation>Удалить торренты, не подходящие под текущие фильтры</translation>
+	</message>
+	<message>
+		<source>* Database and configuration storage. Changing requires restart.</source>
+		<translation>* Хранилище базы данных и настроек. Изменение требует перезапуска.</translation>
+	</message>
+	<message>
+		<source>Checking torrents against filters...</source>
+		<translation>Проверка торрентов по фильтрам...</translation>
+	</message>
 </context>
 </TS>

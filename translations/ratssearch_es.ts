@@ -1458,6 +1458,11 @@ La aplicación se cerrará y se reiniciará automáticamente.
         <source>I Accept</source>
         <translation>Acepto</translation>
     </message>
+    <message>
+        <location filename="src/ui/mainwindow.cpp" line="1181"/>
+        <source>Don't ask again</source>
+        <translation>No volver a preguntar</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -2004,6 +2009,36 @@ La aplicación se cerrará y se reiniciará automáticamente.
         <source>Select Data Directory</source>
         <translation>Seleccione el directorio de datos</translation>
     </message>
+    <message>
+        <location filename="src/ui/settingsdialog.cpp" line="192"/>
+        <source>Ask for confirmation before exiting</source>
+        <translation>Pedir confirmación al salir</translation>
+    </message>
+    <message>
+        <location filename="src/ui/settingsdialog.cpp" line="156"/>
+        <source>Default</source>
+        <translation>Predeterminado</translation>
+    </message>
+    <message>
+        <location filename="src/ui/settingsdialog.cpp" line="162"/>
+        <source>Font used throughout the interface</source>
+        <translation>Fuente utilizada en toda la interfaz</translation>
+    </message>
+    <message>
+        <location filename="src/ui/settingsdialog.cpp" line="163"/>
+        <source>Font:</source>
+        <translation>Fuente:</translation>
+    </message>
+    <message>
+        <location filename="src/ui/settingsdialog.cpp" line="169"/>
+        <source>Size of the interface text relative to the default</source>
+        <translation>Tamaño del texto de la interfaz respecto al predeterminado</translation>
+    </message>
+    <message>
+        <location filename="src/ui/settingsdialog.cpp" line="170"/>
+        <source>Font size:</source>
+        <translation>Tamaño de fuente:</translation>
+    </message>
 </context>
 <context>
     <name>TopTorrentsWidget</name>
@@ -2491,4 +2526,259 @@ La aplicación se cerrará y se reiniciará automáticamente.
         <translation>Las actualizaciones no son compatibles con esta plataforma</translation>
     </message>
 </context>
+	<context>
+		<name>WebUI</name>
+		<message>
+			<source>activity.waiting</source>
+			<translation type="unfinished">Waiting for new torrents...</translation>
+		</message>
+		<message>
+			<source>context.addToFav</source>
+			<translation>Añadir a favoritos</translation>
+		</message>
+		<message>
+			<source>context.export</source>
+			<translation>Exportar .torrent</translation>
+		</message>
+		<message>
+			<source>details.copy</source>
+			<translation>Copiar</translation>
+		</message>
+		<message>
+			<source>details.export</source>
+			<translation type="unfinished">Export .torrent</translation>
+		</message>
+		<message>
+			<source>details.favorite</source>
+			<translation>Favorito</translation>
+		</message>
+		<message>
+			<source>details.favorited</source>
+			<translation type="unfinished">Favorited</translation>
+		</message>
+		<message>
+			<source>details.files</source>
+			<translation type="unfinished">Files</translation>
+		</message>
+		<message>
+			<source>downloads.noActive</source>
+			<translation type="unfinished">No active downloads</translation>
+		</message>
+		<message>
+			<source>favorites.empty</source>
+			<translation type="unfinished">No favorites yet. Click the star icon on a torrent to add it.</translation>
+		</message>
+		<message>
+			<source>footer.dhtNodes</source>
+			<translation type="unfinished">DHT Nodes</translation>
+		</message>
+		<message>
+			<source>footer.files</source>
+			<translation type="unfinished">Files</translation>
+		</message>
+		<message>
+			<source>footer.peers</source>
+			<translation type="unfinished">Peers</translation>
+		</message>
+		<message>
+			<source>footer.totalSize</source>
+			<translation type="unfinished">Total Size</translation>
+		</message>
+		<message>
+			<source>footer.torrents</source>
+			<translation type="unfinished">Torrents</translation>
+		</message>
+		<message>
+			<source>search.noResults</source>
+			<translation>No se encontraron torrents para</translation>
+		</message>
+		<message>
+			<source>search.searching</source>
+			<translation>Buscando...</translation>
+		</message>
+		<message>
+			<source>settings.adultFilter</source>
+			<translation type="unfinished">Adult content filter</translation>
+		</message>
+		<message>
+			<source>settings.autoCleanup</source>
+			<translation type="unfinished">Auto cleanup old torrents</translation>
+		</message>
+		<message>
+			<source>settings.closeToTray</source>
+			<translation type="unfinished">Close to tray</translation>
+		</message>
+		<message>
+			<source>settings.enableP2p</source>
+			<translation type="unfinished">Enable P2P</translation>
+		</message>
+		<message>
+			<source>settings.enableQuota</source>
+			<translation type="unfinished">Enable disk space quota</translation>
+		</message>
+		<message>
+			<source>settings.filters</source>
+			<translation>Filtros</translation>
+		</message>
+		<message>
+			<source>settings.general</source>
+			<translation>General</translation>
+		</message>
+		<message>
+			<source>settings.indexer</source>
+			<translation>Indexador</translation>
+		</message>
+		<message>
+			<source>settings.maxSize</source>
+			<translation type="unfinished">Max size (MB):</translation>
+		</message>
+		<message>
+			<source>settings.minSize</source>
+			<translation type="unfinished">Min size (MB):</translation>
+		</message>
+		<message>
+			<source>settings.network</source>
+			<translation>Red</translation>
+		</message>
+		<message>
+			<source>settings.nodesUsage</source>
+			<translation type="unfinished">DHT nodes usage:</translation>
+		</message>
+		<message>
+			<source>settings.negativeRegex</source>
+			<translation type="unfinished">Negative regex (reject matches)</translation>
+		</message>
+		<message>
+			<source>settings.packageLimit</source>
+			<translation type="unfinished">Package limit:</translation>
+		</message>
+		<message>
+			<source>settings.p2pReplication</source>
+			<translation type="unfinished">P2P replication (client)</translation>
+		</message>
+		<message>
+			<source>settings.p2pReplicationServer</source>
+			<translation type="unfinished">P2P replication server</translation>
+		</message>
+		<message>
+			<source>settings.regex</source>
+			<translation type="unfinished">Regex:</translation>
+		</message>
+		<message>
+			<source>settings.recheckFiles</source>
+			<translation type="unfinished">Recheck files on adding</translation>
+		</message>
+		<message>
+			<source>settings.saveBtn</source>
+			<translation>Guardar configuración</translation>
+		</message>
+		<message>
+			<source>settings.sizeLimits</source>
+			<translation type="unfinished">Size &amp; File Limits</translation>
+		</message>
+		<message>
+			<source>settings.spaceQuota</source>
+			<translation type="unfinished">Space Quota</translation>
+		</message>
+		<message>
+			<source>settings.startup</source>
+			<translation type="unfinished">Startup &amp; System</translation>
+		</message>
+		<message>
+			<source>settings.storage</source>
+			<translation>Almacenamiento</translation>
+		</message>
+		<message>
+			<source>tabs.activity</source>
+			<translation>Actividad</translation>
+		</message>
+		<message>
+			<source>tabs.favorites</source>
+			<translation>Favoritos</translation>
+		</message>
+		<message>
+			<source>tabs.feed</source>
+			<translation>Feed</translation>
+		</message>
+		<message>
+			<source>tabs.top</source>
+			<translation>Top</translation>
+		</message>
+		<message>
+			<source>toast.addedFav</source>
+			<translation type="unfinished">Added to favorites</translation>
+		</message>
+		<message>
+			<source>toast.downloadStarted</source>
+			<translation type="unfinished">Download started</translation>
+		</message>
+		<message>
+			<source>toast.exported</source>
+			<translation type="unfinished">Torrent exported</translation>
+		</message>
+		<message>
+			<source>toast.imported</source>
+			<translation type="unfinished">imported</translation>
+		</message>
+		<message>
+			<source>toast.settingsSaved</source>
+			<translation type="unfinished">Settings saved</translation>
+		</message>
+		<message>
+			<source>toast.voteBad</source>
+			<translation type="unfinished">Voted bad</translation>
+		</message>
+		<message>
+			<source>toast.voteGood</source>
+			<translation type="unfinished">Voted good</translation>
+		</message>
+		<message>
+			<source>Search for torrents...</source>
+			<translation>Buscar torrents...</translation>
+		</message>
+		<message>
+			<source>Info Hash</source>
+			<translation>Info hash</translation>
+		</message>
+		<message>
+			<source>Copy Info Hash</source>
+			<translation>Copiar el info hash</translation>
+		</message>
+		<message>
+			<source>Magnet link copied to clipboard</source>
+			<translation>Enlace magnet copiado al portapapeles</translation>
+		</message>
+		<message>
+			<source>Hash copied to clipboard</source>
+			<translation>Hash copiado al portapapeles</translation>
+		</message>
+		<message>
+			<source>Walk interval:</source>
+			<translation>Intervalo de recorrido:</translation>
+		</message>
+		<message>
+			<source>Start with system (autostart)</source>
+			<translation>Iniciar con el sistema (arranque automático)</translation>
+		</message>
+		<message>
+			<source>* Lower walk interval = faster indexing but higher CPU usage</source>
+			<translation>* Un intervalo menor indexa más rápido, pero usa más CPU</translation>
+		</message>
+		<message>
+			<source>* 0 = Disabled (no limit)</source>
+			<translation>* 0 = desactivado (sin límite)</translation>
+		</message>
+		<message>
+			<source>Remove torrents that don't match the current filters</source>
+			<translation>Quitar los torrents que no coinciden con los filtros actuales</translation>
+		</message>
+		<message>
+			<source>* Database and configuration storage. Changing requires restart.</source>
+			<translation>* Almacenamiento de la base de datos y la configuración. Cambiarlo requiere reiniciar.</translation>
+		</message>
+		<message>
+			<source>Checking torrents against filters...</source>
+			<translation>Comprobando los torrents con los filtros...</translation>
+		</message>
+	</context>
 </TS>

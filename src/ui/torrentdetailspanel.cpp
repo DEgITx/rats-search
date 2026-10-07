@@ -850,6 +850,16 @@ void TorrentDetailsPanel::onTorrentUpdated(const QString& hash)
     // Refresh swarm counts.
     updateTrackerStats(updated->seeders, updated->leechers, updated->completed);
 
+    // Refresh size and file count (may be populated after initial index).
+    if (updated->size > 0 && currentTorrent_.size != updated->size) {
+        currentTorrent_.size = updated->size;
+        sizeLabel_->setText(rats::ui::formatSize(updated->size));
+    }
+    if (updated->files > 0 && currentTorrent_.files != updated->files) {
+        currentTorrent_.files = updated->files;
+        filesLabel_->setText(tr("%n file(s)", nullptr, updated->files));
+    }
+
     // Refresh scraped tracker info (poster/description/links). A counts-only
     // update leaves the loading indicator alone: the website scrape may still be
     // running, and onTrackerInfoChecked() is what ends the wait.
